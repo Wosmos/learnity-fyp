@@ -74,3 +74,5 @@ lerna-debug.log*
 secrets.json
 config/secrets.yml
 config/database.yml
+.next/
+next/
