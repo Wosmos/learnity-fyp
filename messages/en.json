@@ -1,0 +1,90 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Success!",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "selectRole": "Select Your Role",
+    "student": "Student",
+    "teacher": "Teacher",
+    "admin": "Admin",
+    "studentDesc": "Learn with gamified lessons and connect with tutors",
+    "teacherDesc": "Share knowledge and earn by teaching students",
+    "adminDesc": "Manage platform and oversee operations",
+    "continueWithGoogle": "Continue with Google",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "forgotPassword": "Forgot password?"
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "totalXP": "Total XP",
+    "currentLevel": "Level",
+    "currentStreak": "Day Streak",
+    "longestStreak": "Best Streak",
+    "bookTutor": "Book a Tutor",
+    "joinStudyGroup": "Join Study Group",
+    "watchContent": "Watch Content",
+    "setPricing": "Set Pricing",
+    "uploadVideos": "Upload Videos",
+    "conductSessions": "Conduct Sessions",
+    "reviewApplications": "Review Applications",
+    "manageUsers": "Manage Users",
+    "viewAnalytics": "View Analytics"
+  },
+  "gamification": {
+    "xpEarned": "XP Earned!",
+    "levelUp": "Level Up!",
+    "streakMaintained": "Streak Maintained!",
+    "badgeEarned": "Badge Earned!",
+    "dailyChallenge": "Daily Challenge",
+    "leaderboard": "Leaderboard",
+    "achievements": "Achievements",
+    "progress": "Progress"
+  },
+  "teacher": {
+    "application": "Teacher Application",
+    "qualifications": "Qualifications",
+    "experience": "Teaching Experience",
+    "subjects": "Subjects You Teach",
+    "uploadDocuments": "Upload Documents",
+    "applicationStatus": "Application Status",
+    "pending": "Pending Review",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "studyGroups": {
+    "createGroup": "Create Study Group",
+    "joinGroup": "Join Group",
+    "groupName": "Group Name",
+    "subject": "Subject",
+    "description": "Description",
+    "members": "Members",
+    "chat": "Chat",
+    "challenges": "Challenges"
+  },
+  "sessions": {
+    "bookSession": "Book Session",
+    "upcomingSessions": "Upcoming Sessions",
+    "sessionHistory": "Session History",
+    "duration": "Duration",
+    "price": "Price",
+    "rating": "Rating",
+    "feedback": "Feedback"
+  }
+}

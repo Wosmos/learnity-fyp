@@ -1,0 +1,90 @@
+{
+  "common": {
+    "loading": "لوڊ ٿي رهيو آهي...",
+    "error": "ڪجهه غلط ٿيو",
+    "success": "ڪاميابي!",
+    "cancel": "منسوخ",
+    "save": "محفوظ ڪريو",
+    "delete": "ڊليٽ ڪريو",
+    "edit": "تبديل ڪريو",
+    "back": "واپس",
+    "next": "اڳيون",
+    "previous": "پوئين",
+    "submit": "جمع ڪريو"
+  },
+  "auth": {
+    "signIn": "لاگ ان",
+    "signUp": "رجسٽر ڪريو",
+    "signOut": "لاگ آئوٽ",
+    "email": "اي ميل",
+    "password": "پاس ورڊ",
+    "name": "پورو نالو",
+    "selectRole": "پنهنجو ڪردار چونڊيو",
+    "student": "شاگرد",
+    "teacher": "استاد",
+    "admin": "ايڊمن",
+    "studentDesc": "گيمفائي ٿيل سبقن سان سکو ۽ ٽيوٽرن سان ڳنڍيو",
+    "teacherDesc": "علم ونڊيو ۽ شاگردن کي پڙهائي ڪمائيو",
+    "adminDesc": "پليٽ فارم جو انتظام ڪريو ۽ آپريشنز جي نگراني ڪريو",
+    "continueWithGoogle": "گوگل سان جاري رکو",
+    "alreadyHaveAccount": "اڳ ۾ اڪائونٽ آهي؟",
+    "dontHaveAccount": "اڪائونٽ نه آهي؟",
+    "forgotPassword": "پاس ورڊ وساري ويٺا؟"
+  },
+  "dashboard": {
+    "welcome": "خوش آمديد",
+    "totalXP": "ڪل XP",
+    "currentLevel": "ليول",
+    "currentStreak": "ڏينهن جي لڪير",
+    "longestStreak": "بهترين لڪير",
+    "bookTutor": "ٽيوٽر بک ڪريو",
+    "joinStudyGroup": "اسٽڊي گروپ ۾ شامل ٿيو",
+    "watchContent": "مواد ڏسو",
+    "setPricing": "قيمت مقرر ڪريو",
+    "uploadVideos": "وڊيوز اپ لوڊ ڪريو",
+    "conductSessions": "سيشن منعقد ڪريو",
+    "reviewApplications": "درخواستن جو جائزو",
+    "manageUsers": "صارفين جو انتظام",
+    "viewAnalytics": "تجزيات ڏسو"
+  },
+  "gamification": {
+    "xpEarned": "XP حاصل ڪيو!",
+    "levelUp": "ليول اپ!",
+    "streakMaintained": "لڪير برقرار!",
+    "badgeEarned": "بيج حاصل ڪيو!",
+    "dailyChallenge": "روزاني چيلنج",
+    "leaderboard": "ليڊر بورڊ",
+    "achievements": "ڪاميابيون",
+    "progress": "پيش قدمي"
+  },
+  "teacher": {
+    "application": "استاد جي درخواست",
+    "qualifications": "قابليت",
+    "experience": "تدريسي تجربو",
+    "subjects": "توهان جيڪي مضمون پڙهائيندا آهيو",
+    "uploadDocuments": "دستاويز اپ لوڊ ڪريو",
+    "applicationStatus": "درخواست جي صورتحال",
+    "pending": "جائزي جو انتظار",
+    "approved": "منظور ٿيل",
+    "rejected": "رد ٿيل"
+  },
+  "studyGroups": {
+    "createGroup": "اسٽڊي گروپ ٺاهيو",
+    "joinGroup": "گروپ ۾ شامل ٿيو",
+    "groupName": "گروپ جو نالو",
+    "subject": "مضمون",
+    "description": "تفصيل",
+    "members": "ميمبر",
+    "chat": "چيٽ",
+    "challenges": "چيلنجز"
+  },
+  "sessions": {
+    "bookSession": "سيشن بک ڪريو",
+    "upcomingSessions": "ايندڙ سيشنز",
+    "sessionHistory": "سيشن جي تاريخ",
+    "duration": "مدت",
+    "price": "قيمت",
+    "rating": "ريٽنگ",
+    "feedback": "راءِ"
+  }
+}

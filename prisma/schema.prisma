@@ -1,0 +1,231 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  password      String?
+  image         String?
+  role          UserRole  @default(STUDENT)
+  isVerified    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  accounts           Account[]
+  sessions           Session[]
+  progress           UserProgress?
+  activities         Activity[]
+  teacherApplication TeacherApplication?
+  studyGroups        StudyGroupMember[]
+  sessionsAsStudent  TutoringSession[] @relation("StudentSessions")
+  sessionsAsTeacher  TutoringSession[] @relation("TeacherSessions")
+  badges             UserBadge[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// Gamification System
+model UserProgress {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  totalXP       Int      @default(0)
+  currentLevel  Int      @default(1)
+  currentStreak Int      @default(0)
+  longestStreak Int      @default(0)
+  lastActivity  DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_progress")
+}
+
+model Activity {
+  id        String       @id @default(cuid())
+  userId    String
+  type      ActivityType
+  xpEarned  Int          @default(0)
+  metadata  Json?
+  createdAt DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activities")
+}
+
+model Badge {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  icon        String
+  category    String
+  xpReward    Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  userBadges UserBadge[]
+
+  @@map("badges")
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badgeId   String
+  earnedAt  DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@map("user_badges")
+}
+
+// Teacher Management
+model TeacherApplication {
+  id            String            @id @default(cuid())
+  userId        String            @unique
+  qualifications String
+  experience    String
+  subjects      String[]
+  documents     Json?
+  status        ApplicationStatus @default(PENDING)
+  adminFeedback String?
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("teacher_applications")
+}
+
+// Study Groups
+model StudyGroup {
+  id          String   @id @default(cuid())
+  name        String
+  subject     String
+  description String?
+  creatorId   String
+  isPublic    Boolean  @default(true)
+  memberCount Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members StudyGroupMember[]
+
+  @@map("study_groups")
+}
+
+model StudyGroupMember {
+  id          String   @id @default(cuid())
+  userId      String
+  groupId     String
+  role        GroupRole @default(MEMBER)
+  joinedAt    DateTime  @default(now())
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+  @@map("study_group_members")
+}
+
+// Tutoring Sessions
+model TutoringSession {
+  id          String        @id @default(cuid())
+  studentId   String
+  teacherId   String
+  subject     String
+  scheduledAt DateTime
+  duration    Int           @default(60) // minutes
+  price       Float
+  status      SessionStatus @default(SCHEDULED)
+  feedback    String?
+  rating      Int?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  student User @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher User @relation("TeacherSessions", fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@map("tutoring_sessions")
+}
+
+// Enums
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum ActivityType {
+  LOGIN
+  LESSON_COMPLETE
+  HELP_PEER
+  SESSION_ATTEND
+  GROUP_JOIN
+  STREAK_MILESTONE
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum GroupRole {
+  CREATOR
+  MODERATOR
+  MEMBER
+}
+
+enum SessionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
