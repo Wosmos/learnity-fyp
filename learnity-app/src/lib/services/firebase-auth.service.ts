@@ -12,17 +12,24 @@ import {
   User as FirebaseUser,
   UserCredential,
   getIdToken,
-  getIdTokenResult
+  getIdTokenResult,
+  onIdTokenChanged,
+  reload
 } from 'firebase/auth';
 import { auth } from '@/lib/config/firebase';
 import { adminAuth } from '@/lib/config/firebase-admin';
+import { appCheckService } from '@/lib/services/app-check.service';
+import { tokenManager } from '@/lib/services/token-manager.service';
+import { roleManager } from '@/lib/services/role-manager.service';
 import { IFirebaseAuthService } from '@/lib/interfaces/auth';
 import {
   FirebaseAuthResult,
   CustomClaims,
   AuthError,
   AuthErrorCode,
-  UserRole
+  UserRole,
+  SecurityAction,
+  Permission
 } from '@/types/auth';
 import {
   StudentRegistrationData,
@@ -34,6 +41,8 @@ import {
 export class FirebaseAuthService implements IFirebaseAuthService {
   private googleProvider: GoogleAuthProvider;
   private microsoftProvider: OAuthProvider;
+  private tokenRefreshInterval: NodeJS.Timeout | null = null;
+  private readonly TOKEN_REFRESH_THRESHOLD = 5 * 60 * 1000; // 5 minutes before expiry
 
   constructor() {
     // Initialize OAuth providers
@@ -44,92 +53,99 @@ export class FirebaseAuthService implements IFirebaseAuthService {
     this.microsoftProvider = new OAuthProvider('microsoft.com');
     this.microsoftProvider.addScope('email');
     this.microsoftProvider.addScope('profile');
+
+    // Initialize token refresh monitoring
+    this.initializeTokenRefreshMonitoring();
   }
 
   /**
    * Register a new student with Firebase Auth
    */
   async registerStudent(data: StudentRegistrationData): Promise<FirebaseAuthResult> {
-    try {
-      // Create Firebase Auth account
-      const userCredential: UserCredential = await createUserWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      );
+    return this.enhanceRegistrationWithSecurity(data, async (registrationData) => {
+      try {
+        // Create Firebase Auth account
+        const userCredential: UserCredential = await createUserWithEmailAndPassword(
+          auth,
+          registrationData.email,
+          registrationData.password
+        );
 
-      const user = userCredential.user;
+        const user = userCredential.user;
 
-      // Set initial custom claims for student
-      await this.setCustomClaims(user.uid, {
-        role: UserRole.STUDENT,
-        permissions: [
-          'view:student_dashboard',
-          'join:study_groups',
-          'book:tutoring',
-          'enhance:profile'
-        ],
-        profileComplete: false,
-        emailVerified: false
-      });
+        // Set initial custom claims for student
+        await this.setCustomClaims(user.uid, {
+          role: UserRole.STUDENT,
+          permissions: [
+            Permission.VIEW_STUDENT_DASHBOARD,
+            Permission.JOIN_STUDY_GROUPS,
+            Permission.BOOK_TUTORING,
+            Permission.ENHANCE_PROFILE
+          ],
+          profileComplete: false,
+          emailVerified: false
+        });
 
-      // Send email verification
-      await this.sendEmailVerification(user);
+        // Send email verification
+        await this.sendEmailVerification(user);
 
-      return {
-        success: true,
-        user,
-        idToken: await getIdToken(user),
-        needsEmailVerification: true
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: this.mapFirebaseError(error)
-      };
-    }
+        return {
+          success: true,
+          user,
+          idToken: await getIdToken(user),
+          needsEmailVerification: true
+        };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: this.mapFirebaseError(error)
+        };
+      }
+    });
   }
 
   /**
    * Register a new teacher with Firebase Auth (pending approval)
    */
   async registerTeacher(data: TeacherRegistrationData): Promise<FirebaseAuthResult> {
-    try {
-      // Create Firebase Auth account
-      const userCredential: UserCredential = await createUserWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      );
+    return this.enhanceRegistrationWithSecurity(data, async (registrationData) => {
+      try {
+        // Create Firebase Auth account
+        const userCredential: UserCredential = await createUserWithEmailAndPassword(
+          auth,
+          registrationData.email,
+          registrationData.password
+        );
 
-      const user = userCredential.user;
+        const user = userCredential.user;
 
-      // Set initial custom claims for pending teacher
-      await this.setCustomClaims(user.uid, {
-        role: UserRole.PENDING_TEACHER,
-        permissions: [
-          'view:application_status',
-          'update:application'
-        ],
-        profileComplete: false,
-        emailVerified: false
-      });
+        // Set initial custom claims for pending teacher
+        await this.setCustomClaims(user.uid, {
+          role: UserRole.PENDING_TEACHER,
+          permissions: [
+            Permission.VIEW_APPLICATION_STATUS,
+            Permission.UPDATE_APPLICATION
+          ],
+          profileComplete: false,
+          emailVerified: false
+        });
 
-      // Send email verification
-      await this.sendEmailVerification(user);
+        // Send email verification
+        await this.sendEmailVerification(user);
 
-      return {
-        success: true,
-        user,
-        idToken: await getIdToken(user),
-        needsEmailVerification: true
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: this.mapFirebaseError(error)
-      };
-    }
+        return {
+          success: true,
+          user,
+          idToken: await getIdToken(user),
+          needsEmailVerification: true
+        };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: this.mapFirebaseError(error)
+        };
+      }
+    });
   }
 
   /**
@@ -174,11 +190,11 @@ export class FirebaseAuthService implements IFirebaseAuthService {
       await this.setCustomClaims(user.uid, {
         role: UserRole.ADMIN,
         permissions: [
-          'view:admin_panel',
-          'manage:users',
-          'approve:teachers',
-          'view:audit_logs',
-          'manage:platform'
+          Permission.VIEW_ADMIN_PANEL,
+          Permission.MANAGE_USERS,
+          Permission.APPROVE_TEACHERS,
+          Permission.VIEW_AUDIT_LOGS,
+          Permission.MANAGE_PLATFORM
         ],
         profileComplete: true,
         emailVerified: true
@@ -201,37 +217,39 @@ export class FirebaseAuthService implements IFirebaseAuthService {
    * Login with email and password
    */
   async login(credentials: LoginData): Promise<FirebaseAuthResult> {
-    try {
-      const userCredential: UserCredential = await signInWithEmailAndPassword(
-        auth,
-        credentials.email,
-        credentials.password
-      );
+    return this.enhanceLoginWithSecurity(credentials, async (loginData) => {
+      try {
+        const userCredential: UserCredential = await signInWithEmailAndPassword(
+          auth,
+          loginData.email,
+          loginData.password
+        );
 
-      const user = userCredential.user;
+        const user = userCredential.user;
 
-      // Check if email is verified
-      if (!user.emailVerified) {
+        // Check if email is verified
+        if (!user.emailVerified) {
+          return {
+            success: false,
+            error: {
+              code: AuthErrorCode.EMAIL_NOT_VERIFIED,
+              message: 'Please verify your email address before signing in'
+            }
+          };
+        }
+
+        return {
+          success: true,
+          user,
+          idToken: await getIdToken(user)
+        };
+      } catch (error: any) {
         return {
           success: false,
-          error: {
-            code: AuthErrorCode.EMAIL_NOT_VERIFIED,
-            message: 'Please verify your email address before signing in'
-          }
+          error: this.mapFirebaseError(error)
         };
       }
-
-      return {
-        success: true,
-        user,
-        idToken: await getIdToken(user)
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: this.mapFirebaseError(error)
-      };
-    }
+    });
   }
 
   /**
@@ -314,7 +332,9 @@ export class FirebaseAuthService implements IFirebaseAuthService {
     if (!user) {
       throw new Error('No authenticated user');
     }
-    return await getIdToken(user, forceRefresh);
+    
+    // Use token manager for better caching and refresh logic
+    return await tokenManager.getUserToken(user, forceRefresh);
   }
 
   /**
@@ -322,7 +342,14 @@ export class FirebaseAuthService implements IFirebaseAuthService {
    */
   async signOut(): Promise<void> {
     try {
+      const user = auth.currentUser;
+      if (user) {
+        // Clear token cache for this user
+        tokenManager.invalidateUserToken(user.uid);
+      }
+      
       await signOut(auth);
+      this.clearTokenRefresh();
     } catch (error: any) {
       throw this.mapFirebaseError(error);
     }
@@ -333,7 +360,8 @@ export class FirebaseAuthService implements IFirebaseAuthService {
    */
   async setCustomClaims(firebaseUid: string, claims: CustomClaims): Promise<void> {
     try {
-      await adminAuth.setCustomUserClaims(firebaseUid, claims);
+      // Use role manager for better validation and management
+      await roleManager.setCustomClaims(firebaseUid, claims);
     } catch (error: any) {
       throw this.mapFirebaseError(error);
     }
@@ -344,13 +372,8 @@ export class FirebaseAuthService implements IFirebaseAuthService {
    */
   async getCustomClaims(firebaseUid: string): Promise<CustomClaims> {
     try {
-      const user = await adminAuth.getUser(firebaseUid);
-      return user.customClaims as CustomClaims || {
-        role: UserRole.STUDENT,
-        permissions: [],
-        profileComplete: false,
-        emailVerified: false
-      };
+      // Use role manager for consistent claims handling
+      return await roleManager.getCustomClaims(firebaseUid);
     } catch (error: any) {
       throw this.mapFirebaseError(error);
     }
@@ -368,10 +391,251 @@ export class FirebaseAuthService implements IFirebaseAuthService {
   }
 
   /**
+   * Initialize token refresh monitoring
+   */
+  private initializeTokenRefreshMonitoring(): void {
+    // Monitor ID token changes and set up automatic refresh
+    onIdTokenChanged(auth, async (user) => {
+      if (user) {
+        await this.setupTokenRefresh(user);
+      } else {
+        this.clearTokenRefresh();
+      }
+    });
+  }
+
+  /**
+   * Set up automatic token refresh for a user
+   */
+  private async setupTokenRefresh(user: FirebaseUser): Promise<void> {
+    this.clearTokenRefresh();
+
+    try {
+      const tokenResult = await getIdTokenResult(user);
+      const expirationTime = new Date(tokenResult.expirationTime).getTime();
+      const currentTime = Date.now();
+      const timeUntilRefresh = expirationTime - currentTime - this.TOKEN_REFRESH_THRESHOLD;
+
+      if (timeUntilRefresh > 0) {
+        this.tokenRefreshInterval = setTimeout(async () => {
+          try {
+            await this.refreshToken();
+          } catch (error) {
+            console.error('Automatic token refresh failed:', error);
+          }
+        }, timeUntilRefresh);
+      }
+    } catch (error) {
+      console.error('Failed to setup token refresh:', error);
+    }
+  }
+
+  /**
+   * Clear token refresh interval
+   */
+  private clearTokenRefresh(): void {
+    if (this.tokenRefreshInterval) {
+      clearTimeout(this.tokenRefreshInterval);
+      this.tokenRefreshInterval = null;
+    }
+  }
+
+  /**
+   * Refresh the current user's ID token
+   */
+  async refreshToken(): Promise<string> {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('No authenticated user to refresh token for');
+    }
+
+    try {
+      // Use token manager for refresh
+      const newToken = await tokenManager.getUserToken(user, true);
+      
+      // Set up next refresh
+      await this.setupTokenRefresh(user);
+      
+      return newToken;
+    } catch (error: any) {
+      throw this.mapFirebaseError(error);
+    }
+  }
+
+  /**
+   * Get token with automatic refresh if needed
+   */
+  async getTokenWithRefresh(): Promise<string> {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('No authenticated user');
+    }
+
+    try {
+      // Token manager handles refresh logic automatically
+      return await tokenManager.getUserToken(user, false);
+    } catch (error: any) {
+      throw this.mapFirebaseError(error);
+    }
+  }
+
+  /**
+   * Validate ID token and get decoded claims
+   */
+  async validateAndDecodeToken(idToken: string): Promise<any> {
+    try {
+      // Use token manager for validation with better error handling
+      const validation = await tokenManager.validateToken(idToken);
+      
+      if (!validation.isValid) {
+        throw new Error(validation.error?.message || 'Invalid token');
+      }
+      
+      return validation.claims;
+    } catch (error: any) {
+      throw this.mapFirebaseError(error);
+    }
+  }
+
+  /**
+   * Check if current token is valid and not expired
+   */
+  async isTokenValid(): Promise<boolean> {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        return false;
+      }
+
+      const tokenInfo = tokenManager.getTokenInfo(user.uid);
+      if (!tokenInfo) {
+        // No cached token, try to get one
+        await tokenManager.getUserToken(user, false);
+        return true;
+      }
+
+      const currentTime = Date.now();
+      return tokenInfo.expirationTime.getTime() > currentTime;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Get user claims from current token
+   */
+  async getCurrentUserClaims(): Promise<CustomClaims | null> {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        return null;
+      }
+
+      // Use role manager for consistent claims
+      return await roleManager.getCustomClaims(user.uid);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  /**
+   * Force reload user to get updated claims
+   */
+  async reloadUserWithClaims(): Promise<void> {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('No authenticated user');
+    }
+
+    try {
+      await reload(user);
+      // Force token refresh to get updated claims
+      await getIdToken(user, true);
+    } catch (error: any) {
+      throw this.mapFirebaseError(error);
+    }
+  }
+
+  /**
+   * Enhanced registration with App Check integration
+   */
+  private async enhanceRegistrationWithSecurity<T extends StudentRegistrationData | TeacherRegistrationData>(
+    data: T,
+    registrationFn: (data: T) => Promise<FirebaseAuthResult>
+  ): Promise<FirebaseAuthResult> {
+    try {
+      // Get App Check token for bot protection with risk assessment
+      const appCheckResult = await appCheckService.getAppCheckTokenForAction(SecurityAction.REGISTER);
+      
+      if (!appCheckResult.success && process.env.NODE_ENV === 'production') {
+        return {
+          success: false,
+          error: {
+            code: AuthErrorCode.SERVICE_UNAVAILABLE,
+            message: appCheckResult.error || 'Bot protection verification failed. Please try again.'
+          }
+        };
+      }
+
+      // If high risk, require additional verification
+      if (appCheckResult.requiresAdditionalVerification && !data.hcaptchaToken) {
+        return {
+          success: false,
+          error: {
+            code: AuthErrorCode.RATE_LIMIT_EXCEEDED,
+            message: 'Additional verification required. Please complete the captcha.'
+          }
+        };
+      }
+
+      // Proceed with registration
+      return await registrationFn(data);
+    } catch (error: any) {
+      return {
+        success: false,
+        error: this.mapFirebaseError(error)
+      };
+    }
+  }
+
+  /**
+   * Enhanced login with security checks
+   */
+  private async enhanceLoginWithSecurity(
+    credentials: LoginData,
+    loginFn: (credentials: LoginData) => Promise<FirebaseAuthResult>
+  ): Promise<FirebaseAuthResult> {
+    try {
+      // Get App Check token with risk assessment for login
+      const appCheckResult = await appCheckService.getAppCheckTokenForAction(SecurityAction.LOGIN);
+      
+      // For suspicious activity (when hcaptcha is required), enforce App Check
+      if (credentials.hcaptchaToken && !appCheckResult.success && process.env.NODE_ENV === 'production') {
+        return {
+          success: false,
+          error: {
+            code: AuthErrorCode.SERVICE_UNAVAILABLE,
+            message: appCheckResult.error || 'Security verification failed. Please try again.'
+          }
+        };
+      }
+
+      // Proceed with login
+      return await loginFn(credentials);
+    } catch (error: any) {
+      return {
+        success: false,
+        error: this.mapFirebaseError(error)
+      };
+    }
+  }
+
+  /**
    * Map Firebase errors to application errors
    */
-  private mapFirebaseError(error: any): AuthError {
-    const errorCode = error.code || 'unknown';
+  private mapFirebaseError(error: unknown): AuthError {
+    const firebaseError = error as { code?: string; message?: string };
+    const errorCode = firebaseError.code || 'unknown';
     
     switch (errorCode) {
       case 'auth/user-not-found':
@@ -417,12 +681,37 @@ export class FirebaseAuthService implements IFirebaseAuthService {
           code: AuthErrorCode.ACCOUNT_LOCKED,
           message: 'This account has been disabled'
         };
+
+      case 'auth/id-token-expired':
+        return {
+          code: AuthErrorCode.TOKEN_EXPIRED,
+          message: 'Your session has expired. Please sign in again.'
+        };
+
+      case 'auth/id-token-revoked':
+        return {
+          code: AuthErrorCode.TOKEN_REVOKED,
+          message: 'Your session has been revoked. Please sign in again.'
+        };
+
+      case 'auth/invalid-id-token':
+        return {
+          code: AuthErrorCode.TOKEN_INVALID,
+          message: 'Invalid authentication token. Please sign in again.'
+        };
       
       default:
         return {
           code: AuthErrorCode.INTERNAL_ERROR,
-          message: error.message || 'An unexpected error occurred'
+          message: firebaseError.message || 'An unexpected error occurred'
         };
     }
+  }
+
+  /**
+   * Cleanup resources when service is destroyed
+   */
+  destroy(): void {
+    this.clearTokenRefresh();
   }
 }

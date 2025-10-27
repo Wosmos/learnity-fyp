@@ -1,6 +1,6 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth, connectAuthEmulator } from 'firebase/auth';
-import { getStorage, Storage, connectStorageEmulator } from 'firebase/storage';
+import { getStorage, connectStorageEmulator, FirebaseStorage } from 'firebase/storage';
 import { initializeAppCheck, AppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
 // Firebase configuration from environment variables
@@ -32,7 +32,7 @@ for (const envVar of requiredEnvVars) {
 // Initialize Firebase app (singleton pattern)
 let app: FirebaseApp;
 let auth: Auth;
-let storage: Storage;
+let storage: FirebaseStorage;
 let appCheck: AppCheck | null = null;
 
 if (getApps().length === 0) {
@@ -67,13 +67,17 @@ if (typeof window !== 'undefined') {
 if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
   try {
     // Connect to Auth emulator
-    if (!auth.config.emulator) {
+    try {
       connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+    } catch (error) {
+      // Emulator already connected or not available
     }
     
     // Connect to Storage emulator
-    if (!storage._delegate._host.includes('localhost')) {
+    try {
       connectStorageEmulator(storage, 'localhost', 9199);
+    } catch (error) {
+      // Emulator already connected or not available
     }
   } catch (error) {
     console.warn('Failed to connect to Firebase emulators:', error);

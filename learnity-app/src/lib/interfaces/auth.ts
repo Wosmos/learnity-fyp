@@ -42,11 +42,17 @@ export interface IFirebaseAuthService {
   // Token management
   getCurrentUser(): Promise<FirebaseUser | null>;
   getIdToken(forceRefresh?: boolean): Promise<string>;
+  refreshToken(): Promise<string>;
+  getTokenWithRefresh(): Promise<string>;
+  validateAndDecodeToken(idToken: string): Promise<any>;
+  isTokenValid(): Promise<boolean>;
   signOut(): Promise<void>;
   
   // Custom claims management
   setCustomClaims(firebaseUid: string, claims: CustomClaims): Promise<void>;
   getCustomClaims(firebaseUid: string): Promise<CustomClaims>;
+  getCurrentUserClaims(): Promise<CustomClaims | null>;
+  reloadUserWithClaims(): Promise<void>;
 }
 
 // User Profile Service Interface (Neon DB Integration)

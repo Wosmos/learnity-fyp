@@ -2,7 +2,7 @@ import { User as FirebaseUser } from 'firebase/auth';
 import { prisma } from '@/lib/config/database';
 import { FirebaseAuthService } from './firebase-auth.service';
 import { ISyncService, SyncReport, Inconsistency } from '@/lib/interfaces/auth';
-import { UserRole, CustomClaims } from '@/types/auth';
+import { UserRole, CustomClaims, Permission } from '@/types/auth';
 
 export class SyncService implements ISyncService {
   private firebaseAuthService: FirebaseAuthService;
@@ -64,14 +64,14 @@ export class SyncService implements ISyncService {
       }
 
       // Determine permissions based on role
-      const permissions = this.getPermissionsForRole(user.role);
+      const permissions = this.getPermissionsForRole(user.role as UserRole);
 
       // Calculate profile completion
       const profileComplete = this.calculateProfileCompletion(user);
 
       // Create custom claims
       const customClaims: CustomClaims = {
-        role: user.role,
+        role: user.role as UserRole,
         permissions,
         profileComplete,
         emailVerified: user.emailVerified
@@ -237,37 +237,37 @@ export class SyncService implements ISyncService {
   /**
    * Get permissions for a user role
    */
-  private getPermissionsForRole(role: UserRole): string[] {
+  private getPermissionsForRole(role: UserRole): Permission[] {
     switch (role) {
       case UserRole.STUDENT:
         return [
-          'view:student_dashboard',
-          'join:study_groups',
-          'book:tutoring',
-          'enhance:profile'
+          Permission.VIEW_STUDENT_DASHBOARD,
+          Permission.JOIN_STUDY_GROUPS,
+          Permission.BOOK_TUTORING,
+          Permission.ENHANCE_PROFILE
         ];
       
       case UserRole.TEACHER:
         return [
-          'view:teacher_dashboard',
-          'manage:sessions',
-          'upload:content',
-          'view:student_progress'
+          Permission.VIEW_TEACHER_DASHBOARD,
+          Permission.MANAGE_SESSIONS,
+          Permission.UPLOAD_CONTENT,
+          Permission.VIEW_STUDENT_PROGRESS
         ];
       
       case UserRole.PENDING_TEACHER:
         return [
-          'view:application_status',
-          'update:application'
+          Permission.VIEW_APPLICATION_STATUS,
+          Permission.UPDATE_APPLICATION
         ];
       
       case UserRole.ADMIN:
         return [
-          'view:admin_panel',
-          'manage:users',
-          'approve:teachers',
-          'view:audit_logs',
-          'manage:platform'
+          Permission.VIEW_ADMIN_PANEL,
+          Permission.MANAGE_USERS,
+          Permission.APPROVE_TEACHERS,
+          Permission.VIEW_AUDIT_LOGS,
+          Permission.MANAGE_PLATFORM
         ];
       
       default:
