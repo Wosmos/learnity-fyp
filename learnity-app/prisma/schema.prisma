@@ -32,6 +32,13 @@ model User {
   auditLogs         AuditLog[]
   securityEvents    SecurityEvent[]
   
+  // Indexes for optimal query performance
+  @@index([firebaseUid])
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@index([lastLoginAt])
+  @@index([createdAt])
   @@map("users")
 }
 
@@ -67,6 +74,11 @@ model TeacherProfile {
   
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   
+  // Indexes for teacher application queries
+  @@index([applicationStatus])
+  @@index([submittedAt])
+  @@index([reviewedAt])
+  @@index([approvedBy])
   @@map("teacher_profiles")
 }
 
@@ -101,6 +113,13 @@ model AuditLog {
   
   user User? @relation(fields: [userId], references: [id])
   
+  // Indexes for audit log queries
+  @@index([userId])
+  @@index([firebaseUid])
+  @@index([eventType])
+  @@index([createdAt])
+  @@index([success])
+  @@index([ipAddress])
   @@map("audit_logs")
 }
 
@@ -120,6 +139,14 @@ model SecurityEvent {
   
   user User? @relation(fields: [userId], references: [id])
   
+  // Indexes for security event queries
+  @@index([userId])
+  @@index([firebaseUid])
+  @@index([eventType])
+  @@index([riskLevel])
+  @@index([ipAddress])
+  @@index([createdAt])
+  @@index([blocked])
   @@map("security_events")
 }
 
