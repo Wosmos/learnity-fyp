@@ -9,11 +9,10 @@ import {
   CreateProfileData, 
   UpdateProfileData,
   TeacherApplicationData,
-  StudentEnhancements,
   TeacherApplication,
-  ApprovalDecision,
   ProfileCompletion
-} from '../interfaces/database-sync.interface';
+} from '@/lib/interfaces/auth';
+import { StudentProfileEnhancementData, TeacherApprovalData } from '@/lib/validators/auth';
 
 export class DatabaseService implements IUserProfileService {
   private prisma: PrismaClient;
@@ -25,7 +24,7 @@ export class DatabaseService implements IUserProfileService {
   /**
    * Create user profile in Neon DB
    */
-  async createUserProfile(firebaseUid: string, data: CreateProfileData): Promise<User> {
+  async createUserProfile(firebaseUid: string, data: CreateProfileData): Promise<any> {
     return await this.prisma.user.create({
       data: {
         firebaseUid,
@@ -33,34 +32,40 @@ export class DatabaseService implements IUserProfileService {
         firstName: data.firstName,
         lastName: data.lastName,
         role: data.role,
-        emailVerified: data.emailVerified || false,
+        emailVerified: false,
         profilePicture: data.profilePicture,
         // Create role-specific profile
-        ...(data.role === UserRole.STUDENT && {
+        ...(data.role === UserRole.STUDENT && data.studentProfile && {
           studentProfile: {
             create: {
-              gradeLevel: 'Not specified',
-              subjects: [],
-              profileCompletionPercentage: 20
+              gradeLevel: data.studentProfile.gradeLevel || 'Not specified',
+              subjects: data.studentProfile.subjects || [],
+              learningGoals: data.studentProfile.learningGoals || [],
+              interests: data.studentProfile.interests || [],
+              studyPreferences: data.studentProfile.studyPreferences || [],
+              profileCompletionPercentage: data.studentProfile.profileCompletionPercentage || 20
             }
           }
         }),
-        ...(data.role === UserRole.PENDING_TEACHER && {
+        ...(data.role === UserRole.PENDING_TEACHER && data.teacherProfile && {
           teacherProfile: {
             create: {
               applicationStatus: ApplicationStatus.PENDING,
-              qualifications: [],
-              subjects: [],
-              experience: 0,
-              documents: []
+              qualifications: data.teacherProfile.qualifications || [],
+              subjects: data.teacherProfile.subjects || [],
+              experience: data.teacherProfile.experience || 0,
+              bio: data.teacherProfile.bio,
+              hourlyRate: data.teacherProfile.hourlyRate,
+              documents: data.teacherProfile.documents || []
             }
           }
         }),
-        ...(data.role === UserRole.ADMIN && {
+        ...(data.role === UserRole.ADMIN && data.adminProfile && {
           adminProfile: {
             create: {
-              department: 'Platform Management',
-              isStatic: false
+              department: data.adminProfile.department || 'Platform Management',
+              isStatic: data.adminProfile.isStatic || false,
+              createdBy: data.adminProfile.createdBy
             }
           }
         })
@@ -89,7 +94,7 @@ export class DatabaseService implements IUserProfileService {
   /**
    * Update user profile
    */
-  async updateUserProfile(firebaseUid: string, data: UpdateProfileData): Promise<User> {
+  async updateUserProfile(firebaseUid: string, data: UpdateProfileData): Promise<any> {
     return await this.prisma.user.update({
       where: { firebaseUid },
       data: {
@@ -97,7 +102,7 @@ export class DatabaseService implements IUserProfileService {
         ...(data.lastName && { lastName: data.lastName }),
         ...(data.profilePicture && { profilePicture: data.profilePicture }),
         ...(data.emailVerified !== undefined && { emailVerified: data.emailVerified }),
-        ...(data.lastLoginAt && { lastLoginAt: data.lastLoginAt })
+        lastLoginAt: new Date()
       },
       include: {
         studentProfile: true,
@@ -215,7 +220,7 @@ Submit teacher application
  /**
    * Review teacher application (approve/reject)
    */
-  async reviewTeacherApplication(applicationId: string, decision: ApprovalDecision): Promise<void> {
+  async reviewTeacherApplication(applicationId: string, decision: TeacherApprovalData): Promise<void> {
     const teacherProfile = await this.prisma.teacherProfile.findUnique({
       where: { id: applicationId },
       include: { user: true }
@@ -229,15 +234,15 @@ Submit teacher application
     await this.prisma.teacherProfile.update({
       where: { id: applicationId },
       data: {
-        applicationStatus: decision.approved ? ApplicationStatus.APPROVED : ApplicationStatus.REJECTED,
+        applicationStatus: decision.decision === 'APPROVED' ? ApplicationStatus.APPROVED : ApplicationStatus.REJECTED,
         reviewedAt: new Date(),
-        approvedBy: decision.approvedBy,
+        approvedBy: decision.decision === 'APPROVED' ? 'admin' : undefined,
         rejectionReason: decision.rejectionReason
       }
     });
 
     // Update user role if approved
-    if (decision.approved) {
+    if (decision.decision === 'APPROVED') {
       await this.prisma.user.update({
         where: { id: teacherProfile.userId },
         data: { role: UserRole.TEACHER }
@@ -248,7 +253,7 @@ Submit teacher application
   /**
    * Enhance student profile with additional information
    */
-  async enhanceStudentProfile(firebaseUid: string, enhancements: StudentEnhancements): Promise<void> {
+  async enhanceStudentProfile(firebaseUid: string, enhancements: StudentProfileEnhancementData): Promise<void> {
     const user = await this.prisma.user.findUnique({
       where: { firebaseUid },
       include: { studentProfile: true }
