@@ -3,7 +3,7 @@
  * Handles all Neon DB operations with Prisma ORM
  */
 
-import { PrismaClient, User, UserRole, ApplicationStatus } from '@prisma/client';
+import { PrismaClient, User, UserRole as PrismaUserRole, ApplicationStatus as PrismaApplicationStatus } from '@prisma/client';
 import { 
   IUserProfileService, 
   CreateProfileData, 
@@ -13,6 +13,7 @@ import {
   ProfileCompletion
 } from '@/lib/interfaces/auth';
 import { StudentProfileEnhancementData, TeacherApprovalData } from '@/lib/validators/auth';
+import { UserRole, ApplicationStatus } from '@/types/auth';
 
 export class DatabaseService implements IUserProfileService {
   private prisma: PrismaClient;
@@ -32,7 +33,7 @@ export class DatabaseService implements IUserProfileService {
         firstName: data.firstName,
         lastName: data.lastName,
         role: data.role,
-        emailVerified: false,
+        emailVerified: data.emailVerified || false,
         profilePicture: data.profilePicture,
         // Create role-specific profile
         ...(data.role === UserRole.STUDENT && data.studentProfile && {
@@ -50,7 +51,7 @@ export class DatabaseService implements IUserProfileService {
         ...(data.role === UserRole.PENDING_TEACHER && data.teacherProfile && {
           teacherProfile: {
             create: {
-              applicationStatus: ApplicationStatus.PENDING,
+              applicationStatus: PrismaApplicationStatus.PENDING,
               qualifications: data.teacherProfile.qualifications || [],
               subjects: data.teacherProfile.subjects || [],
               experience: data.teacherProfile.experience || 0,
@@ -80,7 +81,7 @@ export class DatabaseService implements IUserProfileService {
    
 * Get user profile by Firebase UID
    */
-  async getUserProfile(firebaseUid: string): Promise<User | null> {
+  async getUserProfile(firebaseUid: string): Promise<any> {
     return await this.prisma.user.findUnique({
       where: { firebaseUid },
       include: {
@@ -102,7 +103,7 @@ export class DatabaseService implements IUserProfileService {
         ...(data.lastName && { lastName: data.lastName }),
         ...(data.profilePicture && { profilePicture: data.profilePicture }),
         ...(data.emailVerified !== undefined && { emailVerified: data.emailVerified }),
-        lastLoginAt: new Date()
+        ...(data.lastLoginAt && { lastLoginAt: data.lastLoginAt })
       },
       include: {
         studentProfile: true,
@@ -125,7 +126,7 @@ export class DatabaseService implements IUserProfileService {
       throw new Error(`User not found with firebaseUid: ${firebaseUid}`);
     }
     
-    return user.role;
+    return user.role as UserRole;
   }
 
   /**
@@ -185,7 +186,7 @@ Submit teacher application
    */
   async getTeacherApplications(status?: ApplicationStatus): Promise<TeacherApplication[]> {
     const teacherProfiles = await this.prisma.teacherProfile.findMany({
-      where: status ? { applicationStatus: status } : undefined,
+      where: status ? { applicationStatus: status as PrismaApplicationStatus } : undefined,
       include: {
         user: {
           select: {
@@ -203,17 +204,17 @@ Submit teacher application
     return teacherProfiles.map(profile => ({
       id: profile.id,
       userId: profile.userId,
-      applicationStatus: profile.applicationStatus,
+      applicationStatus: profile.applicationStatus as ApplicationStatus,
       qualifications: profile.qualifications,
       subjects: profile.subjects,
       experience: profile.experience,
-      bio: profile.bio,
-      hourlyRate: profile.hourlyRate,
+      bio: profile.bio || undefined,
+      hourlyRate: profile.hourlyRate ? Number(profile.hourlyRate) : undefined,
       documents: profile.documents,
       submittedAt: profile.submittedAt,
-      reviewedAt: profile.reviewedAt,
-      approvedBy: profile.approvedBy,
-      rejectionReason: profile.rejectionReason,
+      reviewedAt: profile.reviewedAt || undefined,
+      approvedBy: profile.approvedBy || undefined,
+      rejectionReason: profile.rejectionReason || undefined,
       user: profile.user
     }));
   } 
@@ -234,7 +235,7 @@ Submit teacher application
     await this.prisma.teacherProfile.update({
       where: { id: applicationId },
       data: {
-        applicationStatus: decision.decision === 'APPROVED' ? ApplicationStatus.APPROVED : ApplicationStatus.REJECTED,
+        applicationStatus: decision.decision === 'APPROVED' ? PrismaApplicationStatus.APPROVED : PrismaApplicationStatus.REJECTED,
         reviewedAt: new Date(),
         approvedBy: decision.decision === 'APPROVED' ? 'admin' : undefined,
         rejectionReason: decision.rejectionReason

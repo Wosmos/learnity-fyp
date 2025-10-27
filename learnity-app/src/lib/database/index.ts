@@ -31,7 +31,7 @@ export { DatabaseUtils } from '../utils/database.utils';
 
 // Re-export Prisma types for convenience
 export {
-  User,
+  type User,
   UserRole,
   ApplicationStatus,
   EventType,

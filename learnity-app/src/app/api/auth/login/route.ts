@@ -3,7 +3,7 @@ import { FirebaseAuthService } from '@/lib/services/firebase-auth.service';
 import { DatabaseService } from '@/lib/services/database.service';
 import { HCaptchaService } from '@/lib/services/hcaptcha.service';
 import { loginSchema } from '@/lib/validators/auth';
-import { EventType, SecurityEventType, RiskLevel } from '@/types/auth';
+import { EventType, SecurityEventType, RiskLevel, UserRole, Permission } from '@/types/auth';
 
 /**
  * User Login API Endpoint
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
           firstName: authResult.user.displayName?.split(' ')[0] || 'User',
           lastName: authResult.user.displayName?.split(' ').slice(1).join(' ') || '',
           email: authResult.user.email!,
-          role: 'STUDENT' as any, // Default role
+          role: UserRole.STUDENT, // Default role
           emailVerified: authResult.user.emailVerified
         });
       } else {
@@ -154,10 +154,10 @@ export async function POST(request: NextRequest) {
 
       // Enrich Firebase custom claims with role data from Neon DB
       await firebaseAuthService.setCustomClaims(authResult.user.uid, {
-        role: userProfile.role,
-        permissions: getPermissionsForRole(userProfile.role),
-        profileComplete: calculateProfileCompletion(userProfile),
-        emailVerified: userProfile.emailVerified
+        role: userProfile!.role as UserRole,
+        permissions: getPermissionsForRole(userProfile!.role as string),
+        profileComplete: calculateProfileCompletion(userProfile!),
+        emailVerified: userProfile!.emailVerified
       });
 
       // Check for new device login
@@ -191,8 +191,8 @@ export async function POST(request: NextRequest) {
         success: true,
         metadata: {
           email: authResult.user.email,
-          role: userProfile.role,
-          profileId: userProfile.id,
+          role: userProfile!.role,
+          profileId: userProfile!.id,
           isNewDevice,
           riskLevel: securityAssessment.riskLevel
         }
@@ -205,19 +205,19 @@ export async function POST(request: NextRequest) {
             uid: authResult.user.uid,
             email: authResult.user.email,
             emailVerified: authResult.user.emailVerified,
-            displayName: `${userProfile.firstName} ${userProfile.lastName}`
+            displayName: `${userProfile!.firstName} ${userProfile!.lastName}`
           },
           profile: {
-            id: userProfile.id,
-            firstName: userProfile.firstName,
-            lastName: userProfile.lastName,
-            role: userProfile.role,
-            profilePicture: userProfile.profilePicture,
-            profileComplete: calculateProfileCompletion(userProfile),
-            lastLoginAt: userProfile.lastLoginAt
+            id: userProfile!.id,
+            firstName: userProfile!.firstName,
+            lastName: userProfile!.lastName,
+            role: userProfile!.role,
+            profilePicture: userProfile!.profilePicture,
+            profileComplete: calculateProfileCompletion(userProfile!),
+            lastLoginAt: userProfile!.lastLoginAt
           },
           idToken: authResult.idToken,
-          permissions: getPermissionsForRole(userProfile.role),
+          permissions: getPermissionsForRole(userProfile!.role as string),
           isNewDevice
         }
       });
@@ -397,18 +397,18 @@ async function checkNewDeviceLogin(
 /**
  * Get permissions for a user role
  */
-function getPermissionsForRole(role: string): string[] {
+function getPermissionsForRole(role: string): Permission[] {
   switch (role) {
     case 'STUDENT':
-      return ['view:student_dashboard', 'join:study_groups', 'book:tutoring', 'enhance:profile'];
+      return [Permission.VIEW_STUDENT_DASHBOARD, Permission.JOIN_STUDY_GROUPS, Permission.BOOK_TUTORING, Permission.ENHANCE_PROFILE];
     case 'TEACHER':
-      return ['view:teacher_dashboard', 'manage:sessions', 'upload:content', 'view:student_progress'];
+      return [Permission.VIEW_TEACHER_DASHBOARD, Permission.MANAGE_SESSIONS, Permission.UPLOAD_CONTENT, Permission.VIEW_STUDENT_PROGRESS];
     case 'PENDING_TEACHER':
-      return ['view:application_status', 'update:application'];
+      return [Permission.VIEW_APPLICATION_STATUS, Permission.UPDATE_APPLICATION];
     case 'ADMIN':
-      return ['view:admin_panel', 'manage:users', 'approve:teachers', 'view:audit_logs', 'manage:platform'];
+      return [Permission.VIEW_ADMIN_PANEL, Permission.MANAGE_USERS, Permission.APPROVE_TEACHERS, Permission.VIEW_AUDIT_LOGS, Permission.MANAGE_PLATFORM];
     default:
-      return ['view:student_dashboard'];
+      return [Permission.VIEW_STUDENT_DASHBOARD];
   }
 }
 

@@ -152,8 +152,24 @@ export interface CreateProfileData {
   lastName: string;
   email: string;
   role: UserRole;
-  studentProfile?: Partial<StudentProfileEnhancementData>;
-  teacherProfile?: Partial<TeacherApplicationUpdateData>;
+  emailVerified?: boolean;
+  profilePicture?: string;
+  studentProfile?: {
+    gradeLevel?: string;
+    subjects?: string[];
+    learningGoals?: string[];
+    interests?: string[];
+    studyPreferences?: string[];
+    profileCompletionPercentage?: number;
+  };
+  teacherProfile?: {
+    qualifications?: string[];
+    subjects?: string[];
+    experience?: number;
+    bio?: string;
+    hourlyRate?: number;
+    documents?: string[];
+  };
   adminProfile?: {
     department?: string;
     isStatic?: boolean;
@@ -165,6 +181,8 @@ export interface UpdateProfileData {
   firstName?: string;
   lastName?: string;
   profilePicture?: string;
+  emailVerified?: boolean;
+  lastLoginAt?: Date;
   studentProfile?: Partial<StudentProfileEnhancementData>;
   teacherProfile?: Partial<TeacherApplicationUpdateData>;
 }
@@ -181,27 +199,30 @@ export interface TeacherApplicationData {
 export interface TeacherApplication {
   id: string;
   userId: string;
-  firebaseUid: string;
-  applicantName: string;
-  applicantEmail: string;
   applicationStatus: ApplicationStatus;
   qualifications: string[];
   subjects: string[];
   experience: number;
-  bio: string;
+  bio?: string;
   hourlyRate?: number;
   documents: string[];
   submittedAt: Date;
   reviewedAt?: Date;
   approvedBy?: string;
   rejectionReason?: string;
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    firebaseUid: string;
+  };
 }
 
 export interface ProfileCompletion {
   percentage: number;
-  completedFields: string[];
   missingFields: string[];
-  suggestions: string[];
+  completedSections: string[];
 }
 
 export interface HCaptchaResult {

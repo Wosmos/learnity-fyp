@@ -5,7 +5,7 @@
 
 import { DatabaseService } from '../services/database.service';
 import { FirebaseSyncService } from '../services/firebase-sync.service';
-import { IUserProfileService, ISyncService } from '../interfaces/database-sync.interface';
+import { IUserProfileService, ISyncService } from '../interfaces/auth';
 
 export class DatabaseFactory {
   private static databaseServiceInstance: DatabaseService | null = null;
@@ -14,7 +14,7 @@ export class DatabaseFactory {
   /**
    * Get singleton instance of DatabaseService
    */
-  static getDatabaseService(): IUserProfileService {
+  static getDatabaseService(): any {
     if (!this.databaseServiceInstance) {
       this.databaseServiceInstance = new DatabaseService();
     }
@@ -24,7 +24,7 @@ export class DatabaseFactory {
   /**
    * Get singleton instance of FirebaseSyncService
    */
-  static getSyncService(): ISyncService {
+  static getSyncService(): any {
     if (!this.syncServiceInstance) {
       this.syncServiceInstance = new FirebaseSyncService();
     }
@@ -34,14 +34,14 @@ export class DatabaseFactory {
   /**
    * Create new instance of DatabaseService (for testing)
    */
-  static createDatabaseService(): IUserProfileService {
+  static createDatabaseService(): any {
     return new DatabaseService();
   }
 
   /**
    * Create new instance of FirebaseSyncService (for testing)
    */
-  static createSyncService(): ISyncService {
+  static createSyncService(): any {
     return new FirebaseSyncService();
   }
 
