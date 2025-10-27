@@ -22,7 +22,7 @@
 - **MUST** avoid dublication as much as possible
 - **MUST** improve DRI and better optimization practices for speed and better code quality
 - **MUST** test each and every task we implemented
-- **MUST** verify whats been done test it and then add , commit , make PR add PR description for it 
+- **MUST** always verify if we are using correct code structre for each tech stack using their official documentation
 
 ### 3. Architecture Patterns
 - **MUST** follow Clean Architecture principles

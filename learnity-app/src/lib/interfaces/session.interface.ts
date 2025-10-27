@@ -5,6 +5,7 @@
  */
 
 import { UserRole, Permission, CustomClaims } from '@/types/auth';
+import { JwtPayload } from 'jsonwebtoken';
 
 export interface ISessionManagerService {
   // Firebase token management and blacklisting
@@ -14,6 +15,15 @@ export interface ISessionManagerService {
   blacklistAllUserTokens(firebaseUid: string, reason?: string): Promise<void>;
   isFirebaseTokenBlacklisted(idToken: string): Promise<boolean>;
   cleanupExpiredBlacklistedTokens(): Promise<number>;
+  
+  // Enhanced token pair management
+  generateTokenPair(sessionData: CreateSessionData): Promise<TokenPair>;
+  validateAccessToken(accessToken: string): Promise<TokenValidationResult>;
+  validateRefreshToken(refreshToken: string): Promise<TokenValidationResult>;
+  refreshTokenPair(refreshToken: string): Promise<TokenPair>;
+  blacklistTokenPair(accessToken: string, refreshToken: string, reason?: string): Promise<void>;
+  extractAccessTokenPayload(accessToken: string): Promise<AccessTokenPayload | null>;
+  extractRefreshTokenPayload(refreshToken: string): Promise<RefreshTokenPayload | null>;
   
   // Session tracking
   createSession(sessionData: CreateSessionData): Promise<UserSession>;
@@ -192,6 +202,31 @@ export interface SessionConfig {
   blacklistCleanupInterval: number; // milliseconds
   enableDeviceTracking: boolean;
   enableSessionAnalytics: boolean;
+}
+
+// Enhanced token pair types
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresAt: Date;
+  refreshTokenExpiresAt: Date;
+}
+
+export interface AccessTokenPayload extends JwtPayload {
+  firebaseUid: string;
+  sessionId: string;
+  role: UserRole;
+  permissions: Permission[];
+  deviceFingerprint: string;
+  ipAddress: string;
+  tokenType: 'access';
+}
+
+export interface RefreshTokenPayload extends JwtPayload {
+  firebaseUid: string;
+  sessionId: string;
+  deviceFingerprint: string;
+  tokenType: 'refresh';
 }
 
 // Error Types
