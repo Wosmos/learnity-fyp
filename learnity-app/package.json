@@ -7,10 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:setup": "tsx scripts/test-setup.ts",
+    "test:auth": "tsx scripts/test-auth.ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "setup": "npm run db:generate && npm run db:push && npm run db:seed && npm run test:setup"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
