@@ -41,7 +41,7 @@ export class DatabaseFactory {
   /**
    * Create new instance of FirebaseSyncService (for testing)
    */
-  static createSyncService(): any {
+  static createSyncService(): unknown {
     return new FirebaseSyncService();
   }
 

@@ -7,6 +7,8 @@ export { RoleManagerService, roleManager } from './role-manager.service';
 // Other Services
 export { HCaptchaService } from './hcaptcha.service';
 export { SyncService } from './sync.service';
+export { SecurityService, securityService } from './security.service';
+export { DatabaseService } from './database.service';
 
 // Service Instances (Singletons)
 // Note: FirebaseAuthService should be instantiated where needed to avoid circular dependencies
