@@ -1,0 +1,167 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User profile stored in Neon DB (single source of truth)
+model User {
+  id                String    @id @default(cuid())
+  firebaseUid       String    @unique // Links to Firebase Auth user
+  email             String    @unique
+  firstName         String
+  lastName          String
+  role              UserRole
+  emailVerified     Boolean   @default(false)
+  profilePicture    String?   // Firebase Storage URL
+  isActive          Boolean   @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relations
+  studentProfile    StudentProfile?
+  teacherProfile    TeacherProfile?
+  adminProfile      AdminProfile?
+  auditLogs         AuditLog[]
+  securityEvents    SecurityEvent[]
+  
+  @@map("users")
+}
+
+model StudentProfile {
+  id                          String   @id @default(cuid())
+  userId                      String   @unique
+  gradeLevel                  String
+  subjects                    String[] // Array of subject interests
+  learningGoals               String[] // Optional enhancements
+  interests                   String[] // Optional enhancements
+  studyPreferences            String[] // Optional enhancements
+  profileCompletionPercentage Int      @default(20) // Basic info = 20%
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("student_profiles")
+}
+
+model TeacherProfile {
+  id                String              @id @default(cuid())
+  userId            String              @unique
+  applicationStatus ApplicationStatus   @default(PENDING)
+  qualifications    String[]
+  subjects          String[]
+  experience        Int                 // Years of experience
+  bio               String?
+  hourlyRate        Decimal?
+  documents         String[]            // Firebase Storage URLs
+  submittedAt       DateTime            @default(now())
+  reviewedAt        DateTime?
+  approvedBy        String?             // Admin user ID
+  rejectionReason   String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("teacher_profiles")
+}
+
+model AdminProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  department  String   @default("Platform Management")
+  isStatic    Boolean  @default(false) // True for env-configured admin
+  createdBy   String?  // Who created this admin
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("admin_profiles")
+}
+
+model AuditLog {
+  id              String    @id @default(cuid())
+  userId          String?   // Nullable for system events
+  firebaseUid     String?
+  eventType       EventType
+  action          String
+  resource        String?
+  oldValues       Json?
+  newValues       Json?
+  ipAddress       String
+  userAgent       String
+  deviceFingerprint String?
+  success         Boolean
+  errorMessage    String?
+  metadata        Json?
+  createdAt       DateTime  @default(now())
+  
+  user User? @relation(fields: [userId], references: [id])
+  
+  @@map("audit_logs")
+}
+
+model SecurityEvent {
+  id                String        @id @default(cuid())
+  userId            String?
+  firebaseUid       String?
+  eventType         SecurityEventType
+  riskLevel         RiskLevel
+  ipAddress         String
+  userAgent         String
+  deviceFingerprint String
+  blocked           Boolean       @default(false)
+  reason            String?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  
+  user User? @relation(fields: [userId], references: [id])
+  
+  @@map("security_events")
+}
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+  PENDING_TEACHER
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum EventType {
+  AUTH_LOGIN
+  AUTH_LOGOUT
+  AUTH_REGISTER
+  AUTH_PASSWORD_RESET
+  AUTH_EMAIL_VERIFY
+  PROFILE_UPDATE
+  ROLE_CHANGE
+  TEACHER_APPLICATION_SUBMIT
+  TEACHER_APPLICATION_APPROVE
+  TEACHER_APPLICATION_REJECT
+  ADMIN_ACTION
+}
+
+enum SecurityEventType {
+  SUSPICIOUS_LOGIN
+  RATE_LIMIT_EXCEEDED
+  BOT_DETECTED
+  MULTIPLE_FAILED_ATTEMPTS
+  NEW_DEVICE_LOGIN
+  UNUSUAL_ACTIVITY
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}

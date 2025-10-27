@@ -4,8 +4,12 @@
 
 ### Phase 1: Foundation Setup (Days 1-2)
 
-- [ ] 1. Initialize Next.js project with minimal dependencies
-  - Create Next.js 14 project with TypeScript
+- [ ] 1. Initialize Next.js project with essential dependencies
+  - Create Next.js 15 project with TypeScript
+  - set up shadcn
+  - set styles get collor palet inspiration from popular sites 
+  - set dark and light mode
+  - design must be decent and followed from /ui-design folder
   - Configure Tailwind CSS with custom gamification colors
   - Set up basic project structure and routing
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_

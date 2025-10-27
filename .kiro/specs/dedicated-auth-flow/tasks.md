@@ -2,76 +2,106 @@
 
 ## 🎯 Implementation Overview
 
-Convert the dedicated authentication flow design into a series of incremental coding tasks that build upon each other, ending with a fully integrated authentication system for all user roles.
+Convert the Firebase Auth + Neon DB authentication system design into incremental coding tasks that build a comprehensive authentication system with advanced security features, bot protection, and fault tolerance for all user roles.
 
 ## 📋 Implementation Tasks
 
 ### Phase 1: Foundation and Core Infrastructure
 
-- [ ] 1. Set up authentication infrastructure and database schema
-  - Install and configure required dependencies (Prisma, JWT libraries, bcrypt, Zod)
-  - Create Prisma schema for users, sessions, auth events, and role management
-  - Set up database connection and migration utilities
-  - Create environment configuration for auth secrets and database URLs
-  - _Requirements: 1.1, 2.1, 4.1_
+- [x] 1. Set up Next.js 15 project with Firebase Auth and Neon DB infrastructure
 
-- [ ] 1.1 Create core authentication types and interfaces
-  - Define TypeScript interfaces for User, AuthResult, TokenPair, and error types
-  - Create enums for UserRole, Permission, and AuthErrorCode
-  - Build Zod validation schemas for registration and login forms
-  - Create utility types for role-specific profiles (Student, Teacher, Admin)
-  - _Requirements: 1.1, 1.2, 1.3, 1.4, 4.2, 4.3, 4.4_
 
-- [ ] 1.2 Implement password hashing and token utilities
-  - Create password hashing functions using bcrypt with proper salt rounds
-  - Build JWT token generation and validation utilities with RS256 signing
-  - Implement secure token payload creation with role-based claims
-  - Create token refresh logic with proper expiration handling
-  - _Requirements: 2.1, 2.2, 2.3_
+  - Initialize Next.js 15 project with TypeScript strict mode and App Router
+  - Install Firebase SDK v10+, Prisma, Zod, shadcn/ui, React Hook Form, and Zustand
+  - Set up Firebase project with Authentication and Storage enabled
+  - Configure hCaptcha for bot protection (cost-effective alternative to reCAPTCHA Enterprise)
+  - Configure Neon DB connection and create Prisma schema for user profiles, audit logs, and security events
+  - Create environment configuration for Firebase keys, Neon DB URL, static admin credentials, and hCaptcha keys
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 1.1, 2.1, 11.1, 15.1, 15.2_
 
-- [ ] 1.3 Set up database models and migrations
-  - Create Prisma models for User, Session, AuthEvent, and TeacherApplication
-  - Write database migrations for all authentication tables
-  - Set up database indexes for optimal query performance
-  - Create database seed data for testing different user roles
-  - _Requirements: 1.1, 1.2, 1.3, 1.4, 5.1, 5.2_
+- [x] 1.1 Create Firebase Auth integration types and interfaces
 
-### Phase 2: Core Authentication Service
 
-- [ ] 2. Build the main authentication service with registration and login
-  - Implement user registration for all three roles (Student, Teacher, Admin)
-  - Create secure login functionality with credential validation
-  - Build email verification system with secure token generation
-  - Implement password reset functionality with time-limited tokens
-  - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 3.1, 3.2, 3.3, 3.4_
+  - Define TypeScript interfaces for Firebase User, UserProfile, and AuthResult types
+  - Create enums for UserRole, Permission, ApplicationStatus, and AuthErrorCode
+  - Build Zod validation schemas for registration, login, and profile enhancement forms
+  - Create utility types for role-specific profiles (Student, Teacher, Admin) and Firebase custom claims
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 1.1, 1.2, 1.3, 2.1, 4.1, 14.1, 15.1_
 
-- [ ] 2.1 Create student registration flow
-  - Build student registration API endpoint with input validation
-  - Implement student profile creation with grade level and subjects
-  - Create email verification token generation and storage
-  - Send welcome email with verification link to new students
-  - _Requirements: 1.2, 1.5, 3.1, 3.2_
 
-- [ ] 2.2 Create teacher registration and application system
-  - Build teacher registration API with professional information collection
-  - Create teacher application submission with qualifications and experience
-  - Implement pending teacher account creation with limited access
+
+- [ ] 1.2 Implement Firebase Auth service and token management
+  - Create Firebase Auth service wrapper for authentication operations
+  - Build Firebase custom claims management for role-based access control
+  - Implement Firebase ID token validation and refresh handling
+
+
+  - Create Firebase App Check integration for bot protection
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 2.1, 2.2, 2.3, 11.1, 11.2_
+
+- [ ] 1.3 Set up Neon DB models and Firebase synchronization
+  - Create Prisma models for User, StudentProfile, TeacherProfile, AdminProfile, AuditLog, and SecurityEvent
+  - Write database migrations for all user profile and audit tables
+  - Set up database indexes for optimal query performance on firebaseUid and email fields
+  - Create database seed data for testing different user roles and static admin
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 1.1, 1.2, 1.3, 5.1, 5.2, 14.1, 15.1, 16.1_
+
+### Phase 2: Firebase Auth Integration and User Management
+
+- [ ] 2. Build Firebase Auth service with Neon DB synchronization
+  - Implement Firebase Auth registration for Student and Teacher roles
+  - Create static admin authentication using environment credentials
+  - Build Firebase Auth login with Neon DB profile retrieval
+  - Implement email verification using Firebase Auth with Neon DB sync
+  - Create password reset functionality using Firebase Auth
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 1.1, 1.2, 1.3, 1.5, 2.1, 2.2, 2.3, 15.1, 15.2, 15.3_
+
+- [ ] 2.1 Create student registration with Firebase Auth and Neon DB
+  - Build student registration API endpoint with Firebase Auth account creation
+  - Implement student profile creation in Neon DB with firebaseUid linking
+  - Create Firebase custom claims with STUDENT role and basic permissions
+  - Send Firebase Auth email verification and sync status to Neon DB
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 1.2, 1.5, 2.1, 2.2, 14.1_
+
+- [ ] 2.2 Create teacher registration and application workflow
+  - Build teacher registration API with Firebase Auth account creation
+  - Create comprehensive teacher application form with document upload to Firebase Storage
+  - Implement PENDING_TEACHER role assignment in Firebase custom claims
+  - Store teacher application data in Neon DB with application status tracking
   - Set up admin notification system for new teacher applications
-  - _Requirements: 1.3, 1.5, 5.1, 5.2_
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 1.3, 1.5, 5.1, 5.2, 5.3_
 
-- [ ] 2.3 Create admin registration with invitation system
-  - Build admin invitation code generation and validation
-  - Implement secure admin registration with invitation verification
-  - Create admin profile setup with department and permission assignment
-  - Set up audit logging for admin account creation
-  - _Requirements: 1.4, 1.5, 10.3, 10.4_
+- [ ] 2.3 Create static admin authentication system
+  - Build static admin login using environment-configured credentials
+  - Create Firebase Auth account for static admin with ADMIN role
+  - Implement admin profile creation/update in Neon DB with full permissions
+  - Set up enhanced audit logging for all admin actions
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5_
 
-- [ ] 2.4 Implement secure login system
-  - Create login API endpoint with rate limiting and security checks
-  - Build credential validation against hashed passwords
-  - Implement JWT token generation with role-based claims
-  - Create login audit logging with IP address and device tracking
-  - _Requirements: 2.1, 2.2, 7.1, 7.4_
+- [ ] 2.4 Implement Firebase Auth login with Neon DB integration
+  - Create login API endpoint with Firebase Auth validation and rate limiting
+  - Build user profile retrieval from Neon DB using firebaseUid
+  - Implement Firebase custom claims enrichment with role data from Neon DB
+  - Create comprehensive login audit logging with IP, device, and security event tracking
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
 ### Phase 3: Session Management and Security
 
@@ -80,13 +110,17 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Create session tracking and management system
   - Build rate limiting for authentication endpoints
   - Implement security monitoring and fraud detection
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 2.2, 2.3, 2.4, 2.5, 7.1, 7.2, 7.3, 7.4, 7.5_
 
 - [ ] 3.1 Create session manager service
   - Build token generation with access and refresh token pairs
   - Implement token validation and payload extraction
-  - Create token blacklisting system using Redis or in-memory store
+  - Create token blacklisting system using in-memory store
   - Build session tracking with device information and IP addresses
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 2.2, 2.3, 2.4, 7.3_
 
 - [ ] 3.2 Implement security layer with rate limiting
@@ -94,6 +128,8 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Build progressive rate limiting with increasing delays for failed attempts
   - Implement IP-based and user-based rate limiting strategies
   - Create security event logging for suspicious activities
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 7.1, 7.2, 7.5_
 
 - [ ] 3.3 Build fraud detection and monitoring
@@ -101,6 +137,8 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Create device fingerprinting for new device detection
   - Build security notification system for unusual login attempts
   - Implement account locking mechanism for repeated failed attempts
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 7.2, 7.3, 7.4, 7.5_
 
 - [ ]* 3.4 Add comprehensive security testing
@@ -108,6 +146,8 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Create integration tests for rate limiting and fraud detection
   - Build security tests for brute force attack prevention
   - Test session management and token refresh functionality
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 2.1, 2.2, 7.1, 7.2_
 
 ### Phase 4: Role-Based Access Control
@@ -117,6 +157,8 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Build middleware for route protection based on user roles
   - Implement teacher approval workflow for admin users
   - Create permission-based UI component rendering
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.2, 5.3, 5.4, 5.5_
 
 - [ ] 4.1 Create role manager service
@@ -124,6 +166,8 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Implement role assignment and modification capabilities
   - Create permission hierarchy and inheritance system
   - Build audit logging for role and permission changes
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
 - [ ] 4.2 Build route protection middleware
@@ -131,6 +175,8 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Implement role-based route access control
   - Build permission-specific endpoint protection
   - Create unauthorized access logging and error handling
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
 - [ ] 4.3 Implement teacher approval workflow
@@ -138,6 +184,8 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Build teacher application approval and rejection functionality
   - Implement email notifications for application status changes
   - Create teacher account activation upon approval
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
 - [ ] 4.4 Create permission-based UI components
@@ -145,6 +193,8 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Create role-specific navigation and menu systems
   - Implement conditional feature access in the frontend
   - Build permission checking hooks for React components
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
 ### Phase 5: Frontend Authentication Components
@@ -154,6 +204,8 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Build role selection interface with clear role descriptions
   - Implement form validation with real-time feedback
   - Create authentication state management with Zustand
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 9.1, 9.2, 9.3, 9.4, 9.5_
 
 - [ ] 5.1 Create role selection and registration forms
@@ -161,6 +213,8 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Create role-specific registration forms with appropriate fields
   - Implement form validation using React Hook Form and Zod
   - Add loading states and error handling for registration process
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
 - [ ] 5.2 Build login and password management forms
@@ -168,6 +222,8 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Build password reset request form with email validation
   - Implement password reset form with strength validation
   - Create email verification success and error pages
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 2.1, 3.1, 3.2, 3.3, 3.4_
 
 - [ ] 5.3 Implement authentication state management
@@ -175,6 +231,8 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Build authentication context provider for React components
   - Implement automatic token refresh in the background
   - Create logout functionality with proper state cleanup
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 2.2, 2.3, 2.4_
 
 - [ ] 5.4 Create mobile-optimized authentication UI
@@ -182,134 +240,217 @@ Convert the dedicated authentication flow design into a series of incremental co
   - Implement biometric authentication support where available
   - Create mobile-specific navigation and layout for auth flows
   - Add deep linking support for email verification and password reset
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
 
-### Phase 6: Advanced Security Features
+### Phase 6: Advanced Security and Social Authentication
 
-- [ ] 6. Implement advanced security features and multi-factor authentication
-  - Add multi-factor authentication (MFA) with TOTP support
-  - Create backup codes for MFA recovery
-  - Implement social authentication with Google and Microsoft
+- [ ] 6. Implement advanced security features and social authentication
+  - Implement social authentication with Google and Microsoft OAuth
   - Build comprehensive audit logging and security monitoring
-  - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 8.1, 8.2, 8.3, 8.4, 8.5_
+  - Create advanced bot protection and fraud detection
+  - Add fault tolerance and graceful degradation mechanisms
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 11.1, 11.2, 11.3, 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 6.1 Implement multi-factor authentication
-  - Create MFA setup flow with QR code generation for authenticator apps
-  - Build TOTP verification system using speakeasy library
-  - Implement backup code generation and validation
-  - Create MFA requirement enforcement for admin users
-  - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
-
-- [ ] 6.2 Add social authentication integration
-  - Integrate Google OAuth 2.0 for social login
-  - Add Microsoft OAuth 2.0 authentication
+- [ ] 6.1 Add social authentication integration
+  - Integrate Google OAuth 2.0 for social login with Firebase Auth
+  - Add Microsoft OAuth 2.0 authentication with Firebase Auth
   - Create account linking for existing users with social accounts
   - Implement fallback authentication when social login fails
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 6.3 Build comprehensive audit logging
-  - Create detailed logging for all authentication events
+- [ ] 6.2 Build comprehensive audit logging and monitoring
+  - Create detailed logging for all authentication events in Neon DB
   - Implement security event tracking with IP and device information
   - Build audit log viewing interface for administrators
   - Create automated alerts for suspicious authentication patterns
-  - _Requirements: 7.4, 10.3_
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5_
 
-- [ ]* 6.4 Add advanced security testing
-  - Write tests for MFA setup and verification flows
+- [ ] 6.3 Implement advanced bot protection and fraud detection
+  - Create hCaptcha integration for suspicious traffic detection
+  - Build device fingerprinting and behavioral analysis
+  - Implement progressive challenges for automated requests
+  - Create IP blocking and human verification systems
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
+
+- [ ] 6.4 Add fault tolerance and graceful degradation
+  - Implement Firebase Auth downtime handling with cached states
+  - Create Neon DB connectivity issue handling with queued operations
+  - Build retry mechanisms with exponential backoff
+  - Implement automatic data synchronization on service recovery
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
+
+- [ ]* 6.5 Add advanced security testing
   - Create tests for social authentication integration
   - Build security tests for audit logging and monitoring
-  - Test advanced fraud detection and account protection features
-  - _Requirements: 6.1, 6.2, 8.1, 8.2_
+  - Test bot protection and fraud detection features
+  - Test fault tolerance and graceful degradation scenarios
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 8.1, 8.2, 11.1, 12.1_
 
-### Phase 7: Admin User Management Interface
+### Phase 7: Student Profile Enhancement System
 
-- [ ] 7. Create comprehensive admin user management system
+- [ ] 7. Build student profile enhancement and customization system
+  - Create comprehensive student profile customization interface
+  - Build profile completion tracking and gamification
+  - Implement avatar upload and profile privacy controls
+  - Create learning goals and preferences management
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5_
+
+- [ ] 7.1 Create student profile enhancement interface
+  - Build profile customization forms for learning goals, interests, and study preferences
+  - Implement avatar upload functionality using Firebase Storage
+  - Create profile completion percentage tracking and progress indicators
+  - Build profile privacy controls and visibility settings
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 14.1, 14.2, 14.3, 14.4_
+
+- [ ] 7.2 Implement profile completion gamification
+  - Create profile completion percentage calculation based on filled fields
+  - Build progressive feature unlocking based on profile completion
+  - Implement profile completion rewards and achievements
+  - Create profile enhancement suggestions and guided tours
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 14.1, 14.4, 14.5_
+
+- [ ]* 7.3 Add student profile testing
+  - Write unit tests for profile enhancement functionality
+  - Create integration tests for avatar upload and storage
+  - Test profile completion tracking and gamification
+  - Test profile privacy controls and data security
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 14.1, 14.2, 14.3_
+
+### Phase 8: Admin User Management Interface
+
+- [ ] 8. Create comprehensive admin user management system
   - Build admin dashboard for user management and oversight
   - Create user search and filtering capabilities
   - Implement bulk user operations and role management
   - Build teacher application review and approval interface
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 7.1 Create admin user management dashboard
-  - Build searchable user directory with role-based filtering
-  - Create user profile viewing and editing interface
-  - Implement user account suspension and reactivation
-  - Build user activity monitoring and session management
+- [ ] 8.1 Create admin user management dashboard
+  - Build searchable user directory with role-based filtering from Neon DB
+  - Create user profile viewing and editing interface with Firebase Auth sync
+  - Implement user account suspension and reactivation in both systems
+  - Build user activity monitoring and session management dashboard
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 10.1, 10.2, 10.4_
 
-- [ ] 7.2 Build teacher application management system
-  - Create teacher application review interface with document viewing
-  - Build application approval workflow with feedback system
+- [ ] 8.2 Build teacher application management system
+  - Create teacher application review interface with Firebase Storage document viewing
+  - Build application approval workflow with Firebase custom claims updates
   - Implement batch application processing capabilities
-  - Create teacher onboarding automation upon approval
+  - Create teacher onboarding automation with role upgrade and notifications
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 7.3 Implement admin security and audit features
-  - Create security dashboard with authentication metrics and alerts
+- [ ] 8.3 Implement admin security and audit features
+  - Create security dashboard with authentication metrics and alerts from Neon DB
   - Build audit log viewer with filtering and search capabilities
   - Implement admin action logging and accountability tracking
   - Create security report generation for compliance and monitoring
-  - _Requirements: 10.3, 10.5_
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: 10.3, 10.5, 16.1, 16.2, 16.3_
 
-### Phase 8: Integration and Testing
+### Phase 9: Integration and Testing
 
-- [ ] 8. Integrate authentication system with existing platform features
+- [ ] 9. Integrate Firebase Auth + Neon DB system with existing platform features
   - Connect authentication to existing dashboard components
-  - Update existing routes to use new role-based access control
-  - Migrate existing user data to new authentication system
+  - Update existing routes to use Firebase Auth with Neon DB role checking
+  - Migrate existing user data to new Firebase + Neon DB architecture
   - Implement backward compatibility for existing sessions
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: All requirements integration_
 
-- [ ] 8.1 Integrate with existing dashboard systems
-  - Update student dashboard to use new authentication state
-  - Modify teacher dashboard to work with new role management
-  - Connect admin panel to new user management system
-  - Ensure gamification system works with new user roles
+- [ ] 9.1 Integrate with existing dashboard systems
+  - Update student dashboard to use Firebase Auth state with Neon DB profile data
+  - Modify teacher dashboard to work with new Firebase custom claims and Neon DB roles
+  - Connect admin panel to new user management system with static admin support
+  - Ensure gamification system works with new user roles and profile data
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 8.2 Update existing routes and middleware
-  - Replace existing authentication middleware with new system
-  - Update all protected routes to use new permission checking
-  - Migrate existing session handling to new token system
-  - Ensure API endpoints work with new authentication
+- [ ] 9.2 Update existing routes and middleware
+  - Replace existing authentication middleware with Firebase Auth validation
+  - Update all protected routes to use Firebase custom claims and Neon DB permissions
+  - Migrate existing session handling to Firebase Auth token system
+  - Ensure API endpoints work with Firebase ID tokens and Neon DB data
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: 2.1, 2.2, 4.1, 4.2_
 
-- [ ] 8.3 Data migration and backward compatibility
-  - Create migration scripts for existing user data
-  - Implement session migration for currently logged-in users
-  - Build compatibility layer for existing authentication tokens
+- [ ] 9.3 Data migration and backward compatibility
+  - Create migration scripts for existing user data to Neon DB with Firebase Auth linking
+  - Implement session migration for currently logged-in users to Firebase Auth
+  - Build compatibility layer for existing authentication tokens during transition
   - Create rollback procedures in case of migration issues
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: All requirements_
 
-- [ ]* 8.4 Comprehensive integration testing
-  - Test complete authentication flows for all user roles
-  - Verify integration with existing platform features
-  - Test data migration and backward compatibility
+- [ ]* 9.4 Comprehensive integration testing
+  - Test complete authentication flows for all user roles (Student, Teacher, Static Admin)
+  - Verify integration with existing platform features and Firebase + Neon DB sync
+  - Test data migration and backward compatibility scenarios
   - Perform end-to-end testing of the entire authentication system
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
   - _Requirements: All requirements_
 
-### Phase 9: Performance Optimization and Monitoring
+### Phase 10: Performance Optimization and Monitoring
 
-- [ ] 9. Optimize performance and implement monitoring
-  - Add caching for frequently accessed authentication data
-  - Implement performance monitoring for authentication endpoints
+- [ ] 10. Optimize performance and implement monitoring for Firebase + Neon DB system
+  - Add caching for frequently accessed authentication data from Neon DB
+  - Implement performance monitoring for Firebase Auth and Neon DB operations
   - Create alerting system for authentication failures and security events
-  - Optimize database queries and add proper indexing
-  - _Requirements: Performance and monitoring_
+  - Optimize Neon DB queries and add proper indexing for firebaseUid lookups
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: Performance and monitoring, 13.1, 13.2, 13.3, 13.4, 13.5_
 
-- [ ] 9.1 Implement caching and performance optimization
-  - Add Redis caching for user permissions and role data
-  - Implement token blacklist caching for faster validation
-  - Create database query optimization and proper indexing
-  - Build connection pooling and query performance monitoring
-  - _Requirements: Performance optimization_
+- [ ] 10.1 Implement caching and performance optimization
+  - Add next in build caching for user permissions and role data from Neon DB
+  - Implement Firebase Auth token caching and validation optimization
+  - Create Neon DB query optimization with proper indexing on firebaseUid
+  - Build connection pooling and query performance monitoring for Neon DB
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: Performance optimization, 13.1, 13.2_
 
-- [ ] 9.2 Create monitoring and alerting system
-  - Implement authentication metrics collection and dashboards
-  - Create automated alerts for security events and failures
-  - Build performance monitoring for authentication endpoints
-  - Set up error tracking and logging aggregation
-  - _Requirements: Monitoring and alerting_
+- [ ] 10.2 Create monitoring and alerting system
+  - Implement authentication metrics collection for Firebase Auth and Neon DB operations
+  - Create automated alerts for security events, rate limiting, and system failures
+  - Build performance monitoring for authentication endpoints and database queries
+  - Set up error tracking and logging aggregation for the entire auth system
+  - Always follow steering/development-standard.md file to keep the Musts in track
+  - Commit this task changes with specialized and specified message 
+  - _Requirements: Monitoring and alerting, 13.3, 13.4, 13.5_
 
 ## 🎯 Success Criteria
 

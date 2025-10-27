@@ -2,7 +2,7 @@
 
 ## Overview
 
-This design document outlines a comprehensive, security-focused authentication system for the Learnity platform that supports multiple user roles (Student, Teacher, Admin) with modern security practices, excellent user experience, and scalable architecture.
+This design document outlines a comprehensive authentication system for the Learnity platform that integrates Firebase Auth for authentication with Neon DB as the single source of truth for user data. The system supports multiple user roles (Student, Teacher, Admin) with advanced security features, bot protection, and fault tolerance.
 
 ## Architecture
 
@@ -10,251 +10,145 @@ This design document outlines a comprehensive, security-focused authentication s
 
 ```mermaid
 graph TB
-    Client[Client Application] --> AuthGateway[Authentication Gateway]
+    Client[Next.js Client] --> AuthGateway[Authentication Gateway]
+    AuthGateway --> FirebaseAuth[Firebase Auth]
     AuthGateway --> AuthService[Auth Service]
-    AuthGateway --> SessionManager[Session Manager]
     AuthGateway --> RoleManager[Role Manager]
     
-    AuthService --> UserDB[(User Database)]
-    AuthService --> EmailService[Email Service]
+    AuthService --> NeonDB[(Neon DB - Single Source of Truth)]
     AuthService --> SecurityLayer[Security Layer]
     
-    SessionManager --> TokenStore[(Token Store)]
-    SessionManager --> RefreshService[Token Refresh Service]
+    FirebaseAuth --> TokenValidation[Token Validation]
+    TokenValidation --> RoleEnrichment[Role Enrichment from Neon DB]
     
-    RoleManager --> PermissionDB[(Permissions DB)]
+    RoleManager --> NeonDB
     RoleManager --> AuditLogger[Audit Logger]
     
     SecurityLayer --> RateLimiter[Rate Limiter]
+    SecurityLayer --> BotProtection[Bot Protection]
     SecurityLayer --> FraudDetection[Fraud Detection]
-    SecurityLayer --> MFAService[MFA Service]
+    
+    NeonDB --> UserProfiles[User Profiles]
+    NeonDB --> TeacherApplications[Teacher Applications]
+    NeonDB --> AuditLogs[Audit Logs]
 ```
 
 ### Technology Stack
 
 ```typescript
-// Core Authentication Stack
+// Firebase + Neon DB Authentication Stack
 const TECH_STACK = {
+  authentication: {
+    provider: 'Firebase Auth v10+',
+    methods: ['Email/Password', 'Google OAuth', 'Microsoft OAuth'],
+    tokenManagement: 'Firebase Auth ID Tokens + Custom Claims',
+    emailVerification: 'Firebase Auth Email Verification',
+    rateLimiting: 'Firebase Auth built-in rate limiting',
+    appCheck: 'Firebase App Check for bot protection'
+  },
   backend: {
-    framework: 'Next.js 14 API Routes',
-    database: 'PostgreSQL with Prisma ORM',
-    tokenManagement: 'JWT with RS256 signing',
-    sessionStore: 'Redis for token blacklisting',
-    emailService: 'Resend or SendGrid',
-    encryption: 'bcrypt for passwords, crypto for tokens'
+    framework: 'Next.js 15 API Routes (App Router)',
+    database: 'Neon DB (PostgreSQL) with Prisma ORM',
+    validation: 'Zod schemas for all inputs',
+    fileStorage: 'Firebase Storage for documents/avatars',
+    caching: 'Next.js 15 built-in caching + In-memory rate limiting'
   },
   frontend: {
-    framework: 'Next.js 14 with TypeScript',
+    framework: 'Next.js 15 with TypeScript (strict mode)',
     stateManagement: 'Zustand for auth state',
     formHandling: 'React Hook Form with Zod validation',
-    uiComponents: 'Custom components with Tailwind CSS',
-    biometrics: 'WebAuthn API for biometric auth'
+    uiComponents: 'shadcn/ui with Tailwind CSS',
+    styling: 'Tailwind CSS with mobile-first approach'
   },
   security: {
-    rateLimiting: 'Upstash Rate Limit',
-    monitoring: 'Sentry for error tracking',
-    logging: 'Winston for audit logs',
-    mfa: 'speakeasy for TOTP generation'
+    rateLimiting: 'Firebase Auth built-in rate limiting + App Check',
+    botProtection: 'Firebase App Check + reCAPTCHA Enterprise',
+    monitoring: 'Custom audit logging to Neon DB',
+    encryption: 'Firebase Auth security + HTTPS only'
   }
-}
+} as const;
 ```
 
 ## Components and Interfaces
 
-### 1. Authentication Service
+### 1. Firebase Auth Integration Service
 
 ```typescript
-interface AuthService {
+interface IFirebaseAuthService {
   // Registration methods
-  registerStudent(data: StudentRegistrationData): Promise<AuthResult>
-  registerTeacher(data: TeacherRegistrationData): Promise<AuthResult>
-  registerAdmin(data: AdminRegistrationData, inviteCode: string): Promise<AuthResult>
+  registerStudent(data: StudentRegistrationData): Promise<FirebaseAuthResult>
+  registerTeacher(data: TeacherRegistrationData): Promise<FirebaseAuthResult>
+  loginStaticAdmin(credentials: StaticAdminCredentials): Promise<FirebaseAuthResult>
   
   // Login methods
-  login(credentials: LoginCredentials): Promise<AuthResult>
-  loginWithMFA(credentials: LoginCredentials, mfaCode: string): Promise<AuthResult>
-  socialLogin(provider: SocialProvider, token: string): Promise<AuthResult>
+  login(credentials: LoginCredentials): Promise<FirebaseAuthResult>
+  socialLogin(provider: 'google' | 'microsoft'): Promise<FirebaseAuthResult>
   
   // Account management
-  verifyEmail(token: string): Promise<boolean>
-  requestPasswordReset(email: string): Promise<boolean>
-  resetPassword(token: string, newPassword: string): Promise<boolean>
-  changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean>
+  sendEmailVerification(user: FirebaseUser): Promise<void>
+  sendPasswordReset(email: string): Promise<void>
+  updatePassword(newPassword: string): Promise<void>
+  
+  // Token management
+  getCurrentUser(): Promise<FirebaseUser | null>
+  getIdToken(forceRefresh?: boolean): Promise<string>
+  signOut(): Promise<void>
 }
 
-interface AuthResult {
+interface FirebaseAuthResult {
   success: boolean
-  user?: User
-  tokens?: TokenPair
-  requiresMFA?: boolean
+  user?: FirebaseUser
+  idToken?: string
+  needsEmailVerification?: boolean
   error?: AuthError
 }
 
-interface TokenPair {
-  accessToken: string    // 15 minutes expiry
-  refreshToken: string   // 7 days expiry
-}
-```
-
-### 2. Session Manager
-
-```typescript
-interface SessionManager {
-  // Token lifecycle
-  generateTokens(user: User): Promise<TokenPair>
-  refreshTokens(refreshToken: string): Promise<TokenPair>
-  revokeTokens(userId: string): Promise<void>
-  revokeAllUserTokens(userId: string): Promise<void>
-  
-  // Session validation
-  validateAccessToken(token: string): Promise<TokenPayload | null>
-  isTokenBlacklisted(tokenId: string): Promise<boolean>
-  blacklistToken(tokenId: string, expiresAt: Date): Promise<void>
-  
-  // Session monitoring
-  getActiveSessions(userId: string): Promise<Session[]>
-  terminateSession(sessionId: string): Promise<void>
-}
-
-interface TokenPayload {
-  userId: string
-  email: string
-  role: UserRole
-  permissions: string[]
-  sessionId: string
-  iat: number
-  exp: number
-  jti: string  // JWT ID for blacklisting
-}
-
-interface Session {
-  id: string
-  userId: string
-  deviceInfo: DeviceInfo
-  ipAddress: string
-  lastActivity: Date
-  createdAt: Date
-}
-```
-
-### 3. Role Manager
-
-```typescript
-interface RoleManager {
-  // Permission checking
-  hasPermission(userId: string, permission: string): Promise<boolean>
-  hasRole(userId: string, role: UserRole): Promise<boolean>
-  getUserPermissions(userId: string): Promise<string[]>
-  
-  // Role management
-  assignRole(userId: string, role: UserRole): Promise<void>
-  removeRole(userId: string, role: UserRole): Promise<void>
-  updateUserPermissions(userId: string, permissions: string[]): Promise<void>
-  
-  // Teacher approval workflow
-  submitTeacherApplication(userId: string, application: TeacherApplication): Promise<void>
-  reviewTeacherApplication(applicationId: string, decision: ApprovalDecision): Promise<void>
-  getTeacherApplications(status?: ApplicationStatus): Promise<TeacherApplication[]>
-}
-
-enum UserRole {
-  STUDENT = 'student',
-  TEACHER = 'teacher',
-  ADMIN = 'admin',
-  PENDING_TEACHER = 'pending_teacher'
-}
-
-enum Permission {
-  // Student permissions
-  VIEW_STUDENT_DASHBOARD = 'view:student_dashboard',
-  JOIN_STUDY_GROUPS = 'join:study_groups',
-  BOOK_TUTORING = 'book:tutoring',
-  
-  // Teacher permissions
-  VIEW_TEACHER_DASHBOARD = 'view:teacher_dashboard',
-  MANAGE_SESSIONS = 'manage:sessions',
-  UPLOAD_CONTENT = 'upload:content',
-  VIEW_STUDENT_PROGRESS = 'view:student_progress',
-  
-  // Admin permissions
-  VIEW_ADMIN_PANEL = 'view:admin_panel',
-  MANAGE_USERS = 'manage:users',
-  APPROVE_TEACHERS = 'approve:teachers',
-  VIEW_AUDIT_LOGS = 'view:audit_logs'
-}
-```
-
-### 4. Security Layer
-
-```typescript
-interface SecurityLayer {
-  // Rate limiting
-  checkRateLimit(identifier: string, action: string): Promise<RateLimitResult>
-  incrementRateLimit(identifier: string, action: string): Promise<void>
-  
-  // Fraud detection
-  analyzeLoginAttempt(attempt: LoginAttempt): Promise<SecurityAssessment>
-  flagSuspiciousActivity(userId: string, activity: SecurityEvent): Promise<void>
-  
-  // MFA management
-  generateMFASecret(userId: string): Promise<MFASetup>
-  verifyMFACode(userId: string, code: string): Promise<boolean>
-  generateBackupCodes(userId: string): Promise<string[]>
-  
-  // Device management
-  registerDevice(userId: string, deviceInfo: DeviceInfo): Promise<string>
-  isKnownDevice(userId: string, deviceFingerprint: string): Promise<boolean>
-  sendSecurityNotification(userId: string, event: SecurityEvent): Promise<void>
-}
-
-interface RateLimitResult {
-  allowed: boolean
-  remaining: number
-  resetTime: Date
-  retryAfter?: number
-}
-
-interface SecurityAssessment {
-  riskLevel: 'low' | 'medium' | 'high'
-  requiresAdditionalVerification: boolean
-  blockedReasons: string[]
-  recommendations: string[]
-}
-```
-
-## Data Models
-
-### User Data Model
-
-```typescript
-interface User {
-  id: string
+interface FirebaseUser {
+  uid: string
   email: string
   emailVerified: boolean
-  passwordHash: string
-  role: UserRole
-  profile: UserProfile
+  displayName?: string
+  photoURL?: string
+}
+```
+
+### 2. User Profile Service (Neon DB Integration)
+
+```typescript
+interface IUserProfileService {
+  // Profile management
+  createUserProfile(firebaseUid: string, data: CreateProfileData): Promise<UserProfile>
+  getUserProfile(firebaseUid: string): Promise<UserProfile | null>
+  updateUserProfile(firebaseUid: string, data: UpdateProfileData): Promise<UserProfile>
   
-  // Security fields
-  mfaEnabled: boolean
-  mfaSecret?: string
-  backupCodes?: string[]
-  lastLogin?: Date
-  failedLoginAttempts: number
-  lockedUntil?: Date
+  // Role management
+  getUserRole(firebaseUid: string): Promise<UserRole>
+  updateUserRole(firebaseUid: string, role: UserRole): Promise<void>
   
-  // Audit fields
-  createdAt: Date
-  updatedAt: Date
-  lastPasswordChange: Date
+  // Teacher application workflow
+  submitTeacherApplication(firebaseUid: string, application: TeacherApplicationData): Promise<void>
+  getTeacherApplications(status?: ApplicationStatus): Promise<TeacherApplication[]>
+  reviewTeacherApplication(applicationId: string, decision: ApprovalDecision): Promise<void>
+  
+  // Student profile enhancement
+  enhanceStudentProfile(firebaseUid: string, enhancements: StudentEnhancements): Promise<void>
+  getProfileCompletionStatus(firebaseUid: string): Promise<ProfileCompletion>
 }
 
 interface UserProfile {
+  id: string
+  firebaseUid: string
+  email: string
   firstName: string
   lastName: string
-  avatar?: string
+  role: UserRole
+  emailVerified: boolean
+  profilePicture?: string
+  createdAt: Date
+  updatedAt: Date
+  lastLoginAt?: Date
   
-  // Role-specific fields
+  // Role-specific data
   studentProfile?: StudentProfile
   teacherProfile?: TeacherProfile
   adminProfile?: AdminProfile
@@ -263,54 +157,409 @@ interface UserProfile {
 interface StudentProfile {
   gradeLevel: string
   subjects: string[]
-  learningGoals: string[]
+  learningGoals?: string[]
+  interests?: string[]
+  studyPreferences?: string[]
+  profileCompletionPercentage: number
 }
 
 interface TeacherProfile {
+  applicationStatus: 'PENDING' | 'APPROVED' | 'REJECTED'
   qualifications: string[]
   subjects: string[]
   experience: number
-  hourlyRate?: number
   bio?: string
-  applicationStatus: ApplicationStatus
+  hourlyRate?: number
+  documents: string[] // Firebase Storage URLs
   approvedAt?: Date
   approvedBy?: string
-}
-
-interface AdminProfile {
-  department: string
-  permissions: string[]
-  invitedBy: string
+  rejectionReason?: string
 }
 ```
 
-### Authentication Events Model
+### 3. Role & Permission Manager
 
 ```typescript
-interface AuthEvent {
-  id: string
-  userId: string
-  type: AuthEventType
+interface IRoleManager {
+  // Permission checking
+  hasPermission(firebaseUid: string, permission: Permission): Promise<boolean>
+  hasRole(firebaseUid: string, role: UserRole): Promise<boolean>
+  getUserPermissions(firebaseUid: string): Promise<Permission[]>
+  
+  // Firebase custom claims management
+  setCustomClaims(firebaseUid: string, claims: CustomClaims): Promise<void>
+  getCustomClaims(firebaseUid: string): Promise<CustomClaims>
+  
+  // Route protection
+  validateRouteAccess(firebaseUid: string, route: string): Promise<boolean>
+  requireRole(requiredRole: UserRole): (firebaseUid: string) => Promise<boolean>
+}
+
+enum UserRole {
+  STUDENT = 'STUDENT',
+  TEACHER = 'TEACHER',
+  ADMIN = 'ADMIN',
+  PENDING_TEACHER = 'PENDING_TEACHER'
+}
+
+enum Permission {
+  // Student permissions
+  VIEW_STUDENT_DASHBOARD = 'view:student_dashboard',
+  JOIN_STUDY_GROUPS = 'join:study_groups',
+  BOOK_TUTORING = 'book:tutoring',
+  ENHANCE_PROFILE = 'enhance:profile',
+  
+  // Teacher permissions
+  VIEW_TEACHER_DASHBOARD = 'view:teacher_dashboard',
+  MANAGE_SESSIONS = 'manage:sessions',
+  UPLOAD_CONTENT = 'upload:content',
+  VIEW_STUDENT_PROGRESS = 'view:student_progress',
+  
+  // Pending teacher permissions
+  VIEW_APPLICATION_STATUS = 'view:application_status',
+  UPDATE_APPLICATION = 'update:application',
+  
+  // Admin permissions
+  VIEW_ADMIN_PANEL = 'view:admin_panel',
+  MANAGE_USERS = 'manage:users',
+  APPROVE_TEACHERS = 'approve:teachers',
+  VIEW_AUDIT_LOGS = 'view:audit_logs',
+  MANAGE_PLATFORM = 'manage:platform'
+}
+
+interface CustomClaims {
+  role: UserRole
+  permissions: Permission[]
+  profileComplete: boolean
+  emailVerified: boolean
+}
+```
+
+### 4. Security & Bot Protection Layer
+
+```typescript
+interface ISecurityService {
+  // Firebase App Check integration
+  verifyAppCheckToken(token: string): Promise<boolean>
+  generateAppCheckToken(): Promise<string>
+  
+  // Firebase reCAPTCHA Enterprise
+  verifyRecaptcha(token: string, action: string): Promise<RecaptchaResult>
+  
+  // Device and request analysis
+  analyzeRequest(request: SecurityRequest): Promise<SecurityAssessment>
+  generateDeviceFingerprint(request: Request): string
+  
+  // Fraud detection
+  analyzeLoginAttempt(attempt: LoginAttempt): Promise<SecurityAssessment>
+  flagSuspiciousActivity(firebaseUid: string, activity: SecurityEvent): Promise<void>
+  
+  // Audit logging
+  logAuthEvent(event: AuthEvent): Promise<void>
+  logSecurityEvent(event: SecurityEvent): Promise<void>
+  getAuditLogs(filters: AuditFilters): Promise<AuditLog[]>
+}
+
+interface RecaptchaResult {
   success: boolean
+  score: number // 0.0 to 1.0, higher is more likely human
+  action: string
+  challenge_ts: string
+}
+
+interface SecurityAssessment {
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH'
+  requiresAdditionalVerification: boolean
+  requiresCaptcha: boolean
+  blockedReasons: string[]
+  allowedActions: SecurityAction[]
+}
+
+enum SecurityAction {
+  LOGIN = 'LOGIN',
+  REGISTER = 'REGISTER',
+  PASSWORD_RESET = 'PASSWORD_RESET',
+  PROFILE_UPDATE = 'PROFILE_UPDATE',
+  TEACHER_APPLICATION = 'TEACHER_APPLICATION'
+}
+
+interface SecurityRequest {
   ipAddress: string
   userAgent: string
   deviceFingerprint: string
-  metadata: Record<string, any>
-  createdAt: Date
+  timestamp: Date
+  action: SecurityAction
+  firebaseUid?: string
+}
+```
+
+## Data Models
+
+### Neon DB Schema (Prisma)
+
+```prisma
+// User profile stored in Neon DB (single source of truth)
+model User {
+  id                String    @id @default(cuid())
+  firebaseUid       String    @unique // Links to Firebase Auth user
+  email             String    @unique
+  firstName         String
+  lastName          String
+  role              UserRole
+  emailVerified     Boolean   @default(false)
+  profilePicture    String?   // Firebase Storage URL
+  isActive          Boolean   @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relations
+  studentProfile    StudentProfile?
+  teacherProfile    TeacherProfile?
+  adminProfile      AdminProfile?
+  auditLogs         AuditLog[]
+  securityEvents    SecurityEvent[]
+  
+  @@map("users")
 }
 
-enum AuthEventType {
-  LOGIN = 'login',
-  LOGOUT = 'logout',
-  REGISTER = 'register',
-  PASSWORD_CHANGE = 'password_change',
-  PASSWORD_RESET = 'password_reset',
-  EMAIL_VERIFY = 'email_verify',
-  MFA_ENABLE = 'mfa_enable',
-  MFA_DISABLE = 'mfa_disable',
-  ROLE_CHANGE = 'role_change',
-  ACCOUNT_LOCK = 'account_lock',
-  SUSPICIOUS_ACTIVITY = 'suspicious_activity'
+model StudentProfile {
+  id                          String   @id @default(cuid())
+  userId                      String   @unique
+  gradeLevel                  String
+  subjects                    String[] // Array of subject interests
+  learningGoals               String[] // Optional enhancements
+  interests                   String[] // Optional enhancements
+  studyPreferences            String[] // Optional enhancements
+  profileCompletionPercentage Int      @default(20) // Basic info = 20%
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("student_profiles")
+}
+
+model TeacherProfile {
+  id                String              @id @default(cuid())
+  userId            String              @unique
+  applicationStatus ApplicationStatus   @default(PENDING)
+  qualifications    String[]
+  subjects          String[]
+  experience        Int                 // Years of experience
+  bio               String?
+  hourlyRate        Decimal?
+  documents         String[]            // Firebase Storage URLs
+  submittedAt       DateTime            @default(now())
+  reviewedAt        DateTime?
+  approvedBy        String?             // Admin user ID
+  rejectionReason   String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("teacher_profiles")
+}
+
+model AdminProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  department  String   @default("Platform Management")
+  isStatic    Boolean  @default(false) // True for env-configured admin
+  createdBy   String?  // Who created this admin
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("admin_profiles")
+}
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+  PENDING_TEACHER
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+```
+
+### Audit & Security Models
+
+```prisma
+model AuditLog {
+  id              String    @id @default(cuid())
+  userId          String?   // Nullable for system events
+  firebaseUid     String?
+  eventType       EventType
+  action          String
+  resource        String?
+  oldValues       Json?
+  newValues       Json?
+  ipAddress       String
+  userAgent       String
+  deviceFingerprint String?
+  success         Boolean
+  errorMessage    String?
+  metadata        Json?
+  createdAt       DateTime  @default(now())
+  
+  user User? @relation(fields: [userId], references: [id])
+  
+  @@map("audit_logs")
+}
+
+model SecurityEvent {
+  id                String        @id @default(cuid())
+  userId            String?
+  firebaseUid       String?
+  eventType         SecurityEventType
+  riskLevel         RiskLevel
+  ipAddress         String
+  userAgent         String
+  deviceFingerprint String
+  blocked           Boolean       @default(false)
+  reason            String?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  
+  user User? @relation(fields: [userId], references: [id])
+  
+  @@map("security_events")
+}
+
+enum EventType {
+  AUTH_LOGIN
+  AUTH_LOGOUT
+  AUTH_REGISTER
+  AUTH_PASSWORD_RESET
+  AUTH_EMAIL_VERIFY
+  PROFILE_UPDATE
+  ROLE_CHANGE
+  TEACHER_APPLICATION_SUBMIT
+  TEACHER_APPLICATION_APPROVE
+  TEACHER_APPLICATION_REJECT
+  ADMIN_ACTION
+}
+
+enum SecurityEventType {
+  SUSPICIOUS_LOGIN
+  RATE_LIMIT_EXCEEDED
+  BOT_DETECTED
+  MULTIPLE_FAILED_ATTEMPTS
+  NEW_DEVICE_LOGIN
+  UNUSUAL_ACTIVITY
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+```
+
+## Firebase + Neon DB Integration Strategy
+
+### Authentication Flow
+
+```typescript
+// 1. User Registration Flow
+const registrationFlow = {
+  step1: 'Create Firebase Auth account',
+  step2: 'Send email verification via Firebase',
+  step3: 'Create user profile in Neon DB with firebaseUid',
+  step4: 'Set Firebase custom claims based on role',
+  step5: 'Redirect to appropriate dashboard'
+}
+
+// 2. Login Flow
+const loginFlow = {
+  step1: 'Authenticate with Firebase Auth',
+  step2: 'Get Firebase ID token',
+  step3: 'Fetch user profile from Neon DB using firebaseUid',
+  step4: 'Enrich token with custom claims from Neon DB',
+  step5: 'Store auth state in Zustand',
+  step6: 'Redirect based on role and profile completion'
+}
+
+// 3. Static Admin Flow
+const staticAdminFlow = {
+  step1: 'Validate credentials against environment variables',
+  step2: 'Create/update Firebase Auth account for admin',
+  step3: 'Create/update admin profile in Neon DB',
+  step4: 'Set ADMIN role in Firebase custom claims',
+  step5: 'Grant full platform access'
+}
+```
+
+### Data Synchronization Strategy
+
+```typescript
+interface ISyncService {
+  // Sync Firebase user changes to Neon DB
+  syncFirebaseUserToNeonDB(firebaseUser: FirebaseUser): Promise<void>
+  
+  // Update Firebase custom claims from Neon DB data
+  syncNeonDBToFirebaseClaims(firebaseUid: string): Promise<void>
+  
+  // Handle email verification sync
+  handleEmailVerificationSync(firebaseUid: string): Promise<void>
+  
+  // Batch sync for data consistency
+  performConsistencyCheck(): Promise<SyncReport>
+}
+
+// Automatic sync triggers
+const syncTriggers = {
+  onUserProfileUpdate: 'Update Firebase custom claims',
+  onRoleChange: 'Update Firebase custom claims immediately',
+  onEmailVerification: 'Sync verification status to Neon DB',
+  onTeacherApproval: 'Update role in both Firebase and Neon DB',
+  dailyConsistencyCheck: 'Ensure data consistency between systems'
+}
+```
+
+### Fault Tolerance Implementation
+
+```typescript
+interface IFaultToleranceService {
+  // Graceful degradation strategies
+  handleFirebaseDowntime(): Promise<DegradedAuthState>
+  handleNeonDBDowntime(): Promise<CachedAuthState>
+  
+  // Retry mechanisms
+  retryWithExponentialBackoff<T>(operation: () => Promise<T>): Promise<T>
+  
+  // Circuit breaker pattern
+  executeWithCircuitBreaker<T>(operation: () => Promise<T>): Promise<T>
+  
+  // Data recovery
+  recoverFromPartialFailure(failureType: FailureType): Promise<RecoveryResult>
+}
+
+const faultToleranceStrategies = {
+  firebaseDown: {
+    strategy: 'Use cached user data from Neon DB',
+    limitations: 'No new registrations, limited token refresh',
+    recovery: 'Auto-sync when Firebase comes back online',
+    rateLimiting: 'Firebase handles this automatically'
+  },
+  neonDBDown: {
+    strategy: 'Use Firebase Auth for basic authentication',
+    limitations: 'No profile updates, limited role checking',
+    recovery: 'Queue operations and replay when DB is available'
+  },
+  rateLimitHit: {
+    strategy: 'Firebase Auth automatically handles rate limiting',
+    response: 'Show user-friendly message with retry timing',
+    escalation: 'Firebase App Check for additional verification'
+  },
+  networkIssues: {
+    strategy: 'Exponential backoff with jitter',
+    maxRetries: 3,
+    fallback: 'Show user-friendly error with retry option'
+  }
 }
 ```
 
