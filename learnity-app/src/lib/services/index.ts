@@ -3,6 +3,7 @@ export { FirebaseAuthService } from './firebase-auth.service';
 export { AppCheckService, appCheckService } from './app-check.service';
 export { TokenManagerService, tokenManager } from './token-manager.service';
 export { RoleManagerService, roleManager } from './role-manager.service';
+export { SessionManagerService, sessionManager } from './session-manager.service';
 
 // Other Services
 export { HCaptchaService } from './hcaptcha.service';
@@ -22,3 +23,11 @@ export type {
 export type {
   AppCheckResult
 } from './app-check.service';
+
+export type {
+  ISessionManagerService,
+  UserSession,
+  SessionPayload,
+  DeviceInfo,
+  SessionStats
+} from '../interfaces/session.interface';

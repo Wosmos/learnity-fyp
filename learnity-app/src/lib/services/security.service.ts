@@ -466,7 +466,7 @@ export class SecurityService implements ISecurityService {
     return { riskLevel, blocked, reasons };
   }
 
-  private async getRecentSecurityEvents(ipAddress: string, since: Date): Promise<any[]> {
+  private async getRecentSecurityEvents(ipAddress: string, since: Date): Promise<unknown[]> {
     return await this.prisma.securityEvent.findMany({
       where: {
         ipAddress,
