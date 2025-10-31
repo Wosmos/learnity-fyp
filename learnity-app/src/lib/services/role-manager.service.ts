@@ -6,10 +6,18 @@ import {
   UserRole, 
   Permission, 
   AuthError, 
-  AuthErrorCode 
+  AuthErrorCode,
+  EventType
 } from '@/types/auth';
+import { PrismaClient } from '@prisma/client';
 
 export class RoleManagerService implements IRoleManager {
+  private readonly prisma: PrismaClient;
+
+  constructor() {
+    this.prisma = new PrismaClient();
+  }
+
   private readonly ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     [UserRole.STUDENT]: [
       Permission.VIEW_STUDENT_DASHBOARD,
@@ -170,9 +178,10 @@ export class RoleManagerService implements IRoleManager {
   /**
    * Update user role and refresh permissions
    */
-  async updateUserRole(firebaseUid: string, newRole: UserRole, reason?: string): Promise<void> {
+  async updateUserRole(firebaseUid: string, newRole: UserRole, reason?: string, adminUid?: string): Promise<void> {
     try {
       const currentClaims = await this.getCustomClaims(firebaseUid);
+      const oldRole = currentClaims.role;
       
       const updatedClaims: CustomClaims = {
         ...currentClaims,
@@ -182,12 +191,28 @@ export class RoleManagerService implements IRoleManager {
 
       await this.setCustomClaims(firebaseUid, updatedClaims);
 
-      // Log role change for audit
-      console.log(`Role updated for user ${firebaseUid}: ${currentClaims.role} -> ${newRole}`, {
-        reason,
-        timestamp: new Date().toISOString()
+      // Enhanced audit logging for role changes
+      await this.logRoleChangeEvent({
+        firebaseUid,
+        adminUid,
+        oldRole,
+        newRole,
+        reason: reason || 'Role update requested',
+        success: true
       });
+
     } catch (error: any) {
+      // Log failed role change attempt
+      await this.logRoleChangeEvent({
+        firebaseUid,
+        adminUid,
+        oldRole: (await this.getCustomClaims(firebaseUid)).role,
+        newRole,
+        reason: reason || 'Role update requested',
+        success: false,
+        errorMessage: error.message
+      });
+      
       throw this.mapRoleError(error);
     }
   }
@@ -195,7 +220,7 @@ export class RoleManagerService implements IRoleManager {
   /**
    * Approve teacher application and update role
    */
-  async approveTeacher(firebaseUid: string): Promise<void> {
+  async approveTeacher(firebaseUid: string, adminUid: string): Promise<void> {
     try {
       const currentClaims = await this.getCustomClaims(firebaseUid);
       
@@ -203,8 +228,26 @@ export class RoleManagerService implements IRoleManager {
         throw new Error('User is not a pending teacher');
       }
 
-      await this.updateUserRole(firebaseUid, UserRole.TEACHER, 'Teacher application approved');
+      await this.updateUserRole(firebaseUid, UserRole.TEACHER, 'Teacher application approved', adminUid);
+      
+      // Log teacher approval event
+      await this.logTeacherApprovalEvent({
+        firebaseUid,
+        adminUid,
+        decision: 'APPROVED',
+        success: true
+      });
+
     } catch (error: any) {
+      // Log failed teacher approval
+      await this.logTeacherApprovalEvent({
+        firebaseUid,
+        adminUid,
+        decision: 'APPROVED',
+        success: false,
+        errorMessage: error.message
+      });
+      
       throw this.mapRoleError(error);
     }
   }
@@ -212,7 +255,7 @@ export class RoleManagerService implements IRoleManager {
   /**
    * Reject teacher application (keep as pending with note)
    */
-  async rejectTeacher(firebaseUid: string, reason: string): Promise<void> {
+  async rejectTeacher(firebaseUid: string, reason: string, adminUid: string): Promise<void> {
     try {
       const currentClaims = await this.getCustomClaims(firebaseUid);
       
@@ -220,12 +263,26 @@ export class RoleManagerService implements IRoleManager {
         throw new Error('User is not a pending teacher');
       }
 
-      // Keep as pending teacher but log rejection
-      console.log(`Teacher application rejected for user ${firebaseUid}`, {
+      // Log teacher rejection event
+      await this.logTeacherApprovalEvent({
+        firebaseUid,
+        adminUid,
+        decision: 'REJECTED',
         reason,
-        timestamp: new Date().toISOString()
+        success: true
       });
+
     } catch (error: any) {
+      // Log failed teacher rejection
+      await this.logTeacherApprovalEvent({
+        firebaseUid,
+        adminUid,
+        decision: 'REJECTED',
+        reason,
+        success: false,
+        errorMessage: error.message
+      });
+      
       throw this.mapRoleError(error);
     }
   }
@@ -324,6 +381,152 @@ export class RoleManagerService implements IRoleManager {
   }
 
   /**
+   * Log role change events for audit trail
+   */
+  private async logRoleChangeEvent(event: {
+    firebaseUid: string;
+    adminUid?: string;
+    oldRole: UserRole;
+    newRole: UserRole;
+    reason: string;
+    success: boolean;
+    errorMessage?: string;
+  }): Promise<void> {
+    try {
+      await this.prisma.auditLog.create({
+        data: {
+          firebaseUid: event.firebaseUid,
+          eventType: EventType.ROLE_CHANGE,
+          action: `Role change: ${event.oldRole} -> ${event.newRole}`,
+          resource: 'user_role',
+          oldValues: { role: event.oldRole },
+          newValues: { role: event.newRole },
+          ipAddress: '127.0.0.1', // Will be updated by middleware
+          userAgent: 'RoleManagerService',
+          success: event.success,
+          errorMessage: event.errorMessage,
+          metadata: {
+            adminUid: event.adminUid,
+            reason: event.reason,
+            timestamp: new Date().toISOString()
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Failed to log role change event:', error);
+    }
+  }
+
+  /**
+   * Log teacher approval/rejection events for audit trail
+   */
+  private async logTeacherApprovalEvent(event: {
+    firebaseUid: string;
+    adminUid: string;
+    decision: 'APPROVED' | 'REJECTED';
+    reason?: string;
+    success: boolean;
+    errorMessage?: string;
+  }): Promise<void> {
+    try {
+      const eventType = event.decision === 'APPROVED' 
+        ? EventType.TEACHER_APPLICATION_APPROVE 
+        : EventType.TEACHER_APPLICATION_REJECT;
+
+      await this.prisma.auditLog.create({
+        data: {
+          firebaseUid: event.firebaseUid,
+          eventType,
+          action: `Teacher application ${event.decision.toLowerCase()}`,
+          resource: 'teacher_application',
+          newValues: { 
+            decision: event.decision,
+            approvedBy: event.adminUid 
+          },
+          ipAddress: '127.0.0.1', // Will be updated by middleware
+          userAgent: 'RoleManagerService',
+          success: event.success,
+          errorMessage: event.errorMessage,
+          metadata: {
+            adminUid: event.adminUid,
+            reason: event.reason,
+            timestamp: new Date().toISOString()
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Failed to log teacher approval event:', error);
+    }
+  }
+
+  /**
+   * Log permission check events for security monitoring
+   */
+  async logPermissionCheck(firebaseUid: string, permission: Permission, granted: boolean): Promise<void> {
+    try {
+      await this.prisma.auditLog.create({
+        data: {
+          firebaseUid,
+          eventType: EventType.ADMIN_ACTION,
+          action: `Permission check: ${permission}`,
+          resource: 'permission',
+          newValues: { 
+            permission,
+            granted 
+          },
+          ipAddress: '127.0.0.1', // Will be updated by middleware
+          userAgent: 'RoleManagerService',
+          success: true,
+          metadata: {
+            timestamp: new Date().toISOString()
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Failed to log permission check:', error);
+    }
+  }
+
+  /**
+   * Get role change history for a user
+   */
+  async getRoleChangeHistory(firebaseUid: string): Promise<any[]> {
+    try {
+      return await this.prisma.auditLog.findMany({
+        where: {
+          firebaseUid,
+          eventType: EventType.ROLE_CHANGE
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 50
+      });
+    } catch (error) {
+      console.error('Failed to get role change history:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get teacher approval history
+   */
+  async getTeacherApprovalHistory(limit: number = 100): Promise<any[]> {
+    try {
+      return await this.prisma.auditLog.findMany({
+        where: {
+          eventType: {
+            in: [EventType.TEACHER_APPLICATION_APPROVE, EventType.TEACHER_APPLICATION_REJECT]
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit
+      });
+    } catch (error) {
+      console.error('Failed to get teacher approval history:', error);
+      return [];
+    }
+  }
+
+  /**
    * Map role-related errors
    */
   private mapRoleError(error: any): AuthError {
@@ -348,6 +551,13 @@ export class RoleManagerService implements IRoleManager {
           message: error.message || 'Role management operation failed'
         };
     }
+  }
+
+  /**
+   * Cleanup database connections
+   */
+  async disconnect(): Promise<void> {
+    await this.prisma.$disconnect();
   }
 }
 
