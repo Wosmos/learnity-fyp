@@ -23,6 +23,12 @@
 - **MUST** improve DRI and better optimization practices for speed and better code quality
 - **MUST** test each and every task we implemented
 - **MUST** always verify if we are using correct code structre for each tech stack using their official documentation
+- **MUST** follow the design pattern provided in /design folder
+- **MUST** follow the proper consistent cleaner design pattern for better product
+- **MUST** follow proper error handling 
+- **MUST** follow proper type safety 
+- **MUST** follow proper next js all best practices as much as possible 
+- **MUST** follow proper optional chaining and usefull error loging and handling also use toasts for proper user flow guidance for user
 
 ### 3. Architecture Patterns
 - **MUST** follow Clean Architecture principles

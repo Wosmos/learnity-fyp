@@ -46,6 +46,8 @@ export class DatabaseService implements IUserProfileService {
         role: data.role,
         emailVerified: data.emailVerified || false,
         profilePicture: data.profilePicture,
+        authProvider: (data as any).authProvider || 'email',
+        socialProviders: (data as any).socialProviders || [],
         // Create role-specific profile
         ...(data.role === UserRole.STUDENT &&
           data.studentProfile && {
@@ -125,6 +127,8 @@ export class DatabaseService implements IUserProfileService {
           emailVerified: data.emailVerified,
         }),
         ...(data.lastLoginAt && { lastLoginAt: data.lastLoginAt }),
+        ...((data as any).authProvider && { authProvider: (data as any).authProvider }),
+        ...((data as any).socialProviders && { socialProviders: (data as any).socialProviders }),
       },
       include: {
         studentProfile: true,

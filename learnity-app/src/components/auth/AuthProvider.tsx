@@ -181,6 +181,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
           setUser(firebaseUser);
 
+          // Sync user profile with Neon DB (create if doesn't exist)
+          await syncUserProfile(firebaseUser);
+
           // Get user claims and profile from API
           const response = await fetch("/api/auth/claims", {
             headers: {
@@ -191,9 +194,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const customClaims = response.ok ? await response.json() : null;
           setClaims(customClaims);
 
-          // TODO: Fetch user profile from database service
-          // const userProfile = await databaseService.getUserProfile(firebaseUser.uid);
-          // setProfile(userProfile);
+          // Fetch user profile from database
+          const profileResponse = await fetch("/api/auth/profile", {
+            headers: {
+              Authorization: `Bearer ${await firebaseUser.getIdToken()}`,
+            },
+          });
+
+          const userProfile = profileResponse.ok ? await profileResponse.json() : null;
+          setProfile(userProfile);
 
           updateLastActivity();
         } catch (error: unknown) {
@@ -228,6 +237,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     clearAuth,
     updateLastActivity,
   ]);
+
+  /**
+   * Sync user profile with Neon DB
+   * Creates profile if it doesn't exist, updates if it does
+   */
+  const syncUserProfile = async (firebaseUser: FirebaseUser) => {
+    try {
+      const idToken = await firebaseUser.getIdToken();
+      
+      // Check if profile exists and sync
+      const response = await fetch("/api/auth/sync-profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+          "X-Firebase-UID": firebaseUser.uid,
+        },
+        body: JSON.stringify({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+          emailVerified: firebaseUser.emailVerified,
+          providerData: firebaseUser.providerData.map(provider => ({
+            providerId: provider.providerId,
+            uid: provider.uid,
+            displayName: provider.displayName,
+            email: provider.email,
+            photoURL: provider.photoURL
+          }))
+        }),
+      });
+
+      if (!response.ok) {
+        console.warn("Failed to sync user profile:", await response.text());
+      } else {
+        console.log("✅ User profile synced successfully");
+      }
+    } catch (error) {
+      console.error("Failed to sync user profile:", error);
+      // Don't throw here as we don't want to break the auth flow
+    }
+  };
 
   /**
    * Set up automatic token refresh

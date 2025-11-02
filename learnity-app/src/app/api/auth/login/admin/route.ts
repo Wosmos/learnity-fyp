@@ -4,6 +4,7 @@ import { DatabaseService } from '@/lib/services/database.service';
 import { HCaptchaService } from '@/lib/services/hcaptcha.service';
 import { staticAdminLoginSchema } from '@/lib/validators/auth';
 import { UserRole, EventType } from '@/types/auth';
+import { createHash } from 'crypto';
 
 /**
  * Static Admin Login API Endpoint
@@ -290,7 +291,7 @@ async function logAuditEvent(
   try {
     // Note: This would typically use a dedicated audit service
     // For now, we'll use Prisma directly through the database service
-    const prisma = (databaseService as any).prisma;
+    const prisma = (databaseService as unknown).prisma;
     
     await prisma.auditLog.create({
       data: {
@@ -317,9 +318,7 @@ async function logAuditEvent(
 function generateDeviceFingerprint(userAgent: string, ipAddress: string): string {
   // Simple fingerprint based on user agent and IP
   // In production, this would be more sophisticated
-  const crypto = require('crypto');
-  return crypto
-    .createHash('sha256')
+  return createHash('sha256')
     .update(`${userAgent}:${ipAddress}`)
     .digest('hex')
     .substring(0, 16);

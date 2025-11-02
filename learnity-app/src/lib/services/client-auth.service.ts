@@ -61,10 +61,13 @@ export class ClientAuthService {
 
       // Call API to create user profile
       console.log('🔵 Calling API to create user profile...');
+      const idToken = await userCredential.user.getIdToken();
       const response = await fetch('/api/auth/register/student', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+          'X-Firebase-UID': userCredential.user.uid,
         },
         body: JSON.stringify(data),
       });
@@ -174,16 +177,28 @@ export class ClientAuthService {
    */
   async socialLogin(provider: 'google' | 'microsoft'): Promise<FirebaseAuthResult> {
     try {
+      console.log(`🔵 Starting ${provider} login...`);
+      
       const authProvider = provider === 'google' ? this.googleProvider : this.microsoftProvider;
       const userCredential = await signInWithPopup(auth, authProvider);
+      const user = userCredential.user;
 
+      console.log('✅ Firebase social login successful:', user.uid);
+
+      // The profile sync will be handled automatically by the AuthProvider
+      // when the auth state changes, so we don't need to call it here
+      
       return {
         success: true,
-        user: userCredential.user,
-        idToken: await userCredential.user.getIdToken()
+        user,
+        idToken: await user.getIdToken()
       };
     } catch (error: any) {
-      console.error(`${provider} login failed:`, error);
+      console.error(`❌ ${provider} login failed:`, {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      });
       return {
         success: false,
         error: {
@@ -241,7 +256,7 @@ export class ClientAuthService {
   async logout(): Promise<void> {
     try {
       await signOut(auth);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Logout failed:', error);
       throw error;
     }

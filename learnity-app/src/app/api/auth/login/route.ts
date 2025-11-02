@@ -6,6 +6,7 @@ import { AppCheckService } from '@/lib/services/app-check.service';
 import { RoleManagerService } from '@/lib/services/role-manager.service';
 import { loginSchema } from '@/lib/validators/auth';
 import { EventType, SecurityEventType, RiskLevel, UserRole, Permission, SecurityAction } from '@/types/auth';
+import { createHash } from 'crypto';
 
 /**
  * Enhanced User Login API Endpoint with Firebase Auth + Neon DB Integration
@@ -740,8 +741,6 @@ function generateEnhancedDeviceFingerprint(
   ipAddress: string, 
   acceptLanguage: string
 ): string {
-  const crypto = require('crypto');
-  
   // Extract key components from user agent
   const browserInfo = extractBrowserInfo(userAgent);
   
@@ -755,8 +754,7 @@ function generateEnhancedDeviceFingerprint(
     browserInfo.device
   ].join('|');
   
-  return crypto
-    .createHash('sha256')
+  return createHash('sha256')
     .update(fingerprintData)
     .digest('hex')
     .substring(0, 24); // Longer fingerprint for better uniqueness

@@ -20,6 +20,8 @@ model User {
   role              UserRole
   emailVerified     Boolean   @default(false)
   profilePicture    String?   // Firebase Storage URL
+  authProvider      String?   @default("email") // "email", "social"
+  socialProviders   String[]  @default([]) // ["google.com", "microsoft.com"]
   isActive          Boolean   @default(true)
   lastLoginAt       DateTime?
   createdAt         DateTime  @default(now())
