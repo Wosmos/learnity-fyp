@@ -240,7 +240,7 @@ export const PasswordResetRequestForm: React.FC<PasswordResetRequestFormProps> =
             <Button
               type="button"
               variant="link"
-              className="px-0 text-blue-600 hover:text-blue-700 font-medium"
+              className="px-0 text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
               onClick={onBackToLogin}
             >
               Sign in here

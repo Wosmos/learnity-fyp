@@ -304,7 +304,7 @@ Convert the Firebase Auth + Neon DB authentication system design into incrementa
 
 ### Phase 6: Advanced Security and Social Authentication
 
-- [ ] 6. Implement advanced security features and social authentication
+- [ ]* 6. Implement advanced security features and social authentication
   - Implement social authentication with Google and Microsoft OAuth
   - Build comprehensive audit logging and security monitoring
   - Create advanced bot protection and fraud detection
@@ -313,7 +313,7 @@ Convert the Firebase Auth + Neon DB authentication system design into incrementa
   - Commit this task changes with specialized and specified message 
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 11.1, 11.2, 11.3, 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 6.1 Add social authentication integration
+- [ ]* 6.1 Add social authentication integration
   - Integrate Google OAuth 2.0 for social login with Firebase Auth
   - Add Microsoft OAuth 2.0 authentication with Firebase Auth
   - Create account linking for existing users with social accounts

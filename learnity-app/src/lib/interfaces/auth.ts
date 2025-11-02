@@ -7,7 +7,6 @@ import {
   UserRole,
   SecurityRequest,
   SecurityAssessment,
-  AuthError,
   ApplicationStatus
 } from '@/types/auth';
 import {
@@ -15,12 +14,9 @@ import {
   TeacherRegistrationData,
   LoginData,
   StaticAdminLoginData,
-  PasswordResetRequestData,
-  PasswordResetData,
   StudentProfileEnhancementData,
   TeacherApplicationUpdateData,
   TeacherApprovalData,
-  UserRoleUpdateData
 } from '@/lib/validators/auth';
 
 // Firebase Auth Service Interface

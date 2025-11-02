@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { FirebaseAuthService } from '@/lib/services/firebase-auth.service';
 import { DatabaseService } from '@/lib/services/database.service';
 import { EventType } from '@/types/auth';
+import { generateDeviceFingerprintLegacy } from '@/lib/utils/device-fingerprint';
 
 /**
  * Email Verification Status Sync API Endpoint
@@ -359,7 +360,7 @@ async function logAuditEvent(
         success: event.success,
         errorMessage: event.errorMessage,
         metadata: event.metadata || {},
-        deviceFingerprint: generateDeviceFingerprint(event.userAgent, event.ipAddress)
+        deviceFingerprint: generateDeviceFingerprintLegacy(event.userAgent, event.ipAddress)
       }
     });
   } catch (error) {
@@ -367,14 +368,3 @@ async function logAuditEvent(
   }
 }
 
-/**
- * Generate a simple device fingerprint
- */
-function generateDeviceFingerprint(userAgent: string, ipAddress: string): string {
-  const crypto = require('crypto');
-  return crypto
-    .createHash('sha256')
-    .update(`${userAgent}:${ipAddress}`)
-    .digest('hex')
-    .substring(0, 16);
-}

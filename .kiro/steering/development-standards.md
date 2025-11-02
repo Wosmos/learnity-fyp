@@ -44,7 +44,7 @@
 ```typescript
 // Required stack components
 const TECH_STACK = {
-  framework: "Next.js 14 (App Router)",
+  framework: "Next.js 16 (App Router)",
   language: "TypeScript (strict mode)",
   styling: "Tailwind CSS + shadcn/ui",
   stateManagement: "Zustand with TypeScript",

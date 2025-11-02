@@ -4,7 +4,7 @@ import { DatabaseService } from '@/lib/services/database.service';
 import { HCaptchaService } from '@/lib/services/hcaptcha.service';
 import { staticAdminLoginSchema } from '@/lib/validators/auth';
 import { UserRole, EventType } from '@/types/auth';
-import { createHash } from 'crypto';
+import { generateDeviceFingerprintLegacy } from '@/lib/utils/device-fingerprint';
 
 /**
  * Static Admin Login API Endpoint
@@ -285,7 +285,7 @@ async function logAuditEvent(
     userAgent: string;
     success: boolean;
     errorMessage?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }
 ) {
   try {
@@ -303,23 +303,11 @@ async function logAuditEvent(
         success: event.success,
         errorMessage: event.errorMessage,
         metadata: event.metadata || {},
-        deviceFingerprint: generateDeviceFingerprint(event.userAgent, event.ipAddress)
+        deviceFingerprint: generateDeviceFingerprintLegacy(event.userAgent, event.ipAddress)
       }
     });
   } catch (error) {
     console.error('Failed to log audit event:', error);
     // Don't throw here to avoid breaking the main flow
   }
-}
-
-/**
- * Generate a simple device fingerprint
- */
-function generateDeviceFingerprint(userAgent: string, ipAddress: string): string {
-  // Simple fingerprint based on user agent and IP
-  // In production, this would be more sophisticated
-  return createHash('sha256')
-    .update(`${userAgent}:${ipAddress}`)
-    .digest('hex')
-    .substring(0, 16);
 }

@@ -250,7 +250,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 <Button
                   type="button"
                   variant="link"
-                  className="px-0 text-sm text-blue-600 hover:text-blue-700"
+                  className="px-0 text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
                   onClick={onForgotPassword}
                 >
                   Forgot password?
@@ -312,7 +312,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             <Button
               type="button"
               variant="link"
-              className="px-0 text-blue-600 hover:text-blue-700 font-medium"
+              className="px-0 text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
               onClick={onSignUp}
             >
               Sign up here

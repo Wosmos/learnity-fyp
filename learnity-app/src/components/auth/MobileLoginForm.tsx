@@ -357,7 +357,7 @@ export const MobileLoginForm: React.FC<MobileLoginFormProps> = ({
               <Button
                 type="button"
                 variant="link"
-                className="px-0 text-base text-blue-600 hover:text-blue-700"
+                className="px-0 text-base text-blue-600 hover:text-blue-700 cursor-pointer"
                 onClick={onForgotPassword}
               >
                 Forgot password?
@@ -423,7 +423,7 @@ export const MobileLoginForm: React.FC<MobileLoginFormProps> = ({
           <Button
             type="button"
             variant="link"
-            className="px-0 text-base text-blue-600 hover:text-blue-700 font-medium"
+            className="px-0 text-base text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
             onClick={onSignUp}
           >
             Sign up here

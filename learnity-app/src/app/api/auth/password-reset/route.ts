@@ -4,6 +4,7 @@ import { DatabaseService } from '@/lib/services/database.service';
 import { HCaptchaService } from '@/lib/services/hcaptcha.service';
 import { passwordResetRequestSchema } from '@/lib/validators/auth';
 import { EventType } from '@/types/auth';
+import { generateDeviceFingerprintLegacy } from '@/lib/utils/device-fingerprint';
 
 /**
  * Password Reset Request API Endpoint
@@ -348,7 +349,7 @@ async function logAuditEvent(
   }
 ) {
   try {
-    const prisma = (databaseService as any).prisma;
+    const prisma = (databaseService as unknown).prisma;
     
     await prisma.auditLog.create({
       data: {
@@ -360,7 +361,7 @@ async function logAuditEvent(
         success: event.success,
         errorMessage: event.errorMessage,
         metadata: event.metadata || {},
-        deviceFingerprint: generateDeviceFingerprint(event.userAgent, event.ipAddress)
+        deviceFingerprint: generateDeviceFingerprintLegacy(event.userAgent, event.ipAddress)
       }
     });
   } catch (error) {
@@ -368,14 +369,3 @@ async function logAuditEvent(
   }
 }
 
-/**
- * Generate a simple device fingerprint
- */
-function generateDeviceFingerprint(userAgent: string, ipAddress: string): string {
-  const crypto = require('crypto');
-  return crypto
-    .createHash('sha256')
-    .update(`${userAgent}:${ipAddress}`)
-    .digest('hex')
-    .substring(0, 16);
-}

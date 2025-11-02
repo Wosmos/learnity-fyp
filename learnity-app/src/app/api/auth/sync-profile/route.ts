@@ -10,6 +10,7 @@ import { adminAuth } from '@/lib/config/firebase-admin';
 import { UserRole, Permission, EventType } from '@/types/auth';
 import { z } from 'zod';
 import { createHash } from 'crypto';
+import { generateDeviceFingerprintLegacy } from '@/lib/utils/device-fingerprint';
 
 // Validation schema for sync profile request
 const syncProfileSchema = z.object({
@@ -297,7 +298,7 @@ async function logAuditEvent(
         action: event.action,
         ipAddress: event.ipAddress,
         userAgent: event.userAgent,
-        deviceFingerprint: generateDeviceFingerprint(event.userAgent, event.ipAddress),
+        deviceFingerprint: generateDeviceFingerprintLegacy(event.userAgent, event.ipAddress),
         success: event.success,
         errorMessage: event.errorMessage,
         metadata: event.metadata || {}
@@ -308,12 +309,3 @@ async function logAuditEvent(
   }
 }
 
-/**
- * Generate device fingerprint
- */
-function generateDeviceFingerprint(userAgent: string, ipAddress: string): string {
-  return createHash('sha256')
-    .update(`${userAgent}:${ipAddress}`)
-    .digest('hex')
-    .substring(0, 16);
-}

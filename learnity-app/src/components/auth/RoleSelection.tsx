@@ -185,7 +185,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({
       <div className="mt-8 text-center">
         <p className="text-sm text-gray-500">
           Already have an account?{' '}
-          <button className="text-blue-600 hover:text-blue-700 font-medium">
+          <button className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer">
             Sign in here
           </button>
         </p>

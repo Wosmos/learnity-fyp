@@ -13,6 +13,7 @@ import {
   AuditFilters,
   AuditLog
 } from '@/lib/interfaces/auth';
+import { generateDeviceFingerprint } from '@/lib/utils/device-fingerprint';
 import { 
   SecurityRequest,
   SecurityAssessment
@@ -163,19 +164,7 @@ export class SecurityService implements ISecurityService {
    * Generate device fingerprint with enhanced entropy
    */
   generateDeviceFingerprint(request: Request): string {
-    const userAgent = request.headers.get('user-agent') || 'unknown';
-    const acceptLanguage = request.headers.get('accept-language') || 'unknown';
-    const acceptEncoding = request.headers.get('accept-encoding') || 'unknown';
-    const connection = request.headers.get('connection') || 'unknown';
-    
-    const crypto = require('crypto');
-    const fingerprintData = [userAgent, acceptLanguage, acceptEncoding, connection].join('|');
-    
-    return crypto
-      .createHash('sha256')
-      .update(fingerprintData)
-      .digest('hex')
-      .substring(0, 24);
+    return generateDeviceFingerprint(request, { hashLength: 24, enhancedEntropy: true });
   }
 
   /**
