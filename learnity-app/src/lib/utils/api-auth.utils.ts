@@ -1,335 +1,241 @@
 /**
  * API Authentication Utilities
- * Helper functions for protecting API routes and handling authentication
+ * Centralized authentication and authorization helpers for API routes
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  authMiddleware, 
-  AuthMiddlewareOptions,
-  getUserFromRequest 
-} from '@/lib/middleware/auth.middleware';
-import { 
-  UserRole, 
-  Permission, 
-  AuthErrorCode 
-} from '@/types/auth';
+import { adminAuth } from '@/lib/config/firebase-admin';
+import { DecodedIdToken } from 'firebase-admin/auth';
+
+export interface AuthResult {
+  success: boolean;
+  decodedToken?: DecodedIdToken;
+  error?: string;
+  response?: NextResponse;
+}
 
 /**
- * Protect API route with authentication
+ * Extract and verify Firebase ID token from request headers
+ * Returns standardized auth result with decoded token or error response
  */
-export async function protectApiRoute(
-  request: NextRequest,
-  options: AuthMiddlewareOptions = {}
-): Promise<{ user: any } | NextResponse> {
-  const authResult = await authMiddleware(request, options);
+export async function verifyAuthToken(request: NextRequest): Promise<AuthResult> {
+  const authHeader = request.headers.get('Authorization');
   
-  if (authResult instanceof NextResponse) {
-    return authResult; // Return error response
-  }
-
-  return authResult;
-}
-
-/**
- * Get authenticated user from API request
- */
-export function getAuthenticatedUser(request: NextRequest): any | null {
-  return getUserFromRequest(request);
-}
-
-/**
- * Create API error response
- */
-export function createApiErrorResponse(
-  code: AuthErrorCode,
-  message: string,
-  statusCode?: number
-): NextResponse {
-  return NextResponse.json(
-    {
+  if (!authHeader?.startsWith('Bearer ')) {
+    return {
       success: false,
-      error: {
-        code,
-        message
-      }
-    },
-    { status: statusCode || getDefaultStatusCode(code) }
-  );
-}
-
-/**
- * Create API success response
- */
-export function createApiSuccessResponse(
-  data: any,
-  message?: string
-): NextResponse {
-  return NextResponse.json({
-    success: true,
-    data,
-    message
-  });
-}
-
-/**
- * Validate user permissions for API endpoint
- */
-export async function validateApiPermissions(
-  user: any,
-  requiredPermissions: Permission[]
-): Promise<boolean> {
-  if (!user || !user.claims || !user.claims.permissions) {
-    return false;
+      error: 'Missing or invalid authorization header',
+      response: NextResponse.json(
+        { error: 'Missing or invalid authorization header' },
+        { status: 401 }
+      )
+    };
   }
 
-  return requiredPermissions.every(permission =>
-    user.claims.permissions.includes(permission)
-  );
-}
-
-/**
- * Validate user role for API endpoint
- */
-export function validateApiRole(
-  user: any,
-  requiredRole: UserRole
-): boolean {
-  if (!user || !user.claims || !user.claims.role) {
-    return false;
-  }
-
-  return user.claims.role === requiredRole;
-}
-
-/**
- * Validate multiple roles for API endpoint
- */
-export function validateApiRoles(
-  user: any,
-  allowedRoles: UserRole[]
-): boolean {
-  if (!user || !user.claims || !user.claims.role) {
-    return false;
-  }
-
-  return allowedRoles.includes(user.claims.role);
-}
-
-/**
- * Check if user is admin
- */
-export function isAdmin(user: any): boolean {
-  return validateApiRole(user, UserRole.ADMIN);
-}
-
-/**
- * Check if user is teacher or admin
- */
-export function isTeacherOrAdmin(user: any): boolean {
-  return validateApiRoles(user, [UserRole.TEACHER, UserRole.ADMIN]);
-}
-
-/**
- * Check if user is student
- */
-export function isStudent(user: any): boolean {
-  return validateApiRole(user, UserRole.STUDENT);
-}
-
-/**
- * Check if user can manage other users
- */
-export async function canManageUsers(user: any): Promise<boolean> {
-  return validateApiPermissions(user, [Permission.MANAGE_USERS]);
-}
-
-/**
- * Check if user can approve teachers
- */
-export async function canApproveTeachers(user: any): Promise<boolean> {
-  return validateApiPermissions(user, [Permission.APPROVE_TEACHERS]);
-}
-
-/**
- * Check if user can view audit logs
- */
-export async function canViewAuditLogs(user: any): Promise<boolean> {
-  return validateApiPermissions(user, [Permission.VIEW_AUDIT_LOGS]);
-}
-
-/**
- * Extract client information from request
- */
-export function getClientInfo(request: NextRequest): {
-  ipAddress: string;
-  userAgent: string;
-  deviceFingerprint: string;
-} {
-  const ipAddress = 
-    request.headers.get('x-forwarded-for') ||
-    request.headers.get('x-real-ip') ||
-    '127.0.0.1';
-
-  const userAgent = request.headers.get('user-agent') || 'Unknown';
+  const idToken = authHeader.split('Bearer ')[1];
   
-  // Simple device fingerprint based on user agent and IP
-  const deviceFingerprint = Buffer.from(`${ipAddress}-${userAgent}`).toString('base64');
+  try {
+    const decodedToken = await adminAuth.verifyIdToken(idToken);
+    return {
+      success: true,
+      decodedToken
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: 'Invalid or expired token',
+      response: NextResponse.json(
+        { error: 'Invalid or expired token' },
+        { status: 401 }
+      )
+    };
+  }
+}
+
+/**
+ * Extract Firebase UID from various header sources
+ * Supports both Authorization header and X-Firebase-UID header
+ */
+export async function extractFirebaseUid(request: NextRequest): Promise<{
+  success: boolean;
+  uid?: string;
+  error?: string;
+  response?: NextResponse;
+}> {
+  // Try X-Firebase-UID header first (for client-side authenticated requests)
+  const firebaseUid = request.headers.get('X-Firebase-UID');
+  if (firebaseUid) {
+    return {
+      success: true,
+      uid: firebaseUid
+    };
+  }
+
+  // Fall back to Authorization header verification
+  const authResult = await verifyAuthToken(request);
+  if (authResult.success && authResult.decodedToken) {
+    return {
+      success: true,
+      uid: authResult.decodedToken.uid
+    };
+  }
 
   return {
-    ipAddress,
-    userAgent,
-    deviceFingerprint
+    success: false,
+    error: authResult.error || 'Unable to extract Firebase UID',
+    response: authResult.response || NextResponse.json(
+      { error: 'Firebase UID is required. User must be authenticated.' },
+      { status: 401 }
+    )
   };
 }
 
 /**
- * Log API access for audit trail
+ * Verify user has required role
  */
-export function logApiAccess(
-  request: NextRequest,
-  user: any | null,
-  action: string,
-  success: boolean,
-  errorMessage?: string
-): void {
-  const clientInfo = getClientInfo(request);
+export async function verifyUserRole(
+  decodedToken: DecodedIdToken, 
+  requiredRoles: string[]
+): Promise<{
+  success: boolean;
+  error?: string;
+  response?: NextResponse;
+}> {
+  const userRole = decodedToken.role;
   
-  const logData = {
-    timestamp: new Date().toISOString(),
-    method: request.method,
-    path: request.nextUrl.pathname,
-    action,
-    firebaseUid: user?.firebaseUid,
-    role: user?.claims?.role,
-    success,
-    errorMessage,
-    ...clientInfo
-  };
+  if (!userRole || !requiredRoles.includes(userRole)) {
+    return {
+      success: false,
+      error: 'Insufficient permissions',
+      response: NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      )
+    };
+  }
 
-  console.log('API Access Log:', logData);
+  return { success: true };
 }
 
 /**
- * Wrapper for API route handlers with authentication
+ * Verify user has required permission
  */
-export function withApiAuth(
-  handler: (request: NextRequest, user: any) => Promise<NextResponse>,
-  options: AuthMiddlewareOptions = {}
-) {
-  return async (request: NextRequest): Promise<NextResponse> => {
-    try {
-      const authResult = await protectApiRoute(request, options);
-      
-      if (authResult instanceof NextResponse) {
-        return authResult; // Return error response
-      }
+export async function verifyUserPermission(
+  decodedToken: DecodedIdToken, 
+  requiredPermission: string
+): Promise<{
+  success: boolean;
+  error?: string;
+  response?: NextResponse;
+}> {
+  const permissions = decodedToken.permissions || [];
+  
+  if (!permissions.includes(requiredPermission)) {
+    return {
+      success: false,
+      error: 'Insufficient permissions',
+      response: NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      )
+    };
+  }
 
-      const response = await handler(request, authResult.user);
-      
-      // Log successful API access
-      logApiAccess(request, authResult.user, 'API_ACCESS', true);
-      
-      return response;
-    } catch (error: any) {
-      console.error('API route error:', error);
-      
-      // Log failed API access
-      logApiAccess(request, null, 'API_ACCESS', false, error.message);
-      
-      return createApiErrorResponse(
-        AuthErrorCode.INTERNAL_ERROR,
-        'Internal server error'
-      );
+  return { success: true };
+}
+
+/**
+ * Combined auth middleware for API routes
+ * Handles token verification, role checking, and permission validation
+ */
+export async function authenticateApiRequest(
+  request: NextRequest,
+  options: {
+    requiredRoles?: string[];
+    requiredPermissions?: string[];
+    allowUidHeader?: boolean;
+  } = {}
+): Promise<{
+  success: boolean;
+  decodedToken?: DecodedIdToken;
+  uid?: string;
+  error?: string;
+  response?: NextResponse;
+}> {
+  // Extract UID based on options
+  if (options.allowUidHeader) {
+    const uidResult = await extractFirebaseUid(request);
+    if (!uidResult.success) {
+      return uidResult;
     }
-  };
-}
-
-/**
- * Wrapper for admin-only API routes
- */
-export function withAdminApiAuth(
-  handler: (request: NextRequest, user: any) => Promise<NextResponse>
-) {
-  return withApiAuth(handler, { requiredRole: UserRole.ADMIN });
-}
-
-/**
- * Wrapper for teacher API routes
- */
-export function withTeacherApiAuth(
-  handler: (request: NextRequest, user: any) => Promise<NextResponse>
-) {
-  return withApiAuth(handler, { allowMultipleRoles: [UserRole.TEACHER, UserRole.ADMIN] });
-}
-
-/**
- * Wrapper for student API routes
- */
-export function withStudentApiAuth(
-  handler: (request: NextRequest, user: any) => Promise<NextResponse>
-) {
-  return withApiAuth(handler, { requiredRole: UserRole.STUDENT });
-}
-
-/**
- * Get default HTTP status code for auth error
- */
-function getDefaultStatusCode(code: AuthErrorCode): number {
-  switch (code) {
-    case AuthErrorCode.TOKEN_INVALID:
-    case AuthErrorCode.TOKEN_EXPIRED:
-    case AuthErrorCode.TOKEN_REVOKED:
-      return 401;
     
-    case AuthErrorCode.INSUFFICIENT_PERMISSIONS:
-    case AuthErrorCode.ROLE_NOT_APPROVED:
-    case AuthErrorCode.EMAIL_NOT_VERIFIED:
-      return 403;
-    
-    case AuthErrorCode.ACCOUNT_NOT_FOUND:
-      return 404;
-    
-    case AuthErrorCode.RATE_LIMIT_EXCEEDED:
-    case AuthErrorCode.TOO_MANY_ATTEMPTS:
-      return 429;
-    
-    default:
-      return 500;
-  }
-}
-
-/**
- * Validate request method
- */
-export function validateMethod(
-  request: NextRequest,
-  allowedMethods: string[]
-): NextResponse | null {
-  if (!allowedMethods.includes(request.method)) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: 'METHOD_NOT_ALLOWED',
-          message: `Method ${request.method} not allowed`
+    // If we only got UID from header, we need to verify token for role/permission checks
+    if (options.requiredRoles || options.requiredPermissions) {
+      const authResult = await verifyAuthToken(request);
+      if (!authResult.success) {
+        return authResult;
+      }
+      
+      // Verify role if required
+      if (options.requiredRoles && authResult.decodedToken) {
+        const roleResult = await verifyUserRole(authResult.decodedToken, options.requiredRoles);
+        if (!roleResult.success) {
+          return roleResult;
         }
-      },
-      { status: 405 }
-    );
-  }
-  
-  return null;
-}
-
-/**
- * Parse JSON request body safely
- */
-export async function parseRequestBody<T>(request: NextRequest): Promise<T | null> {
-  try {
-    return await request.json();
-  } catch (error) {
-    console.error('Failed to parse request body:', error);
-    return null;
+      }
+      
+      // Verify permissions if required
+      if (options.requiredPermissions && authResult.decodedToken) {
+        for (const permission of options.requiredPermissions) {
+          const permResult = await verifyUserPermission(authResult.decodedToken, permission);
+          if (!permResult.success) {
+            return permResult;
+          }
+        }
+      }
+      
+      return {
+        success: true,
+        decodedToken: authResult.decodedToken,
+        uid: uidResult.uid
+      };
+    }
+    
+    return {
+      success: true,
+      uid: uidResult.uid
+    };
+  } else {
+    // Standard token verification
+    const authResult = await verifyAuthToken(request);
+    if (!authResult.success) {
+      return authResult;
+    }
+    
+    const decodedToken = authResult.decodedToken!;
+    
+    // Verify role if required
+    if (options.requiredRoles) {
+      const roleResult = await verifyUserRole(decodedToken, options.requiredRoles);
+      if (!roleResult.success) {
+        return roleResult;
+      }
+    }
+    
+    // Verify permissions if required
+    if (options.requiredPermissions) {
+      for (const permission of options.requiredPermissions) {
+        const permResult = await verifyUserPermission(decodedToken, permission);
+        if (!permResult.success) {
+          return permResult;
+        }
+      }
+    }
+    
+    return {
+      success: true,
+      decodedToken,
+      uid: decodedToken.uid
+    };
   }
 }
