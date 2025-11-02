@@ -13,7 +13,7 @@ import {
   PasswordResetRequestData,
   PasswordResetData
 } from '@/lib/validators/auth';
-import { firebaseAuthService } from '@/lib/services/firebase-auth.service';
+import { clientAuthService } from '@/lib/services/client-auth.service';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { AuthError, AuthErrorCode } from '@/types/auth';
 
@@ -93,7 +93,7 @@ export const useAuthService = (): AuthServiceHooks => {
     setError(null);
     
     try {
-      const result = await firebaseAuthService.registerStudent(data);
+      const result = await clientAuthService.registerStudent(data);
       if (result.success && result.user) {
         setUser(result.user);
         // Claims will be set by the auth provider
@@ -112,7 +112,7 @@ export const useAuthService = (): AuthServiceHooks => {
     setError(null);
     
     try {
-      const result = await firebaseAuthService.registerTeacher(data);
+      const result = await clientAuthService.registerTeacher(data);
       if (result.success && result.user) {
         setUser(result.user);
         // Claims will be set by the auth provider
@@ -131,7 +131,7 @@ export const useAuthService = (): AuthServiceHooks => {
     setError(null);
     
     try {
-      const result = await firebaseAuthService.login(data);
+      const result = await clientAuthService.login(data);
       if (result.success && result.user) {
         setUser(result.user);
         // Claims will be set by the auth provider
@@ -150,7 +150,7 @@ export const useAuthService = (): AuthServiceHooks => {
     setError(null);
     
     try {
-      const result = await firebaseAuthService.socialLogin(provider);
+      const result = await clientAuthService.socialLogin(provider);
       if (result.success && result.user) {
         setUser(result.user);
         // Claims will be set by the auth provider
@@ -169,7 +169,7 @@ export const useAuthService = (): AuthServiceHooks => {
     setError(null);
     
     try {
-      await firebaseAuthService.sendPasswordReset(data.email);
+      await clientAuthService.sendPasswordReset(data.email);
     } catch (error: any) {
       throw handleError(error);
     } finally {
@@ -182,7 +182,7 @@ export const useAuthService = (): AuthServiceHooks => {
     setError(null);
     
     try {
-      await firebaseAuthService.updatePassword(data.password);
+      await clientAuthService.updatePassword(data.password);
     } catch (error: any) {
       throw handleError(error);
     } finally {
@@ -199,8 +199,8 @@ export const useAuthService = (): AuthServiceHooks => {
       if (!user) {
         throw new Error('No user found');
       }
-      await firebaseAuthService.sendEmailVerification(user);
-    } catch (error: any) {
+      await clientAuthService.sendEmailVerification(user);
+    } catch (error: unknown) {
       throw handleError(error);
     } finally {
       setIsLoading(false);

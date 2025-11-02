@@ -419,7 +419,7 @@ export const MobileLoginForm: React.FC<MobileLoginFormProps> = ({
 
         {/* Sign Up Link */}
         <div className="text-center text-base text-gray-600 pt-4">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Button
             type="button"
             variant="link"

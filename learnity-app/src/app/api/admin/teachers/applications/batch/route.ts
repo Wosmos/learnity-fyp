@@ -76,6 +76,7 @@ async function handleBatchApproval(request: NextRequest, user: any): Promise<Nex
 
         // Review the application in database
         await databaseService.reviewTeacherApplication(appRequest.applicationId, {
+          applicationId: appRequest.applicationId,
           decision: appRequest.decision,
           rejectionReason: appRequest.rejectionReason
         });

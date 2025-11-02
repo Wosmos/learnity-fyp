@@ -3,21 +3,30 @@
  * Provides authentication state and methods to React components
  */
 
-'use client';
+"use client";
 
-import React, { createContext, useContext, useEffect, useCallback } from 'react';
-import { User as FirebaseUser, onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from '@/lib/config/firebase';
-import { useAuthStore } from '@/lib/stores/auth.store';
-import { roleManager } from '@/lib/services/role-manager.service';
-import { 
-  UserRole, 
-  Permission, 
-  CustomClaims, 
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useCallback,
+} from "react";
+import {
+  User as FirebaseUser,
+  onAuthStateChanged,
+  signOut,
+} from "firebase/auth";
+import { auth } from "@/lib/config/firebase";
+import { useAuthStore } from "@/lib/stores/auth.store";
+// Note: roleManager is server-side only, we'll use API calls instead
+import {
+  UserRole,
+  Permission,
+  CustomClaims,
   UserProfile,
   AuthError,
-  AuthErrorCode
-} from '@/types/auth';
+  AuthErrorCode,
+} from "@/types/auth";
 
 export interface AuthContextValue {
   // State
@@ -27,18 +36,18 @@ export interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: AuthError | null;
-  
+
   // Actions
   refreshClaims: () => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
-  
+
   // Permission helpers
   hasPermission: (permission: Permission) => boolean;
   hasRole: (role: UserRole) => boolean;
   hasAnyRole: (roles: UserRole[]) => boolean;
   canAccessRoute: (route: string) => Promise<boolean>;
-  
+
   // Role-specific helpers
   isAdmin: boolean;
   isTeacher: boolean;
@@ -69,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateLastActivity,
     hasPermission,
     hasRole,
-    hasAnyRole
+    hasAnyRole,
   } = useAuthStore();
 
   /**
@@ -81,19 +90,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Force token refresh to get latest claims
       await user.getIdToken(true);
-      const customClaims = await roleManager.getCustomClaims(user.uid);
-      
+
+      // Get custom claims from API instead of direct Firebase Admin access
+      const response = await fetch("/api/auth/claims", {
+        headers: {
+          Authorization: `Bearer ${await user.getIdToken()}`,
+        },
+      });
+
+      const customClaims = response.ok ? await response.json() : null;
+
       setClaims(customClaims);
       updateLastActivity();
     } catch (error: any) {
-      console.error('Failed to refresh claims:', error);
+      console.error("Failed to refresh claims:", error);
       setError({
         code: AuthErrorCode.TOKEN_INVALID,
-        message: 'Failed to refresh authentication. Please sign in again.',
-        details: { originalError: error.message }
+        message: "Failed to refresh authentication. Please sign in again.",
+        details: { originalError: error.message },
       });
     } finally {
       setLoading(false);
@@ -109,11 +126,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await signOut(auth);
       clearAuth();
     } catch (error: any) {
-      console.error('Failed to logout:', error);
+      console.error("Failed to logout:", error);
       setError({
         code: AuthErrorCode.INTERNAL_ERROR,
-        message: 'Failed to sign out. Please try again.',
-        details: { originalError: error.message }
+        message: "Failed to sign out. Please try again.",
+        details: { originalError: error.message },
       });
     } finally {
       setLoading(false);
@@ -130,16 +147,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   /**
    * Check if user can access specific route
    */
-  const canAccessRoute = useCallback(async (route: string): Promise<boolean> => {
-    if (!user) return false;
-    
-    try {
-      return await roleManager.validateRouteAccess(user.uid, route);
-    } catch (error) {
-      console.error('Failed to validate route access:', error);
-      return false;
-    }
-  }, [user]);
+  const canAccessRoute = useCallback(
+    async (route: string): Promise<boolean> => {
+      if (!user) return false;
+
+      try {
+        const response = await fetch(
+          `/api/auth/route-access?route=${encodeURIComponent(route)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${await user.getIdToken()}`,
+            },
+          }
+        );
+
+        return response.ok ? await response.json() : false;
+      } catch (error) {
+        console.error("Failed to validate route access:", error);
+        return false;
+      }
+    },
+    [user]
+  );
 
   /**
    * Set up Firebase auth state listener
@@ -147,28 +176,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setLoading(true);
-      
+
       if (firebaseUser) {
         try {
           setUser(firebaseUser);
-          
-          // Get user claims and profile
-          const customClaims = await roleManager.getCustomClaims(firebaseUser.uid);
+
+          // Get user claims and profile from API
+          const response = await fetch("/api/auth/claims", {
+            headers: {
+              Authorization: `Bearer ${await firebaseUser.getIdToken()}`,
+            },
+          });
+
+          const customClaims = response.ok ? await response.json() : null;
           setClaims(customClaims);
-          
+
           // TODO: Fetch user profile from database service
           // const userProfile = await databaseService.getUserProfile(firebaseUser.uid);
           // setProfile(userProfile);
-          
+
           updateLastActivity();
-        } catch (error: any) {
-          console.error('Failed to initialize user session:', error);
+        } catch (error: unknown) {
+          console.error("Failed to initialize user session:", error);
           setError({
             code: AuthErrorCode.INTERNAL_ERROR,
-            message: 'Failed to initialize session. Please try signing in again.',
-            details: { originalError: error.message }
+            message:
+              "Failed to initialize session. Please try signing in again.",
+            details: { originalError: error.message },
           });
-          
+
           // Clear user on error
           setUser(null);
           setClaims(null);
@@ -178,12 +214,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // User signed out
         clearAuth();
       }
-      
+
       setLoading(false);
     });
 
     return unsubscribe;
-  }, [setUser, setClaims, setProfile, setLoading, setError, clearAuth, updateLastActivity]);
+  }, [
+    setUser,
+    setClaims,
+    setProfile,
+    setLoading,
+    setError,
+    clearAuth,
+    updateLastActivity,
+  ]);
 
   /**
    * Set up automatic token refresh
@@ -197,7 +241,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await user.getIdToken(true);
         updateLastActivity();
       } catch (error) {
-        console.error('Failed to refresh token:', error);
+        console.error("Failed to refresh token:", error);
         // Don't set error here as it might be a temporary network issue
       }
     }, 50 * 60 * 1000); // 50 minutes
@@ -243,29 +287,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated,
     isLoading,
     error,
-    
+
     // Actions
     refreshClaims,
     logout,
     clearError,
-    
+
     // Permission helpers
     hasPermission,
     hasRole,
     hasAnyRole,
     canAccessRoute,
-    
+
     // Role-specific helpers
     isAdmin,
     isTeacher,
     isStudent,
-    isPendingTeacher
+    isPendingTeacher,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 
@@ -275,7 +317,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 export const useAuthContext = (): AuthContextValue => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
+    throw new Error("useAuthContext must be used within an AuthProvider");
   }
   return context;
 };
@@ -291,8 +333,10 @@ export const withAuth = <P extends object>(
       <Component {...props} />
     </AuthProvider>
   );
-  
-  WrappedComponent.displayName = `withAuth(${Component.displayName || Component.name})`;
+
+  WrappedComponent.displayName = `withAuth(${
+    Component.displayName || Component.name
+  })`;
   return WrappedComponent;
 };
 

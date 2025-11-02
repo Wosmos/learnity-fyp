@@ -86,7 +86,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
         {registrationStep === 'verification' && (
           <EmailVerificationPending
             userRole={selectedRole}
-            onResendVerification={() => {
+            onResendVerification={async () => {
               // TODO: Implement resend verification
               console.log('Resend verification email');
             }}

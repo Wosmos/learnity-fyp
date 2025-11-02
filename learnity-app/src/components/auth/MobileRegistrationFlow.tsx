@@ -120,7 +120,7 @@ export const MobileRegistrationFlow: React.FC<MobileRegistrationFlowProps> = ({
         <div className="px-4">
           <EmailVerificationPending
             userRole={selectedRole}
-            onResendVerification={() => {
+            onResendVerification={async () => {
               console.log('Resend verification email');
             }}
             onBackToLogin={onBackToLogin}

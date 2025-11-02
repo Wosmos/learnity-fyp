@@ -13,26 +13,8 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
 };
 
-// Validate required environment variables
-const requiredEnvVars = [
-  'NEXT_PUBLIC_FIREBASE_API_KEY',
-  'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
-  'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
-  'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
-  'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
-  'NEXT_PUBLIC_FIREBASE_APP_ID'
-];
-
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    throw new Error(`Missing required environment variable: ${envVar}`);
-  }
-}
-
 // Initialize Firebase app (singleton pattern)
 let app: FirebaseApp;
-let auth: Auth;
-let storage: FirebaseStorage;
 let appCheck: AppCheck | null = null;
 
 if (getApps().length === 0) {
@@ -42,45 +24,51 @@ if (getApps().length === 0) {
 }
 
 // Initialize Firebase Auth
-auth = getAuth(app);
+const auth: Auth = getAuth(app);
 
 // Initialize Firebase Storage
-storage = getStorage(app);
+const storage: FirebaseStorage = getStorage(app);
 
 // Initialize Firebase App Check for bot protection
-if (typeof window !== 'undefined') {
+// Disabled in development - enable in production with proper ReCaptcha Enterprise setup
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
   try {
     // Only initialize App Check in the browser
     appCheck = initializeAppCheck(app, {
       provider: new ReCaptchaEnterpriseProvider(
-        process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''
+        process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
       ),
       isTokenAutoRefreshEnabled: true
     });
+    console.log('Firebase App Check initialized');
   } catch (error) {
     console.warn('Failed to initialize Firebase App Check:', error);
     // App Check is optional, continue without it in development
   }
 }
 
-// Connect to emulators in development
-if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+// Connect to emulators in development (only if explicitly enabled)
+if (process.env.NODE_ENV === 'development' && 
+    process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === 'true' && 
+    typeof window !== 'undefined') {
   try {
     // Connect to Auth emulator
     try {
       connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-    } catch (error) {
+      console.log('Connected to Firebase Auth Emulator');
+    } catch {
       // Emulator already connected or not available
     }
     
     // Connect to Storage emulator
     try {
       connectStorageEmulator(storage, 'localhost', 9199);
-    } catch (error) {
+      console.log('Connected to Firebase Storage Emulator');
+    } catch {
       // Emulator already connected or not available
     }
-  } catch (error) {
-    console.warn('Failed to connect to Firebase emulators:', error);
+  } catch {
+    console.warn('Failed to connect to Firebase emulators');
   }
 }
 
