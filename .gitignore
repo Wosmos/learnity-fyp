@@ -76,3 +76,12 @@ config/secrets.yml
 config/database.yml
 .next/
 next/
+.kiro/
+project-doc/
+project-doc/
+# Ignore all .md files
+*.md
+
+# Except README.md (case-insensitive)
+!README.md
+!readme.md
