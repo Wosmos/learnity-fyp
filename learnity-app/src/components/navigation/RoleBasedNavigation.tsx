@@ -115,9 +115,27 @@ const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
 
   // Admin Navigation
   {
-    label: 'Admin Panel',
-    href: '/dashboard/admin',
+    label: 'Admin Dashboard',
+    href: '/admin',
     permission: Permission.VIEW_ADMIN_PANEL,
+    role: UserRole.ADMIN
+  },
+  {
+    label: 'Security Dashboard',
+    href: '/admin',
+    permission: Permission.VIEW_AUDIT_LOGS,
+    role: UserRole.ADMIN
+  },
+  {
+    label: 'Audit Logs',
+    href: '/admin/audit-logs',
+    permission: Permission.VIEW_AUDIT_LOGS,
+    role: UserRole.ADMIN
+  },
+  {
+    label: 'Security Events',
+    href: '/admin/security-events',
+    permission: Permission.VIEW_AUDIT_LOGS,
     role: UserRole.ADMIN
   },
   {
@@ -130,18 +148,6 @@ const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
     label: 'Teacher Applications',
     href: '/admin/teachers',
     permission: Permission.APPROVE_TEACHERS,
-    role: UserRole.ADMIN
-  },
-  {
-    label: 'Audit Logs',
-    href: '/admin/audit',
-    permission: Permission.VIEW_AUDIT_LOGS,
-    role: UserRole.ADMIN
-  },
-  {
-    label: 'Platform Management',
-    href: '/admin/platform',
-    permission: Permission.MANAGE_PLATFORM,
     role: UserRole.ADMIN
   }
 ];

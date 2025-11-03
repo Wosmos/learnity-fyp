@@ -5,7 +5,7 @@
  * Provides comprehensive security monitoring and analytics for administrators
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +30,7 @@ import {
   Download
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 
 interface SecurityDashboardProps {
   className?: string;
@@ -58,11 +59,12 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const api = useAuthenticatedApi();
 
   /**
    * Fetch dashboard statistics
    */
-  const fetchDashboardStats = async () => {
+  const fetchDashboardStats = useCallback(async () => {
     try {
       setError(null);
       
@@ -81,34 +83,16 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
           break;
       }
 
-      const [summaryResponse, patternsResponse, failedLoginsResponse, alertsResponse] = await Promise.all([
-        fetch('/api/admin/security/summary', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ startDate: startDate.toISOString(), endDate: endDate.toISOString() })
-        }),
-        fetch('/api/admin/security/patterns', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ startDate: startDate.toISOString(), endDate: endDate.toISOString() })
-        }),
-        fetch('/api/admin/security/failed-logins', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ startDate: startDate.toISOString(), endDate: endDate.toISOString() })
-        }),
-        fetch('/api/admin/security/alerts')
-      ]);
-
-      if (!summaryResponse.ok || !patternsResponse.ok || !failedLoginsResponse.ok || !alertsResponse.ok) {
-        throw new Error('Failed to fetch dashboard data');
-      }
+      const timeRangeData = { 
+        startDate: startDate.toISOString(), 
+        endDate: endDate.toISOString() 
+      };
 
       const [summary, patterns, failedLogins, alerts] = await Promise.all([
-        summaryResponse.json(),
-        patternsResponse.json(),
-        failedLoginsResponse.json(),
-        alertsResponse.json()
+        api.post('/api/admin/security/summary', timeRangeData),
+        api.post('/api/admin/security/patterns', timeRangeData),
+        api.post('/api/admin/security/failed-logins', timeRangeData),
+        api.get('/api/admin/security/alerts')
       ]);
 
       setStats({
@@ -122,11 +106,11 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeRange, api]);
 
   useEffect(() => {
     fetchDashboardStats();
-  }, [timeRange]);
+  }, [timeRange, api]);
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
@@ -148,9 +132,8 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 30); // Last 30 days
 
-      const response = await fetch('/api/admin/security/report', {
+      const response = await api.fetch('/api/admin/security/report', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           startDate: startDate.toISOString(), 
           endDate: endDate.toISOString() 

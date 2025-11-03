@@ -20,6 +20,7 @@ import {
 import { SecurityEventType, RiskLevel } from '@/types/auth';
 import { formatDistanceToNow } from 'date-fns';
 import { AlertTriangle, Shield, Eye, Ban } from 'lucide-react';
+import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 
 interface SecurityEventsViewerProps {
   className?: string;
@@ -54,6 +55,7 @@ export const SecurityEventsViewer: React.FC<SecurityEventsViewerProps> = ({ clas
     blockedEvents: 0,
     uniqueIps: 0
   });
+  const api = useAuthenticatedApi();
 
   /**
    * Fetch security events with current filters
@@ -69,19 +71,7 @@ export const SecurityEventsViewer: React.FC<SecurityEventsViewerProps> = ({ clas
         endDate: getEndDate(filters.dateRange, filters.customEndDate)
       };
 
-      const response = await fetch('/api/admin/security-events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(queryFilters)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch security events');
-      }
-
-      const data: PaginatedSecurityEvents = await response.json();
+      const data: PaginatedSecurityEvents = await api.post('/api/admin/security-events', queryFilters);
       setEvents(data);
 
       // Calculate stats
@@ -100,7 +90,7 @@ export const SecurityEventsViewer: React.FC<SecurityEventsViewerProps> = ({ clas
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, api]);
 
   useEffect(() => {
     fetchSecurityEvents();

@@ -19,6 +19,7 @@ import { PaginatedAuditLogs } from '@/lib/services/audit.service';
 import { EventType } from '@/types/auth';
 import { formatDistanceToNow } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 
 interface AuditLogViewerProps {
   className?: string;
@@ -47,6 +48,7 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ className }) => 
     dateRange: 'today'
   });
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+  const api = useAuthenticatedApi();
 
   /**
    * Fetch audit logs with current filters
@@ -62,26 +64,14 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ className }) => 
         endDate: getEndDate(filters.dateRange, filters.customEndDate)
       };
 
-      const response = await fetch('/api/admin/audit-logs', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(queryFilters)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch audit logs');
-      }
-
-      const data: PaginatedAuditLogs = await response.json();
+      const data: PaginatedAuditLogs = await api.post('/api/admin/audit-logs', queryFilters);
       setLogs(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, api]);
 
   useEffect(() => {
     fetchAuditLogs();
@@ -90,7 +80,7 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ className }) => 
   /**
    * Handle filter changes
    */
-  const handleFilterChange = (key: keyof FilterState, value: any) => {
+  const handleFilterChange = (key: keyof FilterState, value: unknown) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
@@ -120,11 +110,8 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ className }) => 
         endDate: getEndDate(filters.dateRange, filters.customEndDate)
       };
 
-      const response = await fetch('/api/admin/audit-logs/export', {
+      const response = await api.fetch('/api/admin/audit-logs/export', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(queryFilters)
       });
 

@@ -231,7 +231,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Static admin login error:', error);
 
     // Log unexpected error
@@ -247,9 +247,9 @@ export async function POST(request: NextRequest) {
         ipAddress: clientIP,
         userAgent,
         success: false,
-        errorMessage: error.message,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
         metadata: {
-          errorStack: error.stack,
+          errorStack: error instanceof Error ? error.stack : 'No stack trace',
           attemptType: 'static_admin'
         }
       });

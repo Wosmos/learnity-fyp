@@ -358,7 +358,7 @@ export function withStudentApiAuth(
  * Higher-order function for any authenticated user API routes
  */
 export function withApiAuth(
-  handler: (request: NextRequest, user: any) => Promise<NextResponse>
+  handler: (request: NextRequest, user: unknown) => Promise<NextResponse>
 ) {
   return async (request: NextRequest): Promise<NextResponse> => {
     const authResult = await authMiddleware(request);

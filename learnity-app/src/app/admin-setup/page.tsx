@@ -128,30 +128,86 @@ export default function AdminSetupPage() {
                     {result.message}
                   </p>
                   {result.success && (
-                    <p className="text-xs text-green-700 mt-2">
-                      Note: Since Firebase Admin SDK is not configured, you need
-                      to manually set custom claims in Firebase Console.
-                    </p>
+                    <div className="mt-2 space-y-1">
+                      <p className="text-xs text-green-700">
+                        ✅ Admin role has been set successfully!
+                      </p>
+                      <p className="text-xs text-green-700">
+                        🔄 Please refresh your browser to see admin privileges.
+                      </p>
+                      <p className="text-xs text-green-700">
+                        🎯 You can now access <a href="/admin" className="underline">Admin Dashboard</a>
+                      </p>
+                    </div>
+                  )}
+                  {!result.success && result.message.includes('Firebase Admin SDK') && (
+                    <div className="mt-2">
+                      <p className="text-xs text-red-700 mb-2">
+                        Firebase Admin SDK needs to be configured. Follow these steps:
+                      </p>
+                      <ol className="text-xs text-red-700 space-y-1 list-decimal list-inside">
+                        <li>Go to Firebase Console → Project Settings → Service Accounts</li>
+                        <li>Click "Generate new private key" and download the JSON file</li>
+                        <li>Add the credentials to your .env.local file</li>
+                        <li>Restart your development server</li>
+                      </ol>
+                      <p className="text-xs text-red-700 mt-2">
+                        📖 See <code>FIREBASE_ADMIN_SETUP.md</code> for detailed instructions.
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
           )}
 
-          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h4 className="text-sm font-semibold text-yellow-800 mb-2">
-              Manual Setup Instructions:
-            </h4>
-            <ol className="text-xs text-yellow-700 space-y-1 list-decimal list-inside">
-              <li>Go to Firebase Console → Authentication → Users</li>
-              <li>Click on the user you want to promote</li>
-              <li>Go to &quot;Custom claims&quot; tab</li>
-              <li>
-                Add:{" "}
-                {`{"role": "ADMIN", "permissions": ["view:admin_panel", "manage:users"]}`}
-              </li>
-              <li>User must logout and login again to see changes</li>
-            </ol>
+          <div className="mt-6 space-y-4">
+            {/* Firebase Admin SDK Setup */}
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h4 className="text-sm font-semibold text-blue-800 mb-2">
+                🔧 Firebase Admin SDK Setup (Recommended):
+              </h4>
+              <ol className="text-xs text-blue-700 space-y-1 list-decimal list-inside">
+                <li>Go to Firebase Console → Project Settings → Service Accounts</li>
+                <li>Click "Generate new private key" and download JSON</li>
+                <li>Add credentials to .env.local (see FIREBASE_ADMIN_SETUP.md)</li>
+                <li>Restart server and try again</li>
+              </ol>
+            </div>
+
+            {/* Manual Setup Alternative */}
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <h4 className="text-sm font-semibold text-yellow-800 mb-2">
+                ⚡ Manual Setup (Alternative):
+              </h4>
+              <ol className="text-xs text-yellow-700 space-y-1 list-decimal list-inside">
+                <li>Go to Firebase Console → Authentication → Users</li>
+                <li>Click on the user you want to promote</li>
+                <li>Go to "Custom claims&quot; tab</li>
+                <li>Add: <code className="bg-yellow-100 px-1 rounded">
+                  {`{"role": "ADMIN", "permissions": ["VIEW_ADMIN_PANEL", "MANAGE_USERS", "VIEW_AUDIT_LOGS"]}`}
+                </code></li>
+                <li>User must refresh browser to see changes</li>
+              </ol>
+            </div>
+
+            {/* Quick Links */}
+            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <h4 className="text-sm font-semibold text-gray-800 mb-2">
+                🔗 Quick Links:
+              </h4>
+              <div className="space-y-1 text-xs">
+                <a href="/admin/test" className="block text-blue-600 hover:underline">
+                  → Test Admin Access
+                </a>
+                <a href="/admin" className="block text-blue-600 hover:underline">
+                  → Admin Dashboard
+                </a>
+                <a href="https://console.firebase.google.com" target="_blank" className="block text-blue-600 hover:underline">
+                  → Firebase Console ↗
+                </a>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

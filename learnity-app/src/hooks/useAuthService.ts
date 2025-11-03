@@ -49,7 +49,7 @@ export const useAuthService = (): AuthServiceHooks => {
     // Map Firebase errors to our error codes
     const authError: AuthError = {
       code: AuthErrorCode.INTERNAL_ERROR,
-      message: 'An unexpected error occurred. Please try again.',
+      message: `An unexpected error occurred. Please try again.${error.message}`,
       details: { originalError: error.message }
     };
 
