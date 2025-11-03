@@ -108,23 +108,17 @@ export function useRouteAccess(route: string): RouteAccessResult {
 }
 
 /**
- * Hook for checking multiple roles
+ * Hook for checking if user has any of the specified roles
  */
-export function useRoleCheck(roles: UserRole[], requireAll: boolean = false): RoleCheckResult {
+export function useRoleCheck(roles: UserRole[]): RoleCheckResult {
   const { claims, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const hasRole = useMemo(() => {
     if (!claims) return false;
-    
-    if (requireAll) {
-      // This doesn't make logical sense for a single user role, but kept for API consistency
-      return roles.every(role => claims.role === role);
-    } else {
-      return roles.includes(claims.role);
-    }
-  }, [claims, roles, requireAll]);
+    return roles.includes(claims.role);
+  }, [claims, roles]);
 
   return {
     hasRole,
