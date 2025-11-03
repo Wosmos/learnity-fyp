@@ -205,7 +205,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setProfile(userProfile);
 
           updateLastActivity();
-        } catch (error: unknown) {
+        } catch (error: any) {
           console.error("Failed to initialize user session:", error);
           setError({
             code: AuthErrorCode.INTERNAL_ERROR,

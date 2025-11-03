@@ -14,6 +14,8 @@ export interface CustomClaims {
   permissions: Permission[];
   profileComplete: boolean;
   emailVerified: boolean;
+  profileId?: string;
+  lastLoginAt?: string;
 }
 
 // User Profile Types

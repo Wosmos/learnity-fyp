@@ -349,7 +349,7 @@ async function logAuditEvent(
   }
 ) {
   try {
-    const prisma = (databaseService as unknown).prisma;
+    const prisma = (databaseService as any).prisma;
     
     await prisma.auditLog.create({
       data: {

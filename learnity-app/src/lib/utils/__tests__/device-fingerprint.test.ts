@@ -12,7 +12,7 @@ import {
 
 // Mock Request object
 const createMockRequest = (headers: Record<string, string> = {}): Request => {
-  const defaultHeaders = {
+  const defaultHeaders : any = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     'accept-language': 'en-US,en;q=0.9',
     'accept-encoding': 'gzip, deflate, br',
