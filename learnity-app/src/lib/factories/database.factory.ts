@@ -14,7 +14,7 @@ export class DatabaseFactory {
   /**
    * Get singleton instance of DatabaseService
    */
-  static getDatabaseService(): any {
+  static getDatabaseService(): DatabaseService  {
     if (!this.databaseServiceInstance) {
       this.databaseServiceInstance = new DatabaseService();
     }
@@ -24,7 +24,7 @@ export class DatabaseFactory {
   /**
    * Get singleton instance of FirebaseSyncService
    */
-  static getSyncService(): any {
+  static getSyncService(): FirebaseSyncService {
     if (!this.syncServiceInstance) {
       this.syncServiceInstance = new FirebaseSyncService();
     }
