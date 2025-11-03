@@ -76,7 +76,11 @@ config/secrets.yml
 config/database.yml
 .next/
 next/
+
 .kiro/
+src/.kiro/
+# or more generally:
+**/.kiro/
 project-doc/
 project-doc/
 # Ignore all .md files
