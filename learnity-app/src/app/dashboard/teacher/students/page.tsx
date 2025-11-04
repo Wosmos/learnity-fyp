@@ -436,8 +436,7 @@ export default function TeacherStudentsPage() {
     </div>
   );
 }
-// 
-Helper function for progress color
+
 function getProgressColor(progress: number): string {
   if (progress >= 80) return 'text-green-600';
   if (progress >= 60) return 'text-yellow-600';

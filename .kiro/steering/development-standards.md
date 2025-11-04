@@ -29,6 +29,7 @@
 - **MUST** follow proper type safety 
 - **MUST** follow proper next js all best practices as much as possible 
 - **MUST** follow proper optional chaining and usefull error loging and handling also use toasts for proper user flow guidance for user
+- **MUST** for any command if we are using mac os alwasy use sudo 
 
 ### 3. Architecture Patterns
 - **MUST** follow Clean Architecture principles

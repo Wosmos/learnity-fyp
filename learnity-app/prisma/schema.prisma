@@ -52,11 +52,26 @@ model StudentProfile {
   learningGoals               String[] // Optional enhancements
   interests                   String[] // Optional enhancements
   studyPreferences            String[] // Optional enhancements
+  bio                         String?  // Optional bio
   profileCompletionPercentage Int      @default(20) // Basic info = 20%
+  
+  // Privacy settings
+  profileVisibility           ProfileVisibility @default(PUBLIC)
+  showEmail                   Boolean  @default(false)
+  showLearningGoals           Boolean  @default(true)
+  showInterests               Boolean  @default(true)
+  showProgress                Boolean  @default(true)
+  allowMessages               Boolean  @default(true)
   
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@map("student_profiles")
+}
+
+enum ProfileVisibility {
+  PUBLIC
+  FRIENDS
+  PRIVATE
 }
 
 model TeacherProfile {
