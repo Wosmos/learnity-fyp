@@ -77,15 +77,15 @@ config/database.yml
 .next/
 next/
 
-.kiro/
-src/.kiro/
-# or more generally:
-**/.kiro/
-project-doc/
-project-doc/
-# Ignore all .md files
-*.md
+# .kiro/
+# src/.kiro/
+# # or more generally:
+# **/.kiro/
+# project-doc/
+# project-doc/
+# # Ignore all .md files
+# *.md
 
-# Except README.md (case-insensitive)
-!README.md
-!readme.md
+# # Except README.md (case-insensitive)
+# !README.md
+# !readme.md
