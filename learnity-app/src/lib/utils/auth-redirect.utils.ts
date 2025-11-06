@@ -4,6 +4,7 @@
  */
 
 import { UserRole, CustomClaims } from '@/types/auth';
+import { User as FirebaseUser } from 'firebase/auth';
 
 export interface RedirectOptions {
   role?: UserRole;
@@ -160,25 +161,20 @@ export function hasRouteAccess(path: string, userRole?: UserRole): boolean {
     return false; // User not authenticated
   }
 
-  // Admin has access to all routes
-  if (userRole === UserRole.ADMIN) {
-    return true;
-  }
-
   // Check specific role access
   switch (requiredRole) {
+    case UserRole.ADMIN:
+      // Only admins can access admin routes
+      return userRole === UserRole.ADMIN;
     case UserRole.TEACHER:
       // Teachers and admins can access teacher routes
-      return userRole === UserRole.TEACHER ;
+      return userRole === UserRole.TEACHER || userRole === UserRole.ADMIN;
     case UserRole.STUDENT:
       // Only students can access student routes (admins use their own dashboard)
       return userRole === UserRole.STUDENT;
     case UserRole.PENDING_TEACHER:
       // Only pending teachers can access application routes
       return userRole === UserRole.PENDING_TEACHER;
-    case UserRole.ADMIN:
-      // Only admins can access admin routes
-      return userRole === UserRole.ADMIN;
     default:
       return false;
   }
@@ -217,7 +213,7 @@ export function getRedirectFromUrl(searchParams: URLSearchParams): string | null
     if (decodedRedirect.startsWith('/') && !decodedRedirect.startsWith('//')) {
       return decodedRedirect;
     }
-  } catch (error) {
+  } catch {
     console.warn('Invalid redirect parameter:', redirect);
   }
 
@@ -228,7 +224,7 @@ export function getRedirectFromUrl(searchParams: URLSearchParams): string | null
  * Handle role-based navigation after authentication
  */
 export function handlePostAuthNavigation(
-  router: any,
+  router: { push: (path: string) => void },
   userRole: UserRole,
   claims?: CustomClaims,
   requestedPath?: string
@@ -262,4 +258,77 @@ export function getWelcomeMessage(userRole: UserRole, userName?: string): string
     default:
       return `Welcome, ${name}!`;
   }
+}
+
+// ===== HOME PAGE SPECIFIC UTILITIES =====
+
+export interface HomeRedirectOptions {
+  user: FirebaseUser | null;
+  claims: CustomClaims | null;
+  isLoading: boolean;
+}
+
+/**
+ * Determine if a user should be redirected from the home page
+ * Used specifically for home page authentication logic
+ */
+export function shouldRedirectFromHome(options: HomeRedirectOptions): boolean {
+  const { user, claims, isLoading } = options;
+  
+  // Don't redirect while still loading authentication state
+  if (isLoading) {
+    return false;
+  }
+  
+  // Redirect authenticated users with valid claims
+  return !!(user && claims && claims.role);
+}
+
+/**
+ * Get the appropriate redirect path for authenticated users on home page
+ * Returns null if user should stay on home page (unauthenticated)
+ */
+export function getHomeRedirectPath(options: HomeRedirectOptions): string | null {
+  const { user, claims, isLoading } = options;
+  
+  // Don't redirect while loading or if user is not authenticated
+  if (isLoading || !user || !claims) {
+    return null;
+  }
+  
+  // Use existing post-auth redirect logic
+  return getPostAuthRedirect({ 
+    role: claims.role, 
+    claims 
+  });
+}
+
+/**
+ * Coordinated authentication handling for home page
+ * Combines authentication state checking with redirect logic
+ */
+export function handleHomePageAuth(
+  router: { push: (path: string) => void },
+  options: HomeRedirectOptions
+): void {
+  const { user, claims, isLoading } = options;
+  
+  // Don't do anything while loading
+  if (isLoading) {
+    return;
+  }
+  
+  // If user is authenticated, redirect to appropriate dashboard
+  if (user && claims) {
+    const redirectPath = getHomeRedirectPath(options);
+    if (redirectPath) {
+      // Small delay to prevent flash of content
+      setTimeout(() => {
+        router.push(redirectPath);
+      }, 100);
+    }
+  }
+  
+  // If user is not authenticated, they stay on the landing page
+  // No action needed - the home page will render the landing page content
 }

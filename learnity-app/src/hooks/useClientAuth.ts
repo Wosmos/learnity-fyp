@@ -36,8 +36,8 @@ export function useClientAuth(): ClientAuthState {
           
           const customClaims: CustomClaims = {
             role: (firebaseClaims.role as UserRole) || UserRole.STUDENT,
-            permissions: (firebaseClaims.permissions as string[]) || [],
-            profileComplete: firebaseClaims.profileComplete || false,
+            permissions: [], // Will be populated based on role
+            profileComplete: Boolean(firebaseClaims.profileComplete),
             emailVerified: firebaseUser.emailVerified || false,
             profileId: firebaseClaims.profileId as string,
             lastLoginAt: firebaseClaims.lastLoginAt as string
