@@ -3,7 +3,10 @@
  * Enhanced main entry point with comprehensive navigation and features
  */
 
+'use client';
+
 import Link from "next/link";
+import { PublicLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -39,7 +42,8 @@ import {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <PublicLayout showNavigation={false}>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       {/* Header */}
       <header className="container mx-auto px-4 py-6 sticky top-0 bg-white/80 backdrop-blur-md z-50 border-b border-gray-100">
         <nav className="flex items-center justify-between">
@@ -813,6 +817,7 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </PublicLayout>
   );
 }

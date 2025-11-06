@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { SecurityDashboard } from '@/components/admin/SecurityDashboard';
 import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
 import { SecurityEventsViewer } from '@/components/admin/SecurityEventsViewer';
@@ -78,7 +79,8 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AuthenticatedLayout>
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -173,7 +175,8 @@ export default function AdminDashboardPage() {
           </main>
         </div>
       </div>
-    </div>
+      </div>
+    </AuthenticatedLayout>
   );
 }
 

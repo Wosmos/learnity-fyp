@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { 
   GraduationCap, 
@@ -31,7 +32,8 @@ export default function StudentDashboard() {
   const userName = user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'Student';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <AuthenticatedLayout>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -295,6 +297,7 @@ export default function StudentDashboard() {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </AuthenticatedLayout>
   );
 }
