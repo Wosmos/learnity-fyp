@@ -407,7 +407,7 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
         throw new Error('Student profile not found');
       }
 
-      const profile = user.studentProfile;
+      const profile = user.studentProfile as any; // TODO: Regenerate Prisma client
       
       return {
         profileVisibility: profile.profileVisibility,

@@ -8,7 +8,7 @@ import { UserRole } from '@/types/auth';
 export interface RouteProtectionRule {
   path: string;
   allowedRoles: UserRole[];
-  redirectRules: Record<UserRole, string>;
+  redirectRules: Partial<Record<UserRole, string>>;
   description: string;
 }
 

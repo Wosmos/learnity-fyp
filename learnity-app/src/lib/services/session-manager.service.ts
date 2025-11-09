@@ -373,7 +373,7 @@ export class SessionManagerService implements ISessionManagerService {
   /**
    * Generic token blacklisting method
    */
-  private async blacklistToken(token: string, reason?: string): Promise<void> {
+  public async blacklistToken(token: string, reason?: string): Promise<void> {
     try {
       const tokenHash = this.hashToken(token);
       
