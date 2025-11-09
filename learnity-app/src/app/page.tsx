@@ -1,6 +1,7 @@
 /**
  * Learnity Landing Page
  * Enhanced main entry point with comprehensive navigation and features
+ * Now includes authentication-aware logic for automatic redirects
  */
 
 'use client';
@@ -8,6 +9,8 @@
 import Link from "next/link";
 import { PublicLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
+import { AuthLoadingSpinner } from "@/components/ui/AuthLoadingSpinner";
+import { useHomeAuthRedirect } from "@/hooks/useAuthRedirect";
 import {
   Card,
   CardContent,
@@ -33,7 +36,6 @@ import {
   Eye,
   UserCheck,
   Globe,
-  Smartphone,
   Clock,
   Award,
   TrendingUp,
@@ -41,69 +43,67 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  // Use authentication redirect hook for home page
+  const { isRedirecting, shouldShowContent, error } = useHomeAuthRedirect();
+
+  // Show loading state while checking authentication or redirecting
+  if (isRedirecting) {
+    return (
+      <PublicLayout showNavigation={false}>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
+          <AuthLoadingSpinner 
+            message="Redirecting to your dashboard..."
+            showLogo={true}
+            size="lg"
+          />
+        </div>
+      </PublicLayout>
+    );
+  }
+
+  // Handle error states gracefully
+  if (error) {
+    // For retry scenarios, show loading with retry message
+    if (error.includes('Retrying')) {
+      return (
+        <PublicLayout showNavigation={false}>
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
+            <AuthLoadingSpinner 
+              message={error}
+              showLogo={true}
+              size="lg"
+            />
+          </div>
+        </PublicLayout>
+      );
+    }
+    
+    // For other errors, log and continue to show landing page (graceful degradation)
+    console.error('Home page authentication error:', error);
+    // Continue to render landing page below
+  }
+
+  // Only show landing page content if user should see it (unauthenticated)
+  if (!shouldShowContent && !error) {
+    return (
+      <PublicLayout showNavigation={false}>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
+          <AuthLoadingSpinner 
+            message="Loading..."
+            showLogo={true}
+            size="lg"
+          />
+        </div>
+      </PublicLayout>
+    );
+  }
+
+  // Render the landing page for unauthenticated users
   return (
     <PublicLayout showNavigation={false}>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       {/* Header */}
-      <header className="container mx-auto px-4 py-6 sticky top-0 bg-white/80 backdrop-blur-md z-50 border-b border-gray-100">
-        <nav className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="p-2 bg-blue-600 rounded-lg">
-              <GraduationCap className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Learnity
-            </span>
-            <Badge variant="secondary" className="ml-2 text-xs">
-              Beta
-            </Badge>
-          </div>
-
-          <div className="hidden md:flex items-center space-x-6">
-            <Link
-              href="#features"
-              className="text-gray-600 hover:text-blue-600 transition-colors"
-            >
-              Features
-            </Link>
-            <Link
-              href="#demo"
-              className="text-gray-600 hover:text-blue-600 transition-colors"
-            >
-              Demo
-            </Link>
-            <Link
-              href="#admin"
-              className="text-gray-600 hover:text-blue-600 transition-colors"
-            >
-              Admin
-            </Link>
-            <div className="h-4 w-px bg-gray-300"></div>
-            <Link href="/auth/login">
-              <Button
-                variant="ghost"
-                className="text-gray-600 hover:text-gray-900"
-              >
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/auth/register">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg">
-                Get Started
-              </Button>
-            </Link>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <Link href="/auth/login">
-              <Button size="sm" variant="outline">
-                Sign In
-              </Button>
-            </Link>
-          </div>
-        </nav>
-      </header>
+      {/*  */}
 
       {/* Hero Section */}
       <main className="container mx-auto px-4 py-16">

@@ -171,22 +171,63 @@ export function useAuthRedirect(options: UseAuthRedirectOptions = {}): UseAuthRe
 
 /**
  * Hook specifically for home page authentication redirects
- * Simplified version focused on home page use case
+ * Simplified version focused on home page use case with enhanced error handling
  */
 export function useHomeAuthRedirect(): UseAuthRedirectReturn {
   const { user, loading, isAuthenticated, claims } = useClientAuth();
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Handle authentication errors with recovery strategies
+  const handleAuthError = useCallback((err: any) => {
+    console.error('Home page authentication error:', err);
+    
+    // Log error for monitoring and debugging
+    const errorDetails = {
+      error: err?.message || 'Unknown authentication error',
+      timestamp: new Date().toISOString(),
+      userAgent: typeof window !== 'undefined' ? navigator.userAgent : 'SSR',
+      url: typeof window !== 'undefined' ? window.location.href : 'SSR',
+      retryCount
+    };
+    
+    // In a real app, this would send to monitoring service
+    console.warn('Authentication error logged:', errorDetails);
+    
+    // Determine error recovery strategy
+    if (err?.code === 'auth/network-request-failed' && retryCount < 3) {
+      // Network error - retry after delay
+      setError('Connection issue. Retrying...');
+      setTimeout(() => {
+        setRetryCount(prev => prev + 1);
+        setError(null);
+        // Force re-evaluation by updating a dependency
+      }, 1000 * (retryCount + 1)); // Exponential backoff
+    } else if (err?.code === 'auth/id-token-expired' || err?.code === 'auth/invalid-user-token') {
+      // Invalid/expired token - clear session and show landing page
+      setError(null); // Don't show error to user, just clear session
+      setIsRedirecting(false);
+      // The auth system should handle token cleanup
+    } else {
+      // Other errors - show landing page gracefully
+      setError(null); // Don't show error to user for better UX
+      setIsRedirecting(false);
+    }
+  }, [retryCount]);
 
   useEffect(() => {
     if (loading) {
       return; // Still loading authentication state
     }
 
+    // Handle successful authentication
     if (isAuthenticated && user && claims) {
       // User is authenticated, redirect to appropriate dashboard
       setIsRedirecting(true);
+      setError(null);
+      setRetryCount(0); // Reset retry count on success
       
       try {
         const redirectPath = getPostAuthRedirect({ 
@@ -196,22 +237,38 @@ export function useHomeAuthRedirect(): UseAuthRedirectReturn {
         
         // Small delay to prevent flash of content
         setTimeout(() => {
-          router.push(redirectPath);
+          try {
+            router.push(redirectPath);
+          } catch (routerError) {
+            console.error('Router push failed:', routerError);
+            handleAuthError(routerError);
+          }
         }, 100);
       } catch (err) {
         console.error('Home redirect failed:', err);
-        setError('Failed to redirect to dashboard');
-        setIsRedirecting(false);
+        handleAuthError(err);
       }
-    } else {
+    } else if (!loading) {
       // User is not authenticated, show landing page
       setIsRedirecting(false);
+      setError(null);
+      setRetryCount(0);
     }
-  }, [loading, isAuthenticated, user, claims, router]);
+  }, [loading, isAuthenticated, user, claims, router, handleAuthError, retryCount]);
+
+  // Clear errors after a timeout for better UX
+  useEffect(() => {
+    if (error && !error.includes('Retrying')) {
+      const timeout = setTimeout(() => {
+        setError(null);
+      }, 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [error]);
 
   return {
     isRedirecting: isRedirecting || loading,
-    shouldShowContent: !isRedirecting && !loading && !isAuthenticated,
+    shouldShowContent: !isRedirecting && !loading && !isAuthenticated && !error,
     redirectPath: isAuthenticated && claims ? getPostAuthRedirect({ role: claims.role, claims }) : null,
     error
   };

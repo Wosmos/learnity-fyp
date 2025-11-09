@@ -1,13 +1,14 @@
 /**
  * Teacher Dashboard Layout
- * Provides consistent layout and navigation for teacher dashboard pages
+ * Protects teacher routes and provides common layout
  */
 
 import { Metadata } from 'next';
+import { ClientTeacherProtection } from '@/components/auth/ClientTeacherProtection';
 
 export const metadata: Metadata = {
   title: 'Teacher Dashboard - Learnity',
-  description: 'Manage your teaching sessions, students, and content on Learnity',
+  description: 'Teacher dashboard with session management, student progress, and content tools',
 };
 
 export default function TeacherDashboardLayout({
@@ -16,8 +17,10 @@ export default function TeacherDashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="teacher-dashboard-layout">
-      {children}
-    </div>
+    <ClientTeacherProtection>
+      <div className="teacher-dashboard-layout">
+        {children}
+      </div>
+    </ClientTeacherProtection>
   );
 }
