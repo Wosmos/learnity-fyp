@@ -10,6 +10,11 @@ import { authMiddleware } from '@/lib/middleware/auth.middleware';
 import { UserRole, AuthErrorCode } from '@/types/auth';
 
 export interface AuthResult {
+  user?: {
+    id: string;
+    email: string;
+    role: UserRole;
+  };
   success: boolean;
   decodedToken?: DecodedIdToken;
   error?: string;

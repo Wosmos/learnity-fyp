@@ -5,12 +5,12 @@
  * Main dashboard for students with learning tools and progress tracking
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { 
   GraduationCap, 
@@ -29,7 +29,34 @@ import Link from 'next/link';
 
 export default function StudentDashboard() {
   const { user } = useClientAuth();
+  const router = useRouter();
   const userName = user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'Student';
+  const [completion, setCompletion] = useState<any>(null);
+  const [loadingCompletion, setLoadingCompletion] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      fetchCompletionData();
+    }
+  }, [user]);
+
+  const fetchCompletionData = async () => {
+    try {
+      const response = await fetch('/api/profile/enhance');
+      if (response.ok) {
+        const data = await response.json();
+        setCompletion(data.completion);
+      }
+    } catch (error) {
+      console.error('Failed to fetch completion data:', error);
+    } finally {
+      setLoadingCompletion(false);
+    }
+  };
+
+  const handleEnhanceProfile = () => {
+    router.push('/profile/enhance');
+  };
 
   return (
     <AuthenticatedLayout>
@@ -58,6 +85,16 @@ export default function StudentDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Profile Completion Banner */}
+        {!loadingCompletion && completion && completion.percentage < 100 && (
+          <div className="mb-8">
+            <ProfileCompletionBanner 
+              completion={completion} 
+              onEnhanceClick={handleEnhanceProfile}
+            />
+          </div>
+        )}
+
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
