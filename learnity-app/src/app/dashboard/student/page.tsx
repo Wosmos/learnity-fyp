@@ -26,6 +26,8 @@ import {
   MessageCircle
 } from 'lucide-react';
 import Link from 'next/link';
+import { AuthenticatedLayout } from '@/components/layout/AppLayout';
+import { ProfileCompletionBanner } from '@/components/profile/ProfileCompletionBanner';
 
 export default function StudentDashboard() {
   const { user } = useClientAuth();

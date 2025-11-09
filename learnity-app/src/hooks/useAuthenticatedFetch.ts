@@ -11,7 +11,7 @@ interface AuthenticatedFetchOptions extends RequestInit {
 }
 
 export function useAuthenticatedFetch() {
-  const { user } = useClientAuth();
+  const { user, loading } = useClientAuth();
 
   const authenticatedFetch = useCallback(async (
     url: string, 
@@ -19,17 +19,38 @@ export function useAuthenticatedFetch() {
   ): Promise<Response> => {
     const { skipAuth = false, headers = {}, ...restOptions } = options;
 
+    // Wait for auth to be ready if still loading
+    if (!skipAuth && loading) {
+      throw new Error('Authentication is still loading');
+    }
+
+    // Check if user is authenticated when auth is required
+    if (!skipAuth && !user) {
+      console.error('No authenticated user found');
+      throw new Error('Authentication required');
+    }
+
     // Get Firebase ID token if user is authenticated and auth is not skipped
     let authHeaders = {};
     if (!skipAuth && user) {
       try {
-        const idToken = await user.getIdToken();
+        // Force token refresh to ensure it's valid
+        const idToken = await user.getIdToken(true);
         authHeaders = {
           'Authorization': `Bearer ${idToken}`,
         };
       } catch (error) {
         console.error('Failed to get ID token:', error);
-        throw new Error('Authentication failed');
+        // Try one more time without forcing refresh
+        try {
+          const idToken = await user.getIdToken(false);
+          authHeaders = {
+            'Authorization': `Bearer ${idToken}`,
+          };
+        } catch (retryError) {
+          console.error('Failed to get ID token on retry:', retryError);
+          throw new Error('Authentication failed - unable to get valid token');
+        }
       }
     }
 
@@ -48,13 +69,33 @@ export function useAuthenticatedFetch() {
 
     // Handle authentication errors
     if (response.status === 401) {
-      console.error('Authentication failed - redirecting to login');
-      // In a real app, you might want to redirect to login or refresh the token
+      console.error('Authentication failed - server returned 401');
+      // Try to refresh token and retry once
+      if (!skipAuth && user) {
+        try {
+          const idToken = await user.getIdToken(true);
+          const retryHeaders = {
+            ...finalHeaders,
+            'Authorization': `Bearer ${idToken}`,
+          };
+          
+          const retryResponse = await fetch(url, {
+            ...restOptions,
+            headers: retryHeaders,
+          });
+          
+          if (retryResponse.ok || retryResponse.status !== 401) {
+            return retryResponse;
+          }
+        } catch (error) {
+          console.error('Token refresh failed:', error);
+        }
+      }
       throw new Error('Authentication required');
     }
 
     return response;
-  }, [user]);
+  }, [user, loading]);
 
   return authenticatedFetch;
 }

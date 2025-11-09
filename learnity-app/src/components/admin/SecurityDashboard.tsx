@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
+import { useClientAuth } from '@/hooks/useClientAuth';
 
 interface SecurityDashboardProps {
   className?: string;
@@ -60,13 +61,27 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const api = useAuthenticatedApi();
+  const { loading: authLoading, isAuthenticated } = useClientAuth();
 
   /**
    * Fetch dashboard statistics
    */
   const fetchDashboardStats = useCallback(async () => {
+    // Don't fetch if auth is still loading
+    if (authLoading) {
+      return;
+    }
+
+    // Don't fetch if not authenticated
+    if (!isAuthenticated) {
+      setError('Not authenticated');
+      setLoading(false);
+      return;
+    }
+
     try {
       setError(null);
+      setLoading(true);
       
       const endDate = new Date();
       const startDate = new Date();
@@ -102,15 +117,16 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
         recentAlerts: alerts
       });
     } catch (err) {
+      console.error('Dashboard fetch error:', err);
       setError(err instanceof Error ? err.message : 'Failed to load dashboard');
     } finally {
       setLoading(false);
     }
-  }, [timeRange, api]);
+  }, [timeRange, api, authLoading, isAuthenticated]);
 
   useEffect(() => {
     fetchDashboardStats();
-  }, [timeRange, api]);
+  }, [fetchDashboardStats]);
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
@@ -121,7 +137,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [autoRefresh, timeRange]);
+  }, [autoRefresh, fetchDashboardStats]);
 
   /**
    * Generate security report
