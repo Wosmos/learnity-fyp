@@ -226,7 +226,7 @@ async function seedTeachers() {
               submittedAt: new Date(),
               reviewedAt: new Date(),
               approvedBy: 'system_seed',
-              rating: teacherData.rating.toString(),
+              rating: teacherData.rating,
               reviewCount: teacherData.reviewCount,
               responseTime: teacherData.responseTime,
               availability: teacherData.availability,
