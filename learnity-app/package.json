@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/deploy-setup.js && next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "postinstall": "prisma generate",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -20,7 +21,8 @@
     "db:studio": "prisma studio",
     "setup": "npm run db:generate && npm run db:push && npm run db:seed && npm run test:setup",
     "deploy:setup": "node scripts/deploy-setup.js",
-    "deploy:test": "node scripts/test-deployment-fix.js"
+    "deploy:test": "node scripts/test-deployment-fix.js",
+    "diagnose:firebase": "node scripts/diagnose-firebase.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
