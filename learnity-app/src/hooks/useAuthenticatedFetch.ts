@@ -55,11 +55,16 @@ export function useAuthenticatedFetch() {
     }
 
     // Merge headers
-    const finalHeaders = {
-      'Content-Type': 'application/json',
-      ...headers,
+    // Don't set Content-Type for FormData (browser will set it with boundary)
+    const finalHeaders: HeadersInit = {
+      ...(headers as Record<string, string>),
       ...authHeaders,
     };
+    
+    // Only add Content-Type if not FormData
+    if (!(restOptions.body instanceof FormData) && typeof finalHeaders === 'object' && !Array.isArray(finalHeaders)) {
+      (finalHeaders as Record<string, string>)['Content-Type'] = 'application/json';
+    }
 
     // Make the request
     const response = await fetch(url, {

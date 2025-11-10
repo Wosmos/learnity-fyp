@@ -36,7 +36,15 @@ export async function POST(request: NextRequest) {
       lastName,
       role: UserRole.STUDENT, // Default role
       emailVerified: true, // Social logins are verified
-      profilePicture: body.photoURL
+      profilePicture: body.photoURL,
+      studentProfile: {
+        gradeLevel: 'Not specified',
+        subjects: [],
+        learningGoals: [],
+        interests: [],
+        studyPreferences: [],
+        profileCompletionPercentage: 20
+      }
     });
 
     console.log('✅ Social user profile created:', userProfile.id);

@@ -10,6 +10,8 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
+import { useClientAuth } from '@/hooks/useClientAuth';
 import { Upload, Trash2, User, Camera } from 'lucide-react';
 
 interface AvatarUploadProps {
@@ -24,6 +26,8 @@ export function AvatarUpload({
   onDeleteSuccess 
 }: AvatarUploadProps) {
   const { toast } = useToast();
+  const { loading: authLoading } = useClientAuth();
+  const authenticatedFetch = useAuthenticatedFetch();
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentAvatar || null);
@@ -67,14 +71,24 @@ export function AvatarUpload({
   };
 
   const handleUpload = async (file: File) => {
+    if (authLoading) {
+      toast({
+        title: 'Please Wait',
+        description: 'Authentication is loading...',
+        variant: 'default',
+      });
+      return;
+    }
+    
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append('avatar', file);
 
-      const response = await fetch('/api/profile/avatar', {
+      const response = await authenticatedFetch('/api/profile/avatar', {
         method: 'POST',
         body: formData,
+        // Don't set headers - let browser set Content-Type with boundary for FormData
       });
 
       if (!response.ok) {
@@ -104,13 +118,22 @@ export function AvatarUpload({
   };
 
   const handleDelete = async () => {
+    if (authLoading) {
+      toast({
+        title: 'Please Wait',
+        description: 'Authentication is loading...',
+        variant: 'default',
+      });
+      return;
+    }
+    
     if (!confirm('Are you sure you want to delete your avatar?')) {
       return;
     }
 
     setDeleting(true);
     try {
-      const response = await fetch('/api/profile/avatar', {
+      const response = await authenticatedFetch('/api/profile/avatar', {
         method: 'DELETE',
       });
 

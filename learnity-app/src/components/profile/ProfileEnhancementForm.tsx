@@ -5,7 +5,7 @@
  * Comprehensive form for students to customize their profile
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -17,6 +17,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
+import { useClientAuth } from '@/hooks/useClientAuth';
 import {
   Target,
   Heart,
@@ -48,6 +50,8 @@ interface ProfileEnhancementFormProps {
 
 export function ProfileEnhancementForm({ initialData, onSuccess }: ProfileEnhancementFormProps) {
   const { toast } = useToast();
+  const { loading: authLoading } = useClientAuth();
+  const api = useAuthenticatedApi();
   const [loading, setLoading] = useState(false);
   const [completion, setCompletion] = useState<any>(null);
 
@@ -75,43 +79,35 @@ export function ProfileEnhancementForm({ initialData, onSuccess }: ProfileEnhanc
     'Short Sessions', 'Long Sessions', 'Interactive Content',
   ];
 
-  // Fetch completion data on mount
-  useEffect(() => {
-    fetchCompletionData();
-  }, []);
-
-  const fetchCompletionData = async () => {
+  const fetchCompletionData = useCallback(async () => {
+    if (authLoading) return; // Don't fetch if auth is still loading
+    
     try {
-      const response = await fetch('/api/profile/enhance');
-      if (response.ok) {
-        const data = await response.json();
-        setCompletion(data.completion);
-      }
+      const data = await api.get('/api/profile/enhance');
+      setCompletion(data.completion);
     } catch (error) {
       console.error('Failed to fetch completion data:', error);
     }
-  };
+  }, [api, authLoading]);
+
+  // Fetch completion data on mount (after auth is ready)
+  useEffect(() => {
+    if (!authLoading) {
+      fetchCompletionData();
+    }
+  }, [fetchCompletionData, authLoading]);
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/profile/enhance', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          learningGoals,
-          interests,
-          studyPreferences,
-          subjects,
-          bio: bio.trim() || undefined,
-        }),
+      const data = await api.put('/api/profile/enhance', {
+        learningGoals,
+        interests,
+        studyPreferences,
+        subjects,
+        bio: bio.trim() || undefined,
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
-      }
-
-      const data = await response.json();
       setCompletion(data.completion);
 
       toast({

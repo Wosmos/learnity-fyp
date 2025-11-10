@@ -13,6 +13,8 @@ import { useClientAuth } from "@/hooks/useClientAuth";
 import { PublicLayout } from "@/components/layout/AppLayout";
 import { UserRole } from "@/types/auth";
 
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
   const { login, socialLogin } = useAuthService();
   const { isAuthenticated, claims } = useClientAuth();
@@ -62,7 +64,7 @@ export default function LoginPage() {
     return (
       <PublicLayout>
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
-          <div className="text-center">
+          <div className="text-center ">
             <p className="text-gray-600">Redirecting to your dashboard...</p>
           </div>
         </div>

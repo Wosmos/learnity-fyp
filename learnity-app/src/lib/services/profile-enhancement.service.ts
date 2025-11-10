@@ -3,13 +3,6 @@
  * Handles student profile customization, avatar uploads, and completion tracking
  */
 
-import { 
-  ref, 
-  uploadBytes, 
-  getDownloadURL, 
-  deleteObject 
-} from 'firebase/storage';
-import { storage } from '@/lib/config/firebase';
 import { PrismaClient } from '@prisma/client';
 import {
   IProfileEnhancementService,
@@ -32,7 +25,7 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
   }
 
   /**
-   * Upload user avatar to Firebase Storage
+   * Upload user avatar - Store as base64 in Neon DB
    */
   async uploadAvatar(userId: string, file: File): Promise<string> {
     try {
@@ -42,48 +35,25 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
         throw new Error('Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.');
       }
 
-      // Validate file size (max 5MB)
-      const maxSize = 5 * 1024 * 1024;
+      // Validate file size (max 2MB for base64 storage)
+      const maxSize = 2 * 1024 * 1024;
       if (file.size > maxSize) {
-        throw new Error('File size exceeds 5MB limit.');
+        throw new Error('File size exceeds 2MB limit.');
       }
 
-      // Get user to find firebaseUid
-      const user = await this.prisma.user.findUnique({
-        where: { id: userId },
-        select: { firebaseUid: true, profilePicture: true },
-      });
+      // Convert file to base64
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const base64 = buffer.toString('base64');
+      const dataUrl = `data:${file.type};base64,${base64}`;
 
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      // Delete old avatar if exists
-      if (user.profilePicture) {
-        try {
-          await this.deleteAvatarFromStorage(user.profilePicture);
-        } catch (error) {
-          console.warn('Failed to delete old avatar:', error);
-        }
-      }
-
-      // Create unique filename
-      const timestamp = Date.now();
-      const extension = file.name.split('.').pop();
-      const fileName = `${this.STORAGE_PATHS.AVATARS}/${user.firebaseUid}/${timestamp}.${extension}`;
-
-      // Upload to Firebase Storage
-      const storageRef = ref(storage, fileName);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-
-      // Update user profile with new avatar URL
+      // Update user profile with base64 image
       await this.prisma.user.update({
         where: { id: userId },
-        data: { profilePicture: downloadURL },
+        data: { profilePicture: dataUrl },
       });
 
-      return downloadURL;
+      return dataUrl;
     } catch (error) {
       console.error('Avatar upload error:', error);
       throw error;
@@ -95,38 +65,13 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
    */
   async deleteAvatar(userId: string): Promise<void> {
     try {
-      const user = await this.prisma.user.findUnique({
-        where: { id: userId },
-        select: { profilePicture: true },
-      });
-
-      if (!user?.profilePicture) {
-        return;
-      }
-
-      // Delete from Firebase Storage
-      await this.deleteAvatarFromStorage(user.profilePicture);
-
-      // Update user profile
+      // Simply remove the avatar from database (no Firebase Storage cleanup needed)
       await this.prisma.user.update({
         where: { id: userId },
         data: { profilePicture: null },
       });
     } catch (error) {
       console.error('Avatar deletion error:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Helper to delete avatar from Firebase Storage
-   */
-  private async deleteAvatarFromStorage(url: string): Promise<void> {
-    try {
-      const storageRef = ref(storage, url);
-      await deleteObject(storageRef);
-    } catch (error) {
-      console.error('Storage deletion error:', error);
       throw error;
     }
   }
@@ -144,8 +89,36 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
         include: { studentProfile: true },
       });
 
-      if (!user || !user.studentProfile) {
-        throw new Error('Student profile not found');
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // Create student profile if it doesn't exist (migration for existing users)
+      if (!user.studentProfile) {
+        await this.prisma.studentProfile.create({
+          data: {
+            userId: user.id,
+            gradeLevel: data.gradeLevel || 'Not specified',
+            subjects: data.subjects || [],
+            learningGoals: data.learningGoals || [],
+            interests: data.interests || [],
+            studyPreferences: data.studyPreferences || [],
+            ...(data.bio && { bio: data.bio }),
+            profileCompletionPercentage: 20,
+          },
+        });
+        
+        // Fetch the user again with the newly created profile
+        const updatedUser = await this.prisma.user.findUnique({
+          where: { id: userId },
+          include: { studentProfile: true },
+        });
+        
+        if (!updatedUser?.studentProfile) {
+          throw new Error('Failed to create student profile');
+        }
+        
+        return; // Profile created with initial data, no need to update
       }
 
       // Calculate new completion percentage
@@ -220,8 +193,47 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
         include: { studentProfile: true },
       });
 
-      if (!user || !user.studentProfile) {
-        throw new Error('Student profile not found');
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // Create student profile if it doesn't exist (migration for existing users)
+      if (!user.studentProfile) {
+        await this.prisma.studentProfile.create({
+          data: {
+            userId: user.id,
+            gradeLevel: 'Not specified',
+            subjects: [],
+            learningGoals: [],
+            interests: [],
+            studyPreferences: [],
+            profileCompletionPercentage: 20,
+          },
+        });
+        
+        // Fetch the user again with the newly created profile
+        const updatedUser = await this.prisma.user.findUnique({
+          where: { id: userId },
+          include: { studentProfile: true },
+        });
+        
+        if (!updatedUser?.studentProfile) {
+          throw new Error('Failed to create student profile');
+        }
+        
+        const profile = updatedUser.studentProfile;
+        const sections = this.getProfileSections(profile);
+        const completedSections = sections.filter(s => s.completed);
+        const missingSections = sections.filter(s => !s.completed);
+        const percentage = profile.profileCompletionPercentage;
+
+        return {
+          percentage,
+          completedSections,
+          missingSections,
+          nextSteps: this.generateNextSteps(missingSections),
+          rewards: this.generateRewards(percentage),
+        };
       }
 
       const profile = user.studentProfile;

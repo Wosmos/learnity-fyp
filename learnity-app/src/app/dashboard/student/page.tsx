@@ -2,16 +2,18 @@
 
 /**
  * Student Dashboard
- * Main dashboard for students with learning tools and progress tracking
+ * Enhanced dashboard with real profile data and modern UI
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { 
   GraduationCap, 
   BookOpen, 
@@ -23,42 +25,110 @@ import {
   Target,
   Award,
   Play,
-  MessageCircle
+  MessageCircle,
+  Heart,
+  Edit,
+  Mail,
+  CheckCircle2,
+  Zap,
+  Brain,
+  Rocket
 } from 'lucide-react';
 import Link from 'next/link';
 import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { ProfileCompletionBanner } from '@/components/profile/ProfileCompletionBanner';
+import { ProfileCompletionSkeleton } from '@/components/profile/ProfileCompletionSkeleton';
+
+interface StudentProfile {
+  gradeLevel: string;
+  subjects: string[];
+  learningGoals: string[];
+  interests: string[];
+  studyPreferences: string[];
+  bio?: string;
+  profileCompletionPercentage: number;
+}
+
+interface ProfileData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  profilePicture?: string;
+  role: string;
+  emailVerified: boolean;
+  createdAt: string;
+  studentProfile?: StudentProfile;
+}
 
 export default function StudentDashboard() {
-  const { user } = useClientAuth();
+  const { user, loading: authLoading } = useClientAuth();
+  const api = useAuthenticatedApi();
   const router = useRouter();
-  const userName = user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'Student';
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [completion, setCompletion] = useState<any>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [loadingCompletion, setLoadingCompletion] = useState(true);
 
-  useEffect(() => {
-    if (user) {
-      fetchCompletionData();
-    }
-  }, [user]);
-
-  const fetchCompletionData = async () => {
+  const fetchProfileData = useCallback(async () => {
+    if (authLoading) return;
+    
     try {
-      const response = await fetch('/api/profile/enhance');
-      if (response.ok) {
-        const data = await response.json();
-        setCompletion(data.completion);
-      }
+      const data = await api.get('/api/auth/profile');
+      setProfileData(data.profile);
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+    } finally {
+      setLoadingProfile(false);
+    }
+  }, [authLoading, api]);
+
+  const fetchCompletionData = useCallback(async () => {
+    if (authLoading) return;
+    
+    try {
+      const data = await api.get('/api/profile/enhance');
+      setCompletion(data.completion);
     } catch (error) {
       console.error('Failed to fetch completion data:', error);
     } finally {
       setLoadingCompletion(false);
     }
-  };
+  }, [authLoading, api]);
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      fetchProfileData();
+      fetchCompletionData();
+    }
+  }, [user, authLoading, fetchProfileData, fetchCompletionData]);
 
   const handleEnhanceProfile = () => {
     router.push('/profile/enhance');
   };
+
+  const getInitials = () => {
+    if (profileData) {
+      return `${profileData.firstName[0]}${profileData.lastName[0]}`.toUpperCase();
+    }
+    return user?.displayName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'ST';
+  };
+
+  const userName = profileData?.firstName || user?.displayName?.split(' ')[0] || 'Student';
+  const fullName = profileData ? `${profileData.firstName} ${profileData.lastName}` : user?.displayName || 'Student';
+
+  if (authLoading || loadingProfile) {
+    return (
+      <AuthenticatedLayout>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your dashboard...</p>
+          </div>
+        </div>
+      </AuthenticatedLayout>
+    );
+  }
 
   return (
     <AuthenticatedLayout>
@@ -88,7 +158,11 @@ export default function StudentDashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Completion Banner */}
-        {!loadingCompletion && completion && completion.percentage < 100 && (
+        {loadingCompletion ? (
+          <div className="mb-8">
+            <ProfileCompletionSkeleton />
+          </div>
+        ) : completion && completion.percentage < 100 && (
           <div className="mb-8">
             <ProfileCompletionBanner 
               completion={completion} 
@@ -147,6 +221,184 @@ export default function StudentDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Profile Overview Section */}
+        {profileData && (
+          <div className="mb-8">
+            <Card className="border-2 border-blue-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-32"></div>
+              <CardContent className="relative pt-0 pb-6">
+                <div className="flex flex-col md:flex-row md:items-end md:space-x-6">
+                  {/* Avatar */}
+                  <div className="-mt-16 mb-4 md:mb-0">
+                    <Avatar className="h-32 w-32 border-4 border-white shadow-xl">
+                      <AvatarImage src={profileData.profilePicture || ''} alt={fullName} />
+                      <AvatarFallback className="text-2xl bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+
+                  {/* Profile Info */}
+                  <div className="flex-1">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                          {fullName}
+                          {profileData.emailVerified && (
+                            <CheckCircle2 className="h-5 w-5 text-blue-500" />
+                          )}
+                        </h2>
+                        <p className="text-gray-600 flex items-center gap-2 mt-1">
+                          <Mail className="h-4 w-4" />
+                          {profileData.email}
+                        </p>
+                      </div>
+                      <Button onClick={handleEnhanceProfile} className="mt-4 md:mt-0">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Profile
+                      </Button>
+                    </div>
+
+                    {/* Profile Stats Bar */}
+                    {profileData.studentProfile && (
+                      <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">Profile Completion</span>
+                          <span className="text-sm font-bold text-blue-600">
+                            {profileData.studentProfile.profileCompletionPercentage}%
+                          </span>
+                        </div>
+                        <Progress value={profileData.studentProfile.profileCompletionPercentage} className="h-2" />
+                      </div>
+                    )}
+
+                    {/* Bio */}
+                    {profileData.studentProfile?.bio && (
+                      <p className="text-gray-700 mb-4 italic">&ldquo;{profileData.studentProfile.bio}&rdquo;</p>
+                    )}
+
+                    {/* Quick Info Grid */}
+                    {profileData.studentProfile && (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Grade Level */}
+                        <div className="flex items-start space-x-3">
+                          <div className="p-2 bg-blue-100 rounded-lg">
+                            <GraduationCap className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-600">Grade Level</p>
+                            <p className="font-semibold text-gray-900">{profileData.studentProfile.gradeLevel}</p>
+                          </div>
+                        </div>
+
+                        {/* Subjects */}
+                        {profileData.studentProfile.subjects.length > 0 && (
+                          <div className="flex items-start space-x-3">
+                            <div className="p-2 bg-purple-100 rounded-lg">
+                              <BookOpen className="h-4 w-4 text-purple-600" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-600">Subjects</p>
+                              <p className="font-semibold text-gray-900">
+                                {profileData.studentProfile.subjects.length} Selected
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Learning Goals */}
+                        {profileData.studentProfile.learningGoals.length > 0 && (
+                          <div className="flex items-start space-x-3">
+                            <div className="p-2 bg-green-100 rounded-lg">
+                              <Target className="h-4 w-4 text-green-600" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-600">Goals</p>
+                              <p className="font-semibold text-gray-900">
+                                {profileData.studentProfile.learningGoals.length} Active
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Tags Section */}
+                {profileData.studentProfile && (
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Interests */}
+                      {profileData.studentProfile.interests.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <Heart className="h-4 w-4 text-pink-500" />
+                            Interests
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {profileData.studentProfile.interests.slice(0, 5).map((interest, idx) => (
+                              <Badge key={idx} variant="secondary" className="bg-pink-50 text-pink-700 border-pink-200">
+                                {interest}
+                              </Badge>
+                            ))}
+                            {profileData.studentProfile.interests.length > 5 && (
+                              <Badge variant="outline">+{profileData.studentProfile.interests.length - 5} more</Badge>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Study Preferences */}
+                      {profileData.studentProfile.studyPreferences.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <Brain className="h-4 w-4 text-indigo-500" />
+                            Study Preferences
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {profileData.studentProfile.studyPreferences.slice(0, 4).map((pref, idx) => (
+                              <Badge key={idx} variant="secondary" className="bg-indigo-50 text-indigo-700 border-indigo-200">
+                                {pref}
+                              </Badge>
+                            ))}
+                            {profileData.studentProfile.studyPreferences.length > 4 && (
+                              <Badge variant="outline">+{profileData.studentProfile.studyPreferences.length - 4} more</Badge>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Learning Goals List */}
+                    {profileData.studentProfile.learningGoals.length > 0 && (
+                      <div className="mt-6">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                          <Rocket className="h-4 w-4 text-orange-500" />
+                          Learning Goals
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {profileData.studentProfile.learningGoals.slice(0, 4).map((goal, idx) => (
+                            <div key={idx} className="flex items-start space-x-2 text-sm">
+                              <Zap className="h-4 w-4 text-yellow-500 mt-0.5 shrink-0" />
+                              <span className="text-gray-700">{goal}</span>
+                            </div>
+                          ))}
+                        </div>
+                        {profileData.studentProfile.learningGoals.length > 4 && (
+                          <Button variant="link" className="mt-2 p-0 h-auto" onClick={handleEnhanceProfile}>
+                            View all {profileData.studentProfile.learningGoals.length} goals →
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}

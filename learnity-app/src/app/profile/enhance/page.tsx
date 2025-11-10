@@ -5,15 +5,17 @@
  * Comprehensive student profile customization interface
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { ProfileEnhancementForm } from '@/components/profile/ProfileEnhancementForm';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { PrivacySettingsForm } from '@/components/profile/PrivacySettingsForm';
+import { ProfileCompletionSkeleton } from '@/components/profile/ProfileCompletionSkeleton';
 import { 
   User, 
   Settings, 
@@ -25,31 +27,31 @@ import {
 
 export default function ProfileEnhancePage() {
   const { user, loading } = useClientAuth();
+  const api = useAuthenticatedApi();
   const router = useRouter();
   const [profileData, setProfileData] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/auth/login');
-    } else if (user) {
-      fetchProfileData();
-    }
-  }, [user, loading, router]);
-
-  const fetchProfileData = async () => {
+  const fetchProfileData = useCallback(async () => {
+    if (loading) return; // Wait for auth to be ready
+    
     try {
-      const response = await fetch('/api/auth/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setProfileData(data.profile);
-      }
+      const data = await api.get('/api/auth/profile');
+      setProfileData(data.profile);
     } catch (error) {
       console.error('Failed to fetch profile:', error);
     } finally {
       setLoadingProfile(false);
     }
-  };
+  }, [loading, api]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login');
+    } else if (user && !loading) {
+      fetchProfileData();
+    }
+  }, [user, loading, router, fetchProfileData]);
 
   if (loading || loadingProfile) {
     return (

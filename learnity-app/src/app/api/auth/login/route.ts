@@ -172,7 +172,15 @@ export async function POST(request: NextRequest) {
           email: authResult.user.email!,
           role: UserRole.STUDENT, // Default role for new users
           emailVerified: authResult.user.emailVerified,
-          profilePicture: authResult.user.photoURL || undefined
+          profilePicture: authResult.user.photoURL || undefined,
+          studentProfile: {
+            gradeLevel: 'Not specified',
+            subjects: [],
+            learningGoals: [],
+            interests: [],
+            studyPreferences: [],
+            profileCompletionPercentage: 20
+          }
         });
 
         // Log new user creation for audit

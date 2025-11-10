@@ -5,11 +5,13 @@
  * Allows students to control their profile visibility and privacy
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
+import { useClientAuth } from '@/hooks/useClientAuth';
 import {
   Select,
   SelectContent,
@@ -34,6 +36,8 @@ interface PrivacySettingsFormProps {
 
 export function PrivacySettingsForm({ onSuccess }: PrivacySettingsFormProps) {
   const { toast } = useToast();
+  const { loading: authLoading } = useClientAuth();
+  const api = useAuthenticatedApi();
   const [loading, setLoading] = useState(false);
   const [settings, setSettings] = useState<PrivacySettings>({
     profileVisibility: 'PUBLIC',
@@ -44,34 +48,27 @@ export function PrivacySettingsForm({ onSuccess }: PrivacySettingsFormProps) {
     allowMessages: true,
   });
 
-  useEffect(() => {
-    fetchPrivacySettings();
-  }, []);
-
-  const fetchPrivacySettings = async () => {
+  const fetchPrivacySettings = useCallback(async () => {
+    if (authLoading) return; // Don't fetch if auth is still loading
+    
     try {
-      const response = await fetch('/api/profile/privacy');
-      if (response.ok) {
-        const data = await response.json();
-        setSettings(data.settings);
-      }
+      const data = await api.get('/api/profile/privacy');
+      setSettings(data.settings);
     } catch (error) {
       console.error('Failed to fetch privacy settings:', error);
     }
-  };
+  }, [api, authLoading]);
+
+  useEffect(() => {
+    if (!authLoading) {
+      fetchPrivacySettings();
+    }
+  }, [fetchPrivacySettings, authLoading]);
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/profile/privacy', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update privacy settings');
-      }
+      await api.put('/api/profile/privacy', settings);
 
       toast({
         title: 'Privacy Settings Updated',
