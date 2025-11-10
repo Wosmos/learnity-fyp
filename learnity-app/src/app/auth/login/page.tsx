@@ -5,7 +5,7 @@
 
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from "next/navigation";
 import { LoginForm } from "@/components/auth";
 import { useAuthService } from "@/hooks/useAuthService";
@@ -15,7 +15,7 @@ import { UserRole } from "@/types/auth";
 
 export const dynamic = 'force-dynamic';
 
-export default function LoginPage() {
+function LoginPageContent() {
   const { login, socialLogin } = useAuthService();
   const { isAuthenticated, claims } = useClientAuth();
   const router = useRouter();
@@ -45,11 +45,6 @@ export default function LoginPage() {
       router.push(redirectTo === '/dashboard' ? defaultDashboard : redirectTo);
     }
   }, [isAuthenticated, claims, router, redirectTo]);
-
-  const handleSuccessfulLogin = () => {
-    // The useEffect above will handle the redirect
-    // This is just a placeholder for any additional login success logic
-  };
 
   const handleForgotPassword = () => {
     router.push("/auth/forgot-password");
@@ -84,5 +79,21 @@ export default function LoginPage() {
         />
       </div>
     </PublicLayout>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <PublicLayout>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+          <div className="text-center">
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </PublicLayout>
+    }>
+      <LoginPageContent />
+    </Suspense>
   );
 }

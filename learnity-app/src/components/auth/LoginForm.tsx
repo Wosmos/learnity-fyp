@@ -15,8 +15,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { loginSchema, type LoginData } from '@/lib/validators/auth';
 import { useAuthStore } from '@/lib/stores/auth.store';
-import { LogIn, Eye, EyeOff, Loader2, Mail, Lock, AlertCircle } from 'lucide-react';
+import { LogIn, Eye, EyeOff, Loader2, Mail, Lock } from 'lucide-react';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
+import { useToast } from '@/hooks/use-toast';
+import { formatErrorForDisplay } from '@/lib/utils/error-messages';
 
 export interface LoginFormProps {
   onSubmit: (data: LoginData) => Promise<void>;
@@ -40,7 +42,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [hcaptchaToken, setHcaptchaToken] = useState<string>('');
   const [socialLoading, setSocialLoading] = useState<'google' | 'microsoft' | null>(null);
   
-  const { error, setError } = useAuthStore();
+  const { setError } = useAuthStore();
+  const { toast } = useToast();
 
   const form = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
@@ -55,9 +58,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
   const handleSubmit = async (data: LoginData) => {
     if (requireCaptcha && !hcaptchaToken) {
-      form.setError('hcaptchaToken', {
-        type: 'manual',
-        message: 'Please complete the captcha verification'
+      toast({
+        title: 'Captcha Required',
+        description: 'Please complete the captcha verification to continue.',
+        variant: 'destructive'
       });
       return;
     }
@@ -70,11 +74,16 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         ...data, 
         hcaptchaToken: requireCaptcha ? hcaptchaToken : undefined 
       });
+      
+      // Success toast will be shown by the parent component after redirect
     } catch (error: any) {
       console.error('Login failed:', error);
-      form.setError('root', {
-        type: 'manual',
-        message: error.message || 'Login failed. Please check your credentials and try again.'
+      const errorMessage = formatErrorForDisplay(error);
+      
+      toast({
+        title: errorMessage.title,
+        description: errorMessage.description,
+        variant: errorMessage.variant as 'default' | 'destructive'
       });
     } finally {
       setIsSubmitting(false);
@@ -87,11 +96,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     
     try {
       await onSocialLogin(provider);
+      // Success toast will be shown by the parent component after redirect
     } catch (error: any) {
       console.error(`${provider} login failed:`, error);
-      form.setError('root', {
-        type: 'manual',
-        message: error.message || `${provider} login failed. Please try again.`
+      const errorMessage = formatErrorForDisplay(error);
+      
+      toast({
+        title: errorMessage.title,
+        description: errorMessage.description,
+        variant: errorMessage.variant as 'default' | 'destructive'
       });
     } finally {
       setSocialLoading(null);
@@ -275,12 +288,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 </div>
               )}
 
-              {form.formState.errors.hcaptchaToken && (
-                <p className="text-sm text-red-600 text-center">
-                  {form.formState.errors.hcaptchaToken.message}
-                </p>
-              )}
-
               <Button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
@@ -295,14 +302,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                   'Sign In'
                 )}
               </Button>
-
-              {/* Error Display */}
-              {(form.formState.errors.root || error) && (
-                <div className="flex items-center space-x-2 text-sm text-red-600 bg-red-50 p-3 rounded-md">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  <span>{form.formState.errors.root?.message || error?.message}</span>
-                </div>
-              )}
             </form>
           </Form>
 

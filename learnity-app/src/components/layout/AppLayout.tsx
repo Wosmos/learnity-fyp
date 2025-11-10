@@ -11,7 +11,6 @@ import { useRouter } from 'next/navigation';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { useLogout } from '@/hooks/useLogout';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
-import { RoleBasedNavigation } from '@/components/navigation/RoleBasedNavigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -27,7 +26,6 @@ import {
 import {
   GraduationCap,
   User,
-  Settings,
   LogOut,
   Menu,
   X,
@@ -37,6 +35,8 @@ import {
 } from 'lucide-react';
 import { UserRole } from '@/types/auth';
 import { cn } from '@/lib/utils';
+import { getDashboardRoute, getRoleBadgeColor, getRoleDisplayName } from './utils';
+import Footer from './Footer';
 
 export interface AppLayoutProps {
   children: React.ReactNode;
@@ -104,50 +104,7 @@ export function AppLayout({
     }
   }, [profileData]);
 
-  const getRoleDisplayName = (role: UserRole): string => {
-    switch (role) {
-      case UserRole.ADMIN:
-        return 'Administrator';
-      case UserRole.TEACHER:
-        return 'Teacher';
-      case UserRole.STUDENT:
-        return 'Student';
-      case UserRole.PENDING_TEACHER:
-        return 'Pending Teacher';
-      default:
-        return 'User';
-    }
-  };
 
-  const getRoleBadgeColor = (role: UserRole): string => {
-    switch (role) {
-      case UserRole.ADMIN:
-        return 'bg-red-100 text-red-800';
-      case UserRole.TEACHER:
-        return 'bg-green-100 text-green-800';
-      case UserRole.STUDENT:
-        return 'bg-blue-100 text-blue-800';
-      case UserRole.PENDING_TEACHER:
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getDashboardRoute = (role: UserRole): string => {
-    switch (role) {
-      case UserRole.ADMIN:
-        return '/admin';
-      case UserRole.TEACHER:
-        return '/dashboard/teacher';
-      case UserRole.STUDENT:
-        return '/dashboard/student';
-      case UserRole.PENDING_TEACHER:
-        return '/application/status';
-      default:
-        return '/dashboard';
-    }
-  };
 
   // Show loading state
   if (loading) {
@@ -179,7 +136,7 @@ export function AppLayout({
     <div className={cn('min-h-screen bg-gray-50', className)}>
       {/* Header */}
       {showHeader && (
-        <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+        <header className="bg-white/65 backdrop-blur-xl shadow-sm border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo and Brand */}
@@ -192,16 +149,26 @@ export function AppLayout({
               </Link>
 
               {/* Desktop Navigation */}
-              {isAuthenticated && showNavigation && (
-                <nav className="hidden md:flex items-center space-x-1">
+              <nav className="hidden md:flex items-center space-x-1">
+                {isAuthenticated && showNavigation && (
                   <Link href={getDashboardRoute(claims?.role || UserRole.STUDENT)}>
                     <Button variant="ghost" size="sm">
                       <Home className="h-4 w-4 mr-2" />
                       Dashboard
                     </Button>
                   </Link>
-                </nav>
-              )}
+                )}
+                <Link href="/teachers">
+                  <Button variant="ghost" size="sm">
+                    Our Teachers
+                  </Button>
+                </Link>
+                <Link href="/about">
+                  <Button variant="ghost" size="sm">
+                    About Us
+                  </Button>
+                </Link>
+              </nav>
             </div>
 
             {/* User Menu */}
@@ -330,34 +297,52 @@ export function AppLayout({
               </div>
 
               {/* Mobile Navigation */}
-              {showNavigation && (
-                <div className="space-y-2">
-                  <Link 
-                    href={getDashboardRoute(claims?.role || UserRole.STUDENT)}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Button variant="ghost" className="w-full justify-start">
-                      <Home className="h-4 w-4 mr-2" />
-                      Dashboard
+              <div className="space-y-2">
+                {showNavigation && (
+                  <>
+                    <Link 
+                      href={getDashboardRoute(claims?.role || UserRole.STUDENT)}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Button variant="ghost" className="w-full justify-start">
+                        <Home className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start"
+                      onClick={() => {
+                        router.push('/profile/enhance');
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Profile
                     </Button>
-                  </Link>
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-start"
-                    onClick={() => {
-                      router.push('/profile/enhance');
-                      setIsMobileMenuOpen(false);
-                    }}
-                  >
-                    <User className="h-4 w-4 mr-2" />
-                    Profile
-                  </Button>
+                    <Button variant="ghost" className="w-full justify-start">
+                      <Bell className="h-4 w-4 mr-2" />
+                      Notifications
+                    </Button>
+                  </>
+                )}
+                <Link 
+                  href="/teachers"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
                   <Button variant="ghost" className="w-full justify-start">
-                    <Bell className="h-4 w-4 mr-2" />
-                    Notifications
+                    Our Teachers
                   </Button>
-                </div>
-              )}
+                </Link>
+                <Link 
+                  href="/about"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Button variant="ghost" className="w-full justify-start">
+                    About Us
+                  </Button>
+                </Link>
+              </div>
 
               {/* Mobile Logout */}
               <div className="pt-4 border-t">
@@ -387,31 +372,7 @@ export function AppLayout({
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center">
-            <div className="flex items-center space-x-2 mb-4 sm:mb-0">
-              <div className="p-1 bg-blue-600 rounded">
-                <GraduationCap className="h-4 w-4 text-white" />
-              </div>
-              <span className="text-sm text-gray-600">
-                © 2024 Learnity. All rights reserved.
-              </span>
-            </div>
-            <div className="flex items-center space-x-4 text-sm text-gray-500">
-              <Link href="/privacy" className="hover:text-gray-700">
-                Privacy
-              </Link>
-              <Link href="/terms" className="hover:text-gray-700">
-                Terms
-              </Link>
-              <Link href="/support" className="hover:text-gray-700">
-                Support
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 }

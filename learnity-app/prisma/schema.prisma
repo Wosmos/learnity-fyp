@@ -89,6 +89,32 @@ model TeacherProfile {
   approvedBy        String?             // Admin user ID
   rejectionReason   String?
   
+  // Professional profile fields (isTopRated calculated automatically)
+  rating            Decimal             @default(0)
+  reviewCount       Int                 @default(0)
+  responseTime      String?             // e.g., "<1hr", "2-4hrs"
+  availability      String?             // e.g., "Available today", "Weekends only"
+  languages         String[]            @default([])
+  timezone          String?
+  videoIntroUrl     String?             // Optional video introduction
+  
+  // Teaching details
+  lessonsCompleted  Int                 @default(0)
+  activeStudents    Int                 @default(0)
+  teachingStyle     String?             // e.g., "Interactive", "Structured"
+  specialties       String[]            @default([])
+  certifications    String[]            @default([])
+  education         String[]            @default([])
+  
+  // Availability schedule
+  availableDays     String[]            @default([])
+  preferredTimes    String[]            @default([])
+  
+  // Additional info
+  headline          String?             // Short catchy headline
+  achievements      String[]            @default([])
+  teachingApproach  String?             // Detailed teaching methodology
+  
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   // Indexes for teacher application queries
@@ -96,6 +122,8 @@ model TeacherProfile {
   @@index([submittedAt])
   @@index([reviewedAt])
   @@index([approvedBy])
+  @@index([rating])
+  @@index([lessonsCompleted])
   @@map("teacher_profiles")
 }
 
@@ -208,4 +236,19 @@ enum RiskLevel {
   MEDIUM
   HIGH
   CRITICAL
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  teacherId   String
+  studentName String
+  rating      Int      // 1-5
+  comment     String
+  subject     String?
+  date        DateTime @default(now())
+  isVerified  Boolean  @default(true)
+  
+  @@index([teacherId])
+  @@index([rating])
+  @@map("testimonials")
 }
