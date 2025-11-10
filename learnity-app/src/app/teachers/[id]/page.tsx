@@ -61,6 +61,11 @@ async function getTeacher(id: string) {
       achievements: teacher.teacherProfile.achievements,
       teachingApproach: teacher.teacherProfile.teachingApproach || '',
       videoIntroUrl: teacher.teacherProfile.videoIntroUrl || null,
+      trustBadges: teacher.teacherProfile.trustBadges,
+      faqs: teacher.teacherProfile.faqs as any,
+      sampleLessons: teacher.teacherProfile.sampleLessons as any,
+      successStories: teacher.teacherProfile.successStories as any,
+      whyChooseMe: teacher.teacherProfile.whyChooseMe,
     };
   } catch (error) {
     console.error('Error fetching teacher:', error);

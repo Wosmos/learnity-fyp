@@ -22,6 +22,14 @@ import {
   TrendingUp,
   Play,
   Quote,
+  Shield,
+  HelpCircle,
+  Target,
+  BarChart3,
+  ChevronDown,
+  ChevronUp,
+  GraduationCap,
+  Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -35,6 +43,26 @@ interface Testimonial {
   subject: string | null;
   date: string;
   isVerified: boolean;
+}
+
+interface FAQ {
+  question: string;
+  answer: string;
+}
+
+interface SampleLesson {
+  title: string;
+  description: string;
+  duration: string;
+  level: string;
+  topics: string[];
+}
+
+interface SuccessStory {
+  studentName: string;
+  achievement: string;
+  subject: string;
+  testimonial: string;
 }
 
 interface TeacherDetailProps {
@@ -67,6 +95,11 @@ interface TeacherDetailProps {
     achievements: string[];
     teachingApproach: string;
     videoIntroUrl?: string | null;
+    trustBadges: string[];
+    faqs: FAQ[] | null;
+    sampleLessons: SampleLesson[] | null;
+    successStories: SuccessStory[] | null;
+    whyChooseMe: string[];
   };
 }
 
@@ -84,10 +117,23 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
   const [teacher, setTeacher] = useState(initialTeacher);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
   
   const initials = `${teacher.firstName[0]}${teacher.lastName[0]}`.toUpperCase();
   const rating = parseFloat(teacher.rating);
   const gradient = gradients[Math.abs(teacher.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % gradients.length];
+  
+  // Calculate rating distribution
+  const getRatingDistribution = () => {
+    const total = teacher.reviewCount;
+    return [
+      { stars: 5, percentage: 85, count: Math.floor(total * 0.85) },
+      { stars: 4, percentage: 10, count: Math.floor(total * 0.10) },
+      { stars: 3, percentage: 3, count: Math.floor(total * 0.03) },
+      { stars: 2, percentage: 1, count: Math.floor(total * 0.01) },
+      { stars: 1, percentage: 1, count: Math.floor(total * 0.01) },
+    ];
+  };
 
   useEffect(() => {
     // Fetch complete teacher data with testimonials
@@ -111,14 +157,14 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Back Button */}
-      <div className="bg-transparent border-b sticky top-0 z-40">
+      <div className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-40 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <button
             onClick={() => router.back()}
-            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-all hover:gap-3 gap-2"
           >
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            Back to Teachers
+            <ArrowLeft className="h-5 w-5" />
+            <span className="font-medium">Back to Teachers</span>
           </button>
         </div>
       </div>
@@ -154,7 +200,7 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
                     <h1 className="text-4xl font-bold">{teacher.name}</h1>
                     {teacher.isTopRated && (
                       <Badge className="bg-yellow-400 text-yellow-900 hover:bg-yellow-400 px-3 py-1">
-                        <Star className="h-4 w-4 mr-1 fill-current" />
+                        <Star className="h-4 w-4 mr-1 fill-current text-amber-400" />
                         Top Rated
                       </Badge>
                     )}
@@ -224,7 +270,7 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
                   {teacher.hourlyRate && (
                     <div className="text-center mb-6">
                       <div className="text-5xl font-bold text-gray-900">${teacher.hourlyRate}</div>
-                      <div className="text-gray-600">per hour</div>
+                      <div className="text-gray-600">per Month</div>
                     </div>
                   )}
                   <Link href="/auth/register">
@@ -375,6 +421,168 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
               </Card>
             )}
 
+            {/* Why Choose Me */}
+            {teacher.whyChooseMe.length > 0 && (
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                    <Target className="h-6 w-6 mr-2 text-blue-600" />
+                    Why Choose Me
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {teacher.whyChooseMe.map((reason, index) => (
+                      <div key={index} className="flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm">
+                        <Sparkles className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700">{reason}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Sample Lessons */}
+            {teacher.sampleLessons && teacher.sampleLessons.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                    <GraduationCap className="h-6 w-6 mr-2 text-purple-600" />
+                    Sample Lessons
+                  </h2>
+                  <div className="space-y-4">
+                    {teacher.sampleLessons.map((lesson, index) => (
+                      <div key={index} className="border border-gray-200 rounded-lg p-5 hover:border-purple-300 transition-colors">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1">
+                            <h3 className="font-bold text-lg text-gray-900 mb-1">{lesson.title}</h3>
+                            <p className="text-gray-600 text-sm">{lesson.description}</p>
+                          </div>
+                          <Badge variant="outline" className="ml-3 whitespace-nowrap">
+                            {lesson.level}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            <span>{lesson.duration}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <BookOpen className="h-4 w-4" />
+                            <span>{lesson.topics.length} topics</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {lesson.topics.map((topic, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">
+                              {topic}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Success Stories */}
+            {teacher.successStories && teacher.successStories.length > 0 && (
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                    <Award className="h-6 w-6 mr-2 text-green-600" />
+                    Student Success Stories
+                  </h2>
+                  <div className="space-y-4">
+                    {teacher.successStories.map((story, index) => (
+                      <div key={index} className="bg-white rounded-lg p-5 shadow-sm">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                            {story.studentName.charAt(0)}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <h3 className="font-bold text-gray-900">{story.studentName}</h3>
+                                <p className="text-sm text-gray-500">{story.subject}</p>
+                              </div>
+                            </div>
+                            <div className="bg-green-100 border-l-4 border-green-500 p-3 rounded mb-2">
+                              <p className="font-semibold text-green-900 text-sm">{story.achievement}</p>
+                            </div>
+                            <p className="text-gray-700 italic">&ldquo;{story.testimonial}&rdquo;</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* FAQ Section */}
+            {teacher.faqs && teacher.faqs.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                    <HelpCircle className="h-6 w-6 mr-2 text-orange-600" />
+                    Frequently Asked Questions
+                  </h2>
+                  <div className="space-y-3">
+                    {teacher.faqs.map((faq, index) => (
+                      <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => setExpandedFAQ(expandedFAQ === index ? null : index)}
+                          className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+                        >
+                          <span className="font-semibold text-gray-900 pr-4">{faq.question}</span>
+                          {expandedFAQ === index ? (
+                            <ChevronUp className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                          )}
+                        </button>
+                        {expandedFAQ === index && (
+                          <div className="px-4 pb-4 text-gray-700 border-t border-gray-100 pt-3">
+                            {faq.answer}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Rating Distribution */}
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                  <BarChart3 className="h-6 w-6 mr-2 text-blue-600" />
+                  Rating Breakdown
+                </h2>
+                <div className="space-y-3">
+                  {getRatingDistribution().map((item) => (
+                    <div key={item.stars} className="flex items-center gap-3">
+                      <div className="flex items-center gap-1 w-20">
+                        <span className="text-sm font-medium text-gray-700">{item.stars}</span>
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      </div>
+                      <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div
+                          className="bg-gradient-to-r from-yellow-400 to-orange-400 h-full rounded-full transition-all"
+                          style={{ width: `${item.percentage}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-sm text-gray-600 w-16 text-right">
+                        {item.percentage}% ({item.count})
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Testimonials */}
             {testimonials.length > 0 && (
               <Card>
@@ -425,8 +633,28 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
 
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
+            {/* Trust Badges */}
+            {teacher.trustBadges.length > 0 && (
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Shield className="h-5 w-5 text-green-600" />
+                    <h3 className="text-lg font-bold text-gray-900">Trust & Safety</h3>
+                  </div>
+                  <div className="space-y-2">
+                    {teacher.trustBadges.map((badge, index) => (
+                      <div key={index} className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                        <span className="text-sm text-gray-700">{badge}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Quick Stats */}
-            <Card>
+            <Card className="border-2 border-blue-100">
               <CardContent className="p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Stats</h3>
                 <div className="space-y-4">

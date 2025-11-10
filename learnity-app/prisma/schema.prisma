@@ -115,6 +115,13 @@ model TeacherProfile {
   achievements      String[]            @default([])
   teachingApproach  String?             // Detailed teaching methodology
   
+  // Trust & credibility
+  trustBadges       String[]            @default([]) // e.g., "Verified ID", "Background Check", "Top Rated"
+  faqs              Json?               // Array of {question, answer} objects
+  sampleLessons     Json?               // Array of {title, description, duration} objects
+  successStories    Json?               // Array of {studentName, achievement, subject} objects
+  whyChooseMe       String[]            @default([]) // Key differentiators
+  
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   // Indexes for teacher application queries

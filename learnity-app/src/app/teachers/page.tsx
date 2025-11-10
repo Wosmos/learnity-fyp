@@ -6,9 +6,11 @@
 import { Suspense } from 'react';
 import { PublicLayout } from '@/components/layout/AppLayout';
 import { TeachersGrid } from '@/components/teachers/TeachersGrid';
+import { PlatformStats } from '@/components/shared/PlatformStats';
 import { Button } from '@/components/ui/button';
 import { GraduationCap, Users, Award, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { HeroStatsClient } from '@/components/landing/HeroStatsClient';
 
 export const metadata = {
   title: 'Our Teachers | Learnity',
@@ -25,7 +27,7 @@ export default function TeachersPage() {
             <div className="max-w-4xl mx-auto text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium mb-6">
                 <Users className="h-4 w-4" />
-                500+ Verified Expert Tutors
+                Verified Expert Tutors
               </div>
               
               <h1 className="text-5xl md:text-6xl font-bold mb-6 text-gray-900">
@@ -53,29 +55,8 @@ export default function TeachersPage() {
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="py-12 border-y border-gray-200">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-gray-900 mb-2">500+</div>
-                <div className="text-sm text-gray-600">Expert Tutors</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-gray-900 mb-2">120+</div>
-                <div className="text-sm text-gray-600">Subjects</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-gray-900 mb-2">4.9</div>
-                <div className="text-sm text-gray-600">Avg Rating</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-gray-900 mb-2">10k+</div>
-                <div className="text-sm text-gray-600">Lessons Taught</div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Stats Section - Real-time data from database */}
+        <HeroStatsClient />
 
         {/* Teachers Grid */}
         <section className="py-20">

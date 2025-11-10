@@ -13,9 +13,9 @@ import { AuthLoadingSpinner } from '@/components/ui/AuthLoadingSpinner';
 import { useHomeAuthRedirect } from '@/hooks/useAuthRedirect';
 import { FeatureCard } from '@/components/landing/FeatureCard';
 import { StepCard } from '@/components/landing/StepCard';
+import { HeroStatsClient } from '@/components/landing/HeroStatsClient';
 import { ArrowRight, CheckCircle } from 'lucide-react';
 import {
-  HERO_STATS,
   HOW_IT_WORKS_STEPS,
   MAIN_FEATURES,
   TRUST_INDICATORS,
@@ -100,15 +100,8 @@ export default function Home() {
                 </Link>
               </div>
 
-              {/* Trust Indicators */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto pt-8 border-t border-gray-200">
-                {HERO_STATS.map((stat, index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">{stat.value}</div>
-                    <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
+              {/* Platform Statistics - Real-time data from database */}
+              <HeroStatsClient />
             </div>
           </div>
 
@@ -171,24 +164,6 @@ export default function Home() {
                     ></iframe>
            
                   </div>
-
-                  {/* Video Stats Overlay */}
-                  {/* <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-                    <div className="grid grid-cols-3 gap-4 text-white text-center">
-                      <div>
-                        <div className="text-2xl font-bold">10k+</div>
-                        <div className="text-xs text-gray-300">Lessons Completed</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold">4.9★</div>
-                        <div className="text-xs text-gray-300">Average Rating</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold">95%</div>
-                        <div className="text-xs text-gray-300">Success Rate</div>
-                      </div>
-                    </div>
-                  </div> */}
                 </div>
 
                 {/* Video Features */}
@@ -348,9 +323,9 @@ export default function Home() {
                         Find your tutor
                         <ArrowRight className="ml-2 h-5 w-5" />
                       </Button>
-                    </Link>
+                    </Link> 
                     <Link href="/teachers">
-                      <Button size="lg" variant="outline" className="text-base px-8 py-6 rounded-xl border-2 border-white text-white hover:bg-blue-700 font-semibold transition-all duration-300">
+                      <Button size="lg" variant="outline" className="text-base px-8 py-6 rounded-xl border-2 border-blue-700  hover:bg-blue-700 font-semibold transition-all duration-300 text-blue-700 hover:text-white">
                         Meet Our Tutors
                       </Button>
                     </Link>

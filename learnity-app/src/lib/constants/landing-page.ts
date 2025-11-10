@@ -51,7 +51,6 @@ export interface Stat {
 export const HERO_STATS: Stat[] = [
   { value: '1,000+', label: 'Active learners' },
   { value: '500+', label: 'Expert tutors' },
-  { value: '120+', label: 'Subjects taught' },
   { value: '4.9', label: 'Average rating' },
 ];
 
