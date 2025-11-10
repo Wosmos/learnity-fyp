@@ -32,11 +32,29 @@ export class DatabaseService implements IUserProfileService {
 
   /**
    * Create user profile in Neon DB
+   * Uses upsert to handle duplicate firebaseUid gracefully
    */
   async createUserProfile(
     firebaseUid: string,
     data: CreateProfileData
   ): Promise<any> {
+    // Check if user already exists
+    const existingUser = await this.prisma.user.findUnique({
+      where: { firebaseUid },
+      include: {
+        studentProfile: true,
+        teacherProfile: true,
+        adminProfile: true,
+      },
+    });
+
+    // If user exists, return existing profile
+    if (existingUser) {
+      console.log(`User with firebaseUid ${firebaseUid} already exists, returning existing profile`);
+      return existingUser;
+    }
+
+    // Create new user profile
     return await this.prisma.user.create({
       data: {
         firebaseUid,
