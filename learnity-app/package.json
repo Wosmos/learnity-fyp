@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "node scripts/deploy-setup.js && next build",
     "start": "next start",
     "postinstall": "prisma generate",
     "lint": "eslint",
@@ -18,7 +18,9 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:teachers": "tsx prisma/seed-teachers.ts",
     "db:studio": "prisma studio",
-    "setup": "npm run db:generate && npm run db:push && npm run db:seed && npm run test:setup"
+    "setup": "npm run db:generate && npm run db:push && npm run db:seed && npm run test:setup",
+    "deploy:setup": "node scripts/deploy-setup.js",
+    "deploy:test": "node scripts/test-deployment-fix.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

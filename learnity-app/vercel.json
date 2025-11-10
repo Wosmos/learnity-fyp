@@ -1,3 +1,11 @@
 {
-  "buildCommand": "prisma generate && next build"
+  "buildCommand": "node scripts/deploy-setup.js && next build",
+  "functions": {
+    "app/api/**/*.js": {
+      "includeFiles": "node_modules/.prisma/client/libquery_engine-*"
+    }
+  },
+  "env": {
+    "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
+  }
 }
