@@ -1,24 +1,20 @@
-/**
- * Individual Teacher API
- * Returns complete teacher profile with testimonials
- */
-
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/config/database';
 
-// Helper to calculate if teacher is top rated
 function calculateIsTopRated(rating: number, reviewCount: number, lessonsCompleted: number, experience: number): boolean {
   return rating >= 4.8 && reviewCount >= 80 && lessonsCompleted >= 400 && experience >= 5;
 }
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> } // ✅ Correct type
 ) {
+  const { id } = await context.params; // ✅ Await to get the actual id
+
   try {
     const teacher = await prisma.user.findUnique({
       where: {
-        id: params.id,
+        id,
         role: 'TEACHER',
         isActive: true,
       },
@@ -34,14 +30,9 @@ export async function GET(
       );
     }
 
-    // Fetch testimonials
     const testimonials = await prisma.testimonial.findMany({
-      where: {
-        teacherId: teacher.id,
-      },
-      orderBy: {
-        date: 'desc',
-      },
+      where: { teacherId: teacher.id },
+      orderBy: { date: 'desc' },
       take: 20,
     });
 
