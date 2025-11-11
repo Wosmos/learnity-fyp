@@ -422,7 +422,7 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
             )}
 
             {/* Why Choose Me */}
-            {teacher.whyChooseMe.length > 0 && (
+            {teacher.whyChooseMe && teacher.whyChooseMe.length > 0 && (
               <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
                 <CardContent className="p-6">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">

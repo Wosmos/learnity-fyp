@@ -77,6 +77,12 @@ export async function GET(
         achievements: profile.achievements,
         teachingApproach: profile.teachingApproach,
         videoIntroUrl: profile.videoIntroUrl,
+        timezone: profile.timezone,
+        trustBadges: profile.trustBadges,
+        faqs: profile.faqs,
+        sampleLessons: profile.sampleLessons,
+        successStories: profile.successStories,
+        whyChooseMe: profile.whyChooseMe,
         testimonials: testimonials.map(t => ({
           id: t.id,
           studentName: t.studentName,
