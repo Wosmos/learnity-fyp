@@ -37,10 +37,11 @@ function hero() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-              <Link href="/auth/register">
+              <Link href="/auth/register/student">
                 <Button
                   size="lg"
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-base px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold"
+                  variant="cta"
+                  className="text-base px-8 py-6 rounded-xl hover:scale-105 font-semibold"
                 >
                   Find your tutor
                   <ArrowRight className="ml-2 h-5 w-5" />

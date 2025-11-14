@@ -1,5 +1,8 @@
 // Firebase Auth Services
+// Note: FirebaseAuthService is for SERVER-SIDE use (API routes)
+// ClientAuthService is for CLIENT-SIDE use (React components/hooks)
 export { FirebaseAuthService } from './firebase-auth.service';
+export { ClientAuthService, clientAuthService } from './client-auth.service';
 export { AppCheckService, appCheckService } from './app-check.service';
 export { TokenManagerService, tokenManager } from './token-manager.service';
 export { RoleManagerService, roleManager } from './role-manager.service';

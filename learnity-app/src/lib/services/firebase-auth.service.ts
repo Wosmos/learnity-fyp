@@ -1,3 +1,20 @@
+/**
+ * Firebase Authentication Service
+ * 
+ * SERVER-SIDE authentication service that uses both Firebase Client SDK and Admin SDK.
+ * This service is for SERVER-SIDE use only (API routes, server components).
+ * 
+ * For client-side operations (React components, hooks), use ClientAuthService instead.
+ * 
+ * Key differences:
+ * - FirebaseAuthService: Uses Client + Admin SDK, can set custom claims directly, has security features
+ * - ClientAuthService: Uses Client SDK only, calls API endpoints for server operations
+ * 
+ * Usage:
+ * - API routes: Use FirebaseAuthService
+ * - Client components/hooks: Use ClientAuthService (via useAuthService hook)
+ */
+
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,

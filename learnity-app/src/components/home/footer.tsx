@@ -26,13 +26,13 @@ const footer = () => {
             <div>
               <h3 className="font-semibold text-gray-900 mb-4 text-sm">For Students</h3>
               <div className="space-y-3">
-                <Link href="/auth/register" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                <Link href="/auth/register/student" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
                   Find a Tutor
                 </Link>
-                <Link href="/auth/register" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                <Link href="/auth/register/student" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
                   Join Study Groups
                 </Link>
-                <Link href="/auth/register" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                <Link href="/auth/register/student" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
                   Track Progress
                 </Link>
               </div>
@@ -42,7 +42,7 @@ const footer = () => {
             <div>
               <h3 className="font-semibold text-gray-900 mb-4 text-sm">For Teachers</h3>
               <div className="space-y-3">
-                <Link href="/auth/register" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                <Link href="/auth/register/teacher" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
                   Become a Tutor
                 </Link>
                 <Link href="/admin" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">

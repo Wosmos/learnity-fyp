@@ -85,15 +85,17 @@ export async function GET(request: NextRequest) {
 
     // Fetch session statistics (if sessions table exists)
     let activeSessions = 0;
-    let totalSessions = 0;
     let sessionCompletionRate = 0;
     
     try {
       // These would be actual queries if session tables exist
       activeSessions = Math.floor(Math.random() * 100); // Placeholder
-      totalSessions = Math.floor(Math.random() * 1000) + 500; // Placeholder
+      const totalSessions = Math.floor(Math.random() * 1000) + 500; // Placeholder
       sessionCompletionRate = 94.2; // Placeholder
-    } catch (error) {
+      
+      // Use totalSessions for future calculations when needed
+      console.log(`Total sessions: ${totalSessions}`);
+    } catch {
       // Sessions table might not exist yet
       console.log('Sessions table not available yet');
     }

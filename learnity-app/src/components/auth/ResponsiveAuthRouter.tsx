@@ -9,15 +9,11 @@ import React, { useState, useEffect } from 'react';
 import { StudentRegistrationData, TeacherRegistrationData, LoginData } from '@/lib/validators/auth';
 import { useAuthStore } from '@/lib/stores/auth.store';
 
-// Desktop components
+// Unified responsive components
 import LoginForm from './LoginForm';
 import RegistrationFlow from './RegistrationFlow';
 import PasswordResetRequestForm from './PasswordResetRequestForm';
 import PasswordResetForm from './PasswordResetForm';
-
-// Mobile components
-import MobileLoginForm from './MobileLoginForm';
-import MobileRegistrationFlow from './MobileRegistrationFlow';
 
 export interface ResponsiveAuthRouterProps {
   // Authentication handlers
@@ -101,24 +97,26 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
     );
   }
 
-  // Mobile components
+  // Mobile components (now using unified responsive components)
   if (isMobile) {
     switch (currentView) {
       case 'login':
         return (
-          <MobileLoginForm
-            onSubmit={onLogin}
-            onForgotPassword={() => handleViewChange('forgot-password')}
-            onSignUp={() => handleViewChange('register')}
-            onSocialLogin={onSocialLogin}
-            requireCaptcha={requireCaptcha}
-            className={className}
-          />
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+            <LoginForm
+              onSubmit={onLogin}
+              onForgotPassword={() => handleViewChange('forgot-password')}
+              onSignUp={() => handleViewChange('register')}
+              onSocialLogin={onSocialLogin}
+              requireCaptcha={requireCaptcha}
+              className={className}
+            />
+          </div>
         );
 
       case 'register':
         return (
-          <MobileRegistrationFlow
+          <RegistrationFlow
             onStudentRegister={onStudentRegister}
             onTeacherRegister={onTeacherRegister}
             onBackToLogin={() => handleViewChange('login')}

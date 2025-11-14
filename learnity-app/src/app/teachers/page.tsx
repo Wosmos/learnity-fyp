@@ -39,13 +39,13 @@ export default function TeachersPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/auth/register">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                <Link href="/auth/register/student">
+                  <Button size="lg" variant="cta">
                     Find Your Tutor
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <Link href="/auth/register?role=teacher">
+                <Link href="/auth/register/teacher">
                   <Button size="lg" variant="outline">
                     Become a Tutor
                   </Button>
@@ -118,8 +118,8 @@ export default function TeachersPage() {
               </div>
 
               <div className="text-center mt-12">
-                <Link href="/auth/register?role=teacher">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                <Link href="/auth/register/teacher">
+                  <Button size="lg" variant="cta">
                     Apply to Teach
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>

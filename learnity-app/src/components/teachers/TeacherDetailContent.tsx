@@ -34,6 +34,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useClientAuth } from '@/hooks/useClientAuth';
 
 interface Testimonial {
   id: string;
@@ -114,6 +115,7 @@ const gradients = [
 
 export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailProps) {
   const router = useRouter();
+  const { isAuthenticated } = useClientAuth();
   const [teacher, setTeacher] = useState(initialTeacher);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
@@ -273,17 +275,26 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
                       <div className="text-gray-600">per Month</div>
                     </div>
                   )}
-                  <Link href="/auth/register">
-                    <Button size="lg" className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg text-lg py-6">
+                  <Link href="/auth/register/student">
+                    <Button size="lg" variant="gradient" className="w-full text-lg py-6">
                       Book a Lesson
                     </Button>
                   </Link>
-                  <Link href="/auth/register">
-                    <Button size="lg" variant="outline" className="w-full mt-3">
-                      <MessageCircle className="h-5 w-5 mr-2" />
-                      Send Message
-                    </Button>
-                  </Link>
+                  {isAuthenticated ? (
+                    <Link href={`/messages/${teacher.id}`}>
+                      <Button size="lg" variant="outline" className="w-full mt-3">
+                        <MessageCircle className="h-5 w-5 mr-2" />
+                        Send Message
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link href={`/auth/login?redirect=/teachers/${teacher.id}`}>
+                      <Button size="lg" variant="outline" className="w-full mt-3">
+                        <MessageCircle className="h-5 w-5 mr-2" />
+                        Send Message
+                      </Button>
+                    </Link>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -736,8 +747,8 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
                 <p className="text-sm text-gray-600 mb-4">
                   Book your first lesson with {teacher.firstName} today
                 </p>
-                <Link href="/auth/register">
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600">
+                <Link href="/auth/register/student">
+                  <Button variant="gradient" className="w-full">
                     Get Started
                   </Button>
                 </Link>

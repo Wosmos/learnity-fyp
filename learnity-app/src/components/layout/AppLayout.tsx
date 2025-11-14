@@ -56,7 +56,12 @@ export function AppLayout({
   const api = useAuthenticatedApi();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [profileData, setProfileData] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const [profileData, setProfileData] = useState<{
+    firstName: string;
+    lastName: string;
+    email?: string;
+    profilePicture?: string | null;
+  } | null>(null);
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
