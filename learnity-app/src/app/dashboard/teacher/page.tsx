@@ -14,6 +14,7 @@ import { Progress } from '@/components/ui/progress';
 import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { useRouter } from 'next/navigation';
+import { UserRole } from '@/types/auth';
 import {
   BookOpen,
   Users,
@@ -68,7 +69,7 @@ interface RecentActivity {
 }
 
 export default function TeacherDashboard() {
-  const { user, loading, isAuthenticated } = useClientAuth();
+  const { user, loading, isAuthenticated, claims } = useClientAuth();
   const router = useRouter();
   const [stats, setStats] = useState<TeacherStats>({
     totalStudents: 24,
@@ -145,8 +146,13 @@ export default function TeacherDashboard() {
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.push('/auth/login?redirect=/dashboard/teacher');
+    } else if (!loading && isAuthenticated && claims) {
+      // Redirect pending teachers to their pending dashboard
+      if (claims.role === UserRole.PENDING_TEACHER) {
+        router.push('/dashboard/teacher/pending');
+      }
     }
-  }, [loading, isAuthenticated, router]);
+  }, [loading, isAuthenticated, claims, router]);
 
   if (loading) {
     return (

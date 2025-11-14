@@ -68,7 +68,7 @@ export function ClientStudentProtection({ children }: ClientStudentProtectionPro
               } else if (role === UserRole.ADMIN) {
                 router.push('/admin');
               } else if (role === UserRole.PENDING_TEACHER) {
-                router.push('/application/status');
+                router.push('/dashboard/teacher/pending');
               } else {
                 router.push('/unauthorized');
               }

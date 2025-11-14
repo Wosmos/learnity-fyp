@@ -864,8 +864,8 @@ export default function Home() {
             "@type": "EducationalOrganization",
             "name": "Learnity",
             "description": "Online tutoring and learning platform connecting students with expert tutors",
-            "url": "https://learnity.com",
-            "logo": "https://learnity.com/logo.png",
+            "url": "http://learnity-app.vercel.app",
+            "logo": "http://learnity-app.vercel.app/logo.png",
             "sameAs": [
               "https://twitter.com/learnity",
               "https://facebook.com/learnity",

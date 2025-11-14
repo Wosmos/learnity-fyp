@@ -38,7 +38,7 @@ export  const getDashboardRoute = (role: UserRole): string => {
       case UserRole.STUDENT:
         return '/dashboard/student';
       case UserRole.PENDING_TEACHER:
-        return '/application/status';
+        return '/dashboard/teacher/pending';
       default:
         return '/dashboard';
     }

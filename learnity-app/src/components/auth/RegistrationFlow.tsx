@@ -8,15 +8,16 @@
 import React from 'react';
 import { UserRole } from '@/types/auth';
 import { useAuthStore } from '@/lib/stores/auth.store';
-import { StudentRegistrationData, TeacherRegistrationData } from '@/lib/validators/auth';
+import { StudentRegistrationData } from '@/lib/validators/auth';
+import { QuickTeacherRegistrationData } from '@/lib/validators/quick-teacher-registration';
 import RoleSelection from './RoleSelection';
 import StudentRegistrationForm from './StudentRegistrationForm';
-import TeacherRegistrationForm from './TeacherRegistrationForm';
+import QuickTeacherRegistrationForm from './QuickTeacherRegistrationForm';
 import EmailVerificationPending from './EmailVerificationPending';
 
 export interface RegistrationFlowProps {
   onStudentRegister: (data: StudentRegistrationData) => Promise<void>;
-  onTeacherRegister: (data: TeacherRegistrationData) => Promise<void>;
+  onTeacherRegister: (data: QuickTeacherRegistrationData) => Promise<void>;
   className?: string;
 }
 
@@ -52,7 +53,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
     }
   };
 
-  const handleTeacherSubmit = async (data: TeacherRegistrationData) => {
+  const handleTeacherSubmit = async (data: QuickTeacherRegistrationData) => {
     try {
       await onTeacherRegister(data);
       setRegistrationStep('verification');
@@ -77,7 +78,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
         )}
 
         {registrationStep === 'form' && selectedRole === UserRole.TEACHER && (
-          <TeacherRegistrationForm
+          <QuickTeacherRegistrationForm
             onSubmit={handleTeacherSubmit}
             onBack={handleBackToRoleSelection}
           />

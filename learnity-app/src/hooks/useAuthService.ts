@@ -8,7 +8,7 @@
 import { useState, useCallback } from 'react';
 import { 
   StudentRegistrationData, 
-  TeacherRegistrationData, 
+  EnhancedTeacherRegistrationData, 
   LoginData,
   PasswordResetRequestData,
   PasswordResetData
@@ -21,7 +21,8 @@ import { formatErrorForDisplay } from '@/lib/utils/error-messages';
 export interface AuthServiceHooks {
   // Registration
   registerStudent: (data: StudentRegistrationData) => Promise<void>;
-  registerTeacher: (data: TeacherRegistrationData) => Promise<void>;
+  registerTeacher: (data: any) => Promise<void>;
+  registerQuickTeacher: (data: any) => Promise<void>;
   
   // Login
   login: (data: LoginData) => Promise<void>;
@@ -83,12 +84,31 @@ export const useAuthService = (): AuthServiceHooks => {
     }
   }, [setUser, handleError]);
 
-  const registerTeacher = useCallback(async (data: TeacherRegistrationData) => {
+  const registerTeacher = useCallback(async (data: any) => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const result = await clientAuthService.registerTeacher(data);
+      const result = await clientAuthService.registerEnhancedTeacher(data);
+      if (result.success && result.user) {
+        setUser(result.user);
+        // Claims will be set by the auth provider
+      } else {
+        throw new Error(result.error?.message || 'Registration failed');
+      }
+    } catch (error: any) {
+      throw handleError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setUser, handleError]);
+
+  const registerQuickTeacher = useCallback(async (data: any) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const result = await clientAuthService.registerQuickTeacher(data);
       if (result.success && result.user) {
         setUser(result.user);
         // Claims will be set by the auth provider
@@ -186,6 +206,7 @@ export const useAuthService = (): AuthServiceHooks => {
   return {
     registerStudent,
     registerTeacher,
+    registerQuickTeacher,
     login,
     socialLogin,
     requestPasswordReset,

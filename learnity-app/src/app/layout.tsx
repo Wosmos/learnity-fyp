@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://learnity.com'),
+  metadataBase: new URL('http://learnity-app.vercel.app'),
   title: {
     default: "Learnity - Online Tutoring & Learning Platform | Connect with Expert Tutors",
     template: "%s | Learnity"
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://learnity.com",
+    url: "http://learnity-app.vercel.app",
     siteName: "Learnity",
     title: "Learnity - Online Tutoring & Learning Platform | Connect with Expert Tutors",
     description: "Learn faster with expert online tutors on Learnity. Join 1000+ active learners and 500+ verified tutors. Personalized 1-on-1 tutoring, study groups, and enterprise-grade security.",
@@ -92,7 +92,7 @@ export const metadata: Metadata = {
     google: "your-google-verification-code",
   },
   alternates: {
-    canonical: "https://learnity.com",
+    canonical: "http://learnity-app.vercel.app",
   },
   category: "education",
 };

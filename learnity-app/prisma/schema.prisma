@@ -84,11 +84,23 @@ model TeacherProfile {
   experience        Int                 // Years of experience
   bio               String?
   hourlyRate        Decimal?
-  documents         String[]            // Firebase Storage URLs
+  documents         String[]            // Vercel Blob URLs
   submittedAt       DateTime            @default(now())
   reviewedAt        DateTime?
   approvedBy        String?             // Admin user ID
   rejectionReason   String?
+  
+  // Enhanced Profile Fields
+  profilePicture    String?             // Vercel Blob URL
+  bannerImage       String?             // Vercel Blob URL
+  phone             String?
+  address           String?
+  city              String?
+  state             String?
+  country           String?
+  zipCode           String?
+  dateOfBirth       DateTime?
+  gender            String?
   
   // Professional profile fields (isTopRated calculated automatically)
   rating            Decimal             @default(0)
@@ -97,7 +109,7 @@ model TeacherProfile {
   availability      String?             // e.g., "Available today", "Weekends only"
   languages         String[]            @default([])
   timezone          String?
-  videoIntroUrl     String?             // Optional video introduction
+  videoIntroUrl     String?             // Vercel Blob URL for video introduction
   
   // Teaching details
   lessonsCompleted  Int                 @default(0)
@@ -107,14 +119,33 @@ model TeacherProfile {
   certifications    String[]            @default([])
   education         String[]            @default([])
   
+  // Enhanced Teaching Information
+  teachingMethods   String[]            @default([]) // e.g., "Visual", "Auditory", "Kinesthetic"
+  ageGroups         String[]            @default([]) // e.g., "Elementary", "Middle School", "High School", "Adult"
+  lessonTypes       String[]            @default([]) // e.g., "One-on-One", "Group", "Workshop"
+  onlineExperience  Int?                // Years of online teaching
+  technologySkills  String[]            @default([]) // e.g., "Zoom", "Google Meet", "Interactive Whiteboards"
+  
   // Availability schedule
   availableDays     String[]            @default([])
   preferredTimes    String[]            @default([])
+  minSessionLength  Int?                // Minutes
+  maxSessionLength  Int?                // Minutes
   
   // Additional info
   headline          String?             // Short catchy headline
   achievements      String[]            @default([])
   teachingApproach  String?             // Detailed teaching methodology
+  personalInterests String[]            @default([])
+  hobbies           String[]            @default([])
+  
+  // Social Media & Professional Links
+  linkedinUrl       String?
+  twitterUrl        String?
+  facebookUrl       String?
+  instagramUrl      String?
+  websiteUrl        String?
+  youtubeUrl        String?
   
   // Trust & credibility
   trustBadges       String[]            @default([]) // e.g., "Verified ID", "Background Check", "Top Rated"
@@ -122,6 +153,15 @@ model TeacherProfile {
   sampleLessons     Json?               // Array of {title, description, duration} objects
   successStories    Json?               // Array of {studentName, achievement, subject} objects
   whyChooseMe       String[]            @default([]) // Key differentiators
+  
+  // Emergency Contact
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  emergencyContactRelation String?
+  
+  // Preferences
+  communicationPreference String?       // e.g., "Email", "Phone", "Text"
+  notificationSettings    Json?         // Notification preferences
   
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   
@@ -132,6 +172,9 @@ model TeacherProfile {
   @@index([approvedBy])
   @@index([rating])
   @@index([lessonsCompleted])
+  @@index([city])
+  @@index([country])
+  @@index([subjects])
   @@map("teacher_profiles")
 }
 
@@ -208,6 +251,7 @@ enum UserRole {
   TEACHER
   ADMIN
   PENDING_TEACHER
+  REJECTED_TEACHER
 }
 
 enum ApplicationStatus {
@@ -244,6 +288,21 @@ enum RiskLevel {
   MEDIUM
   HIGH
   CRITICAL
+}
+
+model AdminAction {
+  id           String   @id @default(cuid())
+  adminId      String   // Firebase UID of admin who performed action
+  action       String   // e.g., "teacher_approve", "teacher_reject", "user_suspend"
+  targetUserId String?  // User affected by the action
+  details      Json?    // Additional action details
+  createdAt    DateTime @default(now())
+  
+  @@index([adminId])
+  @@index([action])
+  @@index([targetUserId])
+  @@index([createdAt])
+  @@map("admin_actions")
 }
 
 model Testimonial {

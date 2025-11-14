@@ -19,7 +19,8 @@ import {
 import { auth } from '@/lib/config/firebase';
 import { 
   StudentRegistrationData, 
-  TeacherRegistrationData, 
+  TeacherRegistrationData,
+  EnhancedTeacherRegistrationData, 
   LoginData 
 } from '@/lib/validators/auth';
 import { FirebaseAuthResult } from '@/types/auth';
@@ -101,7 +102,7 @@ export class ClientAuthService {
   }
 
   /**
-   * Register a new teacher
+   * Register a new teacher (legacy)
    */
   async registerTeacher(data: TeacherRegistrationData): Promise<FirebaseAuthResult> {
     try {
@@ -139,6 +140,126 @@ export class ClientAuthService {
         error: {
           code: error.code || 'REGISTRATION_FAILED',
           message: error.message || 'Registration failed'
+        }
+      };
+    }
+  }
+
+  /**
+   * Register a new teacher with quick registration
+   */
+  async registerQuickTeacher(data: any): Promise<FirebaseAuthResult> {
+    try {
+      console.log('🔵 Starting quick teacher registration...', { email: data.email });
+      
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+
+      console.log('✅ Firebase user created:', userCredential.user.uid);
+
+      // Send email verification
+      await sendEmailVerification(userCredential.user);
+      console.log('✅ Email verification sent');
+
+      // Call API to create quick teacher application
+      console.log('🔵 Calling API to create quick teacher profile...');
+      const idToken = await userCredential.user.getIdToken();
+      const response = await fetch('/api/auth/register/teacher/quick', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+          'X-Firebase-UID': userCredential.user.uid,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ API call failed:', errorData);
+        throw new Error('Failed to create quick teacher application');
+      }
+
+      console.log('✅ Quick teacher registration complete!');
+      return {
+        success: true,
+        user: userCredential.user,
+        needsEmailVerification: true
+      };
+    } catch (error: any) {
+      console.error('❌ Quick teacher registration failed:', {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      });
+      return {
+        success: false,
+        error: {
+          code: error.code || 'REGISTRATION_FAILED',
+          message: error.message || 'Quick teacher registration failed'
+        }
+      };
+    }
+  }
+
+  /**
+   * Register a new teacher with enhanced profile data (legacy)
+   */
+  async registerEnhancedTeacher(data: EnhancedTeacherRegistrationData): Promise<FirebaseAuthResult> {
+    try {
+      console.log('🔵 Starting enhanced teacher registration...', { email: data.email });
+      
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+
+      console.log('✅ Firebase user created:', userCredential.user.uid);
+
+      // Send email verification
+      await sendEmailVerification(userCredential.user);
+      console.log('✅ Email verification sent');
+
+      // Call API to create enhanced teacher application
+      console.log('🔵 Calling API to create enhanced teacher profile...');
+      const idToken = await userCredential.user.getIdToken();
+      const response = await fetch('/api/auth/register/teacher/enhanced', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+          'X-Firebase-UID': userCredential.user.uid,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ API call failed:', errorData);
+        throw new Error('Failed to create enhanced teacher application');
+      }
+
+      console.log('✅ Enhanced teacher registration complete!');
+      return {
+        success: true,
+        user: userCredential.user,
+        needsEmailVerification: true
+      };
+    } catch (error: any) {
+      console.error('❌ Enhanced teacher registration failed:', {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      });
+      return {
+        success: false,
+        error: {
+          code: error.code || 'REGISTRATION_FAILED',
+          message: error.message || 'Enhanced teacher registration failed'
         }
       };
     }

@@ -24,7 +24,7 @@ const ROUTE_CONFIG = {
     STUDENT: ['/dashboard/student'],
     TEACHER: ['/dashboard/teacher'],
     ADMIN: ['/admin', '/dashboard/admin'],
-    PENDING_TEACHER: ['/application/status'],
+    PENDING_TEACHER: ['/dashboard/teacher/pending'],
   },
   // Protected routes (any authenticated user)
   authenticated: [
@@ -84,7 +84,7 @@ function getRoleDashboard(role?: UserRole): string {
     case 'STUDENT':
       return '/dashboard/student';
     case 'PENDING_TEACHER':
-      return '/application/status';
+      return '/dashboard/teacher/pending';
     default:
       return '/welcome';
   }

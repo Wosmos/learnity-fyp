@@ -25,7 +25,7 @@ export function getDashboardRoute(role: UserRole): string {
     case UserRole.STUDENT:
       return '/dashboard/student';
     case UserRole.PENDING_TEACHER:
-      return '/application/status';
+      return '/dashboard/teacher/pending';
     default:
       return '/dashboard';
   }
@@ -50,7 +50,7 @@ export function getPostAuthRedirect(options: RedirectOptions): string {
       case UserRole.STUDENT:
         return '/profile/enhance';
       case UserRole.PENDING_TEACHER:
-        return '/application/status';
+        return '/dashboard/teacher/pending';
       default:
         return getDashboardRoute(userRole);
     }

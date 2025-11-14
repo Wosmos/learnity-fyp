@@ -39,8 +39,8 @@ export function ClientTeacherProtection({ children }: ClientTeacherProtectionPro
           console.log('Teacher protection - User claims:', claims);
           setUserRole(role);
           
-          // Allow both TEACHER and ADMIN roles to access teacher dashboard
-          if (role === UserRole.TEACHER || role === UserRole.ADMIN) {
+          // Allow TEACHER, PENDING_TEACHER, and ADMIN roles to access teacher dashboard
+          if (role === UserRole.TEACHER || role === UserRole.PENDING_TEACHER || role === UserRole.ADMIN) {
             setIsAuthorized(true);
             // Log successful access for audit
             auditLogger.logDashboardAccess(
@@ -66,8 +66,6 @@ export function ClientTeacherProtection({ children }: ClientTeacherProtectionPro
             setTimeout(() => {
               if (role === UserRole.STUDENT) {
                 router.push('/dashboard/student');
-              } else if (role === UserRole.PENDING_TEACHER) {
-                router.push('/application/status');
               } else {
                 router.push('/unauthorized');
               }
@@ -162,8 +160,6 @@ function TeacherUnauthorizedFallback({ userRole }: { userRole: UserRole | null }
     switch (userRole) {
       case UserRole.STUDENT:
         return "Redirecting to student dashboard...";
-      case UserRole.PENDING_TEACHER:
-        return "Redirecting to application status...";
       default:
         return "Teacher privileges required.";
     }

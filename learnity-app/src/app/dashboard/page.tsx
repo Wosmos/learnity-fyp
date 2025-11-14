@@ -43,7 +43,7 @@ export default function DashboardPage() {
         // Redirect based on role
         switch (userRole) {
           case UserRole.ADMIN:
-            router.push('/admin');
+            router.push('/dashboard/admin');
             break;
           case UserRole.TEACHER:
             router.push('/dashboard/teacher');
@@ -52,7 +52,10 @@ export default function DashboardPage() {
             router.push('/dashboard/student');
             break;
           case UserRole.PENDING_TEACHER:
-            router.push('/application/status');
+            router.push('/dashboard/teacher/pending');
+            break;
+          case UserRole.REJECTED_TEACHER:
+            router.push('/dashboard/teacher/rejected');
             break;
           default:
             // If no role is set, user needs to complete onboarding

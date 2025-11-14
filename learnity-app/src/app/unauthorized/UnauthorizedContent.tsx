@@ -100,7 +100,7 @@ export function UnauthorizedContent() {
         return {
           message: "Check your application status and complete any pending requirements.",
           action: "View Application Status",
-          href: "/application/status"
+          href: "/dashboard/teacher/pending"
         };
       default:
         return {
