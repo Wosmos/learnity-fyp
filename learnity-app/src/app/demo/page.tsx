@@ -17,7 +17,6 @@ import {
   PasswordResetForm,
   EmailVerificationPending,
   EmailVerificationResult,
-  MobileLoginForm,
   AuthProvider
 } from '@/components/auth';
 import { UserRole } from '@/types/auth';
@@ -94,16 +93,6 @@ export default function DemoPage() {
               onSocialLogin={mockHandlers.onSocialLogin}
             />
           </div>
-        );
-      
-      case 'login-mobile':
-        return (
-          <MobileLoginForm
-            onSubmit={mockHandlers.onSubmit}
-            onForgotPassword={mockHandlers.onForgotPassword}
-            onSignUp={mockHandlers.onSignUp}
-            onSocialLogin={mockHandlers.onSocialLogin}
-          />
         );
       
       case 'student-registration':

@@ -6,12 +6,12 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/types/auth';
@@ -21,7 +21,8 @@ import {
   FileText, AlertTriangle, CheckCircle, Eye, Edit, Trash2,
   Download, Filter, Search, MoreHorizontal, Shield,
   BarChart3, Calendar, Mail, Phone, MapPin, Star,
-  GraduationCap, BookOpen, Video, Award, Settings
+  GraduationCap, BookOpen, Video, Award, Settings,
+  ArrowUpRight, ArrowDownRight, Minus
 } from 'lucide-react';
 
 interface AdminStats {
@@ -112,7 +113,6 @@ export default function AdminDashboard() {
     if (!loading && !isAuthenticated) {
       router.push('/auth/login?redirect=/dashboard/admin');
     } else if (!loading && isAuthenticated && claims) {
-      // Only allow admin access
       if (claims.role !== UserRole.ADMIN) {
         router.push('/dashboard');
         toast({
@@ -121,7 +121,6 @@ export default function AdminDashboard() {
           variant: "destructive"
         });
       } else {
-        // Load admin data
         fetchAdminStats();
         fetchPendingTeachers();
       }
@@ -193,7 +192,6 @@ export default function AdminDashboard() {
       });
 
       if (response.ok) {
-        // Update local state
         setPendingTeachers(prev => 
           prev.map(teacher => 
             teacher.id === teacherId 
@@ -208,7 +206,6 @@ export default function AdminDashboard() {
           variant: action === 'reject' ? 'destructive' : 'default'
         });
 
-        // Refresh stats
         fetchAdminStats();
       } else {
         throw new Error('Failed to update teacher status');
@@ -225,30 +222,46 @@ export default function AdminDashboard() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'approved': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      case 'reviewing': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-yellow-100 text-yellow-800';
+      case 'approved': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'rejected': return 'bg-red-50 text-red-700 border-red-200';
+      case 'reviewing': return 'bg-blue-50 text-blue-700 border-blue-200';
+      default: return 'bg-amber-50 text-amber-700 border-amber-200';
+    }
+  };
+
+  const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
+    switch (trend) {
+      case 'up': return <ArrowUpRight className="h-4 w-4" />;
+      case 'down': return <ArrowDownRight className="h-4 w-4" />;
+      default: return <Minus className="h-4 w-4" />;
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-sm text-gray-600">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
 
   if (!isAuthenticated || claims?.role !== UserRole.ADMIN) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-lg">
           <CardContent className="pt-6">
             <div className="text-center">
-              <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Admin Access Required</h3>
-              <p className="text-gray-500">You need admin privileges to access this dashboard.</p>
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Shield className="h-8 w-8 text-red-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Admin Access Required</h3>
+              <p className="text-gray-600 mb-6">You need admin privileges to access this dashboard.</p>
+              <Button onClick={() => router.push('/dashboard')} className="w-full">
+                Return to Dashboard
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -257,201 +270,195 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AuthenticatedLayout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-red-600 rounded-lg">
-                  <Shield className="h-6 w-6 text-white" />
+    <AdminLayout
+      title="Admin Dashboard"
+      description="Platform management and oversight"
+    >
+      <div className="space-y-6">
+        {/* Primary Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
+            <CardContent className="p-6 ">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 mb-1">Total Users</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.totalUsers.toLocaleString()}</p>
                 </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-                  <p className="text-sm text-gray-500">
-                    Platform management and oversight
-                  </p>
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <Users className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export Data
-                </Button>
-                <Button size="sm">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-amber-500 hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 mb-1">Pending Teachers</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.pendingTeachers}</p>
+                </div>
+                <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-amber-600" />
+                </div>
               </div>
-            </div>
-          </div>
-        </header>
+            </CardContent>
+          </Card>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2">
-                  <Users className="h-8 w-8 text-blue-500" />
-                  <div>
-                    <p className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</p>
-                    <p className="text-xs text-gray-500">Total Users</p>
-                  </div>
+          <Card className="border-l-4 border-l-emerald-500 hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 mb-1">Total Revenue</p>
+                  <p className="text-3xl font-bold text-gray-900">${stats.totalRevenue.toLocaleString()}</p>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-8 w-8 text-yellow-500" />
-                  <div>
-                    <p className="text-2xl font-bold">{stats.pendingTeachers}</p>
-                    <p className="text-xs text-gray-500">Pending Teachers</p>
-                  </div>
+                <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-emerald-600" />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2">
-                  <DollarSign className="h-8 w-8 text-green-500" />
-                  <div>
-                    <p className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</p>
-                    <p className="text-xs text-gray-500">Total Revenue</p>
-                  </div>
+          <Card className="border-l-4 border-l-purple-500 hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 mb-1">Monthly Growth</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.monthlyGrowth}%</p>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2">
-                  <TrendingUp className="h-8 w-8 text-purple-500" />
-                  <div>
-                    <p className="text-2xl font-bold">{stats.monthlyGrowth}%</p>
-                    <p className="text-xs text-gray-500">Monthly Growth</p>
-                  </div>
+                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-purple-600" />
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-          {/* Platform Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {platformMetrics.map((metric, index) => {
-              const Icon = metric.icon;
-              return (
-                <Card key={index}>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">{metric.label}</p>
-                        <p className="text-2xl font-bold">{metric.value}</p>
-                        <p className={`text-sm ${
-                          metric.trend === 'up' ? 'text-green-600' : 
-                          metric.trend === 'down' ? 'text-red-600' : 'text-gray-600'
-                        }`}>
-                          {metric.change} from last month
-                        </p>
-                      </div>
-                      <Icon className={`h-8 w-8 ${
-                        metric.trend === 'up' ? 'text-green-500' : 
-                        metric.trend === 'down' ? 'text-red-500' : 'text-gray-500'
-                      }`} />
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-
-          {/* Main Content Tabs */}
-          <Tabs defaultValue="teachers" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="teachers">Teacher Applications</TabsTrigger>
-              <TabsTrigger value="users">User Management</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
-              <TabsTrigger value="settings">Platform Settings</TabsTrigger>
-            </TabsList>
-
-            {/* Teacher Applications Tab */}
-            <TabsContent value="teachers" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <CardTitle>Pending Teacher Applications</CardTitle>
-                      <CardDescription>
-                        Review and approve new teacher registrations
-                      </CardDescription>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Button variant="outline" size="sm">
-                        <Filter className="h-4 w-4 mr-2" />
-                        Filter
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Search className="h-4 w-4 mr-2" />
-                        Search
-                      </Button>
+        {/* Platform Metrics */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {platformMetrics.map((metric, index) => {
+            const Icon = metric.icon;
+            const trendColor = metric.trend === 'up' ? 'text-emerald-600' : metric.trend === 'down' ? 'text-red-600' : 'text-gray-600';
+            const bgColor = metric.trend === 'up' ? 'bg-emerald-50' : metric.trend === 'down' ? 'bg-red-50' : 'bg-gray-50';
+            
+            return (
+              <Card key={index} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <Icon className="h-5 w-5 text-gray-500" />
+                    <div className={`flex items-center space-x-1 px-2 py-1 rounded-full ${bgColor}`}>
+                      {getTrendIcon(metric.trend)}
+                      <span className={`text-xs font-medium ${trendColor}`}>
+                        {metric.change}
+                      </span>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {pendingTeachers.map((teacher) => (
-                      <div key={teacher.id} className="border rounded-lg p-6">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start space-x-4">
-                            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                              <GraduationCap className="h-6 w-6 text-blue-600" />
+                  <p className="text-2xl font-bold text-gray-900 mb-1">{metric.value}</p>
+                  <p className="text-sm text-gray-600">{metric.label}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="teachers" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 h-auto p-1 bg-gray-100">
+            <TabsTrigger value="teachers" className="data-[state=active]:bg-white">
+              Teacher Applications
+            </TabsTrigger>
+            <TabsTrigger value="users" className="data-[state=active]:bg-white">
+              User Management
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-white">
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="data-[state=active]:bg-white">
+              Settings
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Teacher Applications Tab */}
+          <TabsContent value="teachers" className="space-y-4">
+            <Card className="shadow-sm">
+              <CardHeader className="border-b bg-gray-50">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <CardTitle className="text-xl">Pending Teacher Applications</CardTitle>
+                    <CardDescription className="mt-1">
+                      Review and approve new teacher registrations
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <Filter className="h-4 w-4" />
+                      <span className="hidden sm:inline">Filter</span>
+                    </Button>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <Search className="h-4 w-4" />
+                      <span className="hidden sm:inline">Search</span>
+                    </Button>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <Download className="h-4 w-4" />
+                      <span className="hidden sm:inline">Export</span>
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {pendingTeachers.map((teacher) => (
+                    <Card key={teacher.id} className="border border-gray-200 hover:border-gray-300 transition-colors">
+                      <CardContent className="p-6">
+                        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                          <div className="flex items-start gap-4 flex-1">
+                            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                              <GraduationCap className="h-7 w-7 text-white" />
                             </div>
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-2">
-                                <h3 className="text-lg font-semibold">{teacher.name}</h3>
-                                <Badge className={getStatusColor(teacher.status)}>
+                            
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-3 mb-3">
+                                <h3 className="text-lg font-semibold text-gray-900">{teacher.name}</h3>
+                                <Badge variant="outline" className={`${getStatusColor(teacher.status)} capitalize`}>
                                   {teacher.status}
                                 </Badge>
                               </div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                                <div className="flex items-center space-x-2">
-                                  <Mail className="h-4 w-4" />
-                                  <span>{teacher.email}</span>
+                              
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                  <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                                  <span className="truncate">{teacher.email}</span>
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                  <BookOpen className="h-4 w-4" />
-                                  <span>{teacher.subjects.join(', ')}</span>
+                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                  <BookOpen className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                                  <span className="truncate">{teacher.subjects.join(', ')}</span>
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                  <Award className="h-4 w-4" />
+                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                  <Award className="h-4 w-4 text-gray-400 flex-shrink-0" />
                                   <span>{teacher.experience} experience</span>
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                  <Calendar className="h-4 w-4" />
+                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                  <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
                                   <span>Applied {new Date(teacher.submittedAt).toLocaleDateString()}</span>
                                 </div>
                               </div>
                               
-                              <div className="mt-4">
+                              <div className="mb-4">
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="text-sm font-medium">Profile Completion</span>
-                                  <span className="text-sm text-gray-500">{teacher.profileComplete}%</span>
+                                  <span className="text-sm font-medium text-gray-700">Profile Completion</span>
+                                  <span className="text-sm font-semibold text-gray-900">{teacher.profileComplete}%</span>
                                 </div>
                                 <Progress value={teacher.profileComplete} className="h-2" />
                               </div>
 
-                              <div className="flex items-center space-x-4 mt-4">
-                                <div className="flex items-center space-x-1">
-                                  <FileText className="h-4 w-4 text-gray-500" />
-                                  <span className="text-sm text-gray-600">{teacher.documents} documents</span>
+                              <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                                  <FileText className="h-4 w-4 text-gray-400" />
+                                  <span>{teacher.documents} documents</span>
                                 </div>
-                                <div className="flex items-center space-x-1">
-                                  <Video className="h-4 w-4 text-gray-500" />
-                                  <span className="text-sm text-gray-600">
+                                <div className="flex items-center gap-1.5 text-sm">
+                                  <Video className="h-4 w-4 text-gray-400" />
+                                  <span className={teacher.videoIntro ? "text-emerald-600 font-medium" : "text-gray-600"}>
                                     {teacher.videoIntro ? 'Video intro ✓' : 'No video intro'}
                                   </span>
                                 </div>
@@ -459,10 +466,11 @@ export default function AdminDashboard() {
                             </div>
                           </div>
                           
-                          <div className="flex items-center space-x-2">
+                          <div className="flex lg:flex-col gap-2 flex-wrap lg:flex-nowrap">
                             <Button
                               variant="outline"
                               size="sm"
+                              className="gap-2 flex-1 lg:flex-none lg:w-full"
                               onClick={() => {
                                 toast({
                                   title: "Profile Preview",
@@ -470,169 +478,175 @@ export default function AdminDashboard() {
                                 });
                               }}
                             >
-                              <Eye className="h-4 w-4 mr-2" />
+                              <Eye className="h-4 w-4" />
                               View
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
+                              className="gap-2 flex-1 lg:flex-none lg:w-full"
                               onClick={() => handleTeacherAction(teacher.id, 'review')}
                               disabled={teacher.status === 'reviewing'}
                             >
-                              <Edit className="h-4 w-4 mr-2" />
+                              <Edit className="h-4 w-4" />
                               Review
                             </Button>
                             <Button
                               size="sm"
+                              className="gap-2 bg-emerald-600 hover:bg-emerald-700 flex-1 lg:flex-none lg:w-full"
                               onClick={() => handleTeacherAction(teacher.id, 'approve')}
                               disabled={teacher.status === 'approved'}
-                              className="bg-green-600 hover:bg-green-700"
                             >
-                              <CheckCircle className="h-4 w-4 mr-2" />
+                              <CheckCircle className="h-4 w-4" />
                               Approve
                             </Button>
                             <Button
                               variant="destructive"
                               size="sm"
+                              className="gap-2 flex-1 lg:flex-none lg:w-full"
                               onClick={() => handleTeacherAction(teacher.id, 'reject')}
                               disabled={teacher.status === 'rejected'}
                             >
-                              <UserX className="h-4 w-4 mr-2" />
+                              <UserX className="h-4 w-4" />
                               Reject
                             </Button>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-            {/* User Management Tab */}
-            <TabsContent value="users" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <GraduationCap className="h-5 w-5" />
-                      <span>Teachers</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Active</span>
-                        <span className="font-medium">{stats.approvedTeachers}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Pending</span>
-                        <span className="font-medium text-yellow-600">{stats.pendingTeachers}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">This Month</span>
-                        <span className="font-medium text-green-600">+12</span>
-                      </div>
+          {/* User Management Tab */}
+          <TabsContent value="users" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="shadow-sm hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <GraduationCap className="h-5 w-5 text-blue-600" />
                     </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Users className="h-5 w-5" />
-                      <span>Students</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Active</span>
-                        <span className="font-medium">{stats.totalStudents}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">New This Week</span>
-                        <span className="font-medium text-green-600">47</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Retention Rate</span>
-                        <span className="font-medium">87%</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <BarChart3 className="h-5 w-5" />
-                      <span>Sessions</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Active Now</span>
-                        <span className="font-medium">{stats.activeSessions}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Today</span>
-                        <span className="font-medium">234</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Success Rate</span>
-                        <span className="font-medium text-green-600">94.2%</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Analytics Tab */}
-            <TabsContent value="analytics" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Platform Analytics</CardTitle>
-                  <CardDescription>
-                    Detailed insights into platform performance and user behavior
-                  </CardDescription>
+                    <span>Teachers</span>
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-center py-12">
-                    <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Analytics Dashboard</h3>
-                    <p className="text-gray-500">
-                      Comprehensive analytics and reporting features coming soon.
-                    </p>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-sm text-gray-600">Active</span>
+                    <span className="text-lg font-semibold text-gray-900">{stats.approvedTeachers}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-sm text-gray-600">Pending</span>
+                    <span className="text-lg font-semibold text-amber-600">{stats.pendingTeachers}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-sm text-gray-600">This Month</span>
+                    <span className="text-lg font-semibold text-emerald-600">+12</span>
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
 
-            {/* Settings Tab */}
-            <TabsContent value="settings" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Platform Settings</CardTitle>
-                  <CardDescription>
-                    Configure platform-wide settings and preferences
-                  </CardDescription>
+              <Card className="shadow-sm hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <Users className="h-5 w-5 text-purple-600" />
+                    </div>
+                    <span>Students</span>
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-center py-12">
-                    <Settings className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Settings Panel</h3>
-                    <p className="text-gray-500">
-                      Platform configuration and settings management coming soon.
-                    </p>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-sm text-gray-600">Active</span>
+                    <span className="text-lg font-semibold text-gray-900">{stats.totalStudents}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-sm text-gray-600">New This Week</span>
+                    <span className="text-lg font-semibold text-emerald-600">47</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-sm text-gray-600">Retention Rate</span>
+                    <span className="text-lg font-semibold text-gray-900">87%</span>
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+
+              <Card className="shadow-sm hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                      <BarChart3 className="h-5 w-5 text-emerald-600" />
+                    </div>
+                    <span>Sessions</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-sm text-gray-600">Active Now</span>
+                    <span className="text-lg font-semibold text-gray-900">{stats.activeSessions}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-sm text-gray-600">Today</span>
+                    <span className="text-lg font-semibold text-gray-900">234</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-sm text-gray-600">Success Rate</span>
+                    <span className="text-lg font-semibold text-emerald-600">94.2%</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <Card className="shadow-sm">
+              <CardHeader className="border-b bg-gray-50">
+                <CardTitle className="text-xl">Platform Analytics</CardTitle>
+                <CardDescription className="mt-1">
+                  Detailed insights into platform performance and user behavior
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-12">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <BarChart3 className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Analytics Dashboard</h3>
+                  <p className="text-gray-600 max-w-md mx-auto">
+                    Comprehensive analytics and reporting features coming soon.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings">
+            <Card className="shadow-sm">
+              <CardHeader className="border-b bg-gray-50">
+                <CardTitle className="text-xl">Platform Settings</CardTitle>
+                <CardDescription className="mt-1">
+                  Configure platform-wide settings and preferences
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-12">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Settings className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Settings Panel</h3>
+                  <p className="text-gray-600 max-w-md mx-auto">
+                    Platform configuration and settings management coming soon.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-    </AuthenticatedLayout>
+    </AdminLayout>
   );
 }

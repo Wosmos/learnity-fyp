@@ -43,13 +43,15 @@ export interface AppLayoutProps {
   showNavigation?: boolean;
   showHeader?: boolean;
   className?: string;
+  hideNavigationLinks?: boolean; // New prop to hide nav links but keep user menu
 }
 
 export function AppLayout({ 
   children, 
   showNavigation = true, 
   showHeader = true,
-  className 
+  className,
+  hideNavigationLinks = false
 }: AppLayoutProps) {
   const { user, loading, isAuthenticated, claims } = useClientAuth();
   const { logout, isLoggingOut } = useLogout();
@@ -154,26 +156,28 @@ export function AppLayout({
               </Link>
 
               {/* Desktop Navigation */}
-              <nav className="hidden md:flex items-center space-x-1">
-                {isAuthenticated && showNavigation && (
-                  <Link href={getDashboardRoute(claims?.role || UserRole.STUDENT)}>
+              {!hideNavigationLinks && (
+                <nav className="hidden md:flex items-center space-x-1">
+                  {isAuthenticated && showNavigation && (
+                    <Link href={getDashboardRoute(claims?.role || UserRole.STUDENT)}>
+                      <Button variant="ghost" size="sm">
+                        <Home className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                  )}
+                  <Link href="/teachers">
                     <Button variant="ghost" size="sm">
-                      <Home className="h-4 w-4 mr-2" />
-                      Dashboard
+                      Our Teachers
                     </Button>
                   </Link>
-                )}
-                <Link href="/teachers">
-                  <Button variant="ghost" size="sm">
-                    Our Teachers
-                  </Button>
-                </Link>
-                <Link href="/about">
-                  <Button variant="ghost" size="sm">
-                    About Us
-                  </Button>
-                </Link>
-              </nav>
+                  <Link href="/about">
+                    <Button variant="ghost" size="sm">
+                      About Us
+                    </Button>
+                  </Link>
+                </nav>
+              )}
             </div>
 
             {/* User Menu */}
@@ -205,7 +209,7 @@ export function AppLayout({
                             alt={fullName}
                             onError={(e) => console.error('Avatar image failed to load:', e)}
                           />
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                          <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white">
                             {getInitials()}
                           </AvatarFallback>
                         </Avatar>
@@ -285,7 +289,7 @@ export function AppLayout({
                     alt={fullName}
                     onError={(e) => console.error('Mobile avatar image failed to load:', e)}
                   />
-                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                  <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
@@ -303,7 +307,7 @@ export function AppLayout({
 
               {/* Mobile Navigation */}
               <div className="space-y-2">
-                {showNavigation && (
+                {showNavigation && !hideNavigationLinks && (
                   <>
                     <Link 
                       href={getDashboardRoute(claims?.role || UserRole.STUDENT)}
@@ -331,22 +335,26 @@ export function AppLayout({
                     </Button>
                   </>
                 )}
-                <Link 
-                  href="/teachers"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Button variant="ghost" className="w-full justify-start">
-                    Our Teachers
-                  </Button>
-                </Link>
-                <Link 
-                  href="/about"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Button variant="ghost" className="w-full justify-start">
-                    About Us
-                  </Button>
-                </Link>
+                {!hideNavigationLinks && (
+                  <>
+                    <Link 
+                      href="/teachers"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Button variant="ghost" className="w-full justify-start">
+                        Our Teachers
+                      </Button>
+                    </Link>
+                    <Link 
+                      href="/about"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Button variant="ghost" className="w-full justify-start">
+                        About Us
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
 
               {/* Mobile Logout */}
@@ -404,6 +412,30 @@ export function AuthenticatedLayout({ children, ...props }: AppLayoutProps) {
   }
 
   return <AppLayout {...props}>{children}</AppLayout>;
+}
+
+/**
+ * Layout wrapper for admin pages (hides navigation links but keeps user menu)
+ */
+export function AdminAuthenticatedLayout({ children, ...props }: AppLayoutProps) {
+  const { isAuthenticated, loading } = useClientAuth();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push('/auth/login');
+    }
+  }, [loading, isAuthenticated, router]);
+
+  if (loading) {
+    return <AppLayout {...props} hideNavigationLinks={true}>{children}</AppLayout>;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return <AppLayout {...props} hideNavigationLinks={true}>{children}</AppLayout>;
 }
 
 /**

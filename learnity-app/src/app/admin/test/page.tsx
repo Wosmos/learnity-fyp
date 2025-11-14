@@ -6,10 +6,11 @@
 
 "use client";
 
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useClientAuth } from '@/hooks/useClientAuth';
-import { CheckCircle, User, Shield } from 'lucide-react';
+import { CheckCircle, User, Shield, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminTestPage() {
@@ -17,20 +18,29 @@ export default function AdminTestPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
+      <AdminLayout title="Authentication Test" description="Testing admin authentication system">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading authentication status...</p>
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Test Page</h1>
-          <p className="text-gray-600">Testing admin authentication and protection</p>
-        </div>
-
+    <AdminLayout
+      title="Authentication Test"
+      description="Testing admin authentication and protection"
+      showBackButton={true}
+      backHref="/admin"
+      actions={
+        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Refresh
+        </Button>
+      }
+    >
+      <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Authentication Status */}
           <Card>
@@ -62,12 +72,12 @@ export default function AdminTestPage() {
             </CardContent>
           </Card>
 
-          {/* Navigation */}
+          {/* Navigation Test */}
           <Card>
             <CardHeader>
-              <CardTitle>Admin Navigation</CardTitle>
+              <CardTitle>Admin Navigation Test</CardTitle>
               <CardDescription>
-                Test different admin features
+                Test different admin features and pages
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -86,9 +96,29 @@ export default function AdminTestPage() {
                   Security Events
                 </Button>
               </Link>
+              <Link href="/admin/users">
+                <Button variant="outline" className="w-full justify-start">
+                  User Management
+                </Button>
+              </Link>
+              <Link href="/admin/teachers">
+                <Button variant="outline" className="w-full justify-start">
+                  Teacher Applications
+                </Button>
+              </Link>
+              <Link href="/admin/analytics">
+                <Button variant="outline" className="w-full justify-start">
+                  Analytics
+                </Button>
+              </Link>
+              <Link href="/admin/settings">
+                <Button variant="outline" className="w-full justify-start">
+                  Settings
+                </Button>
+              </Link>
               <Link href="/admin/demo">
                 <Button variant="outline" className="w-full justify-start">
-                  Generate Test Data
+                  Demo Tools
                 </Button>
               </Link>
             </CardContent>
@@ -96,7 +126,7 @@ export default function AdminTestPage() {
         </div>
 
         {/* Status Messages */}
-        <div className="mt-8">
+        <div className="space-y-4">
           {!isAuthenticated && (
             <Card className="border-red-200 bg-red-50">
               <CardContent className="pt-6">
@@ -127,7 +157,37 @@ export default function AdminTestPage() {
             </Card>
           )}
         </div>
+
+        {/* System Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>System Information</CardTitle>
+            <CardDescription>
+              Current system status and configuration
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="font-medium text-gray-700">Environment:</p>
+                <p className="text-gray-600">Development</p>
+              </div>
+              <div>
+                <p className="font-medium text-gray-700">Auth Provider:</p>
+                <p className="text-gray-600">Firebase Auth</p>
+              </div>
+              <div>
+                <p className="font-medium text-gray-700">Database:</p>
+                <p className="text-gray-600">Neon PostgreSQL</p>
+              </div>
+              <div>
+                <p className="font-medium text-gray-700">Storage:</p>
+                <p className="text-gray-600">Firebase Storage</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
