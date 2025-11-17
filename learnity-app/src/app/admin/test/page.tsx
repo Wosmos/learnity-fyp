@@ -29,16 +29,7 @@ export default function AdminTestPage() {
 
   return (
     <AdminLayout
-      title="Authentication Test"
-      description="Testing admin authentication and protection"
-      showBackButton={true}
-      backHref="/admin"
-      actions={
-        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
-      }
+      
     >
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

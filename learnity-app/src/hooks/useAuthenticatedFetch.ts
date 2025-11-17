@@ -1,17 +1,13 @@
-/**
- * Authenticated Fetch Hook
- * Provides a fetch wrapper that automatically includes authentication headers
- */
 
 import { useCallback } from 'react';
-import { useClientAuth } from './useClientAuth';
+import { useAuth } from './useAuth.unified';
 
 interface AuthenticatedFetchOptions extends RequestInit {
   skipAuth?: boolean;
 }
 
 export function useAuthenticatedFetch() {
-  const { user, loading } = useClientAuth();
+  const { user, loading } = useAuth();
 
   const authenticatedFetch = useCallback(async (
     url: string, 

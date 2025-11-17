@@ -2,153 +2,121 @@
 
 /**
  * Admin Analytics Page
- * Comprehensive analytics dashboard for platform insights
+ * Platform analytics and insights for administrators
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
+
+import { useToast } from '@/hooks/use-toast';
 import {
   BarChart3,
   TrendingUp,
   Users,
+  GraduationCap,
   BookOpen,
-  Clock,
   DollarSign,
-  Activity,
   Calendar,
-  Download,
-  RefreshCw,
-  Filter,
-  Eye,
-  Target,
-  Award,
-  Zap
+  Activity,
+  RefreshCw
 } from 'lucide-react';
 
 interface AnalyticsData {
   userGrowth: {
     labels: string[];
-    students: number[];
-    teachers: number[];
-    total: number[];
+    data: number[];
   };
-  engagement: {
-    dailyActiveUsers: number;
-    weeklyActiveUsers: number;
-    monthlyActiveUsers: number;
-    averageSessionDuration: number;
-    bounceRate: number;
+  teacherApplications: {
+    pending: number;
+    approved: number;
+    rejected: number;
   };
-  platform: {
-    totalSessions: number;
-    completedSessions: number;
-    averageRating: number;
+  platformMetrics: {
     totalRevenue: number;
-    conversionRate: number;
+    activeUsers: number;
+    sessionCompletion: number;
+    userSatisfaction: number;
   };
-  topMetrics: {
-    popularSubjects: Array<{ name: string; count: number }>;
-    topTeachers: Array<{ name: string; rating: number; sessions: number }>;
-    recentActivity: Array<{ type: string; description: string; timestamp: string }>;
+  monthlyStats: {
+    newUsers: number;
+    newTeachers: number;
+    totalSessions: number;
+    revenue: number;
   };
 }
 
-export default function AnalyticsPage() {
-  const [data, setData] = useState<AnalyticsData | null>(null);
+export default function AdminAnalyticsPage() {
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState('30d');
   const [refreshing, setRefreshing] = useState(false);
   
-  const api = useAuthenticatedApi();
+  const { toast } = useToast();
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, [timeRange]);
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = async (showRefreshToast = false) => {
     try {
-      setLoading(true);
-      const response = await api.get(`/api/admin/analytics?range=${timeRange}`);
-      setData(response.data || generateMockData());
+      if (showRefreshToast) setRefreshing(true);
+      
+      // For now, we'll use mock data since we don't have a dedicated analytics API
+      // In a real implementation, this would call /api/admin/analytics
+      const mockAnalytics: AnalyticsData = {
+        userGrowth: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          data: [120, 150, 180, 220, 280, 350]
+        },
+        teacherApplications: {
+          pending: 15,
+          approved: 45,
+          rejected: 8
+        },
+        platformMetrics: {
+          totalRevenue: 45680,
+          activeUsers: 1250,
+          sessionCompletion: 94.2,
+          userSatisfaction: 4.7
+        },
+        monthlyStats: {
+          newUsers: 89,
+          newTeachers: 12,
+          totalSessions: 456,
+          revenue: 12450
+        }
+      };
+      
+      setAnalytics(mockAnalytics);
+      
+      if (showRefreshToast) {
+        toast({
+          title: "Analytics Updated",
+          description: "Latest analytics data has been loaded.",
+        });
+      }
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
-      // Use mock data for demonstration
-      setData(generateMockData());
+      toast({
+        title: "Error",
+        description: "Failed to load analytics data. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchAnalytics();
-    setRefreshing(false);
-  };
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
 
-  const generateMockData = (): AnalyticsData => {
-    const last30Days = Array.from({ length: 30 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (29 - i));
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    });
-
-    return {
-      userGrowth: {
-        labels: last30Days,
-        students: Array.from({ length: 30 }, () => Math.floor(Math.random() * 50) + 20),
-        teachers: Array.from({ length: 30 }, () => Math.floor(Math.random() * 10) + 2),
-        total: Array.from({ length: 30 }, () => Math.floor(Math.random() * 60) + 25)
-      },
-      engagement: {
-        dailyActiveUsers: 1247,
-        weeklyActiveUsers: 5832,
-        monthlyActiveUsers: 18456,
-        averageSessionDuration: 24.5,
-        bounceRate: 23.4
-      },
-      platform: {
-        totalSessions: 12847,
-        completedSessions: 11203,
-        averageRating: 4.7,
-        totalRevenue: 89420,
-        conversionRate: 12.8
-      },
-      topMetrics: {
-        popularSubjects: [
-          { name: 'Mathematics', count: 2847 },
-          { name: 'Science', count: 2156 },
-          { name: 'English', count: 1923 },
-          { name: 'History', count: 1456 },
-          { name: 'Programming', count: 1234 }
-        ],
-        topTeachers: [
-          { name: 'Dr. Sarah Johnson', rating: 4.9, sessions: 234 },
-          { name: 'Prof. Michael Chen', rating: 4.8, sessions: 198 },
-          { name: 'Ms. Emily Davis', rating: 4.8, sessions: 187 },
-          { name: 'Dr. James Wilson', rating: 4.7, sessions: 156 },
-          { name: 'Ms. Lisa Anderson', rating: 4.7, sessions: 143 }
-        ],
-        recentActivity: [
-          { type: 'user_signup', description: 'New student registered', timestamp: '2 minutes ago' },
-          { type: 'session_completed', description: 'Math tutoring session completed', timestamp: '5 minutes ago' },
-          { type: 'teacher_approved', description: 'New teacher application approved', timestamp: '12 minutes ago' },
-          { type: 'payment_received', description: 'Payment processed successfully', timestamp: '18 minutes ago' },
-          { type: 'review_submitted', description: 'Student left 5-star review', timestamp: '25 minutes ago' }
-        ]
-      }
-    };
-  };
-
-  if (loading && !data) {
+  if (loading) {
     return (
-      <AdminLayout title="Analytics" description="Platform performance and user insights">
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading analytics data...</p>
+      <AdminLayout title="Analytics" description="Platform analytics and insights">
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading analytics...</p>
+          </div>
         </div>
       </AdminLayout>
     );
@@ -156,333 +124,227 @@ export default function AnalyticsPage() {
 
   return (
     <AdminLayout
-      title="Analytics Dashboard"
-      description="Comprehensive platform insights and performance metrics"
-      actions={
-        <div className="flex items-center space-x-2">
-          <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="1y">Last year</option>
-          </select>
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-        </div>
-      }
+      
     >
-      {data && (
-        <>
-          {/* Key Metrics Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2">
-                  <Users className="h-8 w-8 text-blue-500" />
-                  <div>
-                    <p className="text-2xl font-bold">{data.engagement.monthlyActiveUsers.toLocaleString()}</p>
-                    <p className="text-xs text-gray-500">Monthly Active Users</p>
-                    <p className="text-xs text-green-600">+12.5% from last month</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-2xl font-bold text-gray-900">
+                  ${analytics?.platformMetrics.totalRevenue.toLocaleString() || '0'}
+                </p>
+                <p className="text-sm text-gray-500">Total Revenue</p>
+              </div>
+              <DollarSign className="h-8 w-8 text-green-500" />
+            </div>
+            <div className="mt-2 flex items-center text-sm">
+              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+              <span className="text-green-600">+12.5%</span>
+              <span className="text-gray-500 ml-1">vs last month</span>
+            </div>
+          </CardContent>
+        </Card>
 
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2">
-                  <BookOpen className="h-8 w-8 text-green-500" />
-                  <div>
-                    <p className="text-2xl font-bold">{data.platform.totalSessions.toLocaleString()}</p>
-                    <p className="text-xs text-gray-500">Total Sessions</p>
-                    <p className="text-xs text-green-600">+8.3% from last month</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-2xl font-bold text-gray-900">
+                  {analytics?.platformMetrics.activeUsers.toLocaleString() || '0'}
+                </p>
+                <p className="text-sm text-gray-500">Active Users</p>
+              </div>
+              <Users className="h-8 w-8 text-blue-500" />
+            </div>
+            <div className="mt-2 flex items-center text-sm">
+              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+              <span className="text-green-600">+8.2%</span>
+              <span className="text-gray-500 ml-1">this month</span>
+            </div>
+          </CardContent>
+        </Card>
 
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2">
-                  <DollarSign className="h-8 w-8 text-purple-500" />
-                  <div>
-                    <p className="text-2xl font-bold">${data.platform.totalRevenue.toLocaleString()}</p>
-                    <p className="text-xs text-gray-500">Total Revenue</p>
-                    <p className="text-xs text-green-600">+15.2% from last month</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-2xl font-bold text-gray-900">
+                  {analytics?.platformMetrics.sessionCompletion || '0'}%
+                </p>
+                <p className="text-sm text-gray-500">Session Completion</p>
+              </div>
+              <BookOpen className="h-8 w-8 text-purple-500" />
+            </div>
+            <div className="mt-2 flex items-center text-sm">
+              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+              <span className="text-green-600">+2.1%</span>
+              <span className="text-gray-500 ml-1">improvement</span>
+            </div>
+          </CardContent>
+        </Card>
 
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2">
-                  <Award className="h-8 w-8 text-yellow-500" />
-                  <div>
-                    <p className="text-2xl font-bold">{data.platform.averageRating}</p>
-                    <p className="text-xs text-gray-500">Average Rating</p>
-                    <p className="text-xs text-green-600">+0.2 from last month</p>
-                  </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-2xl font-bold text-gray-900">
+                  {analytics?.platformMetrics.userSatisfaction || '0'}
+                </p>
+                <p className="text-sm text-gray-500">User Satisfaction</p>
+              </div>
+              <Activity className="h-8 w-8 text-yellow-500" />
+            </div>
+            <div className="mt-2 flex items-center text-sm">
+              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+              <span className="text-green-600">Excellent</span>
+              <span className="text-gray-500 ml-1">rating</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Charts and Detailed Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <BarChart3 className="h-5 w-5 text-blue-600" />
+              <span>User Growth Trend</span>
+            </CardTitle>
+            <CardDescription>Monthly user registration growth</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="text-center p-8 bg-gray-50 rounded-lg">
+                <BarChart3 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">Chart visualization would go here</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Integration with charting library (Chart.js, Recharts, etc.)
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p className="text-2xl font-bold text-blue-600">350</p>
+                  <p className="text-xs text-gray-500">This Month</p>
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <p className="text-2xl font-bold text-green-600">+28%</p>
+                  <p className="text-xs text-gray-500">Growth Rate</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-purple-600">1,250</p>
+                  <p className="text-xs text-gray-500">Total Users</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <GraduationCap className="h-5 w-5 text-green-600" />
+              <span>Teacher Applications</span>
+            </CardTitle>
+            <CardDescription>Application status breakdown</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <span className="font-medium">Pending Review</span>
+                  </div>
+                  <span className="text-2xl font-bold text-yellow-600">
+                    {analytics?.teacherApplications.pending || 0}
+                  </span>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span className="font-medium">Approved</span>
+                  </div>
+                  <span className="text-2xl font-bold text-green-600">
+                    {analytics?.teacherApplications.approved || 0}
+                  </span>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span className="font-medium">Rejected</span>
+                  </div>
+                  <span className="text-2xl font-bold text-red-600">
+                    {analytics?.teacherApplications.rejected || 0}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="pt-4 border-t border-gray-200">
+                <div className="text-center">
+                  <p className="text-sm text-gray-500">Approval Rate</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {analytics ? 
+                      Math.round((analytics.teacherApplications.approved / 
+                        (analytics.teacherApplications.approved + analytics.teacherApplications.rejected)) * 100) 
+                      : 0}%
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Monthly Statistics */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Calendar className="h-5 w-5 text-purple-600" />
+            <span>This Month's Performance</span>
+          </CardTitle>
+          <CardDescription>Key metrics for the current month</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-blue-600">
+                {analytics?.monthlyStats.newUsers || 0}
+              </p>
+              <p className="text-sm text-gray-600">New Users</p>
+            </div>
+            
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <GraduationCap className="h-8 w-8 text-green-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-green-600">
+                {analytics?.monthlyStats.newTeachers || 0}
+              </p>
+              <p className="text-sm text-gray-600">New Teachers</p>
+            </div>
+            
+            <div className="text-center p-4 bg-purple-50 rounded-lg">
+              <BookOpen className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-purple-600">
+                {analytics?.monthlyStats.totalSessions || 0}
+              </p>
+              <p className="text-sm text-gray-600">Total Sessions</p>
+            </div>
+            
+            <div className="text-center p-4 bg-yellow-50 rounded-lg">
+              <DollarSign className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-yellow-600">
+                ${analytics?.monthlyStats.revenue.toLocaleString() || 0}
+              </p>
+              <p className="text-sm text-gray-600">Revenue</p>
+            </div>
           </div>
-
-          {/* Detailed Analytics Tabs */}
-          <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="users">Users</TabsTrigger>
-              <TabsTrigger value="engagement">Engagement</TabsTrigger>
-              <TabsTrigger value="revenue">Revenue</TabsTrigger>
-            </TabsList>
-
-            {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* User Growth Chart Placeholder */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <TrendingUp className="h-5 w-5" />
-                      <span>User Growth Trend</span>
-                    </CardTitle>
-                    <CardDescription>Daily user registrations over time</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-64 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-center justify-center">
-                      <div className="text-center">
-                        <BarChart3 className="h-12 w-12 text-blue-400 mx-auto mb-2" />
-                        <p className="text-sm text-gray-600">Interactive chart would be rendered here</p>
-                        <p className="text-xs text-gray-500">Showing {timeRange} data</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Popular Subjects */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Target className="h-5 w-5" />
-                      <span>Popular Subjects</span>
-                    </CardTitle>
-                    <CardDescription>Most requested tutoring subjects</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {data.topMetrics.popularSubjects.map((subject, index) => (
-                        <div key={subject.name} className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                              <span className="text-sm font-medium text-blue-600">{index + 1}</span>
-                            </div>
-                            <span className="font-medium">{subject.name}</span>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold">{subject.count.toLocaleString()}</p>
-                            <p className="text-xs text-gray-500">sessions</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Recent Activity */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Activity className="h-5 w-5" />
-                    <span>Recent Platform Activity</span>
-                  </CardTitle>
-                  <CardDescription>Latest events and user actions</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {data.topMetrics.recentActivity.map((activity, index) => (
-                      <div key={index} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{activity.description}</p>
-                          <p className="text-xs text-gray-500">{activity.timestamp}</p>
-                        </div>
-                        <Button variant="ghost" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Users Tab */}
-            <TabsContent value="users" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">Daily Active Users</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">{data.engagement.dailyActiveUsers.toLocaleString()}</p>
-                    <p className="text-xs text-green-600">+5.2% from yesterday</p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">Weekly Active Users</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">{data.engagement.weeklyActiveUsers.toLocaleString()}</p>
-                    <p className="text-xs text-green-600">+8.7% from last week</p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">Monthly Active Users</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">{data.engagement.monthlyActiveUsers.toLocaleString()}</p>
-                    <p className="text-xs text-green-600">+12.5% from last month</p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Top Teachers */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Award className="h-5 w-5" />
-                    <span>Top Performing Teachers</span>
-                  </CardTitle>
-                  <CardDescription>Highest rated teachers by session count</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {data.topMetrics.topTeachers.map((teacher, index) => (
-                      <div key={teacher.name} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                            <span className="text-white font-medium">{teacher.name.charAt(0)}</span>
-                          </div>
-                          <div>
-                            <p className="font-medium">{teacher.name}</p>
-                            <p className="text-sm text-gray-500">{teacher.sessions} sessions</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="flex items-center space-x-1">
-                            <span className="text-yellow-500">★</span>
-                            <span className="font-semibold">{teacher.rating}</span>
-                          </div>
-                          <p className="text-xs text-gray-500">rating</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Engagement Tab */}
-            <TabsContent value="engagement" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm flex items-center space-x-2">
-                      <Clock className="h-4 w-4" />
-                      <span>Avg Session Duration</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">{data.engagement.averageSessionDuration} min</p>
-                    <p className="text-xs text-green-600">+2.3 min from last month</p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm flex items-center space-x-2">
-                      <Zap className="h-4 w-4" />
-                      <span>Completion Rate</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">
-                      {Math.round((data.platform.completedSessions / data.platform.totalSessions) * 100)}%
-                    </p>
-                    <p className="text-xs text-green-600">+3.2% from last month</p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm flex items-center space-x-2">
-                      <Activity className="h-4 w-4" />
-                      <span>Bounce Rate</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">{data.engagement.bounceRate}%</p>
-                    <p className="text-xs text-red-600">-1.8% from last month</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Revenue Tab */}
-            <TabsContent value="revenue" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">Total Revenue</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">${data.platform.totalRevenue.toLocaleString()}</p>
-                    <p className="text-xs text-green-600">+15.2% from last month</p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">Conversion Rate</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">{data.platform.conversionRate}%</p>
-                    <p className="text-xs text-green-600">+0.8% from last month</p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">Avg Revenue per User</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">
-                      ${Math.round(data.platform.totalRevenue / data.engagement.monthlyActiveUsers)}
-                    </p>
-                    <p className="text-xs text-green-600">+$2.40 from last month</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </>
-      )}
+        </CardContent>
+      </Card>
     </AdminLayout>
   );
 }

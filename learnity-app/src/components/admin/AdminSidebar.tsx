@@ -64,7 +64,7 @@ export class AdminNavigationService {
       // Main Dashboard
       {
         id: 'dashboard',
-        label: 'Dashboard',
+        label: 'Admin Dashboard',
         href: '/dashboard/admin',
         icon: Home,
         category: 'main'
@@ -113,6 +113,20 @@ export class AdminNavigationService {
         label: 'Auth Test',
         href: '/admin/test',
         icon: TestTube,
+        category: 'tools'
+      },
+      {
+        id: 'auth-debug',
+        label: 'Auth Debug',
+        href: '/admin/auth-test',
+        icon: TestTube,
+        category: 'tools'
+      },
+      {
+        id: 'admin-setup',
+        label: 'Admin Setup',
+        href: '/admin/setup',
+        icon: Shield,
         category: 'tools'
       },
       {

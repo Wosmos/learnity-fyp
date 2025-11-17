@@ -25,11 +25,6 @@ const envSchema = z.object({
   // Static Admin
   STATIC_ADMIN_EMAIL: z.string().email('STATIC_ADMIN_EMAIL must be a valid email'),
   STATIC_ADMIN_PASSWORD: z.string().min(8, 'STATIC_ADMIN_PASSWORD must be at least 8 characters'),
-  
-  // NextAuth
-  NEXTAUTH_SECRET: z.string().min(32, 'NEXTAUTH_SECRET must be at least 32 characters'),
-  NEXTAUTH_URL: z.string().url('NEXTAUTH_URL must be a valid URL'),
-  
   // App Configuration
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   
@@ -106,11 +101,6 @@ export function getConfig() {
     staticAdmin: {
       email: env.STATIC_ADMIN_EMAIL,
       password: env.STATIC_ADMIN_PASSWORD,
-    },
-    
-    nextAuth: {
-      secret: env.NEXTAUTH_SECRET,
-      url: env.NEXTAUTH_URL,
     },
     
     recaptcha: {

@@ -1,30 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth } from '@/lib/firebase/admin';
 import { prisma } from '@/lib/prisma';
 import { UserRole } from '@/types/auth';
+import { withAdminApiAuth } from '@/lib/utils/api-auth.utils';
+
+type AuthenticatedAdmin = {
+  firebaseUid: string;
+};
 
 /**
  * Admin Statistics API
  * GET: Fetch platform statistics and metrics
  */
 
-export async function GET(request: NextRequest) {
+async function handleGetStats(request: NextRequest, user: AuthenticatedAdmin): Promise<NextResponse> {
   try {
-    // Verify admin authentication
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.split('Bearer ')[1];
-    const decodedToken = await adminAuth.verifyIdToken(token);
-    
-    // Check if user is admin
-    const customClaims = decodedToken.customClaims;
-    if (customClaims?.role !== UserRole.ADMIN) {
-      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
-    }
-
+    console.debug('[AdminStats] request received', { url: request.url, admin: user.firebaseUid });
     // Get current date ranges
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -192,3 +182,5 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export const GET = withAdminApiAuth(handleGetStats);

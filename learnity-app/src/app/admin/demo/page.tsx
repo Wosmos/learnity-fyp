@@ -76,20 +76,7 @@ export default function AdminDemoPage() {
 
   return (
     <AdminLayout
-      title="Demo Tools"
-      description="Generate test audit events for demonstration"
-      showBackButton={true}
-      backHref="/admin"
-      actions={
-        <div className="flex items-center space-x-2">
-          {results.length > 0 && (
-            <Button variant="outline" size="sm" onClick={clearResults}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Clear Results
-            </Button>
-          )}
-        </div>
-      }
+      
     >
       <div className="space-y-6">
         {/* Instructions */}

@@ -73,6 +73,8 @@ async function extractClaimsFromToken(user: FirebaseUser): Promise<CustomClaims 
     const idTokenResult = await user.getIdTokenResult();
     const firebaseClaims = idTokenResult.claims;
     
+    console.log('Firebase claims:', firebaseClaims); // Debug logging
+    
     const role = (firebaseClaims.role as UserRole) || UserRole.STUDENT;
     const permissions = ROLE_PERMISSIONS[role] || [];
     
@@ -86,7 +88,16 @@ async function extractClaimsFromToken(user: FirebaseUser): Promise<CustomClaims 
     };
   } catch (error) {
     console.error('Error extracting claims from token:', error);
-    return null;
+    
+    // Fallback: return basic claims for authenticated users
+    return {
+      role: UserRole.STUDENT,
+      permissions: ROLE_PERMISSIONS[UserRole.STUDENT],
+      profileComplete: false,
+      emailVerified: user.emailVerified || false,
+      profileId: '',
+      lastLoginAt: ''
+    };
   }
 }
 

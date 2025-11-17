@@ -26,24 +26,6 @@ import {
 export default function AdminSecurityDashboardPage() {
   return (
     <AdminLayout
-      title="Security Dashboard"
-      description="Monitor security events, audit logs, and system health"
-      actions={
-        <div className="flex items-center space-x-2">
-          <Link href="/admin/test">
-            <Button variant="outline" size="sm">
-              <TestTube className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Test Auth</span>
-            </Button>
-          </Link>
-          <Link href="/admin/demo">
-            <Button variant="outline" size="sm">
-              <Play className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Demo</span>
-            </Button>
-          </Link>
-        </div>
-      }
     >
       {/* Quick Access Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">

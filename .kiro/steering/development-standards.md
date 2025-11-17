@@ -499,8 +499,6 @@ service firebase.storage {
 // Required environment validation
 const envSchema = z.object({
   DATABASE_URL: z.string().url(), // Neon DB connection string
-  NEXTAUTH_SECRET: z.string().min(32),
-  NEXTAUTH_URL: z.string().url(),
   NEXT_PUBLIC_FIREBASE_API_KEY: z.string(),
   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: z.string(),
   NEXT_PUBLIC_FIREBASE_PROJECT_ID: z.string(),

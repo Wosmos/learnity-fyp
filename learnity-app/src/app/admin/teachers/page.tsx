@@ -1,463 +1,314 @@
 'use client';
 
 /**
- * Admin Teacher Applications Page
- * Dedicated page for managing teacher applications and approvals
+ * Admin Teacher Management Page
+ * Modern data table interface for managing teacher applications
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import { DataTable } from '@/components/admin/users/data-table';
+import { createTeacherColumns, Teacher } from '@/components/admin/teachers/columns';
+import { TeacherDetailDialog } from '@/components/admin/teachers/teacher-detail-dialog';
+
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { useToast } from '@/hooks/use-toast';
 import {
   GraduationCap,
+  Download,
   Clock,
+  Star,
+  Award,
+  Users,
   CheckCircle,
   XCircle,
-  Eye,
-  FileText,
-  Video,
-  Mail,
-  Calendar,
-  Award,
-  BookOpen,
-  Filter,
-  Search,
-  Download
 } from 'lucide-react';
 
-interface TeacherApplication {
-  id: string;
-  name: string;
-  email: string;
-  subjects: string[];
-  experience: string;
-  submittedAt: string;
-  status: 'pending' | 'reviewing' | 'approved' | 'rejected';
-  documents: number;
-  videoIntro: boolean;
-  profileComplete: number;
-  bio?: string;
-  qualifications: string[];
-  hourlyRate?: number;
+
+
+interface TeacherStats {
+  totalTeachers: number;
+  pendingApplications: number;
+  approvedTeachers: number;
+  rejectedApplications: number;
+  averageRating: number;
+  totalSessions: number;
 }
 
-interface ApplicationStats {
-  total: number;
-  pending: number;
-  approved: number;
-  rejected: number;
-  reviewing: number;
-}
-
-export default function TeacherApplicationsPage() {
-  const [applications, setApplications] = useState<TeacherApplication[]>([]);
-  const [stats, setStats] = useState<ApplicationStats>({
-    total: 0,
-    pending: 0,
-    approved: 0,
-    rejected: 0,
-    reviewing: 0
+export default function TeacherManagementPage() {
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([]);
+  const [stats, setStats] = useState<TeacherStats>({
+    totalTeachers: 0,
+    pendingApplications: 0,
+    approvedTeachers: 0,
+    rejectedApplications: 0,
+    averageRating: 0,
+    totalSessions: 0
   });
   const [loading, setLoading] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('pending');
   
   const api = useAuthenticatedApi();
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchApplications();
-    fetchStats();
-  }, []);
-
-  const fetchApplications = async () => {
+  const fetchTeachers = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.get('/api/admin/teachers');
-      setApplications(response.teachers || []);
+      const teacherData = response.teachers || [];
+      setTeachers(teacherData);
+      setFilteredTeachers(teacherData);
+      setStats(response.stats || stats);
     } catch (error) {
-      console.error('Failed to fetch teacher applications:', error);
+      console.error('Failed to fetch teachers:', error);
       toast({
         title: "Error",
-        description: "Failed to load teacher applications.",
+        description: "Failed to load teachers. Please try again.",
         variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [api, toast]);
 
-  const fetchStats = async () => {
-    try {
-      const response = await api.get('/api/admin/teachers/stats');
-      setStats(response.stats || stats);
-    } catch (error) {
-      console.error('Failed to fetch application stats:', error);
+  useEffect(() => {
+    fetchTeachers();
+  }, [fetchTeachers]);
+
+  // Filter teachers based on active tab
+  useEffect(() => {
+    let filtered = teachers;
+    
+    switch (activeTab) {
+      case 'pending':
+        filtered = teachers.filter(teacher => teacher.role === 'PENDING_TEACHER');
+        break;
+      case 'approved':
+        filtered = teachers.filter(teacher => teacher.role === 'TEACHER');
+        break;
+      case 'rejected':
+        filtered = teachers.filter(teacher => teacher.role === 'REJECTED_TEACHER');
+        break;
+      default:
+        filtered = teachers;
     }
+    
+    setFilteredTeachers(filtered);
+  }, [teachers, activeTab]);
+
+  const handleViewDetails = (teacher: Teacher) => {
+    setSelectedTeacher(teacher);
+    setDialogOpen(true);
   };
 
-  const handleApplicationAction = async (applicationId: string, action: 'approve' | 'reject' | 'review') => {
+  const handleTeacherAction = async (teacherId: string, action: string) => {
     try {
-      await api.patch('/api/admin/teachers', { teacherId: applicationId, action });
+      await api.put('/api/admin/teachers', { teacherId, action });
       
-      setApplications(prev => 
-        prev.map(app => 
-          app.id === applicationId 
-            ? { ...app, status: action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'reviewing' }
-            : app
-        )
-      );
+      // Update local state
+      setTeachers(prev => prev.map(teacher => 
+        teacher.id === teacherId 
+          ? { 
+              ...teacher, 
+              applicationStatus: action === 'approve' ? 'approved' : 'rejected',
+              role: action === 'approve' ? 'TEACHER' : 'REJECTED_TEACHER',
+              reviewedAt: new Date().toISOString()
+            }
+          : teacher
+      ));
+
+      // Update stats
+      if (action === 'approve') {
+        setStats(prev => ({
+          ...prev,
+          pendingApplications: prev.pendingApplications - 1,
+          approvedTeachers: prev.approvedTeachers + 1
+        }));
+      } else if (action === 'reject') {
+        setStats(prev => ({
+          ...prev,
+          pendingApplications: prev.pendingApplications - 1,
+          rejectedApplications: prev.rejectedApplications + 1
+        }));
+      }
 
       toast({
-        title: `Application ${action === 'approve' ? 'Approved' : action === 'reject' ? 'Rejected' : 'Under Review'}`,
-        description: `Teacher application has been ${action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'marked for review'}.`,
-        variant: action === 'reject' ? 'destructive' : 'default'
+        title: "Success",
+        description: `Teacher application ${action}d successfully.`,
       });
-
-      // Refresh stats
-      fetchStats();
     } catch (error) {
-      console.error('Application action error:', error);
+      console.error(`Failed to ${action} teacher:`, error);
       toast({
         title: "Error",
-        description: "Failed to update application status.",
+        description: `Failed to ${action} teacher application. Please try again.`,
         variant: "destructive"
       });
     }
   };
 
-  const filteredApplications = applications.filter(app => {
-    const matchesSearch = searchQuery === '' || 
-      app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.subjects.some(subject => subject.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesStatus = selectedStatus === 'all' || app.status === selectedStatus;
-    
-    return matchesSearch && matchesStatus;
+  const columns = createTeacherColumns({
+    onViewDetails: handleViewDetails,
+    onTeacherAction: handleTeacherAction,
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'approved': return 'bg-green-100 text-green-800 border-green-200';
-      case 'rejected': return 'bg-red-100 text-red-800 border-red-200';
-      case 'reviewing': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+  const tabConfig = [
+    {
+      value: 'pending',
+      label: 'Pending',
+      icon: Clock,
+      count: stats.pendingApplications,
+      emptyTitle: 'No pending applications',
+      emptyDescription: 'All teacher applications have been reviewed.'
+    },
+    {
+      value: 'approved',
+      label: 'Approved',
+      icon: CheckCircle,
+      count: stats.approvedTeachers,
+      emptyTitle: 'No approved teachers',
+      emptyDescription: 'No approved teachers match the current filters.'
+    },
+    {
+      value: 'rejected',
+      label: 'Rejected',
+      icon: XCircle,
+      count: stats.rejectedApplications,
+      emptyTitle: 'No rejected applications',
+      emptyDescription: 'You have not rejected any teacher applications yet.'
+    },
+    {
+      value: 'all',
+      label: 'All',
+      icon: Users,
+      count: stats.totalTeachers,
+      emptyTitle: 'No teachers found',
+      emptyDescription: 'No teacher applications have been submitted yet.'
     }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'approved': return CheckCircle;
-      case 'rejected': return XCircle;
-      case 'reviewing': return Eye;
-      default: return Clock;
-    }
-  };
+  ];
 
   return (
     <AdminLayout
-      title="Teacher Applications"
-      description="Review and manage teacher application submissions"
-      actions={
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
-        </div>
-      }
+     
     >
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-        <Card>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card className="bg-gradient-to-br from-yellow-50 to-orange-100 border-yellow-200">
           <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <GraduationCap className="h-8 w-8 text-blue-500" />
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold">{stats.total}</p>
-                <p className="text-xs text-gray-500">Total Applications</p>
+                <p className="text-2xl font-bold text-yellow-700">{stats.pendingApplications}</p>
+                <p className="text-sm text-yellow-600">Pending Applications</p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
               <Clock className="h-8 w-8 text-yellow-500" />
-              <div>
-                <p className="text-2xl font-bold">{stats.pending}</p>
-                <p className="text-xs text-gray-500">Pending Review</p>
-              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
           <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <Eye className="h-8 w-8 text-blue-500" />
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold">{stats.reviewing}</p>
-                <p className="text-xs text-gray-500">Under Review</p>
+                <p className="text-2xl font-bold text-green-700">{stats.approvedTeachers}</p>
+                <p className="text-sm text-green-600">Approved Teachers</p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
               <CheckCircle className="h-8 w-8 text-green-500" />
-              <div>
-                <p className="text-2xl font-bold">{stats.approved}</p>
-                <p className="text-xs text-gray-500">Approved</p>
-              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <XCircle className="h-8 w-8 text-red-500" />
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold">{stats.rejected}</p>
-                <p className="text-xs text-gray-500">Rejected</p>
+                <p className="text-2xl font-bold text-blue-700">{stats.averageRating.toFixed(1)}</p>
+                <p className="text-sm text-blue-600">Average Rating</p>
               </div>
+              <Star className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-2xl font-bold text-purple-700">{stats.totalSessions}</p>
+                <p className="text-sm text-purple-600">Total Sessions</p>
+              </div>
+              <Award className="h-8 w-8 text-purple-500" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Applications List */}
-      <Card>
-        <CardHeader>
+      {/* Main Data Table */}
+      <Card className="bg-white/80 backdrop-blur-sm border border-gray-200">
+        <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div>
-              <CardTitle>Teacher Applications</CardTitle>
-              <CardDescription>
-                Review teacher qualifications and approve applications
+              <CardTitle className="text-2xl font-bold text-gray-900">Teacher Applications</CardTitle>
+              <CardDescription className="text-gray-600">
+                Review and manage teacher applications with advanced filtering and approval tools
               </CardDescription>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search applications..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64"
-                />
-              </div>
-              
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="reviewing">Under Review</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-              </select>
             </div>
           </div>
         </CardHeader>
         
         <CardContent>
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-500">Loading applications...</p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {filteredApplications.map((application) => {
-                const StatusIcon = getStatusIcon(application.status);
-                
-                return (
-                  <div key={application.id} className="border rounded-lg p-6 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start space-x-4 flex-1">
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                          <GraduationCap className="h-6 w-6 text-blue-600" />
-                        </div>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900">{application.name}</h3>
-                            <Badge className={getStatusColor(application.status)}>
-                              <StatusIcon className="h-3 w-3 mr-1" />
-                              {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
-                            </Badge>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 mb-4">
-                            <div className="flex items-center space-x-2">
-                              <Mail className="h-4 w-4" />
-                              <span>{application.email}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <BookOpen className="h-4 w-4" />
-                              <span>{application.subjects.join(', ')}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Award className="h-4 w-4" />
-                              <span>{application.experience} experience</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Calendar className="h-4 w-4" />
-                              <span>Applied {new Date(application.submittedAt).toLocaleDateString()}</span>
-                            </div>
-                          </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 mb-6">
+              {tabConfig.map(({ value, label, icon: Icon, count }) => (
+                <TabsTrigger key={value} value={value} className="flex items-center gap-2">
+                  <Icon className="h-4 w-4" />
+                  {label}
+                  <Badge variant="secondary" className="ml-1">
+                    {count}
+                  </Badge>
+                </TabsTrigger>
+              ))}
+            </TabsList>
 
-                          {application.bio && (
-                            <div className="mb-4">
-                              <p className="text-sm text-gray-700 line-clamp-2">{application.bio}</p>
-                            </div>
-                          )}
-
-                          <div className="mb-4">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-medium text-gray-700">Profile Completion</span>
-                              <span className="text-sm text-gray-500">{application.profileComplete}%</span>
-                            </div>
-                            <Progress value={application.profileComplete} className="h-2" />
-                          </div>
-
-                          <div className="flex items-center space-x-6 text-sm">
-                            <div className="flex items-center space-x-1">
-                              <FileText className="h-4 w-4 text-gray-500" />
-                              <span className="text-gray-600">{application.documents} documents</span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <Video className="h-4 w-4 text-gray-500" />
-                              <span className="text-gray-600">
-                                {application.videoIntro ? 'Video intro ✓' : 'No video intro'}
-                              </span>
-                            </div>
-                            {application.hourlyRate && (
-                              <div className="flex items-center space-x-1">
-                                <span className="text-gray-600">Rate: ${application.hourlyRate}/hr</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {application.qualifications.length > 0 && (
-                            <div className="mt-3">
-                              <p className="text-sm font-medium text-gray-700 mb-1">Qualifications:</p>
-                              <div className="flex flex-wrap gap-1">
-                                {application.qualifications.map((qual, index) => (
-                                  <Badge key={index} variant="outline" className="text-xs">
-                                    {qual}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col space-y-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            toast({
-                              title: "Profile Preview",
-                              description: "Opening teacher profile preview..."
-                            });
-                          }}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View
-                        </Button>
-                        
-                        {application.status === 'pending' && (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleApplicationAction(application.id, 'review')}
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              Review
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => handleApplicationAction(application.id, 'approve')}
-                              className="bg-green-600 hover:bg-green-700"
-                            >
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              Approve
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => handleApplicationAction(application.id, 'reject')}
-                            >
-                              <XCircle className="h-4 w-4 mr-2" />
-                              Reject
-                            </Button>
-                          </>
-                        )}
-                        
-                        {application.status === 'reviewing' && (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() => handleApplicationAction(application.id, 'approve')}
-                              className="bg-green-600 hover:bg-green-700"
-                            >
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              Approve
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => handleApplicationAction(application.id, 'reject')}
-                            >
-                              <XCircle className="h-4 w-4 mr-2" />
-                              Reject
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
+            {tabConfig.map(({ value, emptyTitle, emptyDescription, icon: Icon }) => (
+              <TabsContent key={value} value={value} className="space-y-4">
+                {loading ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4" />
+                    <p className="text-gray-500">Loading teachers...</p>
                   </div>
-                );
-              })}
-              
-              {filteredApplications.length === 0 && (
-                <div className="text-center py-12">
-                  <GraduationCap className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No applications found</h3>
-                  <p className="text-gray-500">
-                    {searchQuery || selectedStatus !== 'all' 
-                      ? 'Try adjusting your search or filter criteria.'
-                      : 'No teacher applications have been submitted yet.'
-                    }
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+                ) : filteredTeachers.length > 0 ? (
+                  <DataTable
+                    columns={columns}
+                    data={filteredTeachers}
+                    searchKey="email"
+                    searchPlaceholder="Search by name, email, or expertise..."
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 py-12 text-center">
+                    <Icon className="h-10 w-10 text-gray-300 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">{emptyTitle}</h3>
+                    <p className="text-gray-500 max-w-md">{emptyDescription}</p>
+                  </div>
+                )}
+              </TabsContent>
+            ))}
+          </Tabs>
         </CardContent>
       </Card>
+
+      <TeacherDetailDialog
+        teacher={selectedTeacher}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onTeacherAction={handleTeacherAction}
+      />
     </AdminLayout>
   );
 }

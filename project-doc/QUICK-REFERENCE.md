@@ -131,8 +131,7 @@ PUT /api/sessions/:id/complete
 DATABASE_URL="postgresql://..."
 
 # Auth
-NEXTAUTH_SECRET="your-secret"
-NEXTAUTH_URL="http://localhost:3000"
+
 GOOGLE_CLIENT_ID="..."
 GOOGLE_CLIENT_SECRET="..."
 

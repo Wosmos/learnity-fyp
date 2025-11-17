@@ -71,8 +71,6 @@ FIREBASE_ADMIN_PROJECT_ID = your-project-id
 #### Other Required Variables:
 ```
 DATABASE_URL = your_neon_db_connection_string
-NEXTAUTH_SECRET = your_32_character_random_string
-NEXTAUTH_URL = https://your-domain.vercel.app
 ```
 
 ### 5. Configure Firebase Authentication

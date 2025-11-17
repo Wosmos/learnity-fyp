@@ -9,7 +9,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth.unified';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { useToast } from '@/hooks/use-toast';
 import { UserRole } from '@/types/auth';
@@ -83,10 +83,13 @@ export function AdminLayout({
   backHref = '/admin',
   actions 
 }: AdminLayoutProps) {
-  const { user, loading, isAuthenticated, claims } = useClientAuth();
+  const { loading, isAuthenticated, claims, error } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const api = useAuthenticatedApi();
+
+  // Debug logging
+  console.log('AdminLayout - Auth State:', { loading, isAuthenticated, claims: claims?.role, error });
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [quickStats, setQuickStats] = useState<QuickStats>({
@@ -102,23 +105,27 @@ export function AdminLayout({
 
   // Authentication and authorization check
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/auth/login?redirect=' + encodeURIComponent(window.location.pathname));
-    } else if (!loading && isAuthenticated && claims) {
-      if (claims.role !== UserRole.ADMIN) {
+    if (!loading) {
+      if (!isAuthenticated) {
+        router.push('/auth/login?redirect=' + encodeURIComponent(window.location.pathname));
+        return;
+      }
+      
+      if (isAuthenticated && claims && claims.role !== UserRole.ADMIN) {
         router.push('/dashboard');
         toast({
           title: "Access Denied",
           description: "You don't have permission to access the admin panel.",
           variant: "destructive"
         });
+        return;
       }
     }
   }, [loading, isAuthenticated, claims, router, toast]);
 
   // Fetch quick stats
   useEffect(() => {
-    if (isAuthenticated && claims?.role === UserRole.ADMIN) {
+    if (!loading && isAuthenticated && claims?.role === UserRole.ADMIN) {
       const fetchStats = async () => {
         const stats = await statsService.fetchQuickStats(api);
         setQuickStats(stats);
@@ -129,24 +136,14 @@ export function AdminLayout({
       const interval = setInterval(fetchStats, 30000);
       return () => clearInterval(interval);
     }
-  }, [isAuthenticated, claims, api, statsService]);
+  }, [loading, isAuthenticated, claims, api, statsService]);
 
 
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="text-gray-600">Loading admin panel...</span>
-        </div>
-      </div>
-    );
-  }
 
-  // Unauthorized state
-  if (!isAuthenticated || claims?.role !== UserRole.ADMIN) {
+
+  // Unauthorized state - only show if we're done loading and user is not authorized
+  if (!loading && (!isAuthenticated || (claims && claims.role !== UserRole.ADMIN))) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -156,6 +153,18 @@ export function AdminLayout({
           <Button onClick={() => router.push('/dashboard')}>
             Go to Dashboard
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Still loading or waiting for authentication to complete
+  if (loading || (isAuthenticated && !claims)) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex items-center space-x-3">
+          <div className="animate-spin rounded h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="text-gray-600">Loading admin panel...</span>
         </div>
       </div>
     );
@@ -174,55 +183,7 @@ export function AdminLayout({
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 lg:ml-80">
           {/* Top Header */}
-          <header className="bg-white shadow-sm border-b rounded mx-2 mt-2 border-gray-200 top-0 z-30 bg">
-            <div className="px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center py-4">
-                {/* Left side - Title and mobile menu */}
-                <div className="flex items-center space-x-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="lg:hidden"
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                  >
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                  
-                  {showBackButton && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => router.push(backHref)}
-                      className="hidden sm:flex"
-                    >
-                      ← Back
-                    </Button>
-                  )}
-                  
-                  <div className="flex items-center space-x-3">
-                    <Shield className="h-6 w-6 text-blue-600 hidden lg:block" />
-                    <div>
-                      <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
-                        {title || 'Admin Panel'}
-                      </h1>
-                      {description && (
-                        <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">
-                          {description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right side - Actions */}
-                {actions && (
-                  <div className="flex items-center space-x-2">
-                    {actions}
-                  </div>
-                )}
-              </div>
-            </div>
-          </header>
+        
 
           {/* Main Content */}
           <main className="flex-1 overflow-auto">
