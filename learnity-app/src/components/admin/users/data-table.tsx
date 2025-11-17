@@ -12,7 +12,6 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  getGlobalFilterFn,
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
 

@@ -42,7 +42,9 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VIEW_AUDIT_LOGS,
     Permission.MANAGE_PLATFORM
   ],
-  [UserRole.REJECTED_TEACHER]: []
+  [UserRole.REJECTED_TEACHER]: [
+    Permission.VIEW_APPLICATION_STATUS
+  ]
 };
 
 export interface AuthState {
@@ -70,21 +72,88 @@ export type UseAuthReturn = AuthState & AuthActions;
  */
 async function extractClaimsFromToken(user: FirebaseUser): Promise<CustomClaims | null> {
   try {
-    const idTokenResult = await user.getIdTokenResult();
+    // Force token refresh to get latest claims
+    const idTokenResult = await user.getIdTokenResult(true);
     const firebaseClaims = idTokenResult.claims;
     
     console.log('Firebase claims:', firebaseClaims); // Debug logging
     
-    const role = (firebaseClaims.role as UserRole) || UserRole.STUDENT;
-    const permissions = ROLE_PERMISSIONS[role] || [];
+    // Check if custom claims exist
+    if (!firebaseClaims.role) {
+      console.warn('No custom claims found, user may need profile sync');
+      
+      // Try to trigger profile sync
+      try {
+        const idToken = await user.getIdToken();
+        const response = await fetch('/api/auth/sync-profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`,
+            'X-Firebase-UID': user.uid,
+          },
+          body: JSON.stringify({
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            emailVerified: user.emailVerified,
+            providerData: user.providerData.map(provider => ({
+              providerId: provider.providerId,
+              uid: provider.uid,
+              displayName: provider.displayName,
+              email: provider.email,
+              photoURL: provider.photoURL
+            }))
+          }),
+        });
+        
+        if (response.ok) {
+          console.log('Profile sync triggered successfully');
+          // Get fresh token with updated claims
+          const freshTokenResult = await user.getIdTokenResult(true);
+          const freshClaims = freshTokenResult.claims;
+          
+          if (freshClaims.role) {
+            const role = freshClaims.role as UserRole;
+            const permissions = ROLE_PERMISSIONS[role] || [];
+            
+            return {
+              role,
+              permissions,
+              profileComplete: Boolean(freshClaims.profileComplete),
+              emailVerified: user.emailVerified || false,
+              profileId: freshClaims.profileId as string || '',
+              lastLoginAt: freshClaims.lastLoginAt as string || ''
+            };
+          }
+        }
+      } catch (syncError) {
+        console.error('Failed to sync profile:', syncError);
+      }
+    } else {
+      // Claims exist, use them
+      const role = firebaseClaims.role as UserRole;
+      const permissions = ROLE_PERMISSIONS[role] || [];
+      
+      return {
+        role,
+        permissions,
+        profileComplete: Boolean(firebaseClaims.profileComplete),
+        emailVerified: user.emailVerified || false,
+        profileId: firebaseClaims.profileId as string || '',
+        lastLoginAt: firebaseClaims.lastLoginAt as string || ''
+      };
+    }
     
+    // Fallback: return basic claims for authenticated users
     return {
-      role,
-      permissions,
-      profileComplete: Boolean(firebaseClaims.profileComplete),
+      role: UserRole.STUDENT,
+      permissions: ROLE_PERMISSIONS[UserRole.STUDENT],
+      profileComplete: false,
       emailVerified: user.emailVerified || false,
-      profileId: firebaseClaims.profileId as string,
-      lastLoginAt: firebaseClaims.lastLoginAt as string
+      profileId: '',
+      lastLoginAt: ''
     };
   } catch (error) {
     console.error('Error extracting claims from token:', error);

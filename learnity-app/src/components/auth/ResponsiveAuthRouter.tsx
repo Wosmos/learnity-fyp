@@ -6,7 +6,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { StudentRegistrationData, TeacherRegistrationData, LoginData } from '@/lib/validators/auth';
+import { StudentRegistrationData, LoginData } from '@/lib/validators/auth';
+import { QuickTeacherRegistrationData } from '@/lib/validators/quick-teacher-registration';
 import { useAuthStore } from '@/lib/stores/auth.store';
 
 // Unified responsive components
@@ -19,7 +20,7 @@ export interface ResponsiveAuthRouterProps {
   // Authentication handlers
   onLogin: (data: LoginData) => Promise<void>;
   onStudentRegister: (data: StudentRegistrationData) => Promise<void>;
-  onTeacherRegister: (data: TeacherRegistrationData) => Promise<void>;
+  onTeacherRegister: (data: QuickTeacherRegistrationData) => Promise<void>;
   onSocialLogin: (provider: 'google' | 'microsoft') => Promise<void>;
   onPasswordResetRequest: (email: string) => Promise<void>;
   onPasswordReset: (data: { password: string; token: string }) => Promise<void>;

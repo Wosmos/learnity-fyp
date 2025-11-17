@@ -12,6 +12,7 @@ import { useAuthService } from "@/hooks/useAuthService";
 import { useClientAuth } from "@/hooks/useClientAuth";
 import { PublicLayout } from "@/components/layout/AppLayout";
 import { UserRole } from "@/types/auth";
+import { AuthDebugInfo } from "@/components/debug/AuthDebugInfo";
 
 export const dynamic = 'force-dynamic';
 
@@ -94,6 +95,7 @@ export default function LoginPage() {
       </PublicLayout>
     }>
       <LoginPageContent />
+      <AuthDebugInfo />
     </Suspense>
   );
 }

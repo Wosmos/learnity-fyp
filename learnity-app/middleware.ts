@@ -11,6 +11,9 @@ const ROUTE_CONFIG = {
   // Public routes (no auth required)
   public: [
     '/',
+    '/about',
+    '/teachers',
+    '/auth',
     '/auth/login',
     '/auth/register',
     '/auth/forgot-password',
@@ -18,6 +21,10 @@ const ROUTE_CONFIG = {
     '/demo',
     '/welcome',
     '/unauthorized',
+  ],
+  // Public route patterns (regex patterns for dynamic routes)
+  publicPatterns: [
+    /^\/teachers\/[^\/]+$/, // /teachers/[id]
   ],
   // Role-specific routes
   roleBasedRoutes: {
@@ -73,6 +80,13 @@ function matchesRoute(pathname: string, routes: readonly string[]): boolean {
 }
 
 /**
+ * Check if path matches any public pattern
+ */
+function matchesPublicPattern(pathname: string, patterns: readonly RegExp[]): boolean {
+  return patterns.some(pattern => pattern.test(pathname));
+}
+
+/**
  * Get role-specific dashboard route
  */
 function getRoleDashboard(role?: UserRole): string {
@@ -104,6 +118,11 @@ export async function middleware(request: NextRequest) {
 
   // Allow public routes
   if (matchesRoute(pathname, ROUTE_CONFIG.public)) {
+    return NextResponse.next();
+  }
+
+  // Allow public route patterns
+  if (matchesPublicPattern(pathname, ROUTE_CONFIG.publicPatterns)) {
     return NextResponse.next();
   }
 

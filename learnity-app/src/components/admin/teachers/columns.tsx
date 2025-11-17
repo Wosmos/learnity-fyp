@@ -22,10 +22,13 @@ import {
 export interface Teacher {
   id: string;
   email: string;
+  emailVerified: boolean;
   firstName: string;
   lastName: string;
   role: 'PENDING_TEACHER' | 'TEACHER' | 'REJECTED_TEACHER';
   profilePicture?: string;
+  phone?: string;
+  location?: string;
   createdAt: string;
   lastLoginAt?: string;
   bio?: string;
@@ -58,7 +61,7 @@ export const createTeacherColumns = ({ onViewDetails, onTeacherAction }: ColumnA
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
             <AvatarImage src={teacher.profilePicture} />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm">
+            <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white text-sm">
               {teacher.firstName?.charAt(0)}{teacher.lastName?.charAt(0)}
             </AvatarFallback>
           </Avatar>

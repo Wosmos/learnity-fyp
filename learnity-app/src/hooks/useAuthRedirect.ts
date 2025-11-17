@@ -248,6 +248,18 @@ export function useHomeAuthRedirect(): UseAuthRedirectReturn {
         console.error('Home redirect failed:', err);
         handleAuthError(err);
       }
+    } else if (!loading && isAuthenticated && user && !claims) {
+      // User is authenticated but no claims - this might be a timing issue
+      console.warn('User authenticated but no claims found, waiting...');
+      
+      // Set a timeout to prevent infinite waiting
+      setTimeout(() => {
+        if (!claims) {
+          console.error('Claims not loaded after timeout, showing error');
+          setError('Authentication incomplete. Please try refreshing the page.');
+          setIsRedirecting(false);
+        }
+      }, 5000); // 5 second timeout
     } else if (!loading) {
       // User is not authenticated, show landing page
       setIsRedirecting(false);

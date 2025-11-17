@@ -71,21 +71,29 @@ export async function POST(request: NextRequest) {
 
     // Verify Firebase token (simplified for testing)
     const authHeader = request.headers.get('authorization');
-    let decodedToken = { uid: firebaseUid || '', email_verified: false };
+    let decodedToken: { uid: string; email_verified: boolean } = { 
+      uid: firebaseUid || '', 
+      email_verified: false 
+    };
     
     if (authHeader?.startsWith('Bearer ') && firebaseUid) {
       try {
         const idToken = authHeader.substring(7);
         if (idToken !== 'mock-firebase-token') {
-          decodedToken = await verifyFirebaseToken(idToken);
+          const firebaseToken = await verifyFirebaseToken(idToken);
           
-          if (decodedToken.uid !== firebaseUid) {
+          if (firebaseToken.uid !== firebaseUid) {
             console.error('❌ Firebase UID mismatch');
             return NextResponse.json(
               { error: 'Unauthorized' },
               { status: 401 }
             );
           }
+          
+          decodedToken = {
+            uid: firebaseToken.uid,
+            email_verified: firebaseToken.email_verified || false
+          };
         } else {
           // Mock token for testing
           console.log('🔵 Using mock Firebase token for testing');

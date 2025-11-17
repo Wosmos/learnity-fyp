@@ -35,6 +35,9 @@ export class RoleManagerService implements IRoleManager {
       Permission.VIEW_APPLICATION_STATUS,
       Permission.UPDATE_APPLICATION
     ],
+    [UserRole.REJECTED_TEACHER]: [
+      Permission.VIEW_APPLICATION_STATUS
+    ],
     [UserRole.ADMIN]: [
       Permission.VIEW_ADMIN_PANEL,
       Permission.MANAGE_USERS,
@@ -355,6 +358,7 @@ export class RoleManagerService implements IRoleManager {
     const hierarchy = {
       [UserRole.STUDENT]: 1,
       [UserRole.PENDING_TEACHER]: 2,
+      [UserRole.REJECTED_TEACHER]: 2,
       [UserRole.TEACHER]: 3,
       [UserRole.ADMIN]: 4
     };

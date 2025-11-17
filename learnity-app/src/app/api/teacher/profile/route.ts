@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
         youtubeUrl: user.teacherProfile.youtubeUrl,
         submittedAt: user.teacherProfile.submittedAt,
         reviewedAt: user.teacherProfile.reviewedAt,
-        approvedAt: user.teacherProfile.approvedAt,
+        approvedBy: user.teacherProfile.approvedBy,
         // User info
         firstName: user.firstName,
         lastName: user.lastName,

@@ -219,22 +219,6 @@ export default function AdminSetupPage() {
               If the API doesn't work, you can manually set admin claims
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-sm text-gray-600 space-y-2">
-              <p><strong>Option 1: Firebase Console</strong></p>
-              <ol className="list-decimal list-inside space-y-1 ml-4">
-                <li>Go to Firebase Console → Authentication → Users</li>
-                <li>Find your user and click on them</li>
-                <li>Scroll down to "Custom claims"</li>
-                <li>Add: <code className="bg-gray-100 px-1 rounded">{"role": "ADMIN"}</code></li>
-              </ol>
-              
-              <p className="mt-4"><strong>Option 2: Firebase CLI</strong></p>
-              <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
-{`firebase auth:set-custom-user-claims USER_UID '{"role":"ADMIN"}' --project YOUR_PROJECT_ID`}
-              </pre>
-            </div>
-          </CardContent>
         </Card>
       </div>
     </div>
