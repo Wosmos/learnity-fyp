@@ -14,7 +14,6 @@ import { Progress } from '@/components/ui/progress';
 import { 
   AuditSummary,
   SuspiciousPattern,
-  SecurityReport,
   FailedLoginAnalysis
 } from '@/lib/services/audit.service';
 import { 
@@ -22,16 +21,12 @@ import {
   Shield, 
   Eye, 
   Ban, 
-  TrendingUp, 
-  TrendingDown,
-  Users,
-  Globe,
-  Clock,
   Download
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { useClientAuth } from '@/hooks/useClientAuth';
+import { MetricCard } from '@/components/ui/stats-card';
 
 interface SecurityDashboardProps {
   className?: string;
@@ -270,53 +265,48 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <Eye className="h-4 w-4 text-blue-500" />
-              <div>
-                <p className="text-2xl font-bold">{stats.summary.totalEvents.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">Total Events</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Total Events"
+          value={stats.summary.totalEvents.toLocaleString()}
+          trendValue=""
+          trendLabel=""
+          icon={Eye}
+          iconColor="text-blue-500"
+          bgColor="bg-blue-100"
+        />
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <Shield className="h-4 w-4 text-green-500" />
-              <div>
-                <p className="text-2xl font-bold text-green-600">{successRate.toFixed(1)}%</p>
-                <p className="text-xs text-muted-foreground">Success Rate</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Success Rate"
+          value={`${successRate.toFixed(1)}%`}
+          trendValue=""
+          trendLabel=""
+          icon={Shield}
+          iconColor="text-green-500"
+          bgColor="bg-green-100"
+          textColor="text-green-600"
+        />
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="h-4 w-4 text-red-500" />
-              <div>
-                <p className="text-2xl font-bold text-red-600">{stats.summary.failedLogins.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">Failed Logins</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Failed Logins"
+          value={stats.summary.failedLogins.toLocaleString()}
+          trendValue=""
+          trendLabel=""
+          icon={AlertTriangle}
+          iconColor="text-red-500"
+          bgColor="bg-red-100"
+          textColor="text-red-600"
+        />
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <Ban className="h-4 w-4 text-orange-500" />
-              <div>
-                <p className="text-2xl font-bold text-orange-600">{stats.summary.securityEvents.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">Security Events</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Security Events"
+          value={stats.summary.securityEvents.toLocaleString()}
+          trendValue=""
+          trendLabel=""
+          icon={Ban}
+          iconColor="text-orange-500"
+          bgColor="bg-orange-100"
+          textColor="text-orange-600"
+        />
       </div>
 
       {/* Suspicious Patterns */}

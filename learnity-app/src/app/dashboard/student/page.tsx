@@ -38,6 +38,7 @@ import Link from 'next/link';
 import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { ProfileCompletionBanner } from '@/components/profile/ProfileCompletionBanner';
 import { ProfileCompletionSkeleton } from '@/components/profile/ProfileCompletionSkeleton';
+import { MetricCard } from '@/components/ui/stats-card';
 
 interface StudentProfile {
   gradeLevel: string;
@@ -173,53 +174,49 @@ export default function StudentDashboard() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-2">
-                <BookOpen className="h-5 w-5 text-blue-500" />
-                <div>
-                  <p className="text-2xl font-bold">12</p>
-                  <p className="text-xs text-gray-600">Courses Enrolled</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <MetricCard
+            title="Courses Enrolled"
+            value="12"
+            trendValue="+2"
+            trendLabel="this month"
+            icon={BookOpen}
+            iconColor="text-blue-500"
+            bgColor="bg-blue-100"
+            trendColor="text-green-600"
+          />
           
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-2">
-                <Clock className="h-5 w-5 text-green-500" />
-                <div>
-                  <p className="text-2xl font-bold">24h</p>
-                  <p className="text-xs text-gray-600">Study Time</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <MetricCard
+            title="Study Time"
+            value="24h"
+            trendValue="+6h"
+            trendLabel="this week"
+            icon={Clock}
+            iconColor="text-green-500"
+            bgColor="bg-green-100"
+            trendColor="text-green-600"
+          />
           
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-2">
-                <Award className="h-5 w-5 text-yellow-500" />
-                <div>
-                  <p className="text-2xl font-bold">8</p>
-                  <p className="text-xs text-gray-600">Achievements</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <MetricCard
+            title="Achievements"
+            value="8"
+            trendValue="+3"
+            trendLabel="unlocked"
+            icon={Award}
+            iconColor="text-yellow-500"
+            bgColor="bg-yellow-100"
+            trendColor="text-yellow-600"
+          />
           
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-2">
-                <TrendingUp className="h-5 w-5 text-purple-500" />
-                <div>
-                  <p className="text-2xl font-bold">85%</p>
-                  <p className="text-xs text-gray-600">Avg Score</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <MetricCard
+            title="Avg Score"
+            value="85%"
+            trendValue="+5%"
+            trendLabel="improvement"
+            icon={TrendingUp}
+            iconColor="text-purple-500"
+            bgColor="bg-purple-100"
+            trendColor="text-purple-600"
+          />
         </div>
 
         {/* Profile Overview Section */}
@@ -549,14 +546,22 @@ export default function StudentDashboard() {
                 <CardTitle>Study Streak</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-orange-600 mb-2">7</div>
-                  <p className="text-sm text-gray-600 mb-4">Days in a row!</p>
-                  <div className="flex justify-center space-x-1">
-                    {[1,2,3,4,5,6,7].map((day) => (
-                      <div key={day} className="w-6 h-6 bg-orange-500 rounded-full"></div>
-                    ))}
-                  </div>
+                <MetricCard
+                  title="Current Streak"
+                  value="7"
+                  trendValue="🔥"
+                  trendLabel="Days in a row!"
+                  icon={Zap}
+                  iconColor="text-orange-500"
+                  bgColor="bg-orange-100"
+                  textColor="text-orange-600"
+                  trendColor="text-orange-600"
+                  className="border-0 shadow-none bg-transparent"
+                />
+                <div className="flex justify-center space-x-1 mt-4">
+                  {[1,2,3,4,5,6,7].map((day) => (
+                    <div key={day} className="w-6 h-6 bg-orange-500 rounded-full"></div>
+                  ))}
                 </div>
               </CardContent>
             </Card>

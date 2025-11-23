@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { HeroStatsClient } from '@/components/landing/HeroStatsClient';
+import { MetricCard } from '@/components/ui/stats-card';
 import { cn } from '@/lib/utils';
 
 export interface StatItem {
@@ -45,29 +46,27 @@ export function Stats({
     return <HeroStatsClient />;
   }
 
-  // Custom stats
+  // Custom stats using MetricCard
   if (stats) {
     return (
       <div className={cn(
-        'grid gap-8',
+        'grid gap-6',
         gridColsClasses[columns],
-        'max-w-3xl mx-auto pt-8 border-t border-gray-200',
+        'max-w-5xl mx-auto pt-8 border-t border-gray-200',
         className
       )}>
         {stats.map((stat, index) => (
-          <div key={index} className="text-center">
-            {stat.icon && (
-              <div className="mb-3 flex justify-center">
-                {stat.icon}
-              </div>
-            )}
-            <div className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">
-              {stat.value}
-            </div>
-            <div className="text-sm text-gray-600 font-medium">
-              {stat.label}
-            </div>
-          </div>
+          <MetricCard
+            key={index}
+            title={stat.label}
+            value={stat.value.toString()}
+            trendValue=""
+            trendLabel=""
+            icon={stat.icon ? () => stat.icon : undefined}
+            iconColor="text-blue-600"
+            bgColor="bg-blue-100"
+            className="border-0 shadow-sm"
+          />
         ))}
       </div>
     );

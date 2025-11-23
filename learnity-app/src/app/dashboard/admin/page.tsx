@@ -5,10 +5,10 @@
  * Main admin dashboard with real-time statistics and quick actions
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+
 import { Badge } from '@/components/ui/badge';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { useToast } from '@/hooks/use-toast';
@@ -21,13 +21,11 @@ import {
   TrendingUp,
   TrendingDown,
   Activity,
-  Clock,
   CheckCircle,
   DollarSign,
-  Star,
-  ArrowRight,
-  RefreshCw
+  Star
 } from 'lucide-react';
+import { MetricCard } from '@/components/ui/stats-card';
 
 interface PlatformStats {
   totalUsers: number;
@@ -61,14 +59,14 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<PlatformStats | null>(null);
   const [metrics, setMetrics] = useState<PlatformMetric[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+
   
   const api = useAuthenticatedApi();
   const { toast } = useToast();
 
-  const fetchDashboardData = async (showRefreshToast = false) => {
+  const fetchDashboardData = useCallback(async (showRefreshToast = false) => {
     try {
-      if (showRefreshToast) setRefreshing(true);
+
       
       const response = await api.get('/api/admin/stats');
       setStats(response.stats);
@@ -89,9 +87,8 @@ export default function AdminDashboardPage() {
       });
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
-  };
+  }, [api, toast]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -99,7 +96,7 @@ export default function AdminDashboardPage() {
     // Auto-refresh every 5 minutes
     const interval = setInterval(() => fetchDashboardData(), 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchDashboardData]);
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
@@ -134,83 +131,52 @@ export default function AdminDashboardPage() {
     <AdminLayout
     >
       {/* Key Metrics Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats?.totalUsers.toLocaleString() || '0'}
-                </p>
-                <p className="text-sm text-gray-500">Total Users</p>
-              </div>
-              <Users className="h-8 w-8 text-blue-500" />
-            </div>
-            <div className="mt-2 flex items-center text-sm">
-              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-              <span className="text-green-600">+{stats?.userGrowthRate || 0}%</span>
-              <span className="text-gray-500 ml-1">this month</span>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Key Metrics Overview */}
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <MetricCard
+    title="Total Users"
+    value={stats?.totalUsers.toLocaleString() || '0'}
+    trendValue={`+${stats?.userGrowthRate || 0}%`}
+    trendLabel="this month"
+    icon={Users}
+    iconColor="text-blue-600"
+    bgColor="bg-blue-100"
+    trendColor="text-green-600"
+  />
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats?.approvedTeachers.toLocaleString() || '0'}
-                </p>
-                <p className="text-sm text-gray-500">Active Teachers</p>
-              </div>
-              <GraduationCap className="h-8 w-8 text-green-500" />
-            </div>
-            <div className="mt-2 flex items-center text-sm">
-              <Clock className="h-4 w-4 text-orange-500 mr-1" />
-              <span className="text-orange-600">{stats?.pendingTeachers || 0}</span>
-              <span className="text-gray-500 ml-1">pending approval</span>
-            </div>
-          </CardContent>
-        </Card>
+  <MetricCard
+    title="Active Teachers"
+    value={stats?.approvedTeachers.toLocaleString() || '0'}
+    trendValue={stats?.pendingTeachers?.toString() || '0'}
+    trendLabel="pending approval"
+    icon={GraduationCap}
+    iconColor="text-green-600"
+    bgColor="bg-green-100"
+    trendColor="text-orange-600"
+  />
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats?.totalStudents.toLocaleString() || '0'}
-                </p>
-                <p className="text-sm text-gray-500">Students</p>
-              </div>
-              <BookOpen className="h-8 w-8 text-purple-500" />
-            </div>
-            <div className="mt-2 flex items-center text-sm">
-              <Activity className="h-4 w-4 text-blue-500 mr-1" />
-              <span className="text-blue-600">{stats?.recentSignups || 0}</span>
-              <span className="text-gray-500 ml-1">new this week</span>
-            </div>
-          </CardContent>
-        </Card>
+  <MetricCard
+    title="Students"
+    value={stats?.totalStudents.toLocaleString() || '0'}
+    trendValue={stats?.recentSignups?.toString() || '0'}
+    trendLabel="new this week"
+    icon={BookOpen}
+    iconColor="text-purple-600"
+    bgColor="bg-purple-100"
+    trendColor="text-blue-600"
+  />
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
-                  ${stats?.monthlyRevenue.toLocaleString() || '0'}
-                </p>
-                <p className="text-sm text-gray-500">Monthly Revenue</p>
-              </div>
-              <DollarSign className="h-8 w-8 text-green-600" />
-            </div>
-            <div className="mt-2 flex items-center text-sm">
-              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-              <span className="text-green-600">+{stats?.revenueGrowth || 0}%</span>
-              <span className="text-gray-500 ml-1">vs last month</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+  <MetricCard
+    title="Monthly Revenue"
+    value={`$${stats?.monthlyRevenue.toLocaleString() || '0'}`}
+    trendValue={`+${stats?.revenueGrowth || 0}%`}
+    trendLabel="vs last month"
+    icon={DollarSign}
+    iconColor="text-green-600"
+    bgColor="bg-green-100"
+    trendColor="text-green-600"
+  />
+</div>
 
       {/* Performance Metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -266,86 +232,85 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <p className="text-2xl font-bold text-gray-900">{stats?.uptime || '99.9%'}</p>
-                  <p className="text-sm text-gray-500">Uptime</p>
-                </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <p className="text-2xl font-bold text-gray-900">{stats?.responseTime || '120ms'}</p>
-                  <p className="text-sm text-gray-500">Response Time</p>
-                </div>
+                <MetricCard
+                  title="Uptime"
+                  value={stats?.uptime || '99.9%'}
+                  trendValue=""
+                  trendLabel=""
+                  icon={CheckCircle}
+                  iconColor="text-green-600"
+                  bgColor="bg-green-100"
+                  className="border-0 shadow-none bg-gray-50"
+                />
+                <MetricCard
+                  title="Response Time"
+                  value={stats?.responseTime || '120ms'}
+                  trendValue=""
+                  trendLabel=""
+                  icon={Activity}
+                  iconColor="text-blue-600"
+                  bgColor="bg-blue-100"
+                  className="border-0 shadow-none bg-gray-50"
+                />
               </div>
 
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="flex items-center justify-center space-x-2 mb-1">
-                  <Star className="h-5 w-5 text-yellow-500" />
-                  <p className="text-2xl font-bold text-gray-900">{stats?.platformRating || '4.7'}</p>
-                </div>
-                <p className="text-sm text-gray-500">Platform Rating</p>
-              </div>
+              <MetricCard
+                title="Platform Rating"
+                value={stats?.platformRating || '4.7'}
+                trendValue=""
+                trendLabel=""
+                icon={Star}
+                iconColor="text-yellow-500"
+                bgColor="bg-yellow-100"
+                className="border-0 shadow-none bg-blue-50"
+              />
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Link href="/admin/users">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Users className="h-8 w-8 text-blue-500" />
-                  <div>
-                    <p className="font-medium text-gray-900">Manage Users</p>
-                    <p className="text-sm text-gray-500">View and manage all users</p>
-                  </div>
-                </div>
-                <ArrowRight className="h-5 w-5 text-gray-400" />
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
+      {/* Quick Actions */}
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <Link href="/admin/users" className="block">
+    <MetricCard
+      title="Manage Users"
+      value="" // empty since it's not a number
+      trendLabel="View and manage all users"
+      trendValue=""
+      icon={Users}
+      iconColor="text-blue-600"
+      bgColor="bg-blue-100"
+      className="h-32"
+    />
+  </Link>
 
-        <Link href="/admin/teachers">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <GraduationCap className="h-8 w-8 text-green-500" />
-                  <div>
-                    <p className="font-medium text-gray-900">Teacher Applications</p>
-                    <p className="text-sm text-gray-500">Review pending applications</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  {stats?.pendingTeachers && stats.pendingTeachers > 0 && (
-                    <Badge variant="secondary">{stats.pendingTeachers}</Badge>
-                  )}
-                  <ArrowRight className="h-5 w-5 text-gray-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
+  <Link href="/admin/teachers" className="block">
+    <MetricCard
+      title="Teacher Applications"
+      value={stats?.pendingTeachers ? `${stats.pendingTeachers}` : ""}
+      trendLabel="Review pending applications"
+      trendValue=""
+      icon={GraduationCap}
+      iconColor="text-green-600"
+      bgColor="bg-green-100"
+      className="h-32"
+    />
+  </Link>
 
-        <Link href="/admin">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Shield className="h-8 w-8 text-red-500" />
-                  <div>
-                    <p className="font-medium text-gray-900">Security Dashboard</p>
-                    <p className="text-sm text-gray-500">Monitor security events</p>
-                  </div>
-                </div>
-                <ArrowRight className="h-5 w-5 text-gray-400" />
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
+  <Link href="/admin" className="block">
+    <MetricCard
+      title="Security Dashboard"
+      value=""
+      trendLabel="Monitor security events"
+      trendValue=""
+      icon={Shield}
+      iconColor="text-red-600"
+      bgColor="bg-red-100"
+      className="h-32"
+    />
+  </Link>
+</div>
     </AdminLayout>
   );
 }

@@ -28,7 +28,7 @@ export default function AdminSecurityDashboardPage() {
     <AdminLayout
     >
       {/* Quick Access Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Link href="/admin/users">
           <Card className="hover:shadow-md transition-shadow cursor-pointer">
             <CardContent className="pt-6">
@@ -56,7 +56,7 @@ export default function AdminSecurityDashboardPage() {
             </CardContent>
           </Card>
         </Link>
-      </div>
+      </div> */}
 
       {/* Main Security Dashboard Tabs */}
       <Tabs defaultValue="dashboard" className="space-y-6">
@@ -72,32 +72,13 @@ export default function AdminSecurityDashboardPage() {
 
         <TabsContent value="audit-logs" className="space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <FileText className="h-5 w-5" />
-                <span>Audit Logs</span>
-              </CardTitle>
-              <CardDescription>
-                Authentication and system events
-              </CardDescription>
-            </CardHeader>
             <CardContent>
               <AuditLogViewer />
             </CardContent>
           </Card>
         </TabsContent>
-
         <TabsContent value="security-events" className="space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <AlertTriangle className="h-5 w-5" />
-                <span>Security Events</span>
-              </CardTitle>
-              <CardDescription>
-                Monitor security threats and suspicious activities
-              </CardDescription>
-            </CardHeader>
             <CardContent>
               <SecurityEventsViewer />
             </CardContent>

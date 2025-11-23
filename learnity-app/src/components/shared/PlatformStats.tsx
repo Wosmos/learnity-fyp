@@ -1,10 +1,12 @@
 /**
  * Reusable Platform Statistics Component
- * Displays real-time stats from database
+ * Displays real-time stats from database using MetricCard
  * Can be used across multiple pages without redundancy
  */
 
 import { getPlatformStats, formatStatValue } from '@/lib/data/stats';
+import { MetricCard } from '@/components/ui/stats-card';
+import { Users, GraduationCap, Star } from 'lucide-react';
 
 interface PlatformStatsProps {
   variant?: 'default' | 'compact' | 'hero';
@@ -18,50 +20,58 @@ export async function PlatformStats({
   // Fetch stats - automatically cached and deduplicated by React
   const stats = await getPlatformStats();
 
-  // Define stat items with formatted values
+  // Define stat items with formatted values and icons
   const statItems = [
     {
+      title: 'Active Learners',
       value: formatStatValue(stats.activeLearners),
-      label: 'Active learners',
+      trendValue: '+12%',
+      trendLabel: 'this month',
+      icon: Users,
+      iconColor: 'text-blue-600',
+      bgColor: 'bg-blue-100',
     },
     {
+      title: 'Expert Tutors',
       value: formatStatValue(stats.expertTutors),
-      label: 'Expert tutors',
+      trendValue: '+8%',
+      trendLabel: 'this month',
+      icon: GraduationCap,
+      iconColor: 'text-green-600',
+      bgColor: 'bg-green-100',
     },
     {
+      title: 'Average Rating',
       value: stats.averageRating,
-      label: 'Average rating',
+      trendValue: '+0.2',
+      trendLabel: 'vs last month',
+      icon: Star,
+      iconColor: 'text-yellow-500',
+      bgColor: 'bg-yellow-100',
     },
   ];
 
-  // Variant-specific styling
-  const variants = {
-    default: {
-      container: 'grid grid-cols-2 md:grid-cols-3 gap-8',
-      valueClass: 'text-3xl md:text-4xl font-bold text-gray-900 mb-1',
-      labelClass: 'text-sm text-gray-600 font-medium',
-    },
-    compact: {
-      container: 'flex flex-wrap gap-6 justify-center',
-      valueClass: 'text-2xl font-bold text-gray-900',
-      labelClass: 'text-xs text-gray-500',
-    },
-    hero: {
-      container: 'grid grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl mx-auto pt-8 border-t border-gray-200',
-      valueClass: 'text-3xl md:text-4xl font-bold text-gray-900 mb-1',
-      labelClass: 'text-sm text-gray-600 font-medium',
-    },
+  // Variant-specific container styling
+  const containerClasses = {
+    default: 'grid grid-cols-1 md:grid-cols-3 gap-6',
+    compact: 'grid grid-cols-1 md:grid-cols-3 gap-4',
+    hero: 'grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto pt-8 border-t border-gray-200',
   };
 
-  const style = variants[variant];
-
   return (
-    <div className={`${style.container} ${className}`}>
+    <div className={`${containerClasses[variant]} ${className}`}>
       {statItems.map((stat, index) => (
-        <div key={index} className="text-center">
-          <div className={style.valueClass}>{stat.value}</div>
-          <div className={style.labelClass}>{stat.label}</div>
-        </div>
+        <MetricCard
+          key={index}
+          title={stat.title}
+          value={stat.value}
+          trendValue={stat.trendValue}
+          trendLabel={stat.trendLabel}
+          icon={stat.icon}
+          iconColor={stat.iconColor}
+          bgColor={stat.bgColor}
+          trendColor="text-green-600"
+        />
       ))}
     </div>
   );
