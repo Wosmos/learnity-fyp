@@ -65,8 +65,8 @@ const maxWidthClasses = {
 };
 
 const backgroundClasses = {
-  gradient: 'bg-gradient-to-br from-blue-50/50 via-white to-purple-50/30',
-  solid: 'bg-white',
+  gradient: 'bg-gradient-to-br from-blue-50/30 via-transparent to-purple-50/20 backdrop-blur-sm',
+  solid: 'bg-white/80 backdrop-blur-md',
   none: '',
 };
 
@@ -109,7 +109,7 @@ export function Hero({
           {badge && (
             <div className={cn('mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700', centered && 'flex justify-center')}>
               <Badge className={cn(
-                'inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200 text-sm font-medium rounded-full shadow-sm',
+                'inline-flex items-center gap-2 px-4 py-2 glass border-blue-200/50 text-blue-700 hover:bg-blue-50/50 text-sm font-medium rounded-full shadow-lg backdrop-blur-md transition-all duration-300 hover:scale-105',
                 badge.className
               )}>
                 {badge.showPulse && (
@@ -131,7 +131,7 @@ export function Hero({
               </p>
             )}
             <TitleComponent className={cn(
-              'text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight',
+              'text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight drop-shadow-sm',
               centered ? 'text-center' : ''
             )}>
               {titleContent}
@@ -162,7 +162,7 @@ export function Hero({
                   <Button
                     size="lg"
                     variant={primaryAction.variant || 'cta'}
-                    className="text-base px-8 py-6 rounded-xl hover:scale-105 font-semibold"
+                    className="text-base px-8 py-6 rounded-xl hover:scale-105 font-semibold glow-blue transition-all duration-300"
                   >
                     {primaryAction.label}
                     {primaryAction.icon ? (
@@ -178,7 +178,7 @@ export function Hero({
                   <Button
                     size="lg"
                     variant={secondaryAction.variant || 'outline'}
-                    className="text-base px-8 py-6 rounded-xl border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 font-semibold"
+                    className="text-base px-8 py-6 rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm hover:bg-white/80 hover:border-blue-200 transition-all duration-300 font-semibold shadow-sm"
                   >
                     {secondaryAction.label}
                     {secondaryAction.icon && (

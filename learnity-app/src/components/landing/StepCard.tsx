@@ -11,15 +11,15 @@ interface StepCardProps {
 }
 
 const colorClasses = {
-  blue: 'bg-blue-100 text-blue-600',
-  purple: 'bg-purple-100 text-purple-600',
-  green: 'bg-green-100 text-green-600',
+  blue: 'bg-blue-100/50 text-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.3)] backdrop-blur-sm',
+  purple: 'bg-purple-100/50 text-purple-600 shadow-[0_0_15px_rgba(147,51,234,0.3)] backdrop-blur-sm',
+  green: 'bg-green-100/50 text-green-600 shadow-[0_0_15px_rgba(22,163,74,0.3)] backdrop-blur-sm',
 };
 
 export function StepCard({ number, title, description, color }: StepCardProps) {
   return (
-    <div className="relative">
-      <div className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+    <div className="relative h-full">
+      <div className="glass-card rounded-2xl p-8 h-full">
         <div className={`flex items-center justify-center w-12 h-12 ${colorClasses[color]} rounded-xl font-bold text-xl mb-6`}>
           {number}
         </div>

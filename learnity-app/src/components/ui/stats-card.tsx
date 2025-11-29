@@ -30,7 +30,7 @@ export function MetricCard({
   className,
 }: MetricCardProps) {
   return (
-    <Card className={cn("border-0 shadow-md hover:shadow-lg transition-shadow bg-white min-h-[120px] sm:min-h-[128px]", className)}>
+    <Card className={cn("glass-card border-white/50 min-h-[120px] sm:min-h-[128px]", className)}>
       <CardContent className="p-3 sm:p-2 h-full">
         <div className="flex items-start justify-between h-full gap-2 sm:gap-3">
           <div className="flex-1 min-w-0">
@@ -42,7 +42,7 @@ export function MetricCard({
             </p>
           </div>
           {Icon && (
-            <div className={cn("p-2 sm:p-2.5 md:p-3 rounded-lg flex-shrink-0", bgColor)}>
+            <div className={cn("p-2 sm:p-2.5 md:p-3 rounded-lg flex-shrink-0 backdrop-blur-sm shadow-sm", bgColor)}>
               <Icon className={cn("h-5 w-5 sm:h-6 sm:w-6", iconColor)} />
             </div>
           )}

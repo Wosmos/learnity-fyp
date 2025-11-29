@@ -40,10 +40,10 @@ const gridColsClasses = {
 };
 
 const cardVariantClasses = {
-  default: 'hover:shadow-lg hover:-translate-y-1 transition-all duration-300',
-  minimal: 'border-0 shadow-none hover:shadow-md hover:-translate-y-0.5 transition-all duration-300',
-  elevated: 'shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300',
-  outlined: 'border-2 shadow-none hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300',
+  default: 'glass-card hover:shadow-lg hover:-translate-y-1 transition-all duration-300',
+  minimal: 'glass border-0 shadow-none hover:shadow-md hover:-translate-y-0.5 transition-all duration-300',
+  elevated: 'glass-card shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300',
+  outlined: 'glass border-2 shadow-none hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300',
 };
 
 export function FeatureGrid({

@@ -20,7 +20,15 @@ export const metadata = {
 export default function TeachersPage() {
   return (
     <PublicLayout>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 bg-grid-black pointer-events-none z-0" />
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+          <div className="blob bg-green-400/30 w-96 h-96 top-0 left-1/4 blur-3xl" />
+          <div className="blob blob-delay-2 bg-blue-400/30 w-96 h-96 bottom-0 right-0 blur-3xl" />
+        </div>
+
+        <div className="relative z-10">
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-blue-50 via-white to-purple-50/30 py-20">
           <div className="container mx-auto px-4">
@@ -128,6 +136,7 @@ export default function TeachersPage() {
             </div>
           </div>
         </section>
+        </div>
       </div>
     </PublicLayout>
   );

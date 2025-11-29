@@ -81,10 +81,10 @@ export function About({
     
     return (
       <div className={cn(
-        'rounded-2xl p-8 text-white',
+        'rounded-2xl p-8 text-white glass-card border-none',
         item.gradient 
-          ? 'bg-gradient-to-br from-blue-500 to-purple-600' 
-          : 'bg-blue-600'
+          ? 'bg-gradient-to-br from-blue-500/80 to-purple-600/80 backdrop-blur-md shadow-xl' 
+          : 'bg-blue-600/80 backdrop-blur-md shadow-xl'
       )}>
         {Icon && <Icon className="h-16 w-16 mb-6" />}
         {item.iconElement && <div className="mb-6">{item.iconElement}</div>}

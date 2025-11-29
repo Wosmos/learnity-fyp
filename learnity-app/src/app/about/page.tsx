@@ -61,7 +61,15 @@ const FEATURES = [
 export default function AboutPage() {
   return (
     <PublicLayout>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 bg-grid-black pointer-events-none z-0" />
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+          <div className="blob bg-purple-400/30 w-96 h-96 top-0 right-0 blur-3xl" />
+          <div className="blob blob-delay-2 bg-blue-400/30 w-96 h-96 bottom-0 left-0 blur-3xl" />
+        </div>
+        
+        <div className="relative z-10">
         {/* Hero Section */}
         <Hero
           title={
@@ -208,6 +216,7 @@ through personalized, expert-led instruction.`,
             online: true,
           }}
         />
+        </div>
       </div>
     </PublicLayout>
   );

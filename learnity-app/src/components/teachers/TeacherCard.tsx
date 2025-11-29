@@ -31,11 +31,11 @@ export function TeacherCard({ teacher }: TeacherCardProps) {
 
   return (
     <Link href={`/teachers/${teacher.id}`}>
-      <div className="group relative bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer">
+      <div className="group relative glass-card rounded-xl border border-white/50 hover:border-blue-300 hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer">
         {/* Top Rated Badge */}
         {teacher.isTopRated && (
           <div className="absolute top-3 right-3 z-10">
-            <div className="bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1 shadow-sm">
+            <div className="bg-yellow-400/90 backdrop-blur-sm text-yellow-900 px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1 shadow-sm">
               <Star className="h-3 w-3 fill-current" />
               <span>Top Rated</span>
             </div>
@@ -52,10 +52,10 @@ export function TeacherCard({ teacher }: TeacherCardProps) {
                 <img
                   src={teacher.profilePicture}
                   alt={teacher.name}
-                  className="w-16 h-16 rounded-full object-cover ring-2 ring-gray-100"
+                  className="w-16 h-16 rounded-full object-cover ring-2 ring-white/50 shadow-md"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold ring-2 ring-gray-100">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold ring-2 ring-white/50 shadow-md">
                   {initials}
                 </div>
               )}
@@ -70,7 +70,7 @@ export function TeacherCard({ teacher }: TeacherCardProps) {
               {/* Rating */}
               <div className="flex items-center space-x-2 mb-2">
                 <div className="flex items-center space-x-1">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 drop-shadow-sm" />
                   <span className="text-sm font-semibold text-gray-900">{rating.toFixed(1)}</span>
                 </div>
                 <span className="text-sm text-gray-500">({teacher.reviewCount})</span>
@@ -81,13 +81,13 @@ export function TeacherCard({ teacher }: TeacherCardProps) {
                 {teacher.subjects.slice(0, 2).map((subject, index) => (
                   <span
                     key={index}
-                    className="inline-block px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-medium rounded"
+                    className="inline-block px-2 py-0.5 bg-blue-50/50 text-blue-700 text-xs font-medium rounded backdrop-blur-sm border border-blue-100/50"
                   >
                     {subject}
                   </span>
                 ))}
                 {teacher.subjects.length > 2 && (
-                  <span className="inline-block px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded">
+                  <span className="inline-block px-2 py-0.5 bg-gray-100/50 text-gray-600 text-xs font-medium rounded backdrop-blur-sm border border-gray-200/50">
                     +{teacher.subjects.length - 2}
                   </span>
                 )}
@@ -101,7 +101,7 @@ export function TeacherCard({ teacher }: TeacherCardProps) {
           </p>
 
           {/* Footer */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-between pt-4 border-t border-gray-100/50">
             <div className="text-sm text-gray-500">
               {teacher.experience} years exp.
             </div>
@@ -114,7 +114,7 @@ export function TeacherCard({ teacher }: TeacherCardProps) {
         </div>
 
         {/* Hover Effect */}
-        <div className="absolute inset-0 bg-gradient-to-t from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-blue-50/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
       </div>
     </Link>
   );

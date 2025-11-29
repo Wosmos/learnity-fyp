@@ -59,8 +59,16 @@ export default function Home() {
 
   return (
     <PublicLayout showNavigation={false}>
-      <div className="min-h-screen bg-white">
-        <main className="relative overflow-hidden">
+      <div className="min-h-screen bg-white relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 bg-grid-black pointer-events-none z-0" />
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+          <div className="blob bg-blue-400/30 w-96 h-96 top-0 left-0 blur-3xl" />
+          <div className="blob blob-delay-2 bg-purple-400/30 w-96 h-96 top-1/2 right-0 blur-3xl" />
+          <div className="blob blob-delay-4 bg-green-400/30 w-80 h-80 bottom-0 left-1/4 blur-3xl" />
+        </div>
+
+        <main className="relative z-10">
           {/* Hero Section */}
           <Hero
             badge={{
@@ -168,7 +176,7 @@ export default function Home() {
           </section>
 
           {/* Guarantee Section */}
-          <section className="bg-blue-50 py-16">
+          <section className="glass py-16">
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-6">
@@ -216,7 +224,7 @@ export default function Home() {
 
           {/* Trust Indicators */}
           <section className="mb-20">
-            <div className="bg-gradient-to-br from-gray-50 to-blue-50 shadow-lg p-12 rounded-2xl">
+            <div className="glass-card p-12 rounded-2xl">
               <SectionHeader
                 title="Enterprise-Grade Security & Reliability"
                 description="Built with security-first architecture and comprehensive audit logging"
