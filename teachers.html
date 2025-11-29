@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Your Mentor - Learnity</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+                    },
+                    colors: {
+                        bg: '#02040a', // Deep midnight blue/black
+                        surface: 'rgba(255, 255, 255, 0.03)',
+                        border: 'rgba(255, 255, 255, 0.08)',
+                        primary: '#10b981', // Emerald
+                        secondary: '#6366f1', // Indigo
+                        accent: '#f59e0b', // Amber
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #02040a;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Noise Texture */
+        .noise {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .glass:hover {
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #02040a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #10b981; }
+
+        /* Card Hover Effects */
+        .tutor-card:hover .tutor-img { transform: scale(1.05); }
+        .tutor-card:hover .book-btn { width: 100%; opacity: 1; }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="noise"></div>
+
+    <!-- Background Gradients -->
+    <div class="fixed inset-0 pointer-events-none -z-10">
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px]"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-40 top-0 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center glass rounded-full px-6 py-3">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary to-emerald-800 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">L</div>
+                <span class="font-bold text-lg tracking-tight">Learnity</span>
+            </div>
+            <div class="hidden md:flex gap-8 text-sm text-gray-400 font-medium">
+                <a href="#" class="text-white">Find Tutors</a>
+                <a href="#" class="hover:text-white transition-colors">Become a Tutor</a>
+                <a href="#" class="hover:text-white transition-colors">Login</a>
+            </div>
+            <button class="bg-white text-black px-5 py-2 rounded-full text-sm font-bold hover:scale-105 transition-all">
+                Sign Up
+            </button>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="pt-32 pb-16 px-4 md:px-6 max-w-7xl mx-auto relative">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            
+            <!-- Text Content -->
+            <div class="relative z-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-xs font-bold text-primary mb-6 animate-pulse-slow">
+                    <span class="w-2 h-2 rounded-full bg-primary"></span>
+                    Verified Experts Only
+                </div>
+                <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1]">
+                    Master your craft with <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-emerald-200 to-primary">
+                        Elite Mentors.
+                    </span>
+                </h1>
+                <p class="text-gray-400 text-lg mb-8 max-w-lg">
+                    From <strong>MDCAT Prep</strong> to <strong>Full Stack Development</strong>. Connect with top-tier tutors from NUST, LUMS, and Google.
+                </p>
+
+                <!-- Search Bar -->
+                <div class="glass p-2 rounded-full flex items-center max-w-md">
+                    <div class="pl-4 text-gray-400"><i class="ri-search-line"></i></div>
+                    <input type="text" placeholder="Search Physics, Python, or Urdu..." class="bg-transparent border-none outline-none text-white px-4 py-2 w-full placeholder-gray-500">
+                    <button class="bg-primary hover:bg-emerald-400 text-black px-6 py-2 rounded-full font-bold transition-colors">
+                        Search
+                    </button>
+                </div>
+
+                <!-- Tags -->
+                <div class="flex gap-2 mt-6 overflow-x-auto pb-2 scrollbar-hide text-xs text-gray-500">
+                    <span class="border border-white/10 px-3 py-1 rounded-full hover:bg-white/5 cursor-pointer">🔥 Python</span>
+                    <span class="border border-white/10 px-3 py-1 rounded-full hover:bg-white/5 cursor-pointer">🧬 Biology</span>
+                    <span class="border border-white/10 px-3 py-1 rounded-full hover:bg-white/5 cursor-pointer">📐 Calculus</span>
+                    <span class="border border-white/10 px-3 py-1 rounded-full hover:bg-white/5 cursor-pointer">🇵🇰 Urdu</span>
+                </div>
+            </div>
+
+            <!-- 3D Element Container -->
+            <div class="h-[400px] w-full relative">
+                <!-- Overlay Card 1 -->
+                <div class="absolute top-10 right-10 glass p-4 rounded-2xl flex items-center gap-3 z-20 animate-float">
+                    <div class="w-10 h-10 bg-blue-500 rounded-full overflow-hidden">
+                        <img src="https://i.pravatar.cc/150?img=68" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm">Sarah J.</p>
+                        <p class="text-xs text-emerald-400">Accepted into NUST</p>
+                    </div>
+                </div>
+                <!-- Overlay Card 2 -->
+                <div class="absolute bottom-10 left-0 glass p-4 rounded-2xl flex items-center gap-3 z-20 animate-float" style="animation-delay: 2s;">
+                    <div class="w-10 h-10 bg-purple-500 rounded-full overflow-hidden">
+                        <img src="https://i.pravatar.cc/150?img=11" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm">Ali K.</p>
+                        <p class="text-xs text-emerald-400">Physics Expert</p>
+                    </div>
+                </div>
+
+                <!-- 3D Scene Target -->
+                <div id="canvas-container" class="w-full h-full"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- STATS STRIP -->
+    <section class="border-y border-white/5 bg-white/[0.02]">
+        <div class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+                <p class="text-3xl font-bold text-white">50k+</p>
+                <p class="text-xs text-gray-500 uppercase tracking-widest">Students</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-white">1,200+</p>
+                <p class="text-xs text-gray-500 uppercase tracking-widest">Verified Tutors</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-white">4.9/5</p>
+                <p class="text-xs text-gray-500 uppercase tracking-widest">Average Rating</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-white">24/7</p>
+                <p class="text-xs text-gray-500 uppercase tracking-widest">Support</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURED TUTORS (THE "TRADING CARDS") -->
+    <section class="py-20 px-4 md:px-6 max-w-7xl mx-auto">
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <h2 class="text-3xl md:text-5xl font-bold mb-2">Featured Mentors</h2>
+                <p class="text-gray-400">Top rated tutors selected for you this week.</p>
+            </div>
+            <a href="#" class="hidden md:flex items-center gap-2 text-primary hover:text-white transition-colors">
+                View All <i class="ri-arrow-right-line"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <!-- Tutor Card 1 -->
+            <div class="tutor-card group relative h-[500px] rounded-[2rem] overflow-hidden border border-white/10 bg-[#050505]">
+                <!-- Image -->
+                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop" class="tutor-img w-full h-full object-cover transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                
+                <!-- Content Overlay -->
+                <div class="absolute bottom-0 left-0 w-full p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="flex items-center gap-1 mb-1">
+                                <h3 class="text-2xl font-bold text-white">Bilal Ahmed</h3>
+                                <i class="ri-verified-badge-fill text-blue-500"></i>
+                            </div>
+                            <p class="text-gray-300 text-sm">Software Engineer @ Careem</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur px-2 py-1 rounded text-yellow-500 font-bold flex items-center gap-1 text-sm">
+                            <i class="ri-star-fill"></i> 5.0
+                        </div>
+                    </div>
+
+                    <!-- Pills -->
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <span class="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full border border-blue-500/20">Python</span>
+                        <span class="px-3 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full border border-purple-500/20">Data Science</span>
+                        <span class="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-full">LUMS Grad</span>
+                    </div>
+
+                    <!-- Pricing & Action -->
+                    <div class="flex items-center justify-between border-t border-white/10 pt-4">
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase">Hourly Rate</p>
+                            <p class="text-xl font-bold text-primary">Rs. 2,500</p>
+                        </div>
+                        <button class="book-btn bg-white text-black px-6 py-2.5 rounded-full font-bold hover:bg-primary transition-all">
+                            Book Session
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tutor Card 2 -->
+            <div class="tutor-card group relative h-[500px] rounded-[2rem] overflow-hidden border border-white/10 bg-[#050505]">
+                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1976&auto=format&fit=crop" class="tutor-img w-full h-full object-cover transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                
+                <div class="absolute bottom-0 left-0 w-full p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="flex items-center gap-1 mb-1">
+                                <h3 class="text-2xl font-bold text-white">Ayesha Khan</h3>
+                                <i class="ri-verified-badge-fill text-blue-500"></i>
+                            </div>
+                            <p class="text-gray-300 text-sm">MPhil Physics @ QA University</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur px-2 py-1 rounded text-yellow-500 font-bold flex items-center gap-1 text-sm">
+                            <i class="ri-star-fill"></i> 4.9
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <span class="px-3 py-1 bg-pink-500/20 text-pink-400 text-xs rounded-full border border-pink-500/20">Physics</span>
+                        <span class="px-3 py-1 bg-indigo-500/20 text-indigo-400 text-xs rounded-full border border-indigo-500/20">Math</span>
+                        <span class="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-full">Gold Medalist</span>
+                    </div>
+
+                    <div class="flex items-center justify-between border-t border-white/10 pt-4">
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase">Hourly Rate</p>
+                            <p class="text-xl font-bold text-primary">Rs. 1,800</p>
+                        </div>
+                        <button class="book-btn bg-white text-black px-6 py-2.5 rounded-full font-bold hover:bg-primary transition-all">
+                            Book Session
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tutor Card 3 -->
+            <div class="tutor-card group relative h-[500px] rounded-[2rem] overflow-hidden border border-white/10 bg-[#050505]">
+                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1974&auto=format&fit=crop" class="tutor-img w-full h-full object-cover transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                
+                <div class="absolute bottom-0 left-0 w-full p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="flex items-center gap-1 mb-1">
+                                <h3 class="text-2xl font-bold text-white">Omar Farooq</h3>
+                                <i class="ri-verified-badge-fill text-blue-500"></i>
+                            </div>
+                            <p class="text-gray-300 text-sm">IELTS Trainer (8.5 Band)</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur px-2 py-1 rounded text-yellow-500 font-bold flex items-center gap-1 text-sm">
+                            <i class="ri-star-fill"></i> 4.8
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-full border border-emerald-500/20">English</span>
+                        <span class="px-3 py-1 bg-orange-500/20 text-orange-400 text-xs rounded-full border border-orange-500/20">IELTS</span>
+                        <span class="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-full">British Council</span>
+                    </div>
+
+                    <div class="flex items-center justify-between border-t border-white/10 pt-4">
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase">Hourly Rate</p>
+                            <p class="text-xl font-bold text-primary">Rs. 2,000</p>
+                        </div>
+                        <button class="book-btn bg-white text-black px-6 py-2.5 rounded-full font-bold hover:bg-primary transition-all">
+                            Book Session
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="text-center mt-12">
+            <button class="bg-white/5 border border-white/10 text-white px-8 py-3 rounded-full hover:bg-white hover:text-black transition-all font-bold">
+                Browse All 1,200+ Mentors
+            </button>
+        </div>
+    </section>
+
+    <!-- MOTIVATION SECTION (BENTO STYLE) -->
+    <section class="py-24 max-w-7xl mx-auto px-4">
+        
+        <!-- Track 1: FOR STUDENTS -->
+        <div class="mb-24">
+            <div class="flex items-center gap-2 mb-6">
+                <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border border-emerald-500/20">For Students</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Large Feature -->
+                <div class="md:col-span-2 glass rounded-3xl p-8 relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h3 class="text-3xl font-bold mb-4">Don't just memorize. <br> <span class="text-primary">Understand.</span></h3>
+                        <p class="text-gray-400 mb-6 max-w-md">Access 3D visualizations, recorded lectures, and personalized notes. We help you ace MDCAT, ECAT, and Board Exams.</p>
+                        <div class="flex gap-4">
+                            <div class="flex items-center gap-2 text-sm text-gray-300">
+                                <i class="ri-check-line text-primary bg-primary/20 rounded-full p-1"></i> 1-on-1 Attention
+                            </div>
+                            <div class="flex items-center gap-2 text-sm text-gray-300">
+                                <i class="ri-check-line text-primary bg-primary/20 rounded-full p-1"></i> Concept Based
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Visual Element -->
+                    <div class="absolute right-0 bottom-0 w-1/2 h-full opacity-20">
+                         <div class="absolute inset-0 bg-gradient-to-l from-transparent to-black"></div>
+                         <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <!-- Small Feature: Success -->
+                <div class="glass rounded-3xl p-8 flex flex-col justify-center items-center text-center relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-emerald-500/5 group-hover:bg-emerald-500/10 transition-colors"></div>
+                    <div class="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center text-black text-2xl mb-4 shadow-[0_0_20px_rgba(16,185,129,0.4)]">
+                        <i class="ri-trophy-fill"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-2">94% Success Rate</h4>
+                    <p class="text-xs text-gray-400">Our students consistently secure admission in top universities.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Track 2: FOR TEACHERS (THE "EARNINGS" HOOK) -->
+        <div>
+            <div class="flex items-center gap-2 mb-6 justify-end">
+                <span class="bg-secondary/20 text-secondary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border border-secondary/20">For Teachers</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Small Feature: Freedom -->
+                <div class="glass rounded-3xl p-8 flex flex-col justify-center items-center text-center relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-secondary/5 group-hover:bg-secondary/10 transition-colors"></div>
+                    <div class="w-16 h-16 bg-secondary rounded-full flex items-center justify-center text-white text-2xl mb-4 shadow-[0_0_20px_rgba(99,102,241,0.4)]">
+                        <i class="ri-time-fill"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-2">Be Your Own Boss</h4>
+                    <p class="text-xs text-gray-400">Set your own rates and schedule. Work from anywhere.</p>
+                </div>
+
+                <!-- Large Feature: Earnings Dashboard -->
+                <div class="md:col-span-2 glass rounded-3xl p-8 relative overflow-hidden border border-secondary/20 bg-gradient-to-br from-[#0a0a0a] to-secondary/10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div class="relative z-10">
+                            <h3 class="text-3xl font-bold mb-4">Turn your knowledge into <br> <span class="text-secondary">Income.</span></h3>
+                            <p class="text-gray-400 mb-6">Top tutors on Learnity earn over Rs. 100,000/month working part-time. Secure payments guaranteed.</p>
+                            <button class="bg-secondary hover:bg-indigo-500 text-white px-6 py-3 rounded-full font-bold transition-all shadow-lg shadow-indigo-500/20">
+                                Calculate Potential
+                            </button>
+                        </div>
+                        
+                        <!-- Fake Dashboard UI -->
+                        <div class="bg-black/40 border border-white/10 rounded-xl p-4 backdrop-blur-md transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-xs text-gray-400 uppercase">Monthly Earnings</span>
+                                <i class="ri-more-fill text-gray-500"></i>
+                            </div>
+                            <h2 class="text-4xl font-bold text-white mb-1">Rs. 85,400</h2>
+                            <p class="text-xs text-emerald-400 flex items-center gap-1">
+                                <i class="ri-arrow-up-line"></i> +12% vs last month
+                            </p>
+                            <div class="mt-4 flex items-end gap-1 h-12">
+                                <div class="w-1/5 bg-secondary/20 h-[40%] rounded-t"></div>
+                                <div class="w-1/5 bg-secondary/20 h-[60%] rounded-t"></div>
+                                <div class="w-1/5 bg-secondary/20 h-[30%] rounded-t"></div>
+                                <div class="w-1/5 bg-secondary/20 h-[80%] rounded-t"></div>
+                                <div class="w-1/5 bg-secondary h-[90%] rounded-t relative">
+                                    <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] bg-white text-black px-1 rounded">Nov</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- APPLY SECTION -->
+    <section class="py-20 bg-gradient-to-t from-primary/10 to-transparent border-t border-white/5">
+        <div class="max-w-4xl mx-auto text-center px-4">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Ready to get started?</h2>
+            <div class="flex flex-col md:flex-row justify-center gap-4">
+                <button class="bg-primary hover:bg-emerald-400 text-black px-8 py-4 rounded-full font-bold text-lg transition-transform hover:scale-105 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+                    Find a Tutor
+                </button>
+                <button class="bg-white/5 border border-white/10 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-black transition-all">
+                    Apply to Teach
+                </button>
+            </div>
+            <p class="mt-6 text-gray-500 text-sm">Join 50,000+ users transforming education in Pakistan.</p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-white/10 bg-black py-12">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 bg-primary rounded flex items-center justify-center text-black font-bold text-xs">L</div>
+                <span class="font-bold text-gray-300">Learnity.pk</span>
+            </div>
+            <div class="text-gray-500 text-sm">
+                &copy; 2025 Learnity. All rights reserved.
+            </div>
+            <div class="flex gap-6 text-gray-400 text-sm">
+                <a href="#" class="hover:text-primary">Privacy</a>
+                <a href="#" class="hover:text-primary">Terms</a>
+                <a href="#" class="hover:text-primary">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 3D SCRIPT: THE NEURAL NETWORK -->
+    <script>
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+
+        const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
+        camera.position.z = 6;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // CREATE NEURAL NETWORK EFFECT
+        const particleCount = 40;
+        const particles = new THREE.Group();
+        const geometry = new THREE.SphereGeometry(0.05, 16, 16);
+        const material = new THREE.MeshBasicMaterial({ color: 0x10b981 });
+        
+        // Connectors
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.2 });
+
+        const positions = [];
+        const velocities = [];
+
+        for(let i = 0; i < particleCount; i++) {
+            const particle = new THREE.Mesh(geometry, material);
+            const x = (Math.random() - 0.5) * 6;
+            const y = (Math.random() - 0.5) * 6;
+            const z = (Math.random() - 0.5) * 6;
+            particle.position.set(x, y, z);
+            particles.add(particle);
+            
+            positions.push(particle.position);
+            velocities.push(new THREE.Vector3((Math.random() - 0.5) * 0.01, (Math.random() - 0.5) * 0.01, (Math.random() - 0.5) * 0.01));
+        }
+
+        scene.add(particles);
+
+        // Lines container
+        const linesGeometry = new THREE.BufferGeometry();
+        const lines = new THREE.LineSegments(linesGeometry, lineMaterial);
+        scene.add(lines);
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        // Mouse interaction
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX - window.innerWidth / 2) * 0.0005;
+            mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Update particles
+            const linePositions = [];
+            
+            for(let i = 0; i < particleCount; i++) {
+                const pos = positions[i];
+                const vel = velocities[i];
+                
+                pos.add(vel);
+
+                // Boundary check (bounce)
+                if(pos.x > 3 || pos.x < -3) vel.x = -vel.x;
+                if(pos.y > 3 || pos.y < -3) vel.y = -vel.y;
+                if(pos.z > 3 || pos.z < -3) vel.z = -vel.z;
+
+                // Check distance for lines
+                for(let j = i + 1; j < particleCount; j++) {
+                    const pos2 = positions[j];
+                    const dist = pos.distanceTo(pos2);
+                    if(dist < 1.5) {
+                        linePositions.push(pos.x, pos.y, pos.z);
+                        linePositions.push(pos2.x, pos2.y, pos2.z);
+                    }
+                }
+            }
+
+            linesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+
+            // Rotate whole group
+            particles.rotation.y += 0.002;
+            particles.rotation.x += 0.001;
+            lines.rotation.y += 0.002;
+            lines.rotation.x += 0.001;
+
+            // Mouse influence
+            particles.rotation.y += mouseX * 0.05;
+            particles.rotation.x += mouseY * 0.05;
+            lines.rotation.y += mouseX * 0.05;
+            lines.rotation.x += mouseY * 0.05;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

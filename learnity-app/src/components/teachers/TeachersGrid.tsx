@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { TeacherCard } from './TeacherCard';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Teacher {
   id: string;
@@ -35,6 +36,8 @@ export function TeachersGrid() {
   const [error, setError] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
 
+  const { toast } = useToast();
+
   useEffect(() => {
     async function fetchTeachers() {
       try {
@@ -45,17 +48,27 @@ export function TeachersGrid() {
           setTeachers(data.teachers);
         } else {
           setError('Failed to load teachers');
+          toast({
+            variant: "destructive",
+            title: "Connection Error",
+            description: "Unable to load teachers. Please check your internet connection.",
+          });
         }
       } catch (err) {
         console.error('Error fetching teachers:', err);
         setError('Unable to load teachers at this time');
+        toast({
+          variant: "destructive",
+          title: "Network Error",
+          description: "Could not connect to the server. Please check your internet connection and try again.",
+        });
       } finally {
         setLoading(false);
       }
     }
 
     fetchTeachers();
-  }, []);
+  }, [toast]);
 
   const displayedTeachers = showAll ? teachers : teachers.slice(0, 3);
 
