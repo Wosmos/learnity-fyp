@@ -12,6 +12,7 @@ import { SecurityService } from '@/lib/services/security.service';
 import { NotificationService } from '@/lib/services/notification.service';
 import { SessionManagerService } from '@/lib/services/session-manager.service';
 import { TokenManagerService } from '@/lib/services/token-manager.service';
+import { CourseService } from '@/lib/services/course.service';
 
 /**
  * Service container for dependency injection
@@ -161,6 +162,17 @@ export class ServiceFactory {
       this.container.register(key, new TokenManagerService());
     }
     return this.container.get<TokenManagerService>(key);
+  }
+
+  /**
+   * Get Course Service instance
+   */
+  static getCourseService(): CourseService {
+    const key = 'CourseService';
+    if (!this.container.has(key)) {
+      this.container.register(key, new CourseService());
+    }
+    return this.container.get<CourseService>(key);
   }
 
   /**

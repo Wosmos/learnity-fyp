@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
@@ -13,28 +13,41 @@ datasource db {
 
 // User profile stored in Neon DB (single source of truth)
 model User {
-  id                String    @id @default(cuid())
-  firebaseUid       String    @unique // Links to Firebase Auth user
-  email             String    @unique
-  firstName         String
-  lastName          String
-  role              UserRole
-  emailVerified     Boolean   @default(false)
-  profilePicture    String?   // Firebase Storage URL
-  authProvider      String?   @default("email") // "email", "social"
-  socialProviders   String[]  @default([]) // ["google.com", "microsoft.com"]
-  isActive          Boolean   @default(true)
-  lastLoginAt       DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  
+  id              String    @id @default(cuid())
+  firebaseUid     String    @unique // Links to Firebase Auth user
+  email           String    @unique
+  firstName       String
+  lastName        String
+  role            UserRole
+  emailVerified   Boolean   @default(false)
+  profilePicture  String? // Firebase Storage URL
+  authProvider    String?   @default("email") // "email", "social"
+  socialProviders String[]  @default([]) // ["google.com", "microsoft.com"]
+  isActive        Boolean   @default(true)
+  lastLoginAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
   // Relations
-  studentProfile    StudentProfile?
-  teacherProfile    TeacherProfile?
-  adminProfile      AdminProfile?
-  auditLogs         AuditLog[]
-  securityEvents    SecurityEvent[]
-  
+  studentProfile StudentProfile?
+  teacherProfile TeacherProfile?
+  adminProfile   AdminProfile?
+  auditLogs      AuditLog[]
+  securityEvents SecurityEvent[]
+
+  // Course Management Relations
+  teacherCourses Course[]         @relation("TeacherCourses")
+  enrollments    Enrollment[]     @relation("StudentEnrollments")
+  lessonProgress LessonProgress[] @relation("StudentLessonProgress")
+  quizAttempts   QuizAttempt[]    @relation("StudentQuizAttempts")
+  reviews        Review[]         @relation("StudentReviews")
+  certificates   Certificate[]    @relation("StudentCertificates")
+
+  // Gamification Relations
+  userProgress UserProgress? @relation("UserGamificationProgress")
+  xpActivities XPActivity[]  @relation("UserXPActivities")
+  badges       Badge[]       @relation("UserBadges")
+
   // Indexes for optimal query performance
   @@index([firebaseUid])
   @@index([email])
@@ -53,19 +66,19 @@ model StudentProfile {
   learningGoals               String[] // Optional enhancements
   interests                   String[] // Optional enhancements
   studyPreferences            String[] // Optional enhancements
-  bio                         String?  // Optional bio
+  bio                         String? // Optional bio
   profileCompletionPercentage Int      @default(20) // Basic info = 20%
-  
+
   // Privacy settings
-  profileVisibility           ProfileVisibility @default(PUBLIC)
-  showEmail                   Boolean  @default(false)
-  showLearningGoals           Boolean  @default(true)
-  showInterests               Boolean  @default(true)
-  showProgress                Boolean  @default(true)
-  allowMessages               Boolean  @default(true)
-  
+  profileVisibility ProfileVisibility @default(PUBLIC)
+  showEmail         Boolean           @default(false)
+  showLearningGoals Boolean           @default(true)
+  showInterests     Boolean           @default(true)
+  showProgress      Boolean           @default(true)
+  allowMessages     Boolean           @default(true)
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@map("student_profiles")
 }
 
@@ -76,95 +89,95 @@ enum ProfileVisibility {
 }
 
 model TeacherProfile {
-  id                String              @id @default(cuid())
-  userId            String              @unique
-  applicationStatus ApplicationStatus   @default(PENDING)
+  id                String            @id @default(cuid())
+  userId            String            @unique
+  applicationStatus ApplicationStatus @default(PENDING)
   qualifications    String[]
   subjects          String[]
-  experience        Int                 // Years of experience
+  experience        Int // Years of experience
   bio               String?
   hourlyRate        Decimal?
-  documents         String[]            // Vercel Blob URLs
-  submittedAt       DateTime            @default(now())
+  documents         String[] // Vercel Blob URLs
+  submittedAt       DateTime          @default(now())
   reviewedAt        DateTime?
-  approvedBy        String?             // Admin user ID
+  approvedBy        String? // Admin user ID
   rejectionReason   String?
-  
+
   // Enhanced Profile Fields
-  profilePicture    String?             // Vercel Blob URL
-  bannerImage       String?             // Vercel Blob URL
-  phone             String?
-  address           String?
-  city              String?
-  state             String?
-  country           String?
-  zipCode           String?
-  dateOfBirth       DateTime?
-  gender            String?
-  
+  profilePicture String? // Vercel Blob URL
+  bannerImage    String? // Vercel Blob URL
+  phone          String?
+  address        String?
+  city           String?
+  state          String?
+  country        String?
+  zipCode        String?
+  dateOfBirth    DateTime?
+  gender         String?
+
   // Professional profile fields (isTopRated calculated automatically)
-  rating            Decimal             @default(0)
-  reviewCount       Int                 @default(0)
-  responseTime      String?             // e.g., "<1hr", "2-4hrs"
-  availability      String?             // e.g., "Available today", "Weekends only"
-  languages         String[]            @default([])
-  timezone          String?
-  videoIntroUrl     String?             // Vercel Blob URL for video introduction
-  
+  rating        Decimal  @default(0)
+  reviewCount   Int      @default(0)
+  responseTime  String? // e.g., "<1hr", "2-4hrs"
+  availability  String? // e.g., "Available today", "Weekends only"
+  languages     String[] @default([])
+  timezone      String?
+  videoIntroUrl String? // Vercel Blob URL for video introduction
+
   // Teaching details
-  lessonsCompleted  Int                 @default(0)
-  activeStudents    Int                 @default(0)
-  teachingStyle     String?             // e.g., "Interactive", "Structured"
-  specialties       String[]            @default([])
-  certifications    String[]            @default([])
-  education         String[]            @default([])
-  
+  lessonsCompleted Int      @default(0)
+  activeStudents   Int      @default(0)
+  teachingStyle    String? // e.g., "Interactive", "Structured"
+  specialties      String[] @default([])
+  certifications   String[] @default([])
+  education        String[] @default([])
+
   // Enhanced Teaching Information
-  teachingMethods   String[]            @default([]) // e.g., "Visual", "Auditory", "Kinesthetic"
-  ageGroups         String[]            @default([]) // e.g., "Elementary", "Middle School", "High School", "Adult"
-  lessonTypes       String[]            @default([]) // e.g., "One-on-One", "Group", "Workshop"
-  onlineExperience  Int?                // Years of online teaching
-  technologySkills  String[]            @default([]) // e.g., "Zoom", "Google Meet", "Interactive Whiteboards"
-  
+  teachingMethods  String[] @default([]) // e.g., "Visual", "Auditory", "Kinesthetic"
+  ageGroups        String[] @default([]) // e.g., "Elementary", "Middle School", "High School", "Adult"
+  lessonTypes      String[] @default([]) // e.g., "One-on-One", "Group", "Workshop"
+  onlineExperience Int? // Years of online teaching
+  technologySkills String[] @default([]) // e.g., "Zoom", "Google Meet", "Interactive Whiteboards"
+
   // Availability schedule
-  availableDays     String[]            @default([])
-  preferredTimes    String[]            @default([])
-  minSessionLength  Int?                // Minutes
-  maxSessionLength  Int?                // Minutes
-  
+  availableDays    String[] @default([])
+  preferredTimes   String[] @default([])
+  minSessionLength Int? // Minutes
+  maxSessionLength Int? // Minutes
+
   // Additional info
-  headline          String?             // Short catchy headline
-  achievements      String[]            @default([])
-  teachingApproach  String?             // Detailed teaching methodology
-  personalInterests String[]            @default([])
-  hobbies           String[]            @default([])
-  
+  headline          String? // Short catchy headline
+  achievements      String[] @default([])
+  teachingApproach  String? // Detailed teaching methodology
+  personalInterests String[] @default([])
+  hobbies           String[] @default([])
+
   // Social Media & Professional Links
-  linkedinUrl       String?
-  twitterUrl        String?
-  facebookUrl       String?
-  instagramUrl      String?
-  websiteUrl        String?
-  youtubeUrl        String?
-  
+  linkedinUrl  String?
+  twitterUrl   String?
+  facebookUrl  String?
+  instagramUrl String?
+  websiteUrl   String?
+  youtubeUrl   String?
+
   // Trust & credibility
-  trustBadges       String[]            @default([]) // e.g., "Verified ID", "Background Check", "Top Rated"
-  faqs              Json?               // Array of {question, answer} objects
-  sampleLessons     Json?               // Array of {title, description, duration} objects
-  successStories    Json?               // Array of {studentName, achievement, subject} objects
-  whyChooseMe       String[]            @default([]) // Key differentiators
-  
+  trustBadges    String[] @default([]) // e.g., "Verified ID", "Background Check", "Top Rated"
+  faqs           Json? // Array of {question, answer} objects
+  sampleLessons  Json? // Array of {title, description, duration} objects
+  successStories Json? // Array of {studentName, achievement, subject} objects
+  whyChooseMe    String[] @default([]) // Key differentiators
+
   // Emergency Contact
-  emergencyContactName  String?
-  emergencyContactPhone String?
+  emergencyContactName     String?
+  emergencyContactPhone    String?
   emergencyContactRelation String?
-  
+
   // Preferences
-  communicationPreference String?       // e.g., "Email", "Phone", "Text"
-  notificationSettings    Json?         // Notification preferences
-  
+  communicationPreference String? // e.g., "Email", "Phone", "Text"
+  notificationSettings    Json? // Notification preferences
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // Indexes for teacher application queries
   @@index([applicationStatus])
   @@index([submittedAt])
@@ -179,36 +192,36 @@ model TeacherProfile {
 }
 
 model AdminProfile {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  department  String   @default("Platform Management")
-  isStatic    Boolean  @default(false) // True for env-configured admin
-  createdBy   String?  // Who created this admin
-  
+  id         String  @id @default(cuid())
+  userId     String  @unique
+  department String  @default("Platform Management")
+  isStatic   Boolean @default(false) // True for env-configured admin
+  createdBy  String? // Who created this admin
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@map("admin_profiles")
 }
 
 model AuditLog {
-  id              String    @id @default(cuid())
-  userId          String?   // Nullable for system events
-  firebaseUid     String?
-  eventType       EventType
-  action          String
-  resource        String?
-  oldValues       Json?
-  newValues       Json?
-  ipAddress       String
-  userAgent       String
+  id                String    @id @default(cuid())
+  userId            String? // Nullable for system events
+  firebaseUid       String?
+  eventType         EventType
+  action            String
+  resource          String?
+  oldValues         Json?
+  newValues         Json?
+  ipAddress         String
+  userAgent         String
   deviceFingerprint String?
-  success         Boolean
-  errorMessage    String?
-  metadata        Json?
-  createdAt       DateTime  @default(now())
-  
+  success           Boolean
+  errorMessage      String?
+  metadata          Json?
+  createdAt         DateTime  @default(now())
+
   user User? @relation(fields: [userId], references: [id])
-  
+
   // Indexes for audit log queries
   @@index([userId])
   @@index([firebaseUid])
@@ -220,7 +233,7 @@ model AuditLog {
 }
 
 model SecurityEvent {
-  id                String        @id @default(cuid())
+  id                String            @id @default(cuid())
   userId            String?
   firebaseUid       String?
   eventType         SecurityEventType
@@ -228,13 +241,13 @@ model SecurityEvent {
   ipAddress         String
   userAgent         String
   deviceFingerprint String
-  blocked           Boolean       @default(false)
+  blocked           Boolean           @default(false)
   reason            String?
   metadata          Json?
-  createdAt         DateTime      @default(now())
-  
+  createdAt         DateTime          @default(now())
+
   user User? @relation(fields: [userId], references: [id])
-  
+
   // Indexes for security event queries
   @@index([userId])
   @@index([firebaseUid])
@@ -292,12 +305,12 @@ enum RiskLevel {
 
 model AdminAction {
   id           String   @id @default(cuid())
-  adminId      String   // Firebase UID of admin who performed action
-  action       String   // e.g., "teacher_approve", "teacher_reject", "user_suspend"
-  targetUserId String?  // User affected by the action
-  details      Json?    // Additional action details
+  adminId      String // Firebase UID of admin who performed action
+  action       String // e.g., "teacher_approve", "teacher_reject", "user_suspend"
+  targetUserId String? // User affected by the action
+  details      Json? // Additional action details
   createdAt    DateTime @default(now())
-  
+
   @@index([adminId])
   @@index([action])
   @@index([targetUserId])
@@ -309,13 +322,343 @@ model Testimonial {
   id          String   @id @default(cuid())
   teacherId   String
   studentName String
-  rating      Int      // 1-5
+  rating      Int // 1-5
   comment     String
   subject     String?
   date        DateTime @default(now())
   isVerified  Boolean  @default(true)
-  
+
   @@index([teacherId])
   @@index([rating])
   @@map("testimonials")
+}
+
+// ============================================
+// COURSE MANAGEMENT SYSTEM MODELS
+// ============================================
+
+// Course Categories
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?
+  courses     Course[]
+  createdAt   DateTime @default(now())
+
+  @@index([slug])
+  @@map("categories")
+}
+
+// Main Course Model
+model Course {
+  id                        String       @id @default(cuid())
+  title                     String
+  slug                      String       @unique
+  description               String
+  thumbnailUrl              String?
+  teacherId                 String
+  categoryId                String
+  difficulty                Difficulty   @default(BEGINNER)
+  tags                      String[]
+  status                    CourseStatus @default(DRAFT)
+  isFree                    Boolean      @default(true)
+  price                     Decimal?
+  requireSequentialProgress Boolean      @default(false)
+
+  // Communication fields
+  whatsappGroupLink String?
+  contactEmail      String?
+  contactWhatsapp   String?
+
+  // Cached/Computed fields for performance
+  totalDuration   Int     @default(0) // in seconds
+  lessonCount     Int     @default(0)
+  enrollmentCount Int     @default(0)
+  averageRating   Decimal @default(0)
+  reviewCount     Int     @default(0)
+
+  // Timestamps
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  teacher      User          @relation("TeacherCourses", fields: [teacherId], references: [id])
+  category     Category      @relation(fields: [categoryId], references: [id])
+  sections     Section[]
+  enrollments  Enrollment[]
+  reviews      Review[]
+  certificates Certificate[]
+
+  @@index([teacherId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([difficulty])
+  @@index([averageRating])
+  @@index([enrollmentCount])
+  @@index([slug])
+  @@map("courses")
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+}
+
+// Course Sections
+model Section {
+  id          String   @id @default(cuid())
+  courseId    String
+  title       String
+  description String?
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@index([courseId])
+  @@index([order])
+  @@map("sections")
+}
+
+// Lessons (Video or Quiz)
+model Lesson {
+  id          String     @id @default(cuid())
+  sectionId   String
+  title       String
+  description String?
+  type        LessonType @default(VIDEO)
+  youtubeUrl  String?
+  youtubeId   String? // Extracted video ID
+  duration    Int        @default(0) // in seconds
+  order       Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  section  Section          @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  quiz     Quiz?
+  progress LessonProgress[]
+
+  @@index([sectionId])
+  @@index([order])
+  @@map("lessons")
+}
+
+enum LessonType {
+  VIDEO
+  QUIZ
+}
+
+// Quiz Model
+model Quiz {
+  id           String   @id @default(cuid())
+  lessonId     String   @unique
+  title        String
+  description  String?
+  passingScore Int      @default(70) // percentage
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  lesson    Lesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  questions Question[]
+  attempts  QuizAttempt[]
+
+  @@map("quizzes")
+}
+
+// Quiz Questions
+model Question {
+  id                 String   @id @default(cuid())
+  quizId             String
+  question           String
+  options            String[] // Array of options (2-4)
+  correctOptionIndex Int
+  explanation        String?
+  order              Int
+  createdAt          DateTime @default(now())
+
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([quizId])
+  @@index([order])
+  @@map("questions")
+}
+
+// Quiz Attempts
+model QuizAttempt {
+  id        String   @id @default(cuid())
+  quizId    String
+  studentId String
+  score     Int // percentage
+  passed    Boolean
+  answers   Json // Array of {questionId, selectedIndex, isCorrect}
+  timeTaken Int // in seconds
+  createdAt DateTime @default(now())
+
+  quiz    Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  student User @relation("StudentQuizAttempts", fields: [studentId], references: [id])
+
+  @@index([quizId])
+  @@index([studentId])
+  @@index([score])
+  @@map("quiz_attempts")
+}
+
+// Enrollments
+model Enrollment {
+  id             String           @id @default(cuid())
+  studentId      String
+  courseId       String
+  status         EnrollmentStatus @default(ACTIVE)
+  progress       Int              @default(0) // percentage 0-100
+  completedAt    DateTime?
+  enrolledAt     DateTime         @default(now())
+  lastAccessedAt DateTime         @default(now())
+
+  student User   @relation("StudentEnrollments", fields: [studentId], references: [id])
+  course  Course @relation(fields: [courseId], references: [id])
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
+  @@index([status])
+  @@map("enrollments")
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  UNENROLLED
+}
+
+// Lesson Progress
+model LessonProgress {
+  id             String    @id @default(cuid())
+  studentId      String
+  lessonId       String
+  watchedSeconds Int       @default(0)
+  completed      Boolean   @default(false)
+  completedAt    DateTime?
+  lastPosition   Int       @default(0) // resume position in seconds
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  student User   @relation("StudentLessonProgress", fields: [studentId], references: [id])
+  lesson  Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, lessonId])
+  @@index([studentId])
+  @@index([lessonId])
+  @@map("lesson_progress")
+}
+
+// Course Reviews
+model Review {
+  id        String   @id @default(cuid())
+  studentId String
+  courseId  String
+  rating    Int // 1-5
+  comment   String? // 10-500 characters
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student User   @relation("StudentReviews", fields: [studentId], references: [id])
+  course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@index([courseId])
+  @@index([rating])
+  @@map("reviews")
+}
+
+// Certificates
+model Certificate {
+  id            String   @id @default(cuid())
+  studentId     String
+  courseId      String
+  certificateId String   @unique // Public unique ID for verification
+  issuedAt      DateTime @default(now())
+
+  student User   @relation("StudentCertificates", fields: [studentId], references: [id])
+  course  Course @relation(fields: [courseId], references: [id])
+
+  @@unique([studentId, courseId])
+  @@index([certificateId])
+  @@map("certificates")
+}
+
+// Gamification - User Progress
+model UserProgress {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  totalXP        Int       @default(0)
+  currentLevel   Int       @default(1)
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastActivityAt DateTime?
+
+  user User @relation("UserGamificationProgress", fields: [userId], references: [id])
+
+  @@map("user_progress")
+}
+
+// XP Activity Log
+model XPActivity {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  reason    XPReason
+  sourceId  String? // lessonId, quizId, or courseId
+  createdAt DateTime @default(now())
+
+  user User @relation("UserXPActivities", fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([reason])
+  @@map("xp_activities")
+}
+
+enum XPReason {
+  LESSON_COMPLETE
+  QUIZ_PASS
+  COURSE_COMPLETE
+  DAILY_LOGIN
+  STREAK_BONUS
+}
+
+// Badges
+model Badge {
+  id         String    @id @default(cuid())
+  userId     String
+  type       BadgeType
+  unlockedAt DateTime  @default(now())
+
+  user User @relation("UserBadges", fields: [userId], references: [id])
+
+  @@unique([userId, type])
+  @@index([userId])
+  @@map("badges")
+}
+
+enum BadgeType {
+  FIRST_COURSE_COMPLETE
+  FIVE_COURSES_COMPLETE
+  TEN_COURSES_COMPLETE
+  STREAK_7_DAYS
+  STREAK_30_DAYS
+  STREAK_100_DAYS
+  QUIZ_MASTER
+  TOP_REVIEWER
 }

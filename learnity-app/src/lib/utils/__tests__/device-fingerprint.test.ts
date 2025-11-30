@@ -11,19 +11,20 @@ import {
 } from '../device-fingerprint';
 
 // Mock Request object
-const createMockRequest = (headers: Record<string, string> = {}): Request => {
-  const defaultHeaders : any = {
+const createMockRequest = (headers: Record<string, string> = {}, useDefaults = true): Request => {
+  const defaultHeaders: Record<string, string> = useDefaults ? {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     'accept-language': 'en-US,en;q=0.9',
     'accept-encoding': 'gzip, deflate, br',
     'connection': 'keep-alive',
     'x-forwarded-for': '192.168.1.1',
-    ...headers
-  };
+  } : {};
+
+  const mergedHeaders: Record<string, string> = { ...defaultHeaders, ...headers };
 
   return {
     headers: {
-      get: (name: string) => defaultHeaders[name.toLowerCase()] || null
+      get: (name: string) => mergedHeaders[name.toLowerCase()] || null
     }
   } as Request;
 };
@@ -87,7 +88,8 @@ describe('Device Fingerprint Utility', () => {
     });
 
     it('should extract IP from x-real-ip header when x-forwarded-for is not present', () => {
-      const request = createMockRequest({ 'x-real-ip': '203.0.113.2' });
+      // Use useDefaults=false to avoid default x-forwarded-for header
+      const request = createMockRequest({ 'x-real-ip': '203.0.113.2' }, false);
       const ip = extractIpAddress(request);
       
       expect(ip).toBe('203.0.113.2');
@@ -105,7 +107,8 @@ describe('Device Fingerprint Utility', () => {
     });
 
     it('should return "unknown" when no IP headers are present', () => {
-      const request = createMockRequest({});
+      // Use useDefaults=false to avoid default headers
+      const request = createMockRequest({}, false);
       const ip = extractIpAddress(request);
       
       expect(ip).toBe('unknown');
@@ -121,7 +124,8 @@ describe('Device Fingerprint Utility', () => {
     });
 
     it('should return "unknown" when user agent is not present', () => {
-      const request = createMockRequest({});
+      // Use useDefaults=false to avoid default user-agent header
+      const request = createMockRequest({}, false);
       
       expect(extractUserAgent(request)).toBe('unknown');
     });
