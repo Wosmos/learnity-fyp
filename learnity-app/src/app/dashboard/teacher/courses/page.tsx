@@ -147,7 +147,7 @@ export default function TeacherCoursesPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Failed to publish course');
+        throw new Error(data.error?.message || data.message || 'Failed to publish course');
       }
 
       toast({
@@ -177,7 +177,7 @@ export default function TeacherCoursesPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Failed to unpublish course');
+        throw new Error(data.error?.message || data.message || 'Failed to unpublish course');
       }
 
       toast({
@@ -211,7 +211,7 @@ export default function TeacherCoursesPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Failed to delete course');
+        throw new Error(data.error?.message || data.message || 'Failed to delete course');
       }
 
       toast({

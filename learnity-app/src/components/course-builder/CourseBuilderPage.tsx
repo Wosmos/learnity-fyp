@@ -79,10 +79,10 @@ export function CourseBuilderPage({ courseId }: CourseBuilderPageProps) {
   const handleBack = () => {
     if (isDirty) {
       if (confirm('You have unsaved changes. Are you sure you want to leave?')) {
-        router.push('/dashboard/teacher/content');
+        router.push('/dashboard/teacher/courses');
       }
     } else {
-      router.push('/dashboard/teacher/content');
+      router.push('/dashboard/teacher/courses');
     }
   };
 

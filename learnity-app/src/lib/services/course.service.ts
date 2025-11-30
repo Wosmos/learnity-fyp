@@ -289,6 +289,15 @@ export class CourseService implements ICourseService {
           include: {
             lessons: {
               orderBy: { order: 'asc' },
+              include: {
+                quiz: {
+                  include: {
+                    questions: {
+                      orderBy: { order: 'asc' },
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -319,6 +328,15 @@ export class CourseService implements ICourseService {
           include: {
             lessons: {
               orderBy: { order: 'asc' },
+              include: {
+                quiz: {
+                  include: {
+                    questions: {
+                      orderBy: { order: 'asc' },
+                    },
+                  },
+                },
+              },
             },
           },
         },

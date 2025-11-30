@@ -3,523 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realistic Hydrodynamic Coin Drop</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;600&display=swap');
+    <title>Teacher Dashboard - Learnity</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://api.fontshare.com/v2/css?f[]=outfit@400,500,600,700&f[]=plus-jakarta-sans@400,500,600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
-        body { margin: 0; overflow: hidden; background-color: #050505; font-family: 'Inter', sans-serif; }
-        
-        /* UI Overlay */
-        #ui-layer {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .header {
-            text-align: center;
-            text-shadow: 0 0 10px rgba(0,255,255,0.5);
-        }
-        h1 { color: white; margin: 0; font-weight: 600; letter-spacing: 1px; }
-        p { color: #aaa; margin: 5px 0 0 0; font-size: 14px; }
-
-        .score-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 15px 30px;
-            border-radius: 30px;
-            border: 1px solid rgba(255,255,255,0.2);
-            align-self: center;
-            margin-top: 10px;
-        }
-        #score { color: #4ff; font-size: 2em; font-weight: 600; }
-
-        #reset-btn {
-            pointer-events: auto;
-            align-self: center;
-            margin-bottom: 50px;
-            padding: 15px 40px;
-            background: linear-gradient(135deg, #ff4b4b, #d40000);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 75, 75, 0.4);
-            transition: transform 0.2s, opacity 0.2s;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        #reset-btn.visible { opacity: 1; transform: translateY(0); }
-        #reset-btn:active { transform: scale(0.95); }
-
-        /* Loader */
-        #loading {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: white; font-size: 20px; pointer-events: none;
-        }
-    </style>
-</head>
-<body>
-
-    <div id="loading">Initializing Physics Engine...</div>
-
-    <div id="ui-layer">
-        <div class="header">
-            <h1>HYDRO DROP 3D</h1>
-            <div class="score-container">
-                <span style="color:white; font-size: 14px; display:block;">SCORE</span>
-                <span id="score">0</span>
-            </div>
-            <p>Move Mouse to Aim • Click to Drop</p>
-        </div>
-        <button id="reset-btn">RETRIEVE COIN</button>
-    </div>
-
-    <!-- Import Maps -->
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
-                "cannon-es": "https://unpkg.com/cannon-es@0.20.0/dist/cannon-es.js"
-            }
-        }
-    </script>
-
-    <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-        import * as CANNON from 'cannon-es';
-
-        // --- CONSTANTS ---
-        const TANK_WIDTH = 5;
-        const TANK_HEIGHT = 6;
-        const TANK_DEPTH = 3;
-        const WATER_HEIGHT = 4.5;
-        const GLASS_RADIUS = 0.7;
-        const GLASS_HEIGHT = 1.2;
-        const COIN_RADIUS = 0.18;
-        const COIN_THICKNESS = 0.04;
-        
-        // Physics constants for hydrodynamics
-        const WATER_DENSITY = 2.0; // Slightly higher than air
-        const DRAG_COEFF_FLAT = 2.5; // High drag when falling flat
-        const DRAG_COEFF_EDGE = 0.1; // Low drag when slicing
-        const LIFT_COEFF = 1.5;      // How much it drifts sideways
-
-        // --- GLOBALS ---
-        let scene, camera, renderer, world;
-        let controls;
-        let coinBody, coinMesh;
-        let score = 0;
-        let isDropped = false;
-        let aimMarker;
-        
-        // Raycaster
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        const aimPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -TANK_HEIGHT);
-
-        init();
-        animate();
-
-        function init() {
-            // 1. Scene Setup
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x111111);
-            
-            // Camera
-            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-            camera.position.set(0, 6, 10);
-            
-            // Renderer
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.0;
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            document.body.appendChild(renderer.domElement);
-
-            // Controls
-            controls = new OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.05;
-            controls.maxPolarAngle = Math.PI / 2; // Prevent going under floor
-            controls.target.set(0, 2, 0);
-
-            // Lighting
-            const ambient = new THREE.AmbientLight(0xffffff, 0.2);
-            scene.add(ambient);
-            
-            const spotLight = new THREE.SpotLight(0xffffff, 200);
-            spotLight.position.set(5, 12, 5);
-            spotLight.angle = Math.PI / 4;
-            spotLight.penumbra = 0.5;
-            spotLight.castShadow = true;
-            spotLight.shadow.bias = -0.0001;
-            scene.add(spotLight);
-
-            // Environment Map (for realistic glass reflections)
-            new RGBELoader()
-                .setPath('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/equirectangular/')
-                .load('royal_esplanade_1k.hdr', function (texture) {
-                    texture.mapping = THREE.EquirectangularReflectionMapping;
-                    scene.environment = texture;
-                    // scene.background = texture; // Optional: Show HDRI background
-                    document.getElementById('loading').style.display = 'none';
-                });
-
-            // 2. Physics World
-            world = new CANNON.World();
-            world.gravity.set(0, -9.81, 0);
-            world.broadphase = new CANNON.SAPBroadphase(world);
-            // Default material
-            const defaultMaterial = new CANNON.Material('default');
-            const defaultContactMaterial = new CANNON.ContactMaterial(defaultMaterial, defaultMaterial, {
-                friction: 0.3,
-                restitution: 0.2, // Bounciness
-            });
-            world.addContactMaterial(defaultContactMaterial);
-
-            // 3. Build Level
-            createEnvironment(defaultMaterial);
-            createAimMarker();
-
-            // 4. Events
-            window.addEventListener('resize', onWindowResize);
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('click', onClick);
-            document.getElementById('reset-btn').addEventListener('click', resetCoin);
-        }
-
-        function createEnvironment(mat) {
-            // -- Table --
-            const tableGeo = new THREE.BoxGeometry(10, 0.2, 8);
-            const tableMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.8 });
-            const tableMesh = new THREE.Mesh(tableGeo, tableMat);
-            tableMesh.position.y = -0.1;
-            tableMesh.receiveShadow = true;
-            scene.add(tableMesh);
-
-            const tableBody = new CANNON.Body({ mass: 0, material: mat });
-            tableBody.addShape(new CANNON.Box(new CANNON.Vec3(5, 0.1, 4)));
-            tableBody.position.y = -0.1;
-            world.addBody(tableBody);
-
-            // -- The Glass Tank --
-            // Visual
-            const glassMaterial = new THREE.MeshPhysicalMaterial({
-                color: 0xffffff, metalness: 0, roughness: 0, 
-                transmission: 0.95, opacity: 1, transparent: true,
-                thickness: 0.1, ior: 1.5, side: THREE.DoubleSide
-            });
-
-            const tankGeo = new THREE.BoxGeometry(TANK_WIDTH, TANK_HEIGHT, TANK_DEPTH);
-            const tankMesh = new THREE.Mesh(tankGeo, glassMaterial);
-            tankMesh.position.y = TANK_HEIGHT / 2;
-            tankMesh.castShadow = true;
-            scene.add(tankMesh);
-
-            // Tank Physics (Walls)
-            const wallThickness = 0.5; // Invisible thick walls for physics
-            const halfW = TANK_WIDTH / 2;
-            const halfH = TANK_HEIGHT / 2;
-            const halfD = TANK_DEPTH / 2;
-
-            const createWall = (x, y, z, w, h, d) => {
-                const b = new CANNON.Body({ mass: 0, material: mat });
-                b.addShape(new CANNON.Box(new CANNON.Vec3(w, h, d)));
-                b.position.set(x, y, z);
-                world.addBody(b);
-            };
-
-            // Floor
-            createWall(0, 0, 0, halfW, 0.1, halfD);
-            // Left/Right
-            createWall(-halfW - 0.25, halfH, 0, 0.25, halfH, halfD);
-            createWall(halfW + 0.25, halfH, 0, 0.25, halfH, halfD);
-            // Front/Back
-            createWall(0, halfH, -halfD - 0.25, halfW, halfH, 0.25);
-            createWall(0, halfH, halfD + 0.25, halfW, halfH, 0.25);
-
-            // -- The Water --
-            const waterGeo = new THREE.BoxGeometry(TANK_WIDTH - 0.1, WATER_HEIGHT, TANK_DEPTH - 0.1);
-            const waterMat = new THREE.MeshPhysicalMaterial({
-                color: 0x00aaff, metalness: 0.1, roughness: 0.1,
-                transmission: 0.9, opacity: 0.8, transparent: true, ior: 1.33
-            });
-            const waterMesh = new THREE.Mesh(waterGeo, waterMat);
-            waterMesh.position.y = WATER_HEIGHT / 2;
-            scene.add(waterMesh);
-
-            // -- The Target Glass (Cup) --
-            // Visual Cup
-            const cupGeo = new THREE.CylinderGeometry(GLASS_RADIUS, GLASS_RADIUS * 0.9, GLASS_HEIGHT, 32);
-            // Delete top face to make it open
-            cupGeo.deleteAttribute('uv'); 
-            // Better approximation: use a tube or multiple meshes. For simplicity, just a standard cylinder 
-            // but we need to see inside.
-            const cupMesh = new THREE.Mesh(
-                new THREE.CylinderGeometry(GLASS_RADIUS, GLASS_RADIUS*0.8, GLASS_HEIGHT, 32, 1, true),
-                glassMaterial
-            );
-            cupMesh.position.y = GLASS_HEIGHT / 2;
-            cupMesh.material.side = THREE.DoubleSide; // Render inside
-            scene.add(cupMesh);
-
-            // Cup Base (Visual)
-            const cupBase = new THREE.Mesh(
-                new THREE.CylinderGeometry(GLASS_RADIUS*0.8, GLASS_RADIUS*0.8, 0.1, 32),
-                glassMaterial
-            );
-            cupBase.position.y = 0.05;
-            scene.add(cupBase);
-
-            // Cup Physics (Approximated by polygon of boxes)
-            const segments = 16;
-            const angleStep = (Math.PI * 2) / segments;
-            const wallW = (2 * Math.PI * GLASS_RADIUS) / segments;
-            
-            for(let i=0; i<segments; i++) {
-                const angle = i * angleStep;
-                const x = Math.cos(angle) * GLASS_RADIUS;
-                const z = Math.sin(angle) * GLASS_RADIUS;
-                
-                const box = new CANNON.Body({ mass: 0, material: mat });
-                // Thin wall
-                box.addShape(new CANNON.Box(new CANNON.Vec3(wallW/1.8, GLASS_HEIGHT/2, 0.05)));
-                box.position.set(x, GLASS_HEIGHT/2, z);
-                // Rotate to face center
-                box.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -angle);
-                world.addBody(box);
-            }
-        }
-
-        function createAimMarker() {
-            const geo = new THREE.RingGeometry(0.05, 0.15, 32);
-            const mat = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
-            aimMarker = new THREE.Mesh(geo, mat);
-            aimMarker.rotation.x = -Math.PI / 2;
-            aimMarker.position.y = TANK_HEIGHT + 0.1;
-            scene.add(aimMarker);
-        }
-
-        function spawnCoin(pos) {
-            // Clean up old
-            if(coinBody) {
-                world.removeBody(coinBody);
-                scene.remove(coinMesh);
-                coinBody = null;
-            }
-
-            // Visual
-            const geo = new THREE.CylinderGeometry(COIN_RADIUS, COIN_RADIUS, COIN_THICKNESS, 32);
-            const mat = new THREE.MeshStandardMaterial({ 
-                color: 0xffd700, metalness: 1.0, roughness: 0.3 
-            });
-            coinMesh = new THREE.Mesh(geo, mat);
-            coinMesh.castShadow = true;
-            scene.add(coinMesh);
-
-            // Physics
-            const shape = new CANNON.Cylinder(COIN_RADIUS, COIN_RADIUS, COIN_THICKNESS, 16);
-            
-            // Note: Cannon Cylinder is Z-oriented, Three Cylinder is Y-oriented.
-            // We need to rotate the shape relative to body or handle it via quaternion updates.
-            // Simplest is to use a Cylinder shape and rotate the local shape orientation.
-            const q = new CANNON.Quaternion();
-            q.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2);
-            
-            coinBody = new CANNON.Body({
-                mass: 0.5, // grams
-                material: world.defaultContactMaterial
-            });
-            coinBody.addShape(shape, new CANNON.Vec3(0,0,0), q);
-            
-            coinBody.position.copy(pos);
-            // Initial random rotation to make it interesting
-            coinBody.quaternion.setFromEuler(Math.random()*0.5, Math.random()*0.5, Math.random()*0.5);
-            
-            // Continuous Collision Detection (Critical for thin objects)
-            coinBody.ccdSpeedThreshold = 0.5;
-            coinBody.ccdIterations = 10;
-            
-            world.addBody(coinBody);
-            
-            coinMesh.userData.scored = false;
-            isDropped = true;
-            document.getElementById('reset-btn').classList.add('visible');
-        }
-
-        function resetCoin() {
-            isDropped = false;
-            if(coinBody) {
-                world.removeBody(coinBody);
-                scene.remove(coinMesh);
-                coinBody = null;
-            }
-            document.getElementById('reset-btn').classList.remove('visible');
-        }
-
-        // --- PHYSICS CORE ---
-        function applyHydrodynamics() {
-            if (!coinBody) return;
-
-            // 1. Check if Underwater
-            if (coinBody.position.y > WATER_HEIGHT) return; // In Air
-
-            // 2. Buoyancy
-            // F_buoyancy = Volume * fluid_density * gravity * -1
-            // We just approximate an upward force
-            const buoyancyForce = new CANNON.Vec3(0, 4.0, 0); // Counteracts gravity (9.81) partially
-            coinBody.applyForce(buoyancyForce, coinBody.position);
-
-            // 3. Drag & Lift (The realistic part)
-            const vel = coinBody.velocity;
-            const speed = vel.length();
-            if (speed < 0.01) return;
-
-            // Get Coin's "Up" vector (Normal to the flat face)
-            // Since we rotated shape by -90deg X, the flat face normal in local space is Z.
-            // We transform Local Z (0,0,1) to World Space.
-            const coinNormal = new CANNON.Vec3(0, 0, 1);
-            coinBody.quaternion.vmult(coinNormal, coinNormal); // Rotate local Z to world
-
-            // Calculate Angle of Attack
-            // Dot product of Velocity(normalized) and Normal
-            const velNorm = vel.clone();
-            velNorm.normalize();
-            const dot = Math.abs(velNorm.dot(coinNormal)); 
-            // dot = 1.0 -> Moving parallel to normal (Flat face hitting water) -> High Drag
-            // dot = 0.0 -> Moving perp to normal (Edge slicing water) -> Low Drag
-
-            // Interpolate Drag Coefficient based on angle
-            const Cd = DRAG_COEFF_EDGE + (DRAG_COEFF_FLAT - DRAG_COEFF_EDGE) * dot;
-            
-            // Drag Force = -0.5 * density * v^2 * Cd * Area (simplified)
-            const dragMag = 0.5 * WATER_DENSITY * (speed * speed) * Cd;
-            const dragForce = velNorm.clone().scale(-dragMag);
-            coinBody.applyForce(dragForce, coinBody.position);
-
-            // Lift / Deflection Force (Flutter)
-            // If the coin is angled, it generates lift perpendicular to velocity
-            // This causes the "swaying" motion.
-            // Lift is highest at 45 degrees angle of attack (approx dot 0.7)
-            const liftFactor = (1 - dot) * dot * 4.0; // Parabolic curve peaking at 0.5
-            
-            // Direction of lift: Cross product of velocity and (normal cross velocity)
-            // Basically a vector perpendicular to velocity in the plane of the coin tilt
-            // Simplified: Just push slightly along the coin Normal vector projected on plane perp to velocity
-            const liftDir = coinNormal.clone(); 
-            // We add some chaos for "flutter"
-            if(speed > 0.5) {
-                const liftForce = liftDir.scale(liftFactor * LIFT_COEFF * speed);
-                coinBody.applyForce(liftForce, coinBody.position);
-                
-                // Add Torque to make it flip/tumble
-                // Water pushes the "leading edge" harder
-                const torque = new CANNON.Vec3(
-                    (Math.random()-0.5) * speed * 0.1, 
-                    (Math.random()-0.5) * speed * 0.1, 
-                    (Math.random()-0.5) * speed * 0.1
-                );
-                coinBody.applyTorque(torque);
-            }
-
-            // Angular Damping (Water stops rotation fast)
-            coinBody.angularDamping = 0.8;
-            coinBody.linearDamping = 0.0; // We handle drag manually
-        }
-
-        // --- INPUT HANDLING ---
-        function onMouseMove(e) {
-            if(isDropped) return;
-
-            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-            raycaster.setFromCamera(mouse, camera);
-            
-            const target = new THREE.Vector3();
-            raycaster.ray.intersectPlane(aimPlane, target);
-
-            if(target) {
-                // Clamp within tank bounds (minus some padding)
-                const limitX = TANK_WIDTH / 2 - 0.2;
-                const limitZ = TANK_DEPTH / 2 - 0.2;
-                target.x = Math.max(-limitX, Math.min(limitX, target.x));
-                target.z = Math.max(-limitZ, Math.min(limitZ, target.z));
-                target.y = TANK_HEIGHT + 0.5; // Hover above
-                
-                aimMarker.position.copy(target);
-            }
-        }
-
-        function onClick() {
-            if(!isDropped) {
-                spawnCoin(aimMarker.position);
-            }
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        function checkWin() {
-            if(!coinBody || coinMesh.userData.scored) return;
-
-            // Check if settled
-            if(coinBody.velocity.length() < 0.05 && coinBody.position.y < GLASS_HEIGHT) {
-                // Distance from center (XZ plane)
-                const dist = Math.sqrt(coinBody.position.x**2 + coinBody.position.z**2);
-                
-                // If inside glass radius
-                if(dist < GLASS_RADIUS - COIN_RADIUS) {
-                    score++;
-                    document.getElementById('score').innerText = score;
-                    document.getElementById('score').style.color = "#00ff00";
-                    coinMesh.userData.scored = true;
-                    
-                    // Visual feedback
-                    coinMesh.material.emissive.setHex(0x00ff00);
-                } else {
-                    // Missed (landed on floor or outside cup)
-                    coinMesh.userData.scored = true; // Stop checking
-                    document.getElementById('score').style.color = "#ff4444";
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Outfit"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            900: '#1e3a8a',
+                        },
+                        violet: {
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 4px 30px rgba(0, 0, 0, 0.03)',
+                        'glow': '0 0 20px rgba(59, 130, 246, 0.15)'
+                    }
                 }
             }
         }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-
-            // Physics Step
-            world.step(1/60);
-            
-            // Custom Hydrodynamics
-            applyHydrodynamics();
-            
-            // Sync
-            if(coinBody) {
-                coinMesh.position.copy(coinBody.position);
-                coinMesh.quaternion.copy(coinBody.quaternion);
-                checkWin();
-            }
-
-            renderer.render(scene, camera);
-        }
     </script>
-</body>
-</html>
+
+    <style>
+        body {
+            background-color: #F8FAFC;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .bento-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem; /* rounded-3xl */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bento-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.08);
+            border-color: #cbd5e1;
+        }
+
+        /* Hide scrollbar for clean look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+</head>
+<body class="antialiased text-slate-800">
+
+    <!-- Top Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-slate-200/60 px-6 py-4">
+        <div class="max-w-[1600px] mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-10">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-2 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/30 group-hover:scale-105 transition-transform">
+                        <i class="ri-graduation-cap-fill text-xl"></i>
+                    </div>
+                    <span class="font-display font-bold text-2xl tracking-tight text-slate-900">Learnity</span>
+                </a>
+
+                <!-- Nav Links -->
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="#" class="px-3 py-2 text-sm font-semibold text-brand-600 bg-brand-50 rounded-lg">Dashboard</a>
+                    <a href="#" class="px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Our Teachers</a>
+                    <a href="#" class="px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">About Us</a>
+                </div>
+            </div>
+
+            <!-- Right Actions -->
+            <div class="flex items-center gap-4">
+                <button class="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition relative">
+                    <i class="ri-notification-3-line text-lg"></i>
+                    <span class="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+                
+                <div class="h-8 w-px bg-slate-200 mx-1"></div>
+
+                <div class="flex items-center gap-3 pl-2 cursor-pointer group">
+                    <div class="text-right hidden sm:block">
+                        <div class="text-sm font-bold text-slate-900 group-hover:text-brand-600 transition">Wasif Malik</div>
+                        <div class="text-xs text-slate-500">Teacher Account</div>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-violet-100 text-violet-600 border-2 border-white shadow-sm flex items-center justify-center font-bold text-sm">
+                        WM
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Content -->
+    <main class="max-w-[1600px] mx-auto px-6 pt-28 pb-12">
+        
+        <!-- Welcome Header -->
+        <header class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+            <div>
+                <h1 class="font-display text-4xl font-bold text-slate-900 mb-1">Teacher Dashboard</h1>
+                <p class="text-slate-500">Welcome back, here's what's happening with your courses today.</p>
+            </div>
+            <button class="px-6 py-3 bg-slate-900 hover:bg-brand-600 text-white rounded-xl font-medium shadow-lg shadow-slate-900/20 hover:shadow-brand-500/30 transition-all flex items-center gap-2">
+                <i class="ri-add-circle-line text-xl"></i> Create New Course
+            </button>
+        </header>
+
+        <!-- Bento Grid Layout -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            <!-- 1. Stats Cards (Top Row) -->
+            
+            <!-- Students -->
+            <div class="bento-card p-6 flex flex-col justify-between h-40">
+                <div class="flex justify-between items-start">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                        <i class="ri-user-smile-line"></i>
+                    </div>
+                    <span class="px-2 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-lg flex items-center gap-1">
+                        <i class="ri-arrow-up-line"></i> 12%
+                    </span>
+                </div>
+                <div>
+                    <div class="text-3xl font-display font-bold text-slate-900">1,240</div>
+                    <div class="text-sm text-slate-500 font-medium">Total Students Enrolled</div>
+                </div>
+            </div>
+
+            <!-- Courses -->
+            <div class="bento-card p-6 flex flex-col justify-between h-40">
+                <div class="flex justify-between items-start">
+                    <div class="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center text-xl">
+                        <i class="ri-book-open-line"></i>
+                    </div>
+                    <span class="px-2 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-lg flex items-center gap-1">
+                        <i class="ri-arrow-up-line"></i> 2
+                    </span>
+                </div>
+                <div>
+                    <div class="text-3xl font-display font-bold text-slate-900">14</div>
+                    <div class="text-sm text-slate-500 font-medium">Active Courses</div>
+                </div>
+            </div>
+
+            <!-- Lessons -->
+            <div class="bento-card p-6 flex flex-col justify-between h-40">
+                <div class="flex justify-between items-start">
+                    <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl">
+                        <i class="ri-file-list-3-line"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="text-3xl font-display font-bold text-slate-900">86</div>
+                    <div class="text-sm text-slate-500 font-medium">Total Lessons Created</div>
+                </div>
+            </div>
+
+            <!-- Rating -->
+            <div class="bento-card p-6 flex flex-col justify-between h-40 bg-gradient-to-br from-yellow-50 to-white">
+                <div class="flex justify-between items-start">
+                    <div class="w-12 h-12 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl shadow-sm">
+                        <i class="ri-star-fill"></i>
+                    </div>
+                    <span class="text-xs text-slate-400 font-mono">ALL TIME</span>
+                </div>
+                <div>
+                    <div class="text-3xl font-display font-bold text-slate-900">4.9</div>
+                    <div class="text-sm text-slate-500 font-medium">Average Instructor Rating</div>
+                </div>
+            </div>
+
+            <!-- 2. Course Management (Large Block) -->
+            <div class="bento-card col-span-1 md:col-span-2 lg:col-span-3 p-6 min-h-[400px]">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="font-display text-xl font-bold">Your Courses</h2>
+                        <p class="text-sm text-slate-500">Manage your active learning paths</p>
+                    </div>
+                    <button class="text-sm font-medium text-brand-600 hover:text-brand-700 flex items-center gap-1">
+                        View All <i class="ri-arrow-right-line"></i>
+                    </button>
+                </div>
+
+                <!-- Course List Header -->
+                <div class="grid grid-cols-12 gap-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-4">
+                    <div class="col-span-6">Course Name</div>
+                    <div class="col-span-2">Status</div>
+                    <div class="col-span-2">Stats</div>
+                    <div class="col-span-2 text-right">Actions</div>
+                </div>
+
+                <!-- Course Items -->
+                <div class="space-y-3">
+                    <!-- Item 1 -->
+                    <div class="grid grid-cols-12 gap-4 items-center p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 group">
+                        <div class="col-span-6 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-lg font-bold">V</div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 group-hover:text-brand-600 transition-colors">Velit dolor sit ev</h3>
+                                <div class="text-xs text-slate-500 mt-1 flex gap-2">
+                                    <span><i class="ri-film-line align-middle"></i> 2 Lessons</span>
+                                    <span>•</span>
+                                    <span><i class="ri-time-line align-middle"></i> 4h 30m</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-span-2">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span> Published
+                            </span>
+                        </div>
+                        <div class="col-span-2">
+                            <div class="text-sm font-bold text-slate-700">14 Students</div>
+                            <div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
+                                <div class="h-full bg-brand-500 w-[60%] rounded-full"></div>
+                            </div>
+                        </div>
+                        <div class="col-span-2 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-2 hover:bg-white hover:shadow-sm rounded-lg text-slate-500 hover:text-brand-600"><i class="ri-edit-line"></i></button>
+                            <button class="p-2 hover:bg-white hover:shadow-sm rounded-lg text-slate-500 hover:text-brand-600"><i class="ri-bar-chart-box-line"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="grid grid-cols-12 gap-4 items-center p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 group">
+                        <div class="col-span-6 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center text-lg font-bold">UI</div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 group-hover:text-brand-600 transition-colors">Voluptas dolor ut ac</h3>
+                                <div class="text-xs text-slate-500 mt-1 flex gap-2">
+                                    <span><i class="ri-film-line align-middle"></i> 5 Lessons</span>
+                                    <span>•</span>
+                                    <span><i class="ri-time-line align-middle"></i> 2h 15m</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-span-2">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5"></span> Draft
+                            </span>
+                        </div>
+                        <div class="col-span-2">
+                            <div class="text-sm font-bold text-slate-700">-</div>
+                            <div class="text-xs text-slate-400">Not live yet</div>
+                        </div>
+                        <div class="col-span-2 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-2 hover:bg-white hover:shadow-sm rounded-lg text-slate-500 hover:text-brand-600"><i class="ri-edit-line"></i></button>
+                            <button class="p-2 hover:bg-white hover:shadow-sm rounded-lg text-slate-500 hover:text-red-600"><i class="ri-delete-bin-line"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Recent Activity (Sidebar Column) -->
+            <div class="bento-card col-span-1 p-6 relative overflow-hidden">
+                <div class="flex items-center justify-between mb-6 relative z-10">
+                    <h2 class="font-display text-xl font-bold">Activity</h2>
+                    <button class="text-slate-400 hover:text-slate-900"><i class="ri-more-fill"></i></button>
+                </div>
+                
+                <!-- Timeline -->
+                <div class="space-y-6 relative z-10">
+                    <!-- Event 1 -->
+                    <div class="flex gap-4">
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm border-2 border-white shadow-sm">
+                                <i class="ri-user-add-line"></i>
+                            </div>
+                            <div class="w-px h-full bg-slate-100 my-1"></div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-800 font-medium">New Student Enrolled</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Wasif enrolled in "Velit dolor"</p>
+                            <span class="text-[10px] text-slate-400 font-mono mt-1 block">1 hour ago</span>
+                        </div>
+                    </div>
+
+                    <!-- Event 2 -->
+                    <div class="flex gap-4">
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-sm border-2 border-white shadow-sm">
+                                <i class="ri-checkbox-circle-line"></i>
+                            </div>
+                            <div class="w-px h-full bg-slate-100 my-1"></div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-800 font-medium">Course Published</p>
+                            <p class="text-xs text-slate-500 mt-0.5">"Voluptas dolor" is now live</p>
+                            <span class="text-[10px] text-slate-400 font-mono mt-1 block">2 hours ago</span>
+                        </div>
+                    </div>
+
+                    <!-- Event 3 -->
+                    <div class="flex gap-4">
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-sm border-2 border-white shadow-sm">
+                                <i class="ri-star-line"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-800 font-medium">New Review</p>
+                            <p class="text-xs text-slate-500 mt-0.5">5 stars received on "React Basics"</p>
+                            <span class="text-[10px] text-slate-400 font-mono mt-1 block">5 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Quick Actions (Bottom Row) -->
+            <div class="bento-card col-span-1 md:col-span-2 p-6 bg-slate-50 border-slate-200">
+                <h2 class="font-display text-xl font-bold mb-4">Quick Actions</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">

@@ -20,7 +20,6 @@ import {
   ArrowLeft,
   Users,
   Star,
-  Clock,
   BookOpen,
   TrendingUp,
   TrendingDown,
@@ -33,6 +32,8 @@ import {
   Download,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
+import { useClientAuth } from '@/hooks/useClientAuth';
 
 interface AnalyticsData {
   overview: {
@@ -101,6 +102,8 @@ export default function CourseAnalyticsPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useClientAuth();
+  const authenticatedFetch = useAuthenticatedFetch();
   const courseId = params.courseId as string;
 
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
@@ -108,15 +111,17 @@ export default function CourseAnalyticsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchAnalytics = useCallback(async () => {
+    if (!user || authLoading) return;
+    
     try {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/courses/${courseId}/analytics`);
+      const response = await authenticatedFetch(`/api/courses/${courseId}/analytics`);
       
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Failed to fetch analytics');
+        throw new Error(data.error?.message || data.message || 'Failed to fetch analytics');
       }
 
       const data = await response.json();
@@ -131,13 +136,13 @@ export default function CourseAnalyticsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [courseId, toast]);
+  }, [courseId, toast, user, authLoading, authenticatedFetch]);
 
   useEffect(() => {
-    if (courseId) {
+    if (courseId && user && !authLoading) {
       fetchAnalytics();
     }
-  }, [courseId, fetchAnalytics]);
+  }, [courseId, fetchAnalytics, user, authLoading]);
 
   // Format duration
   const formatDuration = (seconds: number): string => {

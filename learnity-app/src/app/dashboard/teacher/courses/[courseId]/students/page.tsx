@@ -39,6 +39,8 @@ import {
   BarChart3,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
+import { useClientAuth } from '@/hooks/useClientAuth';
 
 interface Student {
   id: string;
@@ -109,6 +111,8 @@ const statusOptions = [
 export default function CourseStudentsPage() {
   const params = useParams();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useClientAuth();
+  const authenticatedFetch = useAuthenticatedFetch();
   const courseId = params.courseId as string;
 
   const [data, setData] = useState<StudentsData | null>(null);
@@ -139,6 +143,8 @@ export default function CourseStudentsPage() {
 
   // Fetch students data
   const fetchStudents = useCallback(async () => {
+    if (!user || authLoading) return;
+    
     try {
       setIsLoading(true);
       setError(null);
@@ -162,11 +168,11 @@ export default function CourseStudentsPage() {
         queryParams.set('search', debouncedSearch);
       }
 
-      const response = await fetch(`/api/courses/${courseId}/students?${queryParams.toString()}`);
+      const response = await authenticatedFetch(`/api/courses/${courseId}/students?${queryParams.toString()}`);
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch students');
+        throw new Error(errorData.error?.message || errorData.message || 'Failed to fetch students');
       }
 
       const responseData = await response.json();
@@ -181,13 +187,13 @@ export default function CourseStudentsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [courseId, currentPage, statusFilter, progressFilter, debouncedSearch, toast]);
+  }, [courseId, currentPage, statusFilter, progressFilter, debouncedSearch, toast, user, authLoading, authenticatedFetch]);
 
   useEffect(() => {
-    if (courseId) {
+    if (courseId && user && !authLoading) {
       fetchStudents();
     }
-  }, [courseId, fetchStudents]);
+  }, [courseId, fetchStudents, user, authLoading]);
 
   // Format date
   const formatDate = (dateString: string): string => {
