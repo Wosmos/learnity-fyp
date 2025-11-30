@@ -8,6 +8,7 @@
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import {
   CourseBuilderContextType,
   CourseBuilderStep,
@@ -42,6 +43,7 @@ export function CourseBuilderProvider({
   courseId,
 }: CourseBuilderProviderProps) {
   const { toast } = useToast();
+  const authenticatedFetch = useAuthenticatedFetch();
   const [courseData, setCourseDataState] = useState<CourseFormData>(
     initialCourse || defaultCourseData
   );
@@ -191,9 +193,8 @@ export function CourseBuilderProvider({
       const endpoint = courseId ? `/api/courses/${courseId}` : '/api/courses';
       const method = courseId ? 'PUT' : 'POST';
 
-      const response = await fetch(endpoint, {
+      const response = await authenticatedFetch(endpoint, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(courseData),
       });
 
@@ -206,9 +207,8 @@ export function CourseBuilderProvider({
       // Save sections if course was created
       if (!courseId && savedCourse.id) {
         for (const section of sections) {
-          await fetch(`/api/courses/${savedCourse.id}/sections`, {
+          await authenticatedFetch(`/api/courses/${savedCourse.id}/sections`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(section),
           });
         }
@@ -228,7 +228,7 @@ export function CourseBuilderProvider({
     } finally {
       setIsSaving(false);
     }
-  }, [courseData, sections, courseId, validateCourse, toast]);
+  }, [courseData, sections, courseId, validateCourse, toast, authenticatedFetch]);
 
   const publishCourse = useCallback(async () => {
     if (!courseId) {
@@ -242,7 +242,7 @@ export function CourseBuilderProvider({
 
     setIsSaving(true);
     try {
-      const response = await fetch(`/api/courses/${courseId}/publish`, {
+      const response = await authenticatedFetch(`/api/courses/${courseId}/publish`, {
         method: 'POST',
       });
 
@@ -264,7 +264,7 @@ export function CourseBuilderProvider({
     } finally {
       setIsSaving(false);
     }
-  }, [courseId, toast]);
+  }, [courseId, toast, authenticatedFetch]);
 
   const value: CourseBuilderContextType = {
     courseData,

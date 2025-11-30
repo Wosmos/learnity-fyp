@@ -96,6 +96,8 @@ export function CourseBasicInfoForm() {
         if (response.ok) {
           const data = await response.json();
           setCategories(data);
+        } else {
+          throw new Error('Failed to fetch categories');
         }
       } catch (error) {
         console.error('Failed to fetch categories:', error);

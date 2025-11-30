@@ -145,7 +145,7 @@ export function CourseBuilderPage({ courseId }: CourseBuilderPageProps) {
               <Button 
                 size="sm" 
                 onClick={() => setShowPublishDialog(true)}
-                disabled={!basicInfoComplete || !sectionsComplete}
+                // disabled={!basicInfoComplete || !sectionsComplete}
                 className="gap-2 bg-blue-600 hover:bg-blue-700"
               >
                 Publish Course

@@ -15,8 +15,9 @@ import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/types/auth';
-import { Users, Calendar, TrendingUp, Clock, Star, FileText, Video, DollarSign, Bell, Plus, Eye, Edit, BarChart3, CheckCircle, User, GraduationCap, Zap } from 'lucide-react';
+import { Users, Calendar, TrendingUp, Clock, Star, FileText, Video, DollarSign, Bell, Plus, Eye, Edit, BarChart3, CheckCircle, User, GraduationCap, Zap, BookOpen } from 'lucide-react';
 import { MetricCard } from '@/components/ui/stats-card';
+import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 
 interface TeacherStats {
   totalStudents: number;
@@ -50,77 +51,98 @@ interface RecentActivity {
 export default function TeacherDashboard() {
   const { user, loading, isAuthenticated, claims } = useClientAuth();
   const router = useRouter();
-  const [stats] = useState<TeacherStats>({
-    totalStudents: 24,
-    activeSessions: 8,
-    completedSessions: 156,
-    totalEarnings: 2840,
-    averageRating: 4.8,
-    totalReviews: 89,
-    upcomingSessions: 5,
-    contentUploads: 12
+  const authenticatedFetch = useAuthenticatedFetch();
+  
+  const [stats, setStats] = useState<TeacherStats>({
+    totalStudents: 0,
+    activeSessions: 0,
+    completedSessions: 0,
+    totalEarnings: 0,
+    averageRating: 0,
+    totalReviews: 0,
+    upcomingSessions: 0,
+    contentUploads: 0
   });
+  const [statsLoading, setStatsLoading] = useState(true);
 
-  const [upcomingSessions] = useState<UpcomingSession[]>([
-    {
-      id: '1',
-      studentName: 'Alice Johnson',
-      subject: 'Mathematics',
-      time: '2:00 PM Today',
-      duration: 60,
-      type: 'one-on-one',
-      status: 'confirmed'
-    },
-    {
-      id: '2',
-      studentName: 'Bob Smith',
-      subject: 'Physics',
-      time: '4:30 PM Today',
-      duration: 45,
-      type: 'one-on-one',
-      status: 'confirmed'
-    },
-    {
-      id: '3',
-      studentName: 'Study Group A',
-      subject: 'Chemistry',
-      time: '10:00 AM Tomorrow',
-      duration: 90,
-      type: 'group',
-      status: 'pending'
-    }
-  ]);
+  const [upcomingSessions] = useState<UpcomingSession[]>([]);
 
-  const [recentActivity] = useState<RecentActivity[]>([
-    {
-      id: '1',
-      type: 'session_completed',
-      message: 'Completed session with Sarah Wilson - Algebra',
-      time: '2 hours ago',
-      icon: <CheckCircle className="h-4 w-4 text-emerald-500" />
-    },
-    {
-      id: '2',
-      type: 'review_received',
-      message: 'Received 5-star review from Mike Chen',
-      time: '4 hours ago',
-      icon: <Star className="h-4 w-4 text-amber-500" />
-    },
-    {
-      id: '3',
-      type: 'new_student',
-      message: 'New student enrolled: Emma Davis',
-      time: '1 day ago',
-      icon: <User className="h-4 w-4 text-blue-500" />
-    },
-    {
-      id: '4',
-      type: 'content_uploaded',
-      message: 'Uploaded new lesson: "Advanced Calculus"',
-      time: '2 days ago',
-      icon: <FileText className="h-4 w-4 text-indigo-500" />
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(true);
+
+  // Fetch teacher stats
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await authenticatedFetch('/api/teacher/stats');
+        if (response.ok) {
+          const data = await response.json();
+          setStats({
+            totalStudents: data.data.activeStudents || 0,
+            activeSessions: 0, // Sessions feature not implemented yet
+            completedSessions: data.data.lessonsCompleted || 0,
+            totalEarnings: 0, // Earnings feature not implemented yet
+            averageRating: data.data.averageRating || 0,
+            totalReviews: data.data.totalReviews || 0,
+            upcomingSessions: 0, // Sessions feature not implemented yet
+            contentUploads: data.data.totalLessons || 0
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+
+    if (!loading && isAuthenticated) {
+      fetchStats();
     }
-  ]);
+  }, [loading, isAuthenticated, authenticatedFetch]);
+
+  // Fetch recent activities
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const response = await authenticatedFetch('/api/teacher/activities');
+        if (response.ok) {
+          const data = await response.json();
+          const activities = (data.data || []).map((activity: any) => {
+            let icon = <FileText className="h-4 w-4 text-indigo-500" />;
+            
+            switch (activity.type) {
+              case 'review_received':
+                icon = <Star className="h-4 w-4 text-amber-500" />;
+                break;
+              case 'new_enrollment':
+                icon = <User className="h-4 w-4 text-blue-500" />;
+                break;
+              case 'course_published':
+                icon = <CheckCircle className="h-4 w-4 text-emerald-500" />;
+                break;
+            }
+
+            return {
+              id: activity.id,
+              type: activity.type,
+              message: activity.message,
+              time: activity.time,
+              icon
+            };
+          });
+          setRecentActivity(activities);
+        }
+      } catch (error) {
+        console.error('Failed to fetch activities:', error);
+      } finally {
+        setActivitiesLoading(false);
+      }
+    };
+
+    if (!loading && isAuthenticated) {
+      fetchActivities();
+    }
+  }, [loading, isAuthenticated, authenticatedFetch]);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -178,12 +200,16 @@ export default function TeacherDashboard() {
                 <Button variant="outline" size="sm" className="gap-2 bg-white hover:bg-slate-50">
                   <Bell className="h-4 w-4" />
                   Notifications
-                  <Badge className="ml-1 bg-red-500 hover:bg-red-600">3</Badge>
+                  {recentActivity.length > 0 && (
+                    <Badge className="ml-1 bg-red-500 hover:bg-red-600">{recentActivity.length}</Badge>
+                  )}
                 </Button>
-                <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
-                  <Plus className="h-4 w-4" />
-                  New Session
-                </Button>
+                <Link href="/dashboard/teacher/courses/new">
+                  <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+                    <Plus className="h-4 w-4" />
+                    New Course
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -240,59 +266,33 @@ export default function TeacherDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Upcoming Sessions */}
+              {/* Courses Overview */}
               <Card className="border-0 shadow-md bg-white">
                 <CardHeader className="pb-4">
                   <div className="flex justify-between items-center">
                     <CardTitle className="flex items-center gap-3 text-xl">
                       <div className="p-2 bg-blue-100 rounded-lg">
-                        <Clock className="h-5 w-5 text-blue-600" />
+                        <FileText className="h-5 w-5 text-blue-600" />
                       </div>
-                      <span>Upcoming Sessions</span>
+                      <span>Your Courses</span>
                     </CardTitle>
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <Eye className="h-4 w-4" />
-                      View All
-                    </Button>
+                    <Link href="/dashboard/teacher/courses">
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <Eye className="h-4 w-4" />
+                        View All
+                      </Button>
+                    </Link>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {upcomingSessions.map((session) => (
-                      <div key={session.id} className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:border-slate-300 hover:bg-slate-50/50 transition-all">
-                        <div className="flex items-center space-x-4">
-                          <div className={`p-2.5 rounded-lg ${
-                            session.type === 'group' ? 'bg-purple-100' : 'bg-blue-100'
-                          }`}>
-                            {session.type === 'group' ? (
-                              <Users className="h-5 w-5 text-purple-600" />
-                            ) : (
-                              <User className="h-5 w-5 text-blue-600" />
-                            )}
-                          </div>
-                          <div>
-                            <p className="font-semibold text-slate-900">{session.studentName}</p>
-                            <p className="text-sm text-slate-500">{session.subject} • {session.duration} min</p>
-                            <p className="text-xs text-slate-400 mt-1">{session.time}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge className={`${
-                            session.status === 'confirmed' 
-                              ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100' 
-                              : 'bg-amber-100 text-amber-700 hover:bg-amber-100'
-                          }`}>
-                            {session.status}
-                          </Badge>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <Video className="h-4 w-4 text-slate-500 hover:text-blue-600" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <Edit className="h-4 w-4 text-slate-500 hover:text-blue-600" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="text-center py-8">
+                    <BookOpen className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-600 mb-4">Manage your courses and lessons</p>
+                    <Link href="/dashboard/teacher/courses">
+                      <Button variant="outline" size="sm">
+                        Go to Courses
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
@@ -351,10 +351,10 @@ export default function TeacherDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Link href="/dashboard/teacher/sessions">
+                    <Link href="/dashboard/teacher/courses">
                       <Button variant="outline" className="h-24 flex flex-col items-center justify-center space-y-2 w-full border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                        <Calendar className="h-6 w-6 text-slate-600" />
-                        <span className="text-xs font-medium text-slate-700">Manage Sessions</span>
+                        <BookOpen className="h-6 w-6 text-slate-600" />
+                        <span className="text-xs font-medium text-slate-700">My Courses</span>
                       </Button>
                     </Link>
                     <Link href="/dashboard/teacher/students">
@@ -363,14 +363,18 @@ export default function TeacherDashboard() {
                         <span className="text-xs font-medium text-slate-700">View Students</span>
                       </Button>
                     </Link>
-                    <Button variant="outline" className="h-24 flex flex-col items-center justify-center space-y-2 border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                      <FileText className="h-6 w-6 text-slate-600" />
-                      <span className="text-xs font-medium text-slate-700">Upload Content</span>
-                    </Button>
-                    <Button variant="outline" className="h-24 flex flex-col items-center justify-center space-y-2 border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                      <BarChart3 className="h-6 w-6 text-slate-600" />
-                      <span className="text-xs font-medium text-slate-700">View Analytics</span>
-                    </Button>
+                    <Link href="/dashboard/teacher/content">
+                      <Button variant="outline" className="h-24 flex flex-col items-center justify-center space-y-2 w-full border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                        <FileText className="h-6 w-6 text-slate-600" />
+                        <span className="text-xs font-medium text-slate-700">Upload Content</span>
+                      </Button>
+                    </Link>
+                    <Link href="/dashboard/teacher/profile">
+                      <Button variant="outline" className="h-24 flex flex-col items-center justify-center space-y-2 w-full border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                        <User className="h-6 w-6 text-slate-600" />
+                        <span className="text-xs font-medium text-slate-700">My Profile</span>
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
@@ -389,19 +393,38 @@ export default function TeacherDashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {recentActivity.map((activity) => (
-                      <div key={activity.id} className="flex items-start gap-3 pb-4 last:pb-0 border-b last:border-0 border-slate-200">
-                        <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                          {activity.icon}
+                  {activitiesLoading ? (
+                    <div className="space-y-4">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="flex items-start gap-3 pb-4 border-b border-slate-200">
+                          <div className="w-8 h-8 bg-slate-200 rounded-lg animate-pulse" />
+                          <div className="flex-1">
+                            <div className="h-4 bg-slate-200 rounded w-3/4 animate-pulse mb-2" />
+                            <div className="h-3 bg-slate-100 rounded w-1/2 animate-pulse" />
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-slate-700 leading-snug">{activity.message}</p>
-                          <p className="text-xs text-slate-500 mt-1">{activity.time}</p>
+                      ))}
+                    </div>
+                  ) : recentActivity.length > 0 ? (
+                    <div className="space-y-4">
+                      {recentActivity.map((activity) => (
+                        <div key={activity.id} className="flex items-start gap-3 pb-4 last:pb-0 border-b last:border-0 border-slate-200">
+                          <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                            {activity.icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-slate-700 leading-snug">{activity.message}</p>
+                            <p className="text-xs text-slate-500 mt-1">{activity.time}</p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Zap className="h-10 w-10 text-slate-300 mx-auto mb-2" />
+                      <p className="text-sm text-slate-500">No recent activity</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -468,33 +491,40 @@ export default function TeacherDashboard() {
                 </CardContent>
               </Card>
 
-              {/* Earnings Summary */}
-              <Card className="border-0 shadow-md bg-white">
+              {/* Teacher Guide */}
+              <Card className="border-0 shadow-md bg-gradient-to-br from-blue-50 to-blue-100">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3">
-                    <div className="p-2 bg-yellow-100 rounded-lg">
-                      <DollarSign className="h-5 w-5 text-yellow-600" />
+                    <div className="p-2 bg-blue-600 rounded-lg">
+                      <GraduationCap className="h-5 w-5 text-white" />
                     </div>
-                    <span>Earnings Summary</span>
+                    <span>Need Help?</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                      <span className="text-sm text-slate-600">This Month</span>
-                      <span className="font-semibold text-slate-900">$1,240</span>
-                    </div>
-                    <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                      <span className="text-sm text-slate-600">Last Month</span>
-                      <span className="font-semibold text-slate-900">$1,180</span>
-                    </div>
-                    <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                      <span className="text-sm text-slate-600">Pending</span>
-                      <span className="font-semibold text-amber-600">$420</span>
-                    </div>
-                    <div className="flex justify-between items-center pt-2">
-                      <span className="text-sm font-semibold text-slate-700">Total Earned</span>
-                      <span className="font-bold text-lg text-emerald-600">${stats.totalEarnings}</span>
+                    <p className="text-sm text-slate-700">
+                      Learn how to make the most of Learnity's teaching platform
+                    </p>
+                    <div className="space-y-2">
+                      <Link href="/help/teacher-guide" className="block">
+                        <Button variant="outline" size="sm" className="w-full justify-start bg-white">
+                          <FileText className="h-4 w-4 mr-2" />
+                          Teacher's Guide
+                        </Button>
+                      </Link>
+                      <Link href="/help/faq" className="block">
+                        <Button variant="outline" size="sm" className="w-full justify-start bg-white">
+                          <Star className="h-4 w-4 mr-2" />
+                          FAQs
+                        </Button>
+                      </Link>
+                      <Link href="/support" className="block">
+                        <Button variant="outline" size="sm" className="w-full justify-start bg-white">
+                          <Users className="h-4 w-4 mr-2" />
+                          Contact Support
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </CardContent>

@@ -17,6 +17,8 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:add": "tsx prisma/seed-additive.ts",
+    "db:seed:full": "tsx prisma/seed-comprehensive.ts",
     "db:seed:teachers": "tsx prisma/seed-teachers.ts",
     "db:studio": "prisma studio",
     "setup": "npm run db:generate && npm run db:push && npm run db:seed && npm run test:setup",

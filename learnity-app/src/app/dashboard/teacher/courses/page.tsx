@@ -40,6 +40,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 
 interface TeacherCourse {
   id: string;
@@ -95,6 +96,7 @@ export default function TeacherCoursesPage() {
   const { user, loading: authLoading } = useClientAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const authenticatedFetch = useAuthenticatedFetch();
   
   const [courses, setCourses] = useState<TeacherCourse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -107,19 +109,17 @@ export default function TeacherCoursesPage() {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch('/api/courses?teacherOnly=true', {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await authenticatedFetch('/api/courses?teacherOnly=true');
 
       if (!response.ok) {
-        throw new Error('Failed to fetch courses');
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Failed to fetch courses');
       }
 
       const data = await response.json();
       setCourses(data.data?.courses || []);
     } catch (err) {
+      console.error('Error fetching courses:', err);
       setError(err instanceof Error ? err.message : 'Failed to load courses');
       toast({
         title: 'Error',
@@ -129,7 +129,7 @@ export default function TeacherCoursesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [authenticatedFetch, toast]);
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -141,7 +141,7 @@ export default function TeacherCoursesPage() {
   const handlePublish = async (courseId: string) => {
     try {
       setActionLoading(courseId);
-      const response = await fetch(`/api/courses/${courseId}/publish`, {
+      const response = await authenticatedFetch(`/api/courses/${courseId}/publish`, {
         method: 'POST',
       });
 
@@ -171,7 +171,7 @@ export default function TeacherCoursesPage() {
   const handleUnpublish = async (courseId: string) => {
     try {
       setActionLoading(courseId);
-      const response = await fetch(`/api/courses/${courseId}/unpublish`, {
+      const response = await authenticatedFetch(`/api/courses/${courseId}/unpublish`, {
         method: 'POST',
       });
 
@@ -205,7 +205,7 @@ export default function TeacherCoursesPage() {
 
     try {
       setActionLoading(courseId);
-      const response = await fetch(`/api/courses/${courseId}`, {
+      const response = await authenticatedFetch(`/api/courses/${courseId}`, {
         method: 'DELETE',
       });
 
@@ -435,6 +435,7 @@ function CourseCard({
   onDelete,
   formatDuration,
 }: CourseCardProps) {
+  
   const status = statusConfig[course.status];
   const StatusIcon = status.icon;
 
@@ -484,7 +485,7 @@ function CourseCard({
           </div>
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 text-amber-500" />
-            <span>{course.averageRating.toFixed(1)}</span>
+            <span>{course.averageRating}</span>
           </div>
           <div className="flex items-center gap-1">
             <Clock className="h-4 w-4" />

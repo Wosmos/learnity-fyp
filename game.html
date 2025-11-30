@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realistic Hydrodynamic Coin Drop</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;600&display=swap');
+
+        body { margin: 0; overflow: hidden; background-color: #050505; font-family: 'Inter', sans-serif; }
+        
+        /* UI Overlay */
+        #ui-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0,255,255,0.5);
+        }
+        h1 { color: white; margin: 0; font-weight: 600; letter-spacing: 1px; }
+        p { color: #aaa; margin: 5px 0 0 0; font-size: 14px; }
+
+        .score-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+            align-self: center;
+            margin-top: 10px;
+        }
+        #score { color: #4ff; font-size: 2em; font-weight: 600; }
+
+        #reset-btn {
+            pointer-events: auto;
+            align-self: center;
+            margin-bottom: 50px;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #ff4b4b, #d40000);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 75, 75, 0.4);
+            transition: transform 0.2s, opacity 0.2s;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        #reset-btn.visible { opacity: 1; transform: translateY(0); }
+        #reset-btn:active { transform: scale(0.95); }
+
+        /* Loader */
+        #loading {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: white; font-size: 20px; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading">Initializing Physics Engine...</div>
+
+    <div id="ui-layer">
+        <div class="header">
+            <h1>HYDRO DROP 3D</h1>
+            <div class="score-container">
+                <span style="color:white; font-size: 14px; display:block;">SCORE</span>
+                <span id="score">0</span>
+            </div>
+            <p>Move Mouse to Aim • Click to Drop</p>
+        </div>
+        <button id="reset-btn">RETRIEVE COIN</button>
+    </div>
+
+    <!-- Import Maps -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+                "cannon-es": "https://unpkg.com/cannon-es@0.20.0/dist/cannon-es.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+        import * as CANNON from 'cannon-es';
+
+        // --- CONSTANTS ---
+        const TANK_WIDTH = 5;
+        const TANK_HEIGHT = 6;
+        const TANK_DEPTH = 3;
+        const WATER_HEIGHT = 4.5;
+        const GLASS_RADIUS = 0.7;
+        const GLASS_HEIGHT = 1.2;
+        const COIN_RADIUS = 0.18;
+        const COIN_THICKNESS = 0.04;
+        
+        // Physics constants for hydrodynamics
+        const WATER_DENSITY = 2.0; // Slightly higher than air
+        const DRAG_COEFF_FLAT = 2.5; // High drag when falling flat
+        const DRAG_COEFF_EDGE = 0.1; // Low drag when slicing
+        const LIFT_COEFF = 1.5;      // How much it drifts sideways
+
+        // --- GLOBALS ---
+        let scene, camera, renderer, world;
+        let controls;
+        let coinBody, coinMesh;
+        let score = 0;
+        let isDropped = false;
+        let aimMarker;
+        
+        // Raycaster
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const aimPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -TANK_HEIGHT);
+
+        init();
+        animate();
+
+        function init() {
+            // 1. Scene Setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x111111);
+            
+            // Camera
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 6, 10);
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.0;
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.body.appendChild(renderer.domElement);
+
+            // Controls
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2; // Prevent going under floor
+            controls.target.set(0, 2, 0);
+
+            // Lighting
+            const ambient = new THREE.AmbientLight(0xffffff, 0.2);
+            scene.add(ambient);
+            
+            const spotLight = new THREE.SpotLight(0xffffff, 200);
+            spotLight.position.set(5, 12, 5);
+            spotLight.angle = Math.PI / 4;
+            spotLight.penumbra = 0.5;
+            spotLight.castShadow = true;
+            spotLight.shadow.bias = -0.0001;
+            scene.add(spotLight);
+
+            // Environment Map (for realistic glass reflections)
+            new RGBELoader()
+                .setPath('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/equirectangular/')
+                .load('royal_esplanade_1k.hdr', function (texture) {
+                    texture.mapping = THREE.EquirectangularReflectionMapping;
+                    scene.environment = texture;
+                    // scene.background = texture; // Optional: Show HDRI background
+                    document.getElementById('loading').style.display = 'none';
+                });
+
+            // 2. Physics World
+            world = new CANNON.World();
+            world.gravity.set(0, -9.81, 0);
+            world.broadphase = new CANNON.SAPBroadphase(world);
+            // Default material
+            const defaultMaterial = new CANNON.Material('default');
+            const defaultContactMaterial = new CANNON.ContactMaterial(defaultMaterial, defaultMaterial, {
+                friction: 0.3,
+                restitution: 0.2, // Bounciness
+            });
+            world.addContactMaterial(defaultContactMaterial);
+
+            // 3. Build Level
+            createEnvironment(defaultMaterial);
+            createAimMarker();
+
+            // 4. Events
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('click', onClick);
+            document.getElementById('reset-btn').addEventListener('click', resetCoin);
+        }
+
+        function createEnvironment(mat) {
+            // -- Table --
+            const tableGeo = new THREE.BoxGeometry(10, 0.2, 8);
+            const tableMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.8 });
+            const tableMesh = new THREE.Mesh(tableGeo, tableMat);
+            tableMesh.position.y = -0.1;
+            tableMesh.receiveShadow = true;
+            scene.add(tableMesh);
+
+            const tableBody = new CANNON.Body({ mass: 0, material: mat });
+            tableBody.addShape(new CANNON.Box(new CANNON.Vec3(5, 0.1, 4)));
+            tableBody.position.y = -0.1;
+            world.addBody(tableBody);
+
+            // -- The Glass Tank --
+            // Visual
+            const glassMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xffffff, metalness: 0, roughness: 0, 
+                transmission: 0.95, opacity: 1, transparent: true,
+                thickness: 0.1, ior: 1.5, side: THREE.DoubleSide
+            });
+
+            const tankGeo = new THREE.BoxGeometry(TANK_WIDTH, TANK_HEIGHT, TANK_DEPTH);
+            const tankMesh = new THREE.Mesh(tankGeo, glassMaterial);
+            tankMesh.position.y = TANK_HEIGHT / 2;
+            tankMesh.castShadow = true;
+            scene.add(tankMesh);
+
+            // Tank Physics (Walls)
+            const wallThickness = 0.5; // Invisible thick walls for physics
+            const halfW = TANK_WIDTH / 2;
+            const halfH = TANK_HEIGHT / 2;
+            const halfD = TANK_DEPTH / 2;
+
+            const createWall = (x, y, z, w, h, d) => {
+                const b = new CANNON.Body({ mass: 0, material: mat });
+                b.addShape(new CANNON.Box(new CANNON.Vec3(w, h, d)));
+                b.position.set(x, y, z);
+                world.addBody(b);
+            };
+
+            // Floor
+            createWall(0, 0, 0, halfW, 0.1, halfD);
+            // Left/Right
+            createWall(-halfW - 0.25, halfH, 0, 0.25, halfH, halfD);
+            createWall(halfW + 0.25, halfH, 0, 0.25, halfH, halfD);
+            // Front/Back
+            createWall(0, halfH, -halfD - 0.25, halfW, halfH, 0.25);
+            createWall(0, halfH, halfD + 0.25, halfW, halfH, 0.25);
+
+            // -- The Water --
+            const waterGeo = new THREE.BoxGeometry(TANK_WIDTH - 0.1, WATER_HEIGHT, TANK_DEPTH - 0.1);
+            const waterMat = new THREE.MeshPhysicalMaterial({
+                color: 0x00aaff, metalness: 0.1, roughness: 0.1,
+                transmission: 0.9, opacity: 0.8, transparent: true, ior: 1.33
+            });
+            const waterMesh = new THREE.Mesh(waterGeo, waterMat);
+            waterMesh.position.y = WATER_HEIGHT / 2;
+            scene.add(waterMesh);
+
+            // -- The Target Glass (Cup) --
+            // Visual Cup
+            const cupGeo = new THREE.CylinderGeometry(GLASS_RADIUS, GLASS_RADIUS * 0.9, GLASS_HEIGHT, 32);
+            // Delete top face to make it open
+            cupGeo.deleteAttribute('uv'); 
+            // Better approximation: use a tube or multiple meshes. For simplicity, just a standard cylinder 
+            // but we need to see inside.
+            const cupMesh = new THREE.Mesh(
+                new THREE.CylinderGeometry(GLASS_RADIUS, GLASS_RADIUS*0.8, GLASS_HEIGHT, 32, 1, true),
+                glassMaterial
+            );
+            cupMesh.position.y = GLASS_HEIGHT / 2;
+            cupMesh.material.side = THREE.DoubleSide; // Render inside
+            scene.add(cupMesh);
+
+            // Cup Base (Visual)
+            const cupBase = new THREE.Mesh(
+                new THREE.CylinderGeometry(GLASS_RADIUS*0.8, GLASS_RADIUS*0.8, 0.1, 32),
+                glassMaterial
+            );
+            cupBase.position.y = 0.05;
+            scene.add(cupBase);
+
+            // Cup Physics (Approximated by polygon of boxes)
+            const segments = 16;
+            const angleStep = (Math.PI * 2) / segments;
+            const wallW = (2 * Math.PI * GLASS_RADIUS) / segments;
+            
+            for(let i=0; i<segments; i++) {
+                const angle = i * angleStep;
+                const x = Math.cos(angle) * GLASS_RADIUS;
+                const z = Math.sin(angle) * GLASS_RADIUS;
+                
+                const box = new CANNON.Body({ mass: 0, material: mat });
+                // Thin wall
+                box.addShape(new CANNON.Box(new CANNON.Vec3(wallW/1.8, GLASS_HEIGHT/2, 0.05)));
+                box.position.set(x, GLASS_HEIGHT/2, z);
+                // Rotate to face center
+                box.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -angle);
+                world.addBody(box);
+            }
+        }
+
+        function createAimMarker() {
+            const geo = new THREE.RingGeometry(0.05, 0.15, 32);
+            const mat = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+            aimMarker = new THREE.Mesh(geo, mat);
+            aimMarker.rotation.x = -Math.PI / 2;
+            aimMarker.position.y = TANK_HEIGHT + 0.1;
+            scene.add(aimMarker);
+        }
+
+        function spawnCoin(pos) {
+            // Clean up old
+            if(coinBody) {
+                world.removeBody(coinBody);
+                scene.remove(coinMesh);
+                coinBody = null;
+            }
+
+            // Visual
+            const geo = new THREE.CylinderGeometry(COIN_RADIUS, COIN_RADIUS, COIN_THICKNESS, 32);
+            const mat = new THREE.MeshStandardMaterial({ 
+                color: 0xffd700, metalness: 1.0, roughness: 0.3 
+            });
+            coinMesh = new THREE.Mesh(geo, mat);
+            coinMesh.castShadow = true;
+            scene.add(coinMesh);
+
+            // Physics
+            const shape = new CANNON.Cylinder(COIN_RADIUS, COIN_RADIUS, COIN_THICKNESS, 16);
+            
+            // Note: Cannon Cylinder is Z-oriented, Three Cylinder is Y-oriented.
+            // We need to rotate the shape relative to body or handle it via quaternion updates.
+            // Simplest is to use a Cylinder shape and rotate the local shape orientation.
+            const q = new CANNON.Quaternion();
+            q.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2);
+            
+            coinBody = new CANNON.Body({
+                mass: 0.5, // grams
+                material: world.defaultContactMaterial
+            });
+            coinBody.addShape(shape, new CANNON.Vec3(0,0,0), q);
+            
+            coinBody.position.copy(pos);
+            // Initial random rotation to make it interesting
+            coinBody.quaternion.setFromEuler(Math.random()*0.5, Math.random()*0.5, Math.random()*0.5);
+            
+            // Continuous Collision Detection (Critical for thin objects)
+            coinBody.ccdSpeedThreshold = 0.5;
+            coinBody.ccdIterations = 10;
+            
+            world.addBody(coinBody);
+            
+            coinMesh.userData.scored = false;
+            isDropped = true;
+            document.getElementById('reset-btn').classList.add('visible');
+        }
+
+        function resetCoin() {
+            isDropped = false;
+            if(coinBody) {
+                world.removeBody(coinBody);
+                scene.remove(coinMesh);
+                coinBody = null;
+            }
+            document.getElementById('reset-btn').classList.remove('visible');
+        }
+
+        // --- PHYSICS CORE ---
+        function applyHydrodynamics() {
+            if (!coinBody) return;
+
+            // 1. Check if Underwater
+            if (coinBody.position.y > WATER_HEIGHT) return; // In Air
+
+            // 2. Buoyancy
+            // F_buoyancy = Volume * fluid_density * gravity * -1
+            // We just approximate an upward force
+            const buoyancyForce = new CANNON.Vec3(0, 4.0, 0); // Counteracts gravity (9.81) partially
+            coinBody.applyForce(buoyancyForce, coinBody.position);
+
+            // 3. Drag & Lift (The realistic part)
+            const vel = coinBody.velocity;
+            const speed = vel.length();
+            if (speed < 0.01) return;
+
+            // Get Coin's "Up" vector (Normal to the flat face)
+            // Since we rotated shape by -90deg X, the flat face normal in local space is Z.
+            // We transform Local Z (0,0,1) to World Space.
+            const coinNormal = new CANNON.Vec3(0, 0, 1);
+            coinBody.quaternion.vmult(coinNormal, coinNormal); // Rotate local Z to world
+
+            // Calculate Angle of Attack
+            // Dot product of Velocity(normalized) and Normal
+            const velNorm = vel.clone();
+            velNorm.normalize();
+            const dot = Math.abs(velNorm.dot(coinNormal)); 
+            // dot = 1.0 -> Moving parallel to normal (Flat face hitting water) -> High Drag
+            // dot = 0.0 -> Moving perp to normal (Edge slicing water) -> Low Drag
+
+            // Interpolate Drag Coefficient based on angle
+            const Cd = DRAG_COEFF_EDGE + (DRAG_COEFF_FLAT - DRAG_COEFF_EDGE) * dot;
+            
+            // Drag Force = -0.5 * density * v^2 * Cd * Area (simplified)
+            const dragMag = 0.5 * WATER_DENSITY * (speed * speed) * Cd;
+            const dragForce = velNorm.clone().scale(-dragMag);
+            coinBody.applyForce(dragForce, coinBody.position);
+
+            // Lift / Deflection Force (Flutter)
+            // If the coin is angled, it generates lift perpendicular to velocity
+            // This causes the "swaying" motion.
+            // Lift is highest at 45 degrees angle of attack (approx dot 0.7)
+            const liftFactor = (1 - dot) * dot * 4.0; // Parabolic curve peaking at 0.5
+            
+            // Direction of lift: Cross product of velocity and (normal cross velocity)
+            // Basically a vector perpendicular to velocity in the plane of the coin tilt
+            // Simplified: Just push slightly along the coin Normal vector projected on plane perp to velocity
+            const liftDir = coinNormal.clone(); 
+            // We add some chaos for "flutter"
+            if(speed > 0.5) {
+                const liftForce = liftDir.scale(liftFactor * LIFT_COEFF * speed);
+                coinBody.applyForce(liftForce, coinBody.position);
+                
+                // Add Torque to make it flip/tumble
+                // Water pushes the "leading edge" harder
+                const torque = new CANNON.Vec3(
+                    (Math.random()-0.5) * speed * 0.1, 
+                    (Math.random()-0.5) * speed * 0.1, 
+                    (Math.random()-0.5) * speed * 0.1
+                );
+                coinBody.applyTorque(torque);
+            }
+
+            // Angular Damping (Water stops rotation fast)
+            coinBody.angularDamping = 0.8;
+            coinBody.linearDamping = 0.0; // We handle drag manually
+        }
+
+        // --- INPUT HANDLING ---
+        function onMouseMove(e) {
+            if(isDropped) return;
+
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            
+            const target = new THREE.Vector3();
+            raycaster.ray.intersectPlane(aimPlane, target);
+
+            if(target) {
+                // Clamp within tank bounds (minus some padding)
+                const limitX = TANK_WIDTH / 2 - 0.2;
+                const limitZ = TANK_DEPTH / 2 - 0.2;
+                target.x = Math.max(-limitX, Math.min(limitX, target.x));
+                target.z = Math.max(-limitZ, Math.min(limitZ, target.z));
+                target.y = TANK_HEIGHT + 0.5; // Hover above
+                
+                aimMarker.position.copy(target);
+            }
+        }
+
+        function onClick() {
+            if(!isDropped) {
+                spawnCoin(aimMarker.position);
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function checkWin() {
+            if(!coinBody || coinMesh.userData.scored) return;
+
+            // Check if settled
+            if(coinBody.velocity.length() < 0.05 && coinBody.position.y < GLASS_HEIGHT) {
+                // Distance from center (XZ plane)
+                const dist = Math.sqrt(coinBody.position.x**2 + coinBody.position.z**2);
+                
+                // If inside glass radius
+                if(dist < GLASS_RADIUS - COIN_RADIUS) {
+                    score++;
+                    document.getElementById('score').innerText = score;
+                    document.getElementById('score').style.color = "#00ff00";
+                    coinMesh.userData.scored = true;
+                    
+                    // Visual feedback
+                    coinMesh.material.emissive.setHex(0x00ff00);
+                } else {
+                    // Missed (landed on floor or outside cup)
+                    coinMesh.userData.scored = true; // Stop checking
+                    document.getElementById('score').style.color = "#ff4444";
+                }
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            // Physics Step
+            world.step(1/60);
+            
+            // Custom Hydrodynamics
+            applyHydrodynamics();
+            
+            // Sync
+            if(coinBody) {
+                coinMesh.position.copy(coinBody.position);
+                coinMesh.quaternion.copy(coinBody.quaternion);
+                checkWin();
+            }
+
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>

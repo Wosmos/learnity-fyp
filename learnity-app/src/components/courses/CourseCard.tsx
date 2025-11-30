@@ -73,7 +73,7 @@ export function CourseCard({
   className,
   href,
 }: CourseCardProps) {
-  const formattedRating = rating.toFixed(1);
+  const formattedRating = Number(rating || 0).toFixed(1);
   const formattedDuration = totalDuration ? formatDuration(totalDuration) : null;
   const courseHref = href ?? `/courses/${id}`;
 

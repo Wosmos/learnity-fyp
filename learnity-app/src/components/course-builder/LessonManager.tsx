@@ -37,6 +37,7 @@ import {
   ExternalLink,
   Loader2,
 } from 'lucide-react';
+import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import { useCourseBuilder } from './CourseBuilderContext';
 import { QuizBuilder } from './QuizBuilder';
 import { LessonFormData, YouTubeMetadata } from './types';
@@ -46,93 +47,42 @@ interface LessonManagerProps {
 }
 
 export function LessonManager({ sectionIndex }: LessonManagerProps) {
-  const { sections, addLesson, updateLesson, deleteLesson, reorderLessons } = useCourseBuilder();
+  const { 
+    sections, 
+    addLesson, 
+    updateLesson, 
+    deleteLesson, 
+    reorderLessons,
+    courseData,
+    setCourseData
+  } = useCourseBuilder();
+  const authenticatedFetch = useAuthenticatedFetch();
   const section = sections[sectionIndex];
   const lessons = section?.lessons || [];
 
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingLesson, setEditingLesson] = useState<{ index: number; data: LessonFormData } | null>(null);
-  const [showQuizBuilder, setShowQuizBuilder] = useState<number | null>(null);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-
-  // New lesson form state
-  const [lessonType, setLessonType] = useState<'VIDEO' | 'QUIZ'>('VIDEO');
-  const [lessonTitle, setLessonTitle] = useState('');
-  const [lessonDescription, setLessonDescription] = useState('');
-  const [youtubeUrl, setYoutubeUrl] = useState('');
-  const [isValidatingUrl, setIsValidatingUrl] = useState(false);
-  const [youtubeMetadata, setYoutubeMetadata] = useState<YouTubeMetadata | null>(null);
-  const [urlError, setUrlError] = useState('');
-
-  // Reset form
-  const resetForm = () => {
-    setLessonType('VIDEO');
-    setLessonTitle('');
-    setLessonDescription('');
-    setYoutubeUrl('');
-    setYoutubeMetadata(null);
-    setUrlError('');
-  };
-
-  // Validate YouTube URL and fetch metadata
-  const validateYouTubeUrl = async (url: string) => {
-    if (!url.trim()) {
-      setYoutubeMetadata(null);
-      setUrlError('');
-      return;
-    }
-
-    setIsValidatingUrl(true);
-    setUrlError('');
-
-    try {
-      const response = await fetch('/api/youtube/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Invalid YouTube URL');
-      }
-
-      const metadata: YouTubeMetadata = await response.json();
-      setYoutubeMetadata(metadata);
-      
-      // Auto-fill title if empty
-      if (!lessonTitle && metadata.title) {
-        setLessonTitle(metadata.title);
-      }
-    } catch (error) {
-      setUrlError(error instanceof Error ? error.message : 'Invalid YouTube URL');
-      setYoutubeMetadata(null);
-    } finally {
-      setIsValidatingUrl(false);
-    }
-  };
-
-  // Handle URL change with debounce
-  const handleUrlChange = (url: string) => {
-    setYoutubeUrl(url);
-    // Debounce validation
-    const timeoutId = setTimeout(() => validateYouTubeUrl(url), 500);
-    return () => clearTimeout(timeoutId);
-  };
+  // ... (state)
 
   // Handle add lesson
   const handleAddLesson = () => {
     if (!lessonTitle.trim()) return;
     if (lessonType === 'VIDEO' && !youtubeMetadata) return;
 
-    addLesson(sectionIndex, {
+    const newLesson = {
       title: lessonTitle.trim(),
       description: lessonDescription.trim() || undefined,
       type: lessonType,
       youtubeUrl: lessonType === 'VIDEO' ? youtubeUrl : undefined,
       youtubeId: lessonType === 'VIDEO' ? youtubeMetadata?.videoId : undefined,
       duration: lessonType === 'VIDEO' ? youtubeMetadata?.duration || 0 : 0,
-    });
+    };
+
+    addLesson(sectionIndex, newLesson);
+
+    // Auto-set course thumbnail if missing
+    if (lessonType === 'VIDEO' && youtubeMetadata?.videoId && !courseData.thumbnailUrl) {
+      const thumbnailUrl = `https://img.youtube.com/vi/${youtubeMetadata.videoId}/maxresdefault.jpg`;
+      setCourseData({ thumbnailUrl });
+    }
 
     resetForm();
     setIsAddDialogOpen(false);
@@ -218,22 +168,32 @@ export function LessonManager({ sectionIndex }: LessonManagerProps) {
                 )}
               </div>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-slate-700 truncate">
-                    {lesson.title}
-                  </span>
-                  <Badge variant="outline" className="text-xs">
-                    {lesson.type === 'VIDEO' ? 'Video' : 'Quiz'}
-                  </Badge>
-                </div>
-                {lesson.type === 'VIDEO' && lesson.duration > 0 && (
-                  <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
-                    <Clock className="h-3 w-3" />
-                    {formatDuration(lesson.duration)}
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-slate-700 truncate">
+                      {lesson.title}
+                    </span>
+                    <Badge variant="outline" className="text-xs">
+                      {lesson.type === 'VIDEO' ? 'Video' : 'Quiz'}
+                    </Badge>
                   </div>
-                )}
-              </div>
+                  {lesson.type === 'VIDEO' && lesson.youtubeUrl && (
+                    <a 
+                      href={lesson.youtubeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-600 hover:underline truncate block"
+                    >
+                      {lesson.youtubeUrl}
+                    </a>
+                  )}
+                  {lesson.type === 'VIDEO' && lesson.duration > 0 && (
+                    <div className="flex items-center gap-1 text-xs text-slate-500">
+                      <Clock className="h-3 w-3" />
+                      {formatDuration(lesson.duration)}
+                    </div>
+                  )}
+                </div>
 
               <div className="flex items-center gap-1 flex-shrink-0">
                 {lesson.type === 'QUIZ' && (
