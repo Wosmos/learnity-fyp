@@ -4,7 +4,7 @@
  */
 
 import { Metadata } from 'next';
-import { ClientAdminProtection } from '@/components/auth/ClientAdminProtection';
+import { AdminRoute } from '@/components/auth/ProtectedRoute';
 
 export const metadata: Metadata = {
   title: 'Admin Panel - Learnity',
@@ -17,8 +17,8 @@ export default function AdminRouteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClientAdminProtection>
+    <AdminRoute>
       {children}
-    </ClientAdminProtection>
+    </AdminRoute>
   );
 }

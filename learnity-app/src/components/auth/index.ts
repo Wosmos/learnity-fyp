@@ -78,6 +78,14 @@ export {
   type ResponsiveAuthRouterProps
 } from './ResponsiveAuthRouter';
 
+// Protected Route Components
+export {
+  ProtectedRoute,
+  AdminRoute,
+  TeacherRoute,
+  StudentRoute
+} from './ProtectedRoute';
+
 // Client-safe hooks
 export { useAuthService } from '../../hooks/useAuthService';
 export { useLogout } from '../../hooks/useLogout';

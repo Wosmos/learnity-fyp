@@ -13,6 +13,7 @@ import { useClientAuth } from "@/hooks/useClientAuth";
 import { PublicLayout } from "@/components/layout/AppLayout";
 import { UserRole } from "@/types/auth";
 import { AuthDebugInfo } from "@/components/debug/AuthDebugInfo";
+import { getDashboardRoute } from "@/lib/utils/auth-redirect.utils";
 
 export const dynamic = 'force-dynamic';
 
@@ -22,21 +23,6 @@ function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/dashboard';
-
-  const getDashboardRoute = (role: UserRole): string => {
-    switch (role) {
-      case UserRole.ADMIN:
-        return '/admin';
-      case UserRole.TEACHER:
-        return '/dashboard/teacher';
-      case UserRole.STUDENT:
-        return '/dashboard/student';
-      case UserRole.PENDING_TEACHER:
-        return '/dashboard/teacher/pending';
-      default:
-        return '/dashboard';
-    }
-  };
 
   // Redirect if already authenticated
   useEffect(() => {

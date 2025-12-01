@@ -15,11 +15,12 @@ export interface RedirectOptions {
 
 /**
  * Get the appropriate dashboard route based on user role
+ * All routes follow the pattern: /dashboard/{role}
  */
 export function getDashboardRoute(role: UserRole): string {
   switch (role) {
     case UserRole.ADMIN:
-      return '/admin';
+      return '/dashboard/admin';
     case UserRole.TEACHER:
       return '/dashboard/teacher';
     case UserRole.STUDENT:
@@ -124,8 +125,8 @@ export function requiresAuthentication(path: string): boolean {
  * Check if a route requires specific role
  */
 export function getRequiredRole(path: string): UserRole | null {
-  // Admin routes
-  if (path.startsWith('/admin')) {
+  // Admin routes (both /admin and /dashboard/admin for backward compatibility)
+  if (path.startsWith('/admin') || path.startsWith('/dashboard/admin')) {
     return UserRole.ADMIN;
   }
 

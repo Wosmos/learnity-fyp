@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { AdminRoute } from '@/components/auth/ProtectedRoute';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard - Learnity',
@@ -10,5 +11,9 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <AdminRoute>
+      {children}
+    </AdminRoute>
+  );
 }

@@ -4,7 +4,7 @@
  */
 
 import { Metadata } from 'next';
-import { ClientStudentProtection } from '@/components/auth/ClientStudentProtection';
+import { StudentRoute } from '@/components/auth/ProtectedRoute';
 
 export const metadata: Metadata = {
   title: 'Student Dashboard - Learnity',
@@ -17,10 +17,10 @@ export default function StudentDashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClientStudentProtection>
+    <StudentRoute>
       <div className="student-dashboard-layout">
         {children}
       </div>
-    </ClientStudentProtection>
+    </StudentRoute>
   );
 }
