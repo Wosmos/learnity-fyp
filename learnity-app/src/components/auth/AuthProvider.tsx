@@ -104,6 +104,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const customClaims = response.ok ? await response.json() : null;
 
       setClaims(customClaims);
+      
+      // Update cache with fresh claims
+      if (customClaims) {
+        localStorage.setItem('learnity_user_claims', JSON.stringify({
+          claims: customClaims,
+          timestamp: Date.now()
+        }));
+      }
+      
       updateLastActivity();
     } catch (error: any) {
       console.error("Failed to refresh claims:", error);
@@ -125,6 +134,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(true);
       await signOut(auth);
       clearAuth();
+      // Clear cached claims on logout
+      localStorage.removeItem('learnity_user_claims');
     } catch (error: any) {
       console.error("Failed to logout:", error);
       setError({
@@ -181,28 +192,54 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
           setUser(firebaseUser);
 
-          // Sync user profile with Neon DB (create if doesn't exist)
-          await syncUserProfile(firebaseUser);
+          // Check for cached claims to show UI immediately
+          const cachedClaims = localStorage.getItem('learnity_user_claims');
+          if (cachedClaims) {
+            try {
+              const parsed = JSON.parse(cachedClaims);
+              // Check if cache is less than 5 minutes old
+              if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+                setClaims(parsed.claims);
+                setLoading(false); // Show UI immediately with cached data
+              }
+            } catch (e) {
+              console.warn('Failed to parse cached claims:', e);
+            }
+          }
 
-          // Get user claims and profile from API
-          const response = await fetch("/api/auth/claims", {
-            headers: {
-              Authorization: `Bearer ${await firebaseUser.getIdToken()}`,
-            },
-          });
+          const idToken = await firebaseUser.getIdToken();
 
-          const customClaims = response.ok ? await response.json() : null;
-          setClaims(customClaims);
+          // Parallel fetch: claims, profile, and sync (fire-and-forget)
+          const [claimsResponse, profileResponse] = await Promise.all([
+            fetch("/api/auth/claims", {
+              headers: { Authorization: `Bearer ${idToken}` },
+            }),
+            fetch("/api/auth/profile", {
+              headers: { Authorization: `Bearer ${idToken}` },
+            }),
+            // Fire-and-forget sync - don't wait for it
+            syncUserProfile(firebaseUser).catch(err => 
+              console.warn('Profile sync failed (non-critical):', err)
+            ),
+          ]);
 
-          // Fetch user profile from database
-          const profileResponse = await fetch("/api/auth/profile", {
-            headers: {
-              Authorization: `Bearer ${await firebaseUser.getIdToken()}`,
-            },
-          });
+          // Process claims
+          if (claimsResponse.ok) {
+            const customClaims = await claimsResponse.json();
+            setClaims(customClaims);
+            
+            // Cache claims with timestamp
+            localStorage.setItem('learnity_user_claims', JSON.stringify({
+              claims: customClaims,
+              timestamp: Date.now()
+            }));
+          }
 
-          const userProfile = profileResponse.ok ? await profileResponse.json() : null;
-          setProfile(userProfile);
+          // Process profile
+          if (profileResponse.ok) {
+            const userProfile = await profileResponse.json();
+            setProfile(userProfile);
+          }
 
           updateLastActivity();
         } catch (error: any) {
@@ -218,10 +255,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(null);
           setClaims(null);
           setProfile(null);
+          localStorage.removeItem('learnity_user_claims');
         }
       } else {
-        // User signed out
+        // User signed out - clear cache
         clearAuth();
+        localStorage.removeItem('learnity_user_claims');
       }
 
       setLoading(false);

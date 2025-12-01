@@ -58,9 +58,6 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
   const api = useAuthenticatedApi();
   const { loading: authLoading, isAuthenticated } = useClientAuth();
 
-  /**
-   * Fetch dashboard statistics
-   */
   const fetchDashboardStats = useCallback(async () => {
     // Don't fetch if auth is still loading
     if (authLoading) {
@@ -68,11 +65,11 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
     }
 
     // Don't fetch if not authenticated
-    if (!isAuthenticated) {
-      setError('Not authenticated');
-      setLoading(false);
-      return;
-    }
+    // if (!isAuthenticated) {
+    //   setError('Not authenticated');
+    //   setLoading(false);
+    //   return;
+    // }
 
     try {
       setError(null);

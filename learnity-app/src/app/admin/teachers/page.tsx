@@ -54,6 +54,7 @@ export default function TeacherManagementPage() {
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('pending');
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   
   const api = useAuthenticatedApi();
   const { toast } = useToast();
@@ -62,21 +63,26 @@ export default function TeacherManagementPage() {
     try {
       setLoading(true);
       const response = await api.get('/api/admin/teachers');
-      const teacherData = response.teachers || [];
+      const teacherData = response?.teachers || [];
       setTeachers(teacherData);
       setFilteredTeachers(teacherData);
-      setStats(response.stats || stats);
+      setStats(response?.stats || stats);
     } catch (error) {
       console.error('Failed to fetch teachers:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load teachers. Please try again.",
-        variant: "destructive"
-      });
+      
+      // Only show error toast after initial load
+      if (!isInitialLoad) {
+        toast({
+          title: "Error",
+          description: "Failed to load teachers. Please try again.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
+      setIsInitialLoad(false);
     }
-  }, [api, toast]);
+  }, [api, toast, isInitialLoad, stats]);
 
   useEffect(() => {
     fetchTeachers();

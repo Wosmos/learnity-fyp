@@ -25,39 +25,7 @@ import {
 
 export default function AdminSecurityDashboardPage() {
   return (
-    <AdminLayout
-    >
-      {/* Quick Access Cards */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Link href="/admin/users">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-3">
-                <Users className="h-8 w-8 text-green-500" />
-                <div>
-                  <p className="font-medium text-gray-900">User Management</p>
-                  <p className="text-xs text-gray-500">Manage users</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/admin/settings">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-3">
-                <Settings className="h-8 w-8 text-purple-500" />
-                <div>
-                  <p className="font-medium text-gray-900">Settings</p>
-                  <p className="text-xs text-gray-500">Configure system</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-      </div> */}
-
+    <AdminLayout>
       {/* Main Security Dashboard Tabs */}
       <Tabs defaultValue="dashboard" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">

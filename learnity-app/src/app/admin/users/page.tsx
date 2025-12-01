@@ -54,6 +54,7 @@ export default function UserManagementPage() {
     adminCount: 0
   });
   const [loading, setLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
@@ -65,20 +66,25 @@ export default function UserManagementPage() {
     try {
       setLoading(true);
       const response = await api.get('/api/admin/users');
-      const userData = response.users || [];
+      const userData = response?.users || [];
       setUsers(userData);
       setFilteredUsers(userData);
     } catch (error) {
       console.error('Failed to fetch users:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load users. Please try again.",
-        variant: "destructive"
-      });
+      
+      // Only show error toast after initial load
+      if (!isInitialLoad) {
+        toast({
+          title: "Error",
+          description: "Failed to load users. Please try again.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
+      setIsInitialLoad(false);
     }
-  }, [api, toast]);
+  }, [api, toast, isInitialLoad]);
 
   const fetchStats = useCallback(async () => {
     try {

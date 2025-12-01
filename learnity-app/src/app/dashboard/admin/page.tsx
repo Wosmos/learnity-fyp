@@ -59,42 +59,59 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<PlatformStats | null>(null);
   const [metrics, setMetrics] = useState<PlatformMetric[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  
   const api = useAuthenticatedApi();
   const { toast } = useToast();
 
   const fetchDashboardData = useCallback(async (showRefreshToast = false) => {
     try {
-
-      
       const response = await api.get('/api/admin/stats');
-      setStats(response.stats);
-      setMetrics(response.platformMetrics || []);
       
-      if (showRefreshToast) {
-        toast({
-          title: "Dashboard Updated",
-          description: "Latest statistics have been loaded.",
-        });
+      // Validate response structure
+      if (response?.stats) {
+        setStats(response.stats);
+        setMetrics(response.platformMetrics || []);
+        
+        if (showRefreshToast) {
+          toast({
+            title: "Dashboard Updated",
+            description: "Latest statistics have been loaded.",
+          });
+        }
+      } else {
+        console.warn('Invalid response structure:', response);
+        // Only show warning toast on manual refresh
+        if (showRefreshToast) {
+          toast({
+            title: "Warning",
+            description: "Dashboard data may be incomplete.",
+            variant: "destructive"
+          });
+        }
       }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load dashboard data. Please try again.",
-        variant: "destructive"
-      });
+      
+      // Only show error toast if it's NOT the initial load
+      if (!isInitialLoad) {
+        toast({
+          title: "Error",
+          description: "Failed to load dashboard data. Please try again.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
+      setIsInitialLoad(false);
     }
-  }, [api, toast]);
+  }, [api, toast, isInitialLoad]);
 
   useEffect(() => {
     fetchDashboardData();
     
     // Auto-refresh every 5 minutes
-    const interval = setInterval(() => fetchDashboardData(), 5 * 60 * 1000);
+    const interval = setInterval(() => fetchDashboardData(false), 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [fetchDashboardData]);
 
