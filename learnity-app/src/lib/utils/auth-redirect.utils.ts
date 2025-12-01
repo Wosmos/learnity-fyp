@@ -48,7 +48,7 @@ export function getPostAuthRedirect(options: RedirectOptions): string {
   if (claims && !claims.profileComplete) {
     switch (userRole) {
       case UserRole.STUDENT:
-        return '/profile/enhance';
+        return '/dashboard/student';
       case UserRole.PENDING_TEACHER:
         return '/dashboard/teacher/pending';
       default:

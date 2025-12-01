@@ -1,20 +1,22 @@
 'use client';
 
 /**
- * Course Preview/Detail Page
- * Public page showing course details, sections, lessons
+ * Course Detail Page
+ * Public page showing course details, sections, lessons, teacher profile, and reviews
+ * Requirements: 3.5, 3.6, 4.1 - Course info, syllabus, teacher profile, reviews, enroll button
  * Uses YouTube thumbnail from first lesson or default image
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
 import {
   Accordion,
   AccordionContent,
@@ -36,10 +38,13 @@ import {
   BarChart3,
   Globe,
   Lock,
+  MessageSquare,
+  ThumbsUp,
 } from 'lucide-react';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { useToast } from '@/hooks/use-toast';
+import { StarRating } from '@/components/courses';
 
 interface Lesson {
   id: string;
@@ -72,6 +77,31 @@ interface Category {
   id: string;
   name: string;
   slug: string;
+}
+
+interface Review {
+  id: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+  student: {
+    id: string;
+    name: string;
+    avatarUrl?: string;
+  };
+}
+
+interface ReviewsData {
+  reviews: Review[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  rating: {
+    averageRating: number;
+    totalReviews: number;
+    ratingDistribution: Record<number, number>;
+  };
 }
 
 interface CourseData {
@@ -170,6 +200,8 @@ export default function CoursePreviewPage() {
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [thumbnailError, setThumbnailError] = useState(false);
+  const [reviews, setReviews] = useState<ReviewsData | null>(null);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
 
   // Fetch course data
   const fetchCourse = useCallback(async () => {
@@ -207,9 +239,26 @@ export default function CoursePreviewPage() {
     }
   }, [courseId, user, authenticatedFetch]);
 
+  // Fetch reviews
+  const fetchReviews = useCallback(async () => {
+    try {
+      setIsLoadingReviews(true);
+      const response = await fetch(`/api/courses/${courseId}/reviews?limit=5`);
+      if (response.ok) {
+        const responseData = await response.json();
+        setReviews(responseData.data || null);
+      }
+    } catch (err) {
+      console.error('Failed to fetch reviews:', err);
+    } finally {
+      setIsLoadingReviews(false);
+    }
+  }, [courseId]);
+
   useEffect(() => {
     fetchCourse();
-  }, [fetchCourse]);
+    fetchReviews();
+  }, [fetchCourse, fetchReviews]);
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -443,6 +492,117 @@ export default function CoursePreviewPage() {
                         </AccordionItem>
                       ))}
                     </Accordion>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Reviews Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5" />
+                    Student Reviews
+                  </CardTitle>
+                  <CardDescription>
+                    {reviews?.rating?.totalReviews || course.reviewCount || 0} reviews
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {/* Rating Summary */}
+                  {reviews?.rating && reviews.rating.totalReviews > 0 && (
+                    <div className="flex items-start gap-8 mb-6 pb-6 border-b">
+                      {/* Average Rating */}
+                      <div className="text-center">
+                        <div className="text-4xl font-bold text-slate-900">
+                          {Number(reviews.rating.averageRating).toFixed(1)}
+                        </div>
+                        <div className="flex items-center justify-center mt-1">
+                          <StarRating value={Number(reviews.rating.averageRating)} size="sm" readonly />
+                        </div>
+                        <p className="text-sm text-slate-500 mt-1">
+                          {reviews.rating.totalReviews} reviews
+                        </p>
+                      </div>
+
+                      {/* Rating Distribution */}
+                      <div className="flex-1 space-y-2">
+                        {[5, 4, 3, 2, 1].map((star) => {
+                          const count = reviews.rating.ratingDistribution[star] || 0;
+                          const percentage = reviews.rating.totalReviews > 0
+                            ? (count / reviews.rating.totalReviews) * 100
+                            : 0;
+                          return (
+                            <div key={star} className="flex items-center gap-2">
+                              <span className="text-sm text-slate-600 w-12">{star} stars</span>
+                              <Progress value={percentage} className="h-2 flex-1" />
+                              <span className="text-sm text-slate-500 w-8">{count}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Reviews List */}
+                  {isLoadingReviews ? (
+                    <div className="space-y-4">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="flex gap-4">
+                          <Skeleton className="h-10 w-10 rounded-full" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-32" />
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-3/4" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : reviews?.reviews && reviews.reviews.length > 0 ? (
+                    <div className="space-y-6">
+                      {reviews.reviews.map((review) => (
+                        <div key={review.id} className="flex gap-4">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={review.student.avatarUrl} alt={review.student.name} />
+                            <AvatarFallback>
+                              {review.student.name?.charAt(0).toUpperCase() || 'S'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-medium text-slate-900">{review.student.name}</p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <StarRating value={review.rating} size="sm" readonly />
+                                  <span className="text-xs text-slate-500">
+                                    {new Date(review.createdAt).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            {review.comment && (
+                              <p className="text-slate-600 mt-2 text-sm">{review.comment}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Show More Reviews */}
+                      {reviews.totalPages > 1 && (
+                        <div className="text-center pt-4">
+                          <Button variant="outline" size="sm">
+                            View all {reviews.total} reviews
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <ThumbsUp className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                      <p className="text-slate-500">No reviews yet</p>
+                      <p className="text-sm text-slate-400 mt-1">
+                        Be the first to review this course!
+                      </p>
+                    </div>
                   )}
                 </CardContent>
               </Card>

@@ -480,10 +480,18 @@ export default function StudentDashboard() {
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full justify-start">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Browse Courses
-                </Button>
+                <Link href="/courses">
+                  <Button className="w-full justify-start">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Browse Courses
+                  </Button>
+                </Link>
+                <Link href="/dashboard/student/courses">
+                  <Button variant="outline" className="w-full justify-start">
+                    <GraduationCap className="h-4 w-4 mr-2" />
+                    My Courses
+                  </Button>
+                </Link>
                 <Button variant="outline" className="w-full justify-start">
                   <Users className="h-4 w-4 mr-2" />
                   Find Study Groups

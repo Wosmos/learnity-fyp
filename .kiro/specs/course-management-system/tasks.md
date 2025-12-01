@@ -759,58 +759,92 @@
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Phase 9: Student UI Components
+ 
+- [x] 27. Create Student Course Browsing UI
 
-- [ ] 27. Create Student Course Browsing UI
-  - [ ] 27.1 Create CourseCatalogPage
+
+
+
+
+
+  - [x] 27.1 Create CourseCatalogPage
+
     - Grid of CourseCards
     - Filters sidebar
     - Search bar
     - Pagination
     - _Requirements: 3.1, 3.2, 3.3, 3.4_
-  - [ ] 27.2 Create CourseDetailPage
+
+  - [x] 27.2 Create CourseDetailPage
+
     - Course info, syllabus, teacher profile
     - Reviews section
     - Enroll button
     - _Requirements: 3.5, 3.6, 4.1_
-  - [ ] 27.3 Create MyCoursesPage
+
+  - [x] 27.3 Create MyCoursesPage
+
     - Enrolled courses with progress
     - Continue learning section
     - Completed courses
     - _Requirements: 3.7, 4.4_
 
-- [ ] 28. Create Course Player UI
-  - [ ] 28.1 Create CoursePlayerPage layout
+- [x] 28. Create Course Player UI
+
+
+
+  - [x] 28.1 Create CoursePlayerPage layout
+
+
     - Video player area
     - Lesson sidebar
     - Progress tracking
     - _Requirements: 5.1, 5.2_
-  - [ ] 28.2 Create YouTubePlayer component
+
+  - [x] 28.2 Create YouTubePlayer component
+
     - Embed YouTube video
     - Track watch progress
     - Resume from last position
     - _Requirements: 5.1, 5.3, 5.6_
-  - [ ] 28.3 Create LessonSidebar component
+
+
+  - [x] 28.3 Create LessonSidebar component
     - Sections with lessons
     - Completion checkmarks
     - Locked section indicators
+
     - _Requirements: 5.2, 5.8, 7.2_
-  - [ ] 28.4 Create LessonCompleteDialog component
+  - [x] 28.4 Create LessonCompleteDialog component
+
+
     - XP earned display
     - Next lesson button
     - _Requirements: 5.4, 5.7_
 
-- [ ] 29. Create Quiz Taking UI
-  - [ ] 29.1 Create QuizPage layout
+- [x] 29. Check if already created then test it and enhance it  other wise , Create Quiz Taking UI
+
+
+
+
+
+  - [x] 29.1 Create QuizPage layout
+
+
     - Question display
     - Progress indicator
     - Timer (optional)
     - _Requirements: 6.3_
-  - [ ] 29.2 Create QuestionCard component
+
+  - [x] 29.2 Create QuestionCard component
+
     - Question text
     - Option buttons
     - Immediate feedback
     - _Requirements: 6.3, 6.4_
-  - [ ] 29.3 Create QuizResultsPage
+
+  - [x] 29.3 Create QuizResultsPage
+
     - Score display
     - Pass/fail indicator
     - Answer review with explanations
@@ -824,8 +858,8 @@
     - Comment textarea
     - Submit button
     - _Requirements: 8.1, 8.2_
-  - [ ] 30.2 Create ReviewsList component
-    - Display reviews with ratings
+  - [ ] 30.2 Create ReviewsList component and integrate it with already exisitng teachers page so that each teacher can be given reviews by stundets , fix and fit it in existing flow 
+    - Display reviews with ratings 
     - Student name and date
     - _Requirements: 8.4_
   - [ ] 30.3 Create CertificatePage

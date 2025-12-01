@@ -5,6 +5,18 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   serverExternalPackages: ['@prisma/client', 'prisma'],
   turbopack: {}, // Enable Turbopack for Next.js 16
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'source.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.youtube.com',
+      },
+    ],
+  },
   outputFileTracingIncludes: {
     '/api/**/*': ['./node_modules/.prisma/client/**/*'],
   },
