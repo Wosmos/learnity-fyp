@@ -16,9 +16,9 @@ export function useAuthenticatedFetch() {
     const { skipAuth = false, headers = {}, ...restOptions } = options;
 
     // Wait for auth to be ready if still loading
-    if (!skipAuth && loading) {
-      throw new Error('Authentication is still loading');
-    }
+    // if (!skipAuth && loading) {
+    //   throw new Error('Authentication is still loading');
+    // }
 
     // Check if user is authenticated when auth is required
     if (!skipAuth && !user) {

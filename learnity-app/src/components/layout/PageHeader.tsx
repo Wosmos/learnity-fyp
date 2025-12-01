@@ -39,7 +39,7 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <header 
-      className={`backdrop-blur-md -mb-6 ${
+      className={`backdrop-blur-md -mb-2 ${
         sticky ? 'sticky top-0 z-10' : ''
       } ${className}`}
     >

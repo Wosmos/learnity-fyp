@@ -148,7 +148,6 @@ export default function AdminDashboardPage() {
     <AdminLayout
     >
       {/* Key Metrics Overview */}
-      {/* Key Metrics Overview */}
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
   <MetricCard
     title="Total Users"
