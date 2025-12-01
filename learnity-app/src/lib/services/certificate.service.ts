@@ -13,8 +13,7 @@
 
 import { PrismaClient, Certificate, BadgeType, XPReason, EnrollmentStatus } from '@prisma/client';
 import { randomUUID } from 'crypto';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const PDFDocument = require('pdfkit');
+import PDFDocument from 'pdfkit';
 import {
   ICertificateService,
   CertificateWithDetails,

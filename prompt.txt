@@ -1,43 +1,5 @@
 now student supppose to browser courses the courses page(which is being private page make it public page like teachers page jsut we did with teachers ) we build is for individual teacher i want you to make a public (like teachers ) courses page which will redirect student to start a course keep the previous flow in track (follow project structure and ui ux flow ) also a dedecated user flow , also why it redirect me to /profile/enhace when i am authenticated and at home page it should redirect me to dashboard page not that enhance profile page 
-# .env
-DATABASE_URL="
-post
-gresql:
-//neondb_owner
-:npg_AD
-b
-y
-N
-sQ
-4
-B
-Oc9@ep
--
-with
-ere
-d-la
-b-a4
-2g3am
-b
--poo
-ler
-.us-
-ea
-st-1.
-aw
-s.neo
-n.te
-ch/ne
-ond
-b?sslm
-ode
-=requ
-ire&c
-hann
-el_b
-in
-di
-n
-g=re
-quire
-"
+
+
+
+  why are we using hard coded 50 xp points also how to also why we over engineer3ed the downloading pdf stuff that we are calling api to downlaoding the pdf where we could jsut use inbuild brower function to downlaod it explain me everything also i want you to make the certificate better  something liek this sing hard coded 50 xp points also how to also why we over engineer3ed the downloading pdf stuff that we are calling api to downlaoding the pdf where we could jsut use inbuild brower function to downlaod it explain me everything also i want you to make the certificate better  something liek this  

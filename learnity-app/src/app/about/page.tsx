@@ -38,11 +38,6 @@ const VALUES = [
     description: 'Passionate about making quality education accessible to everyone',
   },
   {
-    icon: Shield,
-    title: 'Trust',
-    description: 'Building trust through verified tutors and secure platform',
-  },
-  {
     icon: Globe,
     title: 'Accessibility',
     description: 'Making learning accessible anytime, anywhere',
@@ -127,8 +122,8 @@ through personalized, expert-led instruction.`,
                   bgColor: 'bg-blue-100',
                   color: 'text-blue-600',
                 }))}
-                columns={4}
-                variant="default"
+                columns={3}
+                variant="steps"
               />
             </div>
           </div>

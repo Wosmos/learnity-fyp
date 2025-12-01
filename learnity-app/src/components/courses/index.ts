@@ -44,3 +44,7 @@ export {
   type StreakDisplayProps,
   type StreakMilestoneProps,
 } from "./StreakCounter";
+export {
+  CertificatePage,
+  type CertificatePageProps,
+} from "./CertificatePage";

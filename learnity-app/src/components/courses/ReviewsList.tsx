@@ -92,7 +92,7 @@ export function ReviewsList({
         {reviews.map((review) => {
           const isExpanded = expandedReviews.has(review.id);
           const hasLongComment = review.comment && review.comment.length > 200;
-          const displayComment = hasLongComment && !isExpanded
+          const displayComment = hasLongComment && !isExpanded && review.comment
             ? `${review.comment.substring(0, 200)}...`
             : review.comment;
 
@@ -101,12 +101,12 @@ export function ReviewsList({
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
-                  <Avatar className="h-12 w-12 flex-shrink-0">
+                  <Avatar className="h-12 w-12 shrink-0">
                     <AvatarImage
                       src={review.student.profilePicture || undefined}
                       alt={`${review.student.firstName} ${review.student.lastName}`}
                     />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                    <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white">
                       {getInitials(review.student.firstName, review.student.lastName)}
                     </AvatarFallback>
                   </Avatar>

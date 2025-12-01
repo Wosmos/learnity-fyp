@@ -15,7 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 import { Progress } from '@/components/ui/progress';
 import {
   Accordion,
@@ -45,6 +45,8 @@ import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { useToast } from '@/hooks/use-toast';
 import { StarRating } from '@/components/courses';
+import { ReviewForm } from '@/components/courses/ReviewForm';
+import { ReviewsList } from '@/components/courses/ReviewsList';
 
 interface Lesson {
   id: string;
@@ -202,6 +204,9 @@ export default function CoursePreviewPage() {
   const [thumbnailError, setThumbnailError] = useState(false);
   const [reviews, setReviews] = useState<ReviewsData | null>(null);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [canReview, setCanReview] = useState(false);
+  const [existingReview, setExistingReview] = useState<{ id: string; rating: number; comment: string | null } | null>(null);
 
   // Fetch course data
   const fetchCourse = useCallback(async () => {
@@ -255,6 +260,27 @@ export default function CoursePreviewPage() {
     }
   }, [courseId]);
 
+  // Check if user can review
+  const checkReviewEligibility = useCallback(async () => {
+    if (!user) return;
+    try {
+      const response = await authenticatedFetch(`/api/courses/${courseId}/reviews/eligibility`);
+      if (response.ok) {
+        const data = await response.json();
+        setCanReview(data.data?.canReview || false);
+        if (data.data?.existingReview) {
+          setExistingReview({
+            id: data.data.existingReview.id,
+            rating: data.data.existingReview.rating,
+            comment: data.data.existingReview.comment ?? null,
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to check review eligibility:', err);
+    }
+  }, [courseId, user, authenticatedFetch]);
+
   useEffect(() => {
     fetchCourse();
     fetchReviews();
@@ -263,8 +289,9 @@ export default function CoursePreviewPage() {
   useEffect(() => {
     if (!authLoading && user) {
       checkEnrollment();
+      checkReviewEligibility();
     }
-  }, [authLoading, user, checkEnrollment]);
+  }, [authLoading, user, checkEnrollment, checkReviewEligibility]);
 
   const handleEnroll = async () => {
     if (!user) {
@@ -374,7 +401,7 @@ export default function CoursePreviewPage() {
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Course Thumbnail */}
-              <div className="relative aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600">
+              <div className="relative aspect-video rounded-xl overflow-hidden bg-linear-to-br from-blue-500 to-purple-600">
                 {thumbnailUrl ? (
                   <Image
                     src={thumbnailUrl}
@@ -389,7 +416,7 @@ export default function CoursePreviewPage() {
                     <BookOpen className="h-24 w-24 text-white/30" />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
                   <Badge className={difficultyColors[course.difficulty]}>
                     {course.difficulty}
@@ -499,15 +526,54 @@ export default function CoursePreviewPage() {
               {/* Reviews Section */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5" />
-                    Student Reviews
-                  </CardTitle>
-                  <CardDescription>
-                    {reviews?.rating?.totalReviews || course.reviewCount || 0} reviews
-                  </CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <MessageSquare className="h-5 w-5" />
+                        Student Reviews
+                      </CardTitle>
+                      <CardDescription>
+                        {reviews?.rating?.totalReviews || course.reviewCount || 0} reviews
+                      </CardDescription>
+                    </div>
+                    {user && isEnrolled && !existingReview && canReview && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowReviewForm(!showReviewForm)}
+                      >
+                        {showReviewForm ? 'Cancel' : 'Write a Review'}
+                      </Button>
+                    )}
+                    {user && existingReview && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowReviewForm(!showReviewForm)}
+                      >
+                        {showReviewForm ? 'Cancel' : 'Edit Your Review'}
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent>
+                  {/* Review Form */}
+                  {showReviewForm && user && (
+                    <div className="mb-6">
+                      <ReviewForm
+                        courseId={courseId}
+                        courseName={course.title}
+                        existingReview={existingReview}
+                        onSuccess={() => {
+                          setShowReviewForm(false);
+                          fetchReviews();
+                          checkReviewEligibility();
+                        }}
+                        onCancel={() => setShowReviewForm(false)}
+                      />
+                    </div>
+                  )}
+
                   {/* Rating Summary */}
                   {reviews?.rating && reviews.rating.totalReviews > 0 && (
                     <div className="flex items-start gap-8 mb-6 pb-6 border-b">
@@ -558,33 +624,20 @@ export default function CoursePreviewPage() {
                       ))}
                     </div>
                   ) : reviews?.reviews && reviews.reviews.length > 0 ? (
-                    <div className="space-y-6">
-                      {reviews.reviews.map((review) => (
-                        <div key={review.id} className="flex gap-4">
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={review.student.avatarUrl} alt={review.student.name} />
-                            <AvatarFallback>
-                              {review.student.name?.charAt(0).toUpperCase() || 'S'}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="font-medium text-slate-900">{review.student.name}</p>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                  <StarRating value={review.rating} size="sm" readonly />
-                                  <span className="text-xs text-slate-500">
-                                    {new Date(review.createdAt).toLocaleDateString()}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            {review.comment && (
-                              <p className="text-slate-600 mt-2 text-sm">{review.comment}</p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                    <>
+                      <ReviewsList
+                        reviews={reviews.reviews.map(r => ({
+                          ...r,
+                          comment: r.comment ?? null,
+                          student: {
+                            id: r.student.id || '',
+                            firstName: r.student.name?.split(' ')[0] || 'Student',
+                            lastName: r.student.name?.split(' ').slice(1).join(' ') || '',
+                            profilePicture: r.student.avatarUrl || null,
+                          },
+                        }))}
+                        emptyMessage="No reviews yet. Be the first to review!"
+                      />
 
                       {/* Show More Reviews */}
                       {reviews.totalPages > 1 && (
@@ -594,7 +647,7 @@ export default function CoursePreviewPage() {
                           </Button>
                         </div>
                       )}
-                    </div>
+                    </>
                   ) : (
                     <div className="text-center py-8">
                       <ThumbsUp className="h-12 w-12 text-slate-300 mx-auto mb-3" />

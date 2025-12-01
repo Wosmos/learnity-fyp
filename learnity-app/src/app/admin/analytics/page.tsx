@@ -217,7 +217,7 @@ export default function AdminAnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="text-center p-8 bg-gray-50 rounded-lg">
+              <div className="text-center p-10 bg-gray-50 rounded-lg">
                 <BarChart3 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-600">Chart visualization would go here</p>
                 <p className="text-sm text-gray-500 mt-2">
@@ -305,7 +305,7 @@ export default function AdminAnalyticsPage() {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Calendar className="h-5 w-5 text-purple-600" />
-            <span>This Month's Performance</span>
+            <span>This Month&apos;s Performance</span>
           </CardTitle>
           <CardDescription>Key metrics for the current month</CardDescription>
         </CardHeader>

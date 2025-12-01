@@ -852,24 +852,24 @@
     - Retake button
     - _Requirements: 6.5, 6.7, 6.8_
 
-- [ ] 30. Create Review and Certificate UI
-  - [ ] 30.1 Create ReviewForm component
+- [-] 30. Create Review and Certificate UI
+  - [x] 30.1 Create ReviewForm component
     - Star rating input
     - Comment textarea
     - Submit button
     - _Requirements: 8.1, 8.2_
-  - [ ] 30.2 Create ReviewsList component and integrate it with already exisitng teachers page so that each teacher can be given reviews by stundets , fix and fit it in existing flow 
+  - [x] 30.2 Create ReviewsList component and integrate it with already exisitng teachers page so that each teacher can be given reviews by stundets , fix and fit it in existing flow 
     - Display reviews with ratings 
     - Student name and date
     - _Requirements: 8.4_
-  - [ ] 30.3 Create CertificatePage
+  - [x] 30.3 Create CertificatePage
     - Certificate display
     - Download PDF button
     - Share options
     - _Requirements: 10.2, 10.3, 10.5_
 
-- [ ] 31. Update Student Dashboard
-  - [ ] 31.1 Update StudentDashboard with real data
+- [-] 31. Update Student Dashboard
+  - [x] 31.1 Update StudentDashboard with real data
     - Replace hardcoded values with API data
     - Show enrolled courses with progress
     - Display XP, streak, level
@@ -885,6 +885,7 @@
 
 - [ ] 33. Integrate all components
   - [ ] 33.1 Wire up teacher dashboard navigation
+    - want a dedecated role based sidebar for student , teacher for all pages , so that we can use it in all exisitng realted pages
     - Add course management links
     - Connect analytics pages
     - _Requirements: All teacher requirements_
