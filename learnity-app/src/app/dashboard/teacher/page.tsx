@@ -10,7 +10,6 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/types/auth';
@@ -232,7 +231,6 @@ export default function TeacherDashboard() {
   };
 
   return (
-    <AuthenticatedLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100">
         {/* Header */}
         <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200">
@@ -548,6 +546,5 @@ export default function TeacherDashboard() {
           </div>
         </div>
       </div>
-    </AuthenticatedLayout>
   );
 }

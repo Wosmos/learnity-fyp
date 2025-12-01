@@ -6,7 +6,6 @@
  */
 
 
-import { AdminLayout } from '@/components/admin/AdminLayout';
 import { SecurityDashboard } from '@/components/admin/SecurityDashboard';
 import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
 import { SecurityEventsViewer } from '@/components/admin/SecurityEventsViewer';
@@ -25,8 +24,7 @@ import {
 
 export default function AdminSecurityDashboardPage() {
   return (
-    <AdminLayout
-    >
+    <div className="space-y-6">
       {/* Quick Access Cards */}
       {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Link href="/admin/users">
@@ -85,7 +83,7 @@ export default function AdminSecurityDashboardPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </AdminLayout>
+    </div>
   );
 }
 

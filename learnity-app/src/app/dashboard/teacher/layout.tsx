@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   description: 'Teacher dashboard with session management, student progress, and content tools',
 };
 
+import { RoleDashboardLayout } from '@/components/layout/RoleDashboardLayout';
+import { UserRole } from '@/types/auth';
+
 export default function TeacherDashboardLayout({
   children,
 }: {
@@ -18,9 +21,9 @@ export default function TeacherDashboardLayout({
 }) {
   return (
     <ClientTeacherProtection>
-      <div className="teacher-dashboard-layout">
+      <RoleDashboardLayout role={UserRole.TEACHER} roleLabel="Teacher">
         {children}
-      </div>
+      </RoleDashboardLayout>
     </ClientTeacherProtection>
   );
 }

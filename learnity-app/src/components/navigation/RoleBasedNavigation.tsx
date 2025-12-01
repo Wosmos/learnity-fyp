@@ -43,34 +43,51 @@ export interface RoleBasedNavigationProps {
   showIcons?: boolean;
 }
 
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
+  Calendar,
+  FileText,
+  Shield,
+  Activity,
+  UserCheck,
+  GraduationCap,
+  User
+} from 'lucide-react';
+
 /**
  * Default navigation items for different user roles
  */
-const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
+export const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
   // Student Navigation
   {
     label: 'Student Dashboard',
     href: '/dashboard/student',
     permission: Permission.VIEW_STUDENT_DASHBOARD,
-    role: UserRole.STUDENT
+    role: UserRole.STUDENT,
+    icon: <LayoutDashboard className="w-5 h-5" />
   },
   {
     label: 'Study Groups',
     href: '/student/groups',
     permission: Permission.JOIN_STUDY_GROUPS,
-    role: UserRole.STUDENT
+    role: UserRole.STUDENT,
+    icon: <Users className="w-5 h-5" />
   },
   {
     label: 'Book Tutoring',
     href: '/student/tutoring',
     permission: Permission.BOOK_TUTORING,
-    role: UserRole.STUDENT
+    role: UserRole.STUDENT,
+    icon: <Calendar className="w-5 h-5" />
   },
   {
     label: 'Enhance Profile',
     href: '/profile/enhance',
     permission: Permission.ENHANCE_PROFILE,
-    role: UserRole.STUDENT
+    role: UserRole.STUDENT,
+    icon: <User className="w-5 h-5" />
   },
 
   // Teacher Navigation
@@ -78,25 +95,29 @@ const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
     label: 'Teacher Dashboard',
     href: '/dashboard/teacher',
     permission: Permission.VIEW_TEACHER_DASHBOARD,
-    roles: [UserRole.TEACHER, UserRole.ADMIN]
+    roles: [UserRole.TEACHER, UserRole.ADMIN],
+    icon: <LayoutDashboard className="w-5 h-5" />
   },
   {
     label: 'Manage Sessions',
     href: '/teacher/sessions',
     permission: Permission.MANAGE_SESSIONS,
-    roles: [UserRole.TEACHER, UserRole.ADMIN]
+    roles: [UserRole.TEACHER, UserRole.ADMIN],
+    icon: <Calendar className="w-5 h-5" />
   },
   {
     label: 'Upload Content',
     href: '/teacher/content',
     permission: Permission.UPLOAD_CONTENT,
-    roles: [UserRole.TEACHER, UserRole.ADMIN]
+    roles: [UserRole.TEACHER, UserRole.ADMIN],
+    icon: <FileText className="w-5 h-5" />
   },
   {
     label: 'Student Progress',
     href: '/teacher/progress',
     permission: Permission.VIEW_STUDENT_PROGRESS,
-    roles: [UserRole.TEACHER, UserRole.ADMIN]
+    roles: [UserRole.TEACHER, UserRole.ADMIN],
+    icon: <Activity className="w-5 h-5" />
   },
 
   // Pending Teacher Navigation
@@ -104,13 +125,15 @@ const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
     label: 'Application Status',
     href: '/application/status',
     permission: Permission.VIEW_APPLICATION_STATUS,
-    role: UserRole.PENDING_TEACHER
+    role: UserRole.PENDING_TEACHER,
+    icon: <FileText className="w-5 h-5" />
   },
   {
     label: 'Update Application',
     href: '/application/update',
     permission: Permission.UPDATE_APPLICATION,
-    role: UserRole.PENDING_TEACHER
+    role: UserRole.PENDING_TEACHER,
+    icon: <User className="w-5 h-5" />
   },
 
   // Admin Navigation
@@ -118,37 +141,36 @@ const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
     label: 'Admin Dashboard',
     href: '/admin',
     permission: Permission.VIEW_ADMIN_PANEL,
-    role: UserRole.ADMIN
-  },
-  {
-    label: 'Security Dashboard',
-    href: '/admin',
-    permission: Permission.VIEW_AUDIT_LOGS,
-    role: UserRole.ADMIN
-  },
-  {
-    label: 'Audit Logs',
-    href: '/admin/audit-logs',
-    permission: Permission.VIEW_AUDIT_LOGS,
-    role: UserRole.ADMIN
-  },
-  {
-    label: 'Security Events',
-    href: '/admin/security-events',
-    permission: Permission.VIEW_AUDIT_LOGS,
-    role: UserRole.ADMIN
+    role: UserRole.ADMIN,
+    icon: <LayoutDashboard className="w-5 h-5" />
   },
   {
     label: 'User Management',
     href: '/admin/users',
     permission: Permission.MANAGE_USERS,
-    role: UserRole.ADMIN
+    role: UserRole.ADMIN,
+    icon: <Users className="w-5 h-5" />
   },
   {
     label: 'Teacher Applications',
     href: '/admin/teachers',
     permission: Permission.APPROVE_TEACHERS,
-    role: UserRole.ADMIN
+    role: UserRole.ADMIN,
+    icon: <UserCheck className="w-5 h-5" />
+  },
+  {
+    label: 'Audit Logs',
+    href: '/admin/audit-logs',
+    permission: Permission.VIEW_AUDIT_LOGS,
+    role: UserRole.ADMIN,
+    icon: <FileText className="w-5 h-5" />
+  },
+  {
+    label: 'Security Events',
+    href: '/admin/security-events',
+    permission: Permission.VIEW_AUDIT_LOGS,
+    role: UserRole.ADMIN,
+    icon: <Shield className="w-5 h-5" />
   }
 ];
 

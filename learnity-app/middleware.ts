@@ -21,6 +21,7 @@ const ROUTE_CONFIG = {
     '/demo',
     '/welcome',
     '/unauthorized',
+    '/courses'
   ],
   // Public route patterns (regex patterns for dynamic routes)
   publicPatterns: [

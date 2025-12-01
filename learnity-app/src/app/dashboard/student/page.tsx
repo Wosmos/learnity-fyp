@@ -35,7 +35,6 @@ import {
   Rocket
 } from 'lucide-react';
 import Link from 'next/link';
-import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { ProfileCompletionBanner } from '@/components/profile/ProfileCompletionBanner';
 import { ProfileCompletionSkeleton } from '@/components/profile/ProfileCompletionSkeleton';
 import { MetricCard } from '@/components/ui/stats-card';
@@ -120,19 +119,16 @@ export default function StudentDashboard() {
 
   if (authLoading || loadingProfile) {
     return (
-      <AuthenticatedLayout>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your dashboard...</p>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
         </div>
-      </AuthenticatedLayout>
+      </div>
     );
   }
 
   return (
-    <AuthenticatedLayout>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-100">
@@ -602,6 +598,5 @@ export default function StudentDashboard() {
         </div>
       </main>
       </div>
-    </AuthenticatedLayout>
   );
 }

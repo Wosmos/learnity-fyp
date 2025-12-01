@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   description: 'Administrative interface for Learnity platform management',
 };
 
+import { RoleDashboardLayout } from '@/components/layout/RoleDashboardLayout';
+import { UserRole } from '@/types/auth';
+
 export default function AdminRouteLayout({
   children,
 }: {
@@ -18,7 +21,9 @@ export default function AdminRouteLayout({
 }) {
   return (
     <ClientAdminProtection>
-      {children}
+      <RoleDashboardLayout role={UserRole.ADMIN} roleLabel="Administrator">
+        {children}
+      </RoleDashboardLayout>
     </ClientAdminProtection>
   );
 }
