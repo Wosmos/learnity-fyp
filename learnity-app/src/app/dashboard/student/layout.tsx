@@ -1,15 +1,12 @@
 /**
  * Student Dashboard Layout
- * Protects student routes and provides common layout
+ * Protects student routes and provides common layout with sidebar navigation
  */
 
-import { Metadata } from 'next';
-import { StudentRoute } from '@/components/auth/ProtectedRoute';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Student Dashboard - Learnity',
-  description: 'Student learning dashboard with courses, progress tracking, and study tools',
-};
+import { StudentRoute } from '@/components/auth/ProtectedRoute';
+import { StudentSidebar } from '@/components/layout/StudentSidebar';
 
 export default function StudentDashboardLayout({
   children,
@@ -18,8 +15,14 @@ export default function StudentDashboardLayout({
 }) {
   return (
     <StudentRoute>
-      <div className="student-dashboard-layout">
-        {children}
+      <div className="flex min-h-screen bg-slate-50">
+        {/* Student Sidebar Navigation */}
+        <StudentSidebar />
+        
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-x-hidden">
+          {children}
+        </div>
       </div>
     </StudentRoute>
   );

@@ -22,7 +22,8 @@ import {
 import { MetricCard } from '@/components/ui/stats-card';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import { Skeleton } from '@/components/ui/skeleton';
-
+import { PageHeader } from '@/components/layout/PageHeader';
+import { AsyncButton } from '@/components/ui/async-button';
 interface TeacherStats {
   totalStudents: number;
   totalCourses: number;
@@ -235,31 +236,20 @@ export default function TeacherDashboard() {
     <AuthenticatedLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100">
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
-              <div className="flex items-center space-x-4">
-                <div className="p-2.5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg">
-                  <GraduationCap className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-slate-900">Teacher Dashboard</h1>
-                  <p className="text-sm text-slate-500">
-                    Welcome back, {user?.displayName || user?.email || 'Teacher'}!
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Link href="/dashboard/teacher/courses/new">
-                  <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
-                    <Plus className="h-4 w-4" />
-                    New Course
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
+        <PageHeader
+          title="Teacher Dashboard"
+          subtitle={`Welcome back, ${user?.displayName || user?.email || 'Teacher'}!`}
+          icon={GraduationCap}
+          actions={
+            
+            <Link href="/dashboard/teacher/courses/new">
+              <AsyncButton size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+                <Plus className="h-4 w-4" />
+                New Course
+              </AsyncButton>
+            </Link>
+          }
+        />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Stats Overview */}

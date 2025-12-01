@@ -884,12 +884,12 @@
 ## Phase 10: Integration & Polish
 
 - [-] 33. Integrate all components
-  - [ ] 33.1 Wire up teacher and stundet dashboard navigation
+  - [x] 33.1 Wire up teacher and stundet dashboard navigation
     - want a dedecated role based sidebar for student , teacher for all pages , so that we can use it in all exisitng realted pages
     - Add course management links
     - Connect analytics pages
     - _Requirements: All teacher requirements_
-  - [ ] 33.2 Wire up student dashboard navigation
+  - [x] 33.2 Wire up student dashboard navigation
     - Add course browsing links
     - Connect my courses page
     - _Requirements: All student requirements_

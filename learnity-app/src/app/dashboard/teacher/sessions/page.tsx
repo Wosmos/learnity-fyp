@@ -20,6 +20,7 @@ import {
   ExternalLink,
   BookOpen,
 } from 'lucide-react';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default function TeacherSessionsPage() {
   return (
@@ -27,34 +28,22 @@ export default function TeacherSessionsPage() {
       <AuthenticatedLayout>
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100">
           {/* Header */}
-          <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center py-6">
-                <div className="flex items-center space-x-4">
-                  <Link href="/dashboard/teacher">
-                    <Button variant="ghost" size="sm" className="gap-2">
-                      <ArrowLeft className="h-4 w-4" />
-                      Back to Dashboard
-                    </Button>
-                  </Link>
-                  <div className="h-6 w-px bg-slate-300" />
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2.5 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl shadow-lg">
-                      <Video className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <h1 className="text-2xl font-bold text-slate-900">Live Sessions</h1>
-                      <p className="text-sm text-slate-500">
-                        Connect with your students in real-time
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </header>
+          <PageHeader
+            title="Live Sessions"
+            subtitle="Connect with your students in real-time"
+            icon={Video}
+            iconGradient={{ from: 'purple-600', to: 'purple-700' }}
+            actions={
+              <Link href="/dashboard/teacher">
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Dashboard
+                </Button>
+              </Link>
+            }
+          />
 
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {/* Coming Soon Card */}
             <Card className="border-0 shadow-lg mb-8">
               <CardContent className="flex flex-col items-center justify-center py-16">
@@ -65,7 +54,7 @@ export default function TeacherSessionsPage() {
                   Live Sessions Coming Soon
                 </h2>
                 <p className="text-slate-600 text-center max-w-md mb-8">
-                  We're working on integrating live video sessions. In the meantime, 
+                  We&apos;re working on integrating live video sessions. In the meantime, 
                   you can use external tools to connect with your students.
                 </p>
               </CardContent>

@@ -10,7 +10,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,10 +23,8 @@ import {
   CheckCircle,
   Trophy,
   GraduationCap,
-  ArrowRight,
   Calendar,
   Star,
-  Loader2,
   AlertCircle,
 } from 'lucide-react';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
@@ -253,7 +250,7 @@ export default function MyCoursesPage() {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await api.get<EnrollmentsResponse>('/api/enrollments?limit=50');
+      const data = await api.get('/api/enrollments?limit=50') as EnrollmentsResponse;
       setEnrollments(data.enrollments || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load courses');
@@ -295,11 +292,10 @@ export default function MyCoursesPage() {
   ).length;
 
   return (
-    <AuthenticatedLayout>
-      <div className="min-h-screen bg-slate-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
@@ -480,7 +476,6 @@ export default function MyCoursesPage() {
             </TabsContent>
           </Tabs>
         </main>
-      </div>
-    </AuthenticatedLayout>
+    </div>
   );
 }

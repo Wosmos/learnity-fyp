@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { LoadingButton } from '@/components/shared/LoadingButton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -374,14 +375,15 @@ export function ProfileEnhancementForm({ initialData, onSuccess }: ProfileEnhanc
 
       {/* Save Button */}
       <div className="flex justify-end">
-        <Button
+        <LoadingButton
           onClick={handleSubmit}
-          disabled={loading}
+          isLoading={loading}
+          loadingText="Saving Profile..."
           size="lg"
           className="bg-gradient-to-r from-blue-600 to-purple-600"
         >
-          {loading ? 'Saving...' : 'Save Profile'}
-        </Button>
+          Save Profile
+        </LoadingButton>
       </div>
     </div>
   );

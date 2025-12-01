@@ -136,7 +136,7 @@ export default function NewCoursePage() {
         <div className="min-h-screen bg-slate-50">
           {/* Header */}
           <header className="bg-white shadow-sm border-b">
-            <div className="max-w-2xl mx-auto px-4">
+            <div className="max-w-7xl mx-auto px-4">
               <div className="flex items-center gap-4 py-4">
                 <Link href="/dashboard/teacher/courses">
                   <Button variant="ghost" size="sm">
@@ -152,7 +152,7 @@ export default function NewCoursePage() {
             </div>
           </header>
 
-          <main className="max-w-2xl mx-auto px-4 py-8">
+          <main className="max-w-7xl mx-auto px-4 py-8">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

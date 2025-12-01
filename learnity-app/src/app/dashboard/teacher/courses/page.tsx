@@ -41,6 +41,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 interface TeacherCourse {
   id: string;
@@ -265,29 +266,19 @@ export default function TeacherCoursesPage() {
     <AuthenticatedLayout>
       <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100">
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
-              <div className="flex items-center space-x-4">
-                <div className="p-2.5 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg">
-                  <BookOpen className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-slate-900">My Courses</h1>
-                  <p className="text-sm text-slate-500">
-                    Manage and track your course content
-                  </p>
-                </div>
-              </div>
-              <Link href="/dashboard/teacher/courses/new">
-                <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
-                  <Plus className="h-4 w-4" />
-                  Create Course
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </header>
+        <PageHeader
+          title="My Courses"
+          subtitle="Manage and track your course content"
+          icon={BookOpen}
+          actions={
+            <Link href="/dashboard/teacher/courses/new">
+              <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+                <Plus className="h-4 w-4" />
+                Create Course
+              </Button>
+            </Link>
+          }
+        />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Stats Summary */}

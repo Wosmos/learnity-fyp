@@ -40,6 +40,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
+import { useClientAuth } from '@/hooks/useClientAuth';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 interface Student {
   id: string;
@@ -296,38 +298,27 @@ export default function CourseStudentsPage() {
     <AuthenticatedLayout>
       <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100">
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
-              <div className="flex items-center space-x-4">
-                <Link href="/dashboard/teacher/courses">
-                  <Button variant="ghost" size="sm" className="gap-2">
-                    <ArrowLeft className="h-4 w-4" />
-                    Back to Courses
-                  </Button>
-                </Link>
-                <div className="h-6 w-px bg-slate-300" />
-                <div className="flex items-center space-x-3">
-                  <div className="p-2.5 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg">
-                    <Users className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Course Students</h1>
-                    <p className="text-sm text-slate-500">
-                      {data?.courseTitle || 'Loading...'}
-                    </p>
-                  </div>
-                </div>
-              </div>
+        <PageHeader
+          title="Course Students"
+          subtitle={data?.courseTitle || 'Loading...'}
+          icon={Users}
+          actions={
+            <>
+              <Link href="/dashboard/teacher/courses">
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Courses
+                </Button>
+              </Link>
               <Link href={`/dashboard/teacher/courses/${courseId}/analytics`}>
                 <Button variant="outline" className="gap-2">
                   <BarChart3 className="h-4 w-4" />
                   View Analytics
                 </Button>
               </Link>
-            </div>
-          </div>
-        </header>
+            </>
+          }
+        />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Stats Summary */}

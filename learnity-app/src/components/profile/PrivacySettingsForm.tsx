@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { LoadingButton } from '@/components/shared/LoadingButton';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
@@ -273,14 +273,15 @@ export function PrivacySettingsForm({ onSuccess }: PrivacySettingsFormProps) {
 
       {/* Save Button */}
       <div className="flex justify-end">
-        <Button
+        <LoadingButton
           onClick={handleSubmit}
-          disabled={loading}
+          isLoading={loading}
+          loadingText="Saving Privacy Settings..."
           size="lg"
           className="bg-gradient-to-r from-green-600 to-blue-600"
         >
-          {loading ? 'Saving...' : 'Save Privacy Settings'}
-        </Button>
+          Save Privacy Settings
+        </LoadingButton>
       </div>
     </div>
   );
