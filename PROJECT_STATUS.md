@@ -3,9 +3,9 @@
 ## 📅 Last Updated: 2025-12-15
 
 ## 📊 Executive Summary
-The Learnity platform has successfully completed **Phase 1 (MVP)** and is currently bridging into **Phase 2**. The Core Authentication, Admin, and Basic Course Management modules are functional. 
+The Learnity platform is pivoting to focus heavily on **Gamification** and **User Engagement**, while simplifying the communication and booking flows by leveraging external tools (WhatsApp, Google Meet).
 
-**Current Focus:** Consolidating codebase, polishing UI/UX, and preparing for the implementation of Social & Collaborative features (Study Groups).
+**Current Focus:** Implementing a robust Gamification Engine (Badges, Leaderboards, Quests) and finalizing the Teacher Availability display for manual booking via WhatsApp.
 
 ---
 
@@ -13,84 +13,77 @@ The Learnity platform has successfully completed **Phase 1 (MVP)** and is curren
 
 | Module | Status | Notes |
 | :--- | :---: | :--- |
-| **1. Authentication** | ✅ **Complete** | Role-based (Student/Teacher/Admin) flows working. Responsive forms implemented. |
-| **2. Gamification** | 🟡 **Partial** | Basic XP and Streak visualization implemented. Advanced challenges/leaderboards pending. |
-| **3. Lesson Management** | 🟡 **Partial** | `CourseBuilder`, `LessonManager`, `QuizBuilder` components exist. Needs full integration testing. |
-| **4. Study Groups** | 🔴 **Missing** | **CRITICAL MISSING FEATURE.** No UI or Logic implementation found. |
-| **5. Tutor Verification** | ✅ **Complete** | Enhanced registration form & profile enhancement page with detailed schedule builder implemented. |
-| **6. Session Booking** | 🔴 **Missing** | Teacher specific availability logic exists (data layer), but **Student Booking UI** is missing. |
-| **7. Analytics** | 🟡 **Partial** | Admin analytics exist. Personalized Student/Teacher dashboards need enhancement. |
-| **8. Admin Panel** | ✅ **Complete** | User/Teacher management, Audit logs, and Security dashboards implemented. |
+| **1. Authentication** | ✅ **Complete** | Role-based flows working. |
+| **2. Gamification** | 🚧 **In Progress** | **HIGH PRIORITY.** Basic XP exists. Needs Badges, Leaderboards, Quests. |
+| **3. Lesson Management** | 🟡 **Partial** | Core components exist. Needs integration. |
+| **4. Study Groups** | 📉 **De-scoped** | Chat/Meetings removed. Will focus on *Resource Sharing* only (Optional). |
+| **5. Tutor Verification** | ✅ **Complete** | Registration & Profile enhancement done. |
+| **6. Session Booking** | 🔄 **Modified** | **Manual Flow.** Student views schedule -> Requests via WhatsApp -> Meets on Google Meet. |
+| **7. Analytics** | 🟡 **Partial** | Basic Admin analytics. Needs Gamification stats. |
+| **8. Admin Panel** | ✅ **Complete** | User/Teacher management active. |
 
 ---
 
-## 🛠 Recent Achievements (Current Session)
+## 🚦 Implementation Priorities & Categories
 
-### 1. Enhanced Teacher Availability (Completed)
-- **Feature:** Replaced broad time slots with a **Detailed Weekly Schedule Builder**.
-- **Implementation:** 
-  - `TeacherProfileEnhancement` page now allows specifying exact Start/End times per day.
-  - `QuickTeacherRegistrationForm` reverted to simple checklist to reduce initial friction.
-  - Data structure: `preferredTimes` array stores strings formatted as `"Day: StartTime - EndTime"`.
+### 🚨 Critical (Do Immediately)
+*   **Teacher Availability Display:** Students MUST see the teacher's schedule to know when to request a session.
+*   **Gamification Database Schema:** Define tables for `Badges`, `UserBadges`, `Quests`, `Leaderboards`.
 
-### 2. Authentication UI Polish (Completed)
-- **Feature:** Unified Split-Screen Layout.
-- **Implementation:** 
-  - Standardized `LeftSideSection` across all auth pages.
-  - Fixed mobile layout clipping issues.
-  - Implemented `Suspense` boundaries for better loading states in `layout.tsx` and `courses/page.tsx`.
+### 🟢 Must Have (Core Value)
+*   **Badges System:** Logic to award badges (e.g., "First Login", "Course Completed").
+*   **Student Dashboard "Achievements" Section:** UI to show earned badges and current level/XP.
+*   **WhatsApp Booking Integration:** "Book Session" button on Teacher Profile that opens WhatsApp with a pre-filled message.
 
-### 3. Build & Infrastructure
-- **Fix:** Resolved `useSearchParams` Suspense build errors in Next.js 15.
-- **Status:** Project builds successfully (modulo strict linting on unused imports).
+### 🔵 Necessary (Standard Features)
+*   **Leaderboards:** Global and Course-specific rankings to drive competition.
+*   **Daily Quests:** Simple tasks (e.g., "Complete 1 Lesson") to drive daily retention.
+*   **Course Completion Logic:** robustly triggering XP awards and Badge unlocks.
 
----
+### 🟣 Nice to Have (Enhancements)
+*   **Streak Freeze/Protection:** Advanced streak logic.
+*   **Animated Celebrations:** Confetti/Sound effects when earning a badge.
+*   **Public Profiles:** Students can see each other's badges/level.
 
-## 🚦 Implementation Gap Analysis
-
-### 🚧 Priority 1: Critical Missing Modules
-These features are core to the platform's value proposition but are currently absent:
-
-1.  **Study Groups Module (`src/app/groups`)**: 
-    -   Needs Database Schema (Groups, Members, Messages).
-    -   Needs UI: Group Discovery, Group Chat/Feed, Resource Sharing.
-2.  **Session Booking System**:
-    -   Needs Student UI to view Teacher Availability (derived from the new Schedule Builder).
-    -   Needs Booking Logic (Select slot -> Create Session -> Payment/Credit).
-
-### 🚧 Priority 2: UI/UX Refinement (In Progress)
--   **Course Catalog:** Filters are functional but need visual polish.
--   **Dashboards:** Student and Teacher dashboards are basic. Need to integrate more Gamification stats.
+### ⚪ Optional (Future/Overkill)
+*   **Resource Sharing Groups:** Simple file/link sharing spaces without chat.
+*   **Avatar Customization:** Spending XP on cosmetic items.
 
 ---
 
-## 🗺 Recommended Roadmap
+## 🗺 Step-by-Step Implementation Guide
 
-### Immediate Next Steps (Day 1-2)
-1.  **Teacher Profile Public View:**
-    -   Update `src/app/teachers/[id]/page.tsx` to display the **new detailed availability schedule** to students.
-    -   *Why:* We just built the input mechanism; now students need to see it.
+### Phase 1: The Gamification Foundation (Current Sprint)
+1.  **Database Setup:**
+    *   Create `Badge` model (name, description, icon, criteria).
+    *   Create `UserBadge` model (user_id, badge_id, earned_at).
+    *   Update `User` model to track `current_streak`, `last_login_date`.
+2.  **Badge Seeding:**
+    *   Create a script to seed initial badges (e.g., "Newcomer", "Scholar", "7-Day Streak").
+3.  **Dashboard UI Update:**
+    *   Add a "My Badges" grid to the Student Dashboard.
+    *   Add a "Next Level" progress bar prominently.
 
-2.  **Documentation Cleanup:**
-    -   Consolidate scattered `docs/*.md` into central `project-doc` folder.
-    -   Archive obsolete "fix" documentations.
+### Phase 2: The "Manual" Booking Flow
+1.  **Teacher Profile UI:**
+    *   Fetch and display the `preferredTimes` (Schedule) on `src/app/teachers/[id]/page.tsx`.
+    *   Format it nicely (e.g., "Mon: 10am - 2pm").
+2.  **WhatsApp Integration:**
+    *   Add a **"Request Session"** button.
+    *   **Logic:** `href="https://wa.me/${teacherPhoneNumber}?text=Hi, I would like to book a session on..."`
+    *   *Note:* Ensure Teacher model has a `phoneNumber` field (or add it).
 
-### Short Term (Day 3-5)
-3.  **Implement Session Booking UI:**
-    -   Create "Book Session" modal on Teacher Profile.
-    -   Use the `availableDays` and `preferredTimes` data to generate selectable slots.
-
-4.  **Scaffold Study Groups:**
-    -   Initialize `src/app/groups/page.tsx`.
-    -   Create basic CRUD for Study Groups.
-
-### Long Term (Week 2+)
-5.  **Gamification Engine 2.0:**
-    -   Implement "Leaderboards" and "Badges" system fully using the existing `api/gamification` endpoints.
+### Phase 3: Engagement Loops (Leaderboards & Quests)
+1.  **Leaderboard Page:**
+    *   Create `src/app/leaderboard/page.tsx`.
+    *   Fetch top 10 students by XP.
+    *   Display user avatars, names, and XP.
+2.  **Daily Quests:**
+    *   Simple logic: Check if user completed a lesson today.
+    *   UI: Small widget on Dashboard "Daily Goal: 0/1 Lesson".
 
 ---
 
 ## 📝 Developer Notes
-*   **Linting:** The project has strict linting. Watch out for `unused imports` and `any` types.
-*   **Redirects:** Auth redirects are delicate. Ensure `useClientAuth` is used for client-side protection.
-*   **Suspense:** All pages using `useSearchParams` must be wrapped in `Suspense` boundaries (fixed in `layout` and `courses`, check others if added).
+*   **Gamification Logic:** Keep it modular. Create a `GamificationService` to handle awarding XP/Badges so it can be called from anywhere (e.g., after Lesson Complete, after Login).
+*   **WhatsApp:** Verify we have the teacher's phone number. If not, fallback to Email or show a "Contact Info Missing" state.
