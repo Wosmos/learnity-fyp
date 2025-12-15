@@ -127,17 +127,40 @@ interface NavContentProps {
   onLogout: () => Promise<void>;
 }
 
-const NavContent = ({ 
-  config, 
-  isCollapsed, 
+const NavContent = ({
+  config,
+  isCollapsed,
   pathname,
   onNavigate,
   onLogout
 }: NavContentProps) => {
   const isActive = (href: string) => {
+    // 1. Exact match always wins
+    if (pathname === href) return true;
+
+    // 2. Dashboard home handling (exact only)
     const basePath = `/dashboard/${config.role}`;
     if (href === basePath) return pathname === href;
-    return pathname.startsWith(href);
+
+    // 3. Prefix matching with "Better Match" exclusion
+    if (pathname.startsWith(href)) {
+      // Ensure we match full path segments (e.g. dont match /courses-extra against /courses)
+      const remainder = pathname.slice(href.length);
+      if (remainder !== '' && !remainder.startsWith('/')) return false;
+
+      // Check if any *other* nav item is a more specific match for this pathname
+      // e.g. If specific item is '/courses/new', generic '/courses' should not be active
+      const hasBetterMatch = config.navItems.some(
+        (item) =>
+          item.href !== href &&
+          item.href.length > href.length &&
+          pathname.startsWith(item.href)
+      );
+
+      return !hasBetterMatch;
+    }
+
+    return false;
   };
 
   const isDark = config.theme === 'dark';
@@ -148,7 +171,7 @@ const NavContent = ({
       "flex flex-col h-full",
       isDark ? "bg-slate-950 text-slate-100" : "bg-white text-gray-900"
     )}>
-      
+
       {/* Header Logo Area */}
       <div className={cn(
         "flex items-center h-16 border-b flex-shrink-0",
@@ -199,7 +222,7 @@ const NavContent = ({
                   className={cn(
                     "w-full justify-start h-10 mb-1 transition-all duration-300 relative group overflow-hidden",
                     isCollapsed ? "px-0 justify-center" : "px-4",
-                    active 
+                    active
                       ? isDark
                         ? "bg-blue-600 text-white shadow-md shadow-blue-900/20 hover:bg-blue-600 hover:text-white"
                         : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800"
@@ -211,19 +234,19 @@ const NavContent = ({
                 >
                   <item.icon className={cn(
                     "h-[18px] w-[18px] transition-colors",
-                    active 
+                    active
                       ? isDark ? "text-white" : "text-indigo-600"
                       : isDark ? "text-slate-400 group-hover:text-white" : "text-gray-500",
                     !isCollapsed && "mr-3"
                   )} />
-                  
+
                   {!isCollapsed && (
                     <>
                       <span className="flex-1 text-sm font-medium tracking-tight">{item.label}</span>
                       {item.badge && (
                         <Badge className={cn(
                           "ml-auto border-0 px-2 py-0.5 h-5 flex items-center justify-center rounded-full text-xs font-semibold",
-                          isDark 
+                          isDark
                             ? "bg-blue-500/20 text-blue-300"
                             : "bg-indigo-100 text-indigo-700"
                         )}>
@@ -232,7 +255,7 @@ const NavContent = ({
                       )}
                     </>
                   )}
-                  
+
                   {/* Active Indicator Bar (Left Side) */}
                   {active && isCollapsed && (
                     <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-white" />
@@ -250,7 +273,7 @@ const NavContent = ({
         isDark ? "border-slate-800/60 bg-slate-950/50" : "border-gray-100",
         isCollapsed && "flex flex-col items-center p-2"
       )}>
-        
+
         {/* Upgrade Promo Box (Dark theme only, hidden if collapsed) */}
         {!isCollapsed && config.upgradePromo && isDark && (
           <div className="mb-4 p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-800 relative overflow-hidden group">
@@ -270,12 +293,12 @@ const NavContent = ({
         )}
 
         <Link href={`/dashboard/${config.role}/settings`} onClick={onNavigate}>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             className={cn(
               "w-full h-10 justify-start transition-colors",
               isCollapsed ? "px-0 justify-center" : "px-4",
-              isDark 
+              isDark
                 ? "text-slate-400 hover:bg-slate-800 hover:text-white"
                 : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             )}
@@ -288,9 +311,9 @@ const NavContent = ({
             {!isCollapsed && <span className="text-sm font-medium">Settings</span>}
           </Button>
         </Link>
-        
-        <AsyncButton 
-          variant="ghost" 
+
+        <AsyncButton
+          variant="ghost"
           onClick={onLogout}
           loadingText={isCollapsed ? undefined : "Logging out..."}
           className={cn(
@@ -317,10 +340,10 @@ export interface DashboardSidebarProps {
   defaultCollapsed?: boolean;
 }
 
-export function DashboardSidebar({ 
-  config, 
-  className, 
-  defaultCollapsed = false 
+export function DashboardSidebar({
+  config,
+  className,
+  defaultCollapsed = false
 }: DashboardSidebarProps) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -341,12 +364,12 @@ export function DashboardSidebar({
       <div className="md:hidden fixed top-4 left-4 z-40">
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
-            <Button 
-              variant={isDark ? "secondary" : "outline"} 
-              size="icon" 
+            <Button
+              variant={isDark ? "secondary" : "outline"}
+              size="icon"
               className={cn(
                 "shadow-lg",
-                isDark 
+                isDark
                   ? "bg-slate-900 border border-slate-800 text-white hover:bg-slate-800"
                   : "bg-white border-gray-200"
               )}
@@ -354,8 +377,8 @@ export function DashboardSidebar({
               <Menu className={cn("h-5 w-5", isDark ? "text-white" : "text-gray-700")} />
             </Button>
           </SheetTrigger>
-          <SheetContent 
-            side="left" 
+          <SheetContent
+            side="left"
             className={cn(
               "p-0 w-72",
               isDark ? "border-r-slate-800 bg-slate-950 text-white" : "bg-white"
@@ -364,10 +387,10 @@ export function DashboardSidebar({
             <SheetHeader className="sr-only">
               <SheetTitle>Navigation Menu</SheetTitle>
             </SheetHeader>
-            <NavContent 
+            <NavContent
               config={config}
-              isCollapsed={false} 
-              pathname={pathname} 
+              isCollapsed={false}
+              pathname={pathname}
               onNavigate={() => setMobileOpen(false)}
               onLogout={handleLogout}
             />
@@ -379,16 +402,16 @@ export function DashboardSidebar({
       <aside
         className={cn(
           "hidden md:flex flex-col h-screen fixed top-0 left-0 border-r shadow-xl z-30 transition-all duration-300 ease-out",
-          isDark 
-            ? "bg-slate-950 border-slate-800" 
+          isDark
+            ? "bg-slate-950 border-slate-800"
             : "bg-white border-gray-200 shadow-sm",
           collapsed ? "w-[80px]" : "w-64",
           className
         )}
       >
-        <NavContent 
+        <NavContent
           config={config}
-          isCollapsed={collapsed} 
+          isCollapsed={collapsed}
           pathname={pathname}
           onLogout={handleLogout}
         />
@@ -400,7 +423,7 @@ export function DashboardSidebar({
             cornerSmoothing={3}
             className="absolute -right-3 bottom-64 rounded-full p-0 bg-blue-600 hover:bg-blue-500 border-2 border-blue-600 shadow-md flex items-center justify-center text-white transition-all hover:scale-110"
           >
-            <Button 
+            <Button
               onClick={() => setCollapsed(!collapsed)}
               className="h-8 w-8 hover:cursor-pointer"
             >
@@ -409,8 +432,8 @@ export function DashboardSidebar({
           </Squircle>
         ) : (
           <div className="absolute -right-3 top-20">
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               size="icon"
               className="h-6 w-6 rounded-full shadow border border-gray-200 bg-white hover:bg-gray-100 text-gray-500"
               onClick={() => setCollapsed(!collapsed)}
@@ -422,13 +445,12 @@ export function DashboardSidebar({
       </aside>
 
       {/* LAYOUT SPACER */}
-      <div 
+      <div
         className={cn(
-          "hidden md:block transition-all duration-300 ease-in-out shrink-0", 
+          "hidden md:block transition-all duration-300 ease-in-out shrink-0",
           collapsed ? "w-[80px]" : "w-64"
-        )} 
+        )}
       />
     </>
   );
 }
-  

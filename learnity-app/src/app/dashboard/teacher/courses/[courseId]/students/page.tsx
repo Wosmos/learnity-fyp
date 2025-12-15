@@ -10,7 +10,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -231,7 +230,6 @@ export default function CourseStudentsPage() {
   // Loading state
   if (isLoading && !data) {
     return (
-      <AuthenticatedLayout>
         <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100">
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Skeleton className="h-8 w-48 mb-8" />
@@ -257,14 +255,12 @@ export default function CourseStudentsPage() {
             </Card>
           </div>
         </div>
-      </AuthenticatedLayout>
     );
   }
 
   // Error state
   if (error && !data) {
     return (
-      <AuthenticatedLayout>
         <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100 flex items-center justify-center">
           <Card className="w-full max-w-md">
             <CardContent className="flex flex-col items-center justify-center py-12">
@@ -279,7 +275,6 @@ export default function CourseStudentsPage() {
             </CardContent>
           </Card>
         </div>
-      </AuthenticatedLayout>
     );
   }
 
@@ -295,7 +290,6 @@ export default function CourseStudentsPage() {
   } : { total: 0, active: 0, completed: 0, avgProgress: 0 };
 
   return (
-    <AuthenticatedLayout>
       <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100">
         {/* Header */}
         <PageHeader
@@ -604,6 +598,5 @@ export default function CourseStudentsPage() {
           </Card>
         </div>
       </div>
-    </AuthenticatedLayout>
   );
 }

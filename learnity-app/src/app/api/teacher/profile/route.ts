@@ -52,6 +52,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       profile: {
+        userId: user.id,
         id: user.teacherProfile.id,
         applicationStatus: user.teacherProfile.applicationStatus,
         subjects: user.teacherProfile.subjects,
@@ -95,6 +96,116 @@ export async function GET(request: NextRequest) {
   } catch (error: unknown) {
     console.error('❌ Failed to fetch teacher profile:', error);
     
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    // Get authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Verify Firebase token
+    const idToken = authHeader.substring(7);
+    const decodedToken = await adminAuth.verifyIdToken(idToken);
+    
+    // Get request body
+    const body = await request.json();
+    const { section, data } = body;
+
+    // Find user to get IDs
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid: decodedToken.uid },
+      include: { teacherProfile: true }
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    if (!user.teacherProfile) {
+      return NextResponse.json({ error: 'Teacher profile not found' }, { status: 404 });
+    }
+
+    // Prepare update data
+    let userUpdateData: any = {};
+    let profileUpdateData: any = {};
+
+    // Map data based on section
+    // 'identity' section contains both User (name) and Profile fields
+    if (section === 'identity') {
+      if (data.firstName) userUpdateData.firstName = data.firstName;
+      if (data.lastName) userUpdateData.lastName = data.lastName;
+      
+      const profileFields = ['headline', 'bio', 'videoIntroUrl', 'teachingApproach', 'whyChooseMe'];
+      profileFields.forEach(field => {
+        if (data[field] !== undefined) profileUpdateData[field] = data[field];
+      });
+    }
+    // 'expertise' section is purely Profile
+    else if (section === 'expertise') {
+      const profileFields = [
+        'subjects', 'specialties', 'languages', 'education', 
+        'certifications', 'experience', 'onlineExperience', 'achievements'
+      ];
+      profileFields.forEach(field => {
+        if (data[field] !== undefined) profileUpdateData[field] = data[field];
+      });
+    }
+    // 'logistics' section is purely Profile
+    else if (section === 'logistics') {
+      const profileFields = [
+        'hourlyRate', 'timezone', 'city', 'country', 'phone', 
+        'websiteUrl', 'linkedinUrl', 'availability', 'availableDays', 'preferredTimes'
+      ];
+      profileFields.forEach(field => {
+        if (data[field] !== undefined) profileUpdateData[field] = data[field];
+      });
+    }
+    // Fallback/Legacy
+    else {
+       // Try to distribute fields intelligently
+       if (data.firstName) userUpdateData.firstName = data.firstName;
+       if (data.lastName) userUpdateData.lastName = data.lastName;
+       
+       // Everything else goes to profile data, excluding user fields
+       profileUpdateData = { ...data };
+       delete profileUpdateData.firstName;
+       delete profileUpdateData.lastName;
+    }
+
+    // Transaction to update both tables if needed
+    await prisma.$transaction(async (tx) => {
+      // Update User table if we have fields
+      if (Object.keys(userUpdateData).length > 0) {
+        await tx.user.update({
+          where: { id: user.id },
+          data: userUpdateData
+        });
+      }
+
+      // Update TeacherProfile table
+      if (Object.keys(profileUpdateData).length > 0) {
+        await tx.teacherProfile.update({
+          where: { id: user.teacherProfile!.id },
+          data: profileUpdateData
+        });
+      }
+    });
+
+    return NextResponse.json({ success: true });
+
+  } catch (error: unknown) {
+    console.error('❌ Failed to update profile:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -10,7 +10,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -166,7 +165,6 @@ export default function CourseAnalyticsPage() {
 
   if (isLoading) {
     return (
-      <AuthenticatedLayout>
         <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100">
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Skeleton className="h-8 w-48 mb-8" />
@@ -181,13 +179,11 @@ export default function CourseAnalyticsPage() {
             </div>
           </div>
         </div>
-      </AuthenticatedLayout>
     );
   }
 
   if (error || !analytics) {
     return (
-      <AuthenticatedLayout>
         <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100 flex items-center justify-center">
           <Card className="w-full max-w-md">
             <CardContent className="flex flex-col items-center justify-center py-12">
@@ -202,7 +198,6 @@ export default function CourseAnalyticsPage() {
             </CardContent>
           </Card>
         </div>
-      </AuthenticatedLayout>
     );
   }
 
@@ -217,7 +212,6 @@ export default function CourseAnalyticsPage() {
   );
 
   return (
-    <AuthenticatedLayout>
       <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100">
         {/* Header */}
         <PageHeader
@@ -547,6 +541,5 @@ export default function CourseAnalyticsPage() {
           </div>
         </div>
       </div>
-    </AuthenticatedLayout>
   );
 }

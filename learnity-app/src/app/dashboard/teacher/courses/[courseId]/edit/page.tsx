@@ -489,7 +489,7 @@ export default function EditCoursePage() {
     return (
 
         <div className="min-h-screen bg-slate-50">
-          <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="max-w-[1600px] mx-auto px-4 py-8">
             <Skeleton className="h-8 w-48 mb-8" />
             <Skeleton className="h-64 w-full mb-4" />
             <Skeleton className="h-48 w-full" />
@@ -523,7 +523,7 @@ export default function EditCoursePage() {
       <div className="min-h-screen bg-slate-50">
         {/* Header */}
         <header className="bg-white shadow-sm border-b sticky top-0 z-10">
-          <div className="max-w-4xl mx-auto px-4">
+          <div className="max-w-[1600px] mx-auto px-4">
             <div className="flex justify-between items-center py-4">
               <div className="flex items-center gap-4">
                 <Link href="/dashboard/teacher/courses">
@@ -567,7 +567,7 @@ export default function EditCoursePage() {
           </div>
         </header>
 
-        <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+        <main className="max-w-[1600px] mx-auto px-4 py-8 space-y-6">
           {/* Publishing Requirements */}
           {!canPublish && (
             <Card className="border-amber-200 bg-amber-50">
