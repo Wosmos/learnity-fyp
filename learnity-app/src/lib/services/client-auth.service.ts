@@ -54,6 +54,22 @@ export class ClientAuthService {
   }
 
   /**
+   * Set server-side session cookie to pass middleware protection
+   */
+  private async setSessionCookie(idToken: string): Promise<void> {
+    try {
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken })
+      });
+    } catch (error) {
+      console.error('Failed to set session cookie:', error);
+      // Don't throw, let client-side auth proceed
+    }
+  }
+
+  /**
    * Register a new student
    */
   async registerStudent(data: StudentRegistrationData): Promise<FirebaseAuthResult> {
@@ -83,6 +99,9 @@ export class ClientAuthService {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to create user profile');
       }
+
+      // Set session cookie for middleware
+      await this.setSessionCookie(idToken);
 
       return {
         success: true,
@@ -126,6 +145,9 @@ export class ClientAuthService {
       if (!response.ok) {
         throw new Error('Failed to create teacher application');
       }
+
+      // Set session cookie for middleware
+      await this.setSessionCookie(await userCredential.user.getIdToken());
 
       return {
         success: true,
@@ -174,6 +196,9 @@ export class ClientAuthService {
         throw new Error(errorData.message || 'Failed to create quick teacher application');
       }
 
+      // Set session cookie for middleware
+      await this.setSessionCookie(idToken);
+
       return {
         success: true,
         user: userCredential.user,
@@ -221,6 +246,9 @@ export class ClientAuthService {
         throw new Error(errorData.message || 'Failed to create enhanced teacher application');
       }
 
+      // Set session cookie for middleware
+      await this.setSessionCookie(idToken);
+
       return {
         success: true,
         user: userCredential.user,
@@ -248,10 +276,13 @@ export class ClientAuthService {
         data.password
       );
 
+      const idToken = await userCredential.user.getIdToken();
+      await this.setSessionCookie(idToken);
+
       return {
         success: true,
         user: userCredential.user,
-        idToken: await userCredential.user.getIdToken()
+        idToken: idToken
       };
     } catch (error: any) {
       return {
@@ -276,10 +307,13 @@ export class ClientAuthService {
       // The profile sync will be handled automatically by the AuthProvider
       // when the auth state changes, so we don't need to call it here
       
+      const idToken = await user.getIdToken();
+      await this.setSessionCookie(idToken);
+
       return {
         success: true,
         user,
-        idToken: await user.getIdToken()
+        idToken: idToken
       };
     } catch (error: any) {
       return {
