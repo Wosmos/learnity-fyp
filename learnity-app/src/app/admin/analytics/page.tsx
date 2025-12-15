@@ -51,13 +51,13 @@ export default function AdminAnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  
+
   const { toast } = useToast();
 
   const fetchAnalytics = async (showRefreshToast = false) => {
     try {
       if (showRefreshToast) setRefreshing(true);
-      
+
       // For now, we'll use mock data since we don't have a dedicated analytics API
       // In a real implementation, this would call /api/admin/analytics
       const mockAnalytics: AnalyticsData = {
@@ -83,9 +83,9 @@ export default function AdminAnalyticsPage() {
           revenue: 12450
         }
       };
-      
+
       setAnalytics(mockAnalytics);
-      
+
       if (showRefreshToast) {
         toast({
           title: "Analytics Updated",
@@ -124,7 +124,7 @@ export default function AdminAnalyticsPage() {
 
   return (
     <AdminLayout
-      
+
     >
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -262,7 +262,7 @@ export default function AdminAnalyticsPage() {
                     {analytics?.teacherApplications.pending || 0}
                   </span>
                 </div>
-                
+
                 <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
@@ -272,7 +272,7 @@ export default function AdminAnalyticsPage() {
                     {analytics?.teacherApplications.approved || 0}
                   </span>
                 </div>
-                
+
                 <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -283,14 +283,14 @@ export default function AdminAnalyticsPage() {
                   </span>
                 </div>
               </div>
-              
+
               <div className="pt-4 border-t border-gray-200">
                 <div className="text-center">
                   <p className="text-sm text-gray-500">Approval Rate</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {analytics ? 
-                      Math.round((analytics.teacherApplications.approved / 
-                        (analytics.teacherApplications.approved + analytics.teacherApplications.rejected)) * 100) 
+                    {analytics ?
+                      Math.round((analytics.teacherApplications.approved /
+                        (analytics.teacherApplications.approved + analytics.teacherApplications.rejected)) * 100)
                       : 0}%
                   </p>
                 </div>
@@ -311,14 +311,14 @@ export default function AdminAnalyticsPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
+            <div className="text-center p-4 bg-slate-50 rounded-lg">
               <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
               <p className="text-2xl font-bold text-blue-600">
                 {analytics?.monthlyStats.newUsers || 0}
               </p>
               <p className="text-sm text-gray-600">New Users</p>
             </div>
-            
+
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <GraduationCap className="h-8 w-8 text-green-600 mx-auto mb-2" />
               <p className="text-2xl font-bold text-green-600">
@@ -326,7 +326,7 @@ export default function AdminAnalyticsPage() {
               </p>
               <p className="text-sm text-gray-600">New Teachers</p>
             </div>
-            
+
             <div className="text-center p-4 bg-purple-50 rounded-lg">
               <BookOpen className="h-8 w-8 text-purple-600 mx-auto mb-2" />
               <p className="text-2xl font-bold text-purple-600">
@@ -334,7 +334,7 @@ export default function AdminAnalyticsPage() {
               </p>
               <p className="text-sm text-gray-600">Total Sessions</p>
             </div>
-            
+
             <div className="text-center p-4 bg-yellow-50 rounded-lg">
               <DollarSign className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
               <p className="text-2xl font-bold text-yellow-600">

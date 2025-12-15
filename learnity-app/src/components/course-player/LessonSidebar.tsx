@@ -97,8 +97,8 @@ export function LessonSidebar({
     section.lessons.some(lesson => lesson.id === currentLessonId)
   );
 
-  const defaultExpandedSections = currentSectionIndex >= 0 
-    ? [`section-${currentSectionIndex}`] 
+  const defaultExpandedSections = currentSectionIndex >= 0
+    ? [`section-${currentSectionIndex}`]
     : ['section-0'];
 
   return (
@@ -113,9 +113,9 @@ export function LessonSidebar({
 
       {/* Sections List */}
       <div className="flex-1 overflow-y-auto">
-        <Accordion 
-          type="multiple" 
-          defaultValue={defaultExpandedSections} 
+        <Accordion
+          type="multiple"
+          defaultValue={defaultExpandedSections}
           className="px-2"
         >
           {sections.map((section, sectionIndex) => {
@@ -131,7 +131,7 @@ export function LessonSidebar({
                 value={`section-${sectionIndex}`}
                 className="border-b border-slate-700"
               >
-                <AccordionTrigger 
+                <AccordionTrigger
                   className={cn(
                     'text-white hover:no-underline py-3 px-2',
                     isLocked && 'opacity-60'
@@ -152,8 +152,8 @@ export function LessonSidebar({
                         </span>
                       )}
                     </div>
-                    <Badge 
-                      variant="secondary" 
+                    <Badge
+                      variant="secondary"
                       className={cn(
                         'text-xs shrink-0',
                         sectionCompletedCount === section.lessons.length && 'bg-green-600 text-white'
@@ -167,8 +167,8 @@ export function LessonSidebar({
                   {/* Section Progress Bar */}
                   {!isLocked && section.lessons.length > 0 && (
                     <div className="px-2 mb-2">
-                      <SectionProgressBar 
-                        progress={progress} 
+                      <SectionProgressBar
+                        progress={progress}
                         isUnlocked={!isLocked}
                       />
                     </div>
@@ -230,7 +230,7 @@ function LessonListItem({ lesson, isActive, isCompleted, onClick }: LessonListIt
       className={cn(
         'w-full flex items-center gap-3 p-2 rounded-lg text-left transition-colors',
         isActive
-          ? 'bg-blue-600 text-white'
+          ? 'bg-slate-600 text-white'
           : 'hover:bg-slate-700 text-slate-300'
       )}
     >

@@ -13,9 +13,9 @@ interface PlatformStatsProps {
   className?: string;
 }
 
-export async function PlatformStats({ 
+export async function PlatformStats({
   variant = 'default',
-  className = '' 
+  className = ''
 }: PlatformStatsProps) {
   // Fetch stats - automatically cached and deduplicated by React
   const stats = await getPlatformStats();
@@ -29,7 +29,7 @@ export async function PlatformStats({
       trendLabel: 'this month',
       icon: Users,
       iconColor: 'text-blue-600',
-      bgColor: 'bg-blue-100',
+      bgColor: 'bg-slate-100',
     },
     {
       title: 'Expert Tutors',

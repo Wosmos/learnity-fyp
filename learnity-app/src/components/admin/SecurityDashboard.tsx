@@ -11,16 +11,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { 
+import {
   AuditSummary,
   SuspiciousPattern,
   FailedLoginAnalysis
 } from '@/lib/services/audit.service';
-import { 
-  AlertTriangle, 
-  Shield, 
-  Eye, 
-  Ban, 
+import {
+  AlertTriangle,
+  Shield,
+  Eye,
+  Ban,
   Download
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -74,10 +74,10 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
     try {
       setError(null);
       setLoading(true);
-      
+
       const endDate = new Date();
       const startDate = new Date();
-      
+
       switch (timeRange) {
         case '24h':
           startDate.setHours(startDate.getHours() - 24);
@@ -90,9 +90,9 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
           break;
       }
 
-      const timeRangeData = { 
-        startDate: startDate.toISOString(), 
-        endDate: endDate.toISOString() 
+      const timeRangeData = {
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString()
       };
 
       const [summary, patterns, failedLogins, alerts] = await Promise.all([
@@ -142,9 +142,9 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
 
       const response = await api.fetch('/api/admin/security/report', {
         method: 'POST',
-        body: JSON.stringify({ 
-          startDate: startDate.toISOString(), 
-          endDate: endDate.toISOString() 
+        body: JSON.stringify({
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString()
         })
       });
 
@@ -203,8 +203,8 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
     return null;
   }
 
-  const successRate = stats.summary.totalEvents > 0 
-    ? (stats.summary.successfulLogins / stats.summary.totalEvents) * 100 
+  const successRate = stats.summary.totalEvents > 0
+    ? (stats.summary.successfulLogins / stats.summary.totalEvents) * 100
     : 0;
 
   return (
@@ -232,7 +232,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
               </Button>
             ))}
           </div>
-          
+
           {/* Auto-refresh toggle */}
           <Button
             variant={autoRefresh ? 'default' : 'outline'}
@@ -269,7 +269,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
           trendLabel=""
           icon={Eye}
           iconColor="text-blue-500"
-          bgColor="bg-blue-100"
+          bgColor="bg-slate-100"
         />
 
         <MetricCard

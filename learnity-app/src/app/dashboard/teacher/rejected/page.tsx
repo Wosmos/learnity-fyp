@@ -13,7 +13,7 @@ import { useAuthStore } from '@/lib/stores/auth.store';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import {
-  AlertCircle, RefreshCw, MessageCircle, BookOpen, 
+  AlertCircle, RefreshCw, MessageCircle, BookOpen,
   FileText, CheckCircle, Mail, Phone, ExternalLink,
   Heart, Star, Users, TrendingUp, Clock, Award
 } from 'lucide-react';
@@ -88,7 +88,7 @@ export default function RejectedTeacherDashboard() {
   useEffect(() => {
     const fetchRejectionInfo = async () => {
       if (!user) return;
-      
+
       try {
         setLoading(true);
         const response = await fetch('/api/teacher/rejection-info', {
@@ -96,7 +96,7 @@ export default function RejectedTeacherDashboard() {
             'Authorization': `Bearer ${await user.getIdToken()}`
           }
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           setRejectionInfo(data.rejectionInfo);
@@ -163,7 +163,7 @@ export default function RejectedTeacherDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        
+
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
@@ -184,10 +184,10 @@ export default function RejectedTeacherDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            
+
             {/* Rejection Details */}
             <Card className="shadow-lg border-0 bg-white/80 backdrop-blur">
               <CardHeader>
@@ -233,7 +233,7 @@ export default function RejectedTeacherDashboard() {
                                 <> You can reapply starting {rejectionInfo.reapplyDate}.</>
                               )}
                             </p>
-                            <Button 
+                            <Button
                               onClick={handleReapply}
                               className="mt-3 bg-green-600 hover:bg-green-700"
                               size="sm"
@@ -268,7 +268,7 @@ export default function RejectedTeacherDashboard() {
                     return (
                       <div key={index} className="p-4 border rounded-lg hover:border-blue-300 transition-colors cursor-pointer">
                         <div className="flex items-start gap-3">
-                          <div className="p-2 bg-blue-100 rounded-lg">
+                          <div className="p-2 bg-slate-100 rounded-lg">
                             <Icon className="h-4 w-4 text-blue-600" />
                           </div>
                           <div className="flex-1">
@@ -292,7 +292,7 @@ export default function RejectedTeacherDashboard() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            
+
             {/* Encouragement Card */}
             <Card className="shadow-lg border-0 bg-gradient-to-br from-purple-500 to-pink-500 text-white">
               <CardContent className="p-6">
@@ -301,7 +301,7 @@ export default function RejectedTeacherDashboard() {
                   <div>
                     <h3 className="text-xl font-bold">Don&apos;t Give Up!</h3>
                     <p className="opacity-90 text-sm">
-                      Many successful teachers didn&apos;t get approved on their first try. 
+                      Many successful teachers didn&apos;t get approved on their first try.
                       Use this feedback to come back stronger!
                     </p>
                   </div>
@@ -362,15 +362,15 @@ export default function RejectedTeacherDashboard() {
               <CardContent className="space-y-4">
                 <div className="p-3 bg-yellow-50 rounded-lg">
                   <p className="text-sm text-gray-700 italic">
-                    &ldquo;I was rejected initially but used the feedback to improve my profile. 
+                    &ldquo;I was rejected initially but used the feedback to improve my profile.
                     Now I&apos;m a top-rated teacher with 50+ students!&rdquo;
                   </p>
                   <p className="text-xs text-gray-500 mt-2">- Sarah M., Math Teacher</p>
                 </div>
-                
-                <div className="p-3 bg-blue-50 rounded-lg">
+
+                <div className="p-3 bg-slate-50 rounded-lg">
                   <p className="text-sm text-gray-700 italic">
-                    &ldquo;The rejection motivated me to get additional certifications. 
+                    &ldquo;The rejection motivated me to get additional certifications.
                     Best decision I ever made!&rdquo;
                   </p>
                   <p className="text-xs text-gray-500 mt-2">- David L., Science Teacher</p>

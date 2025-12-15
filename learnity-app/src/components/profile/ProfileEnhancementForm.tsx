@@ -82,7 +82,7 @@ export function ProfileEnhancementForm({ initialData, onSuccess }: ProfileEnhanc
 
   const fetchCompletionData = useCallback(async () => {
     if (authLoading) return; // Don't fetch if auth is still loading
-    
+
     try {
       const data = await api.get('/api/profile/enhance');
       setCompletion(data.completion);
@@ -189,7 +189,7 @@ export function ProfileEnhancementForm({ initialData, onSuccess }: ProfileEnhanc
           </CardHeader>
           <CardContent>
             <Progress value={completion.percentage} className="h-3 mb-4" />
-            
+
             {/* Rewards */}
             {completion.rewards && completion.rewards.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-4">
@@ -232,7 +232,7 @@ export function ProfileEnhancementForm({ initialData, onSuccess }: ProfileEnhanc
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             {learningGoals.map((goal) => (
               <Badge key={goal} variant="secondary" className="gap-1">
@@ -266,7 +266,7 @@ export function ProfileEnhancementForm({ initialData, onSuccess }: ProfileEnhanc
               <Badge
                 key={subject}
                 variant={subjects.includes(subject) ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-blue-100"
+                className="cursor-pointer hover:bg-slate-100"
                 onClick={() => toggleSubject(subject)}
               >
                 {subjects.includes(subject) && <CheckCircle className="h-3 w-3 mr-1" />}
@@ -300,7 +300,7 @@ export function ProfileEnhancementForm({ initialData, onSuccess }: ProfileEnhanc
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             {interests.map((interest) => (
               <Badge key={interest} variant="secondary" className="gap-1">

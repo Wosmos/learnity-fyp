@@ -14,10 +14,10 @@ import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
-import { 
-  GraduationCap, 
-  BookOpen, 
-  Users, 
+import {
+  GraduationCap,
+  BookOpen,
+  Users,
   Calendar,
   TrendingUp,
   Star,
@@ -72,7 +72,7 @@ export default function StudentDashboard() {
 
   const fetchProfileData = useCallback(async () => {
     if (authLoading) return;
-    
+
     try {
       const data = await api.get('/api/auth/profile');
       setProfileData(data.profile);
@@ -85,7 +85,7 @@ export default function StudentDashboard() {
 
   const fetchCompletionData = useCallback(async () => {
     if (authLoading) return;
-    
+
     try {
       const data = await api.get('/api/profile/enhance');
       setCompletion(data.completion);
@@ -141,7 +141,7 @@ export default function StudentDashboard() {
               <p className="text-gray-600 mt-1">Ready to continue your learning journey?</p>
             </div>
             <div className="flex items-center space-x-3">
-              <Badge className="bg-blue-100 text-blue-800">
+              <Badge className="bg-slate-100 text-blue-800">
                 <GraduationCap className="h-3 w-3 mr-1" />
                 Student
               </Badge>
@@ -161,8 +161,8 @@ export default function StudentDashboard() {
           </div>
         ) : completion && completion.percentage < 100 && (
           <div className="mb-8">
-            <ProfileCompletionBanner 
-              completion={completion} 
+            <ProfileCompletionBanner
+              completion={completion}
               onEnhanceClick={handleEnhanceProfile}
             />
           </div>
@@ -177,10 +177,10 @@ export default function StudentDashboard() {
             trendLabel="this month"
             icon={BookOpen}
             iconColor="text-blue-500"
-            bgColor="bg-blue-100"
+            bgColor="bg-slate-100"
             trendColor="text-green-600"
           />
-          
+
           <MetricCard
             title="Study Time"
             value="24h"
@@ -191,7 +191,7 @@ export default function StudentDashboard() {
             bgColor="bg-green-100"
             trendColor="text-green-600"
           />
-          
+
           <MetricCard
             title="Achievements"
             value="8"
@@ -202,7 +202,7 @@ export default function StudentDashboard() {
             bgColor="bg-yellow-100"
             trendColor="text-yellow-600"
           />
-          
+
           <MetricCard
             title="Avg Score"
             value="85%"
@@ -276,7 +276,7 @@ export default function StudentDashboard() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {/* Grade Level */}
                         <div className="flex items-start space-x-3">
-                          <div className="p-2 bg-blue-100 rounded-lg">
+                          <div className="p-2 bg-slate-100 rounded-lg">
                             <GraduationCap className="h-4 w-4 text-blue-600" />
                           </div>
                           <div>
@@ -419,7 +419,7 @@ export default function StudentDashboard() {
                   <Progress value={75} className="mb-3" />
                   <Button size="sm">Continue Lesson</Button>
                 </div>
-                
+
                 <div className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                   <div className="flex justify-between items-start mb-2">
                     <div>
@@ -444,7 +444,7 @@ export default function StudentDashboard() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center space-x-4 p-3 border rounded-lg">
-                  <div className="p-2 bg-blue-100 rounded-lg">
+                  <div className="p-2 bg-slate-100 rounded-lg">
                     <BookOpen className="h-4 w-4 text-blue-600" />
                   </div>
                   <div className="flex-1">
@@ -453,7 +453,7 @@ export default function StudentDashboard() {
                   </div>
                   <Button size="sm" variant="outline">Join</Button>
                 </div>
-                
+
                 <div className="flex items-center space-x-4 p-3 border rounded-lg">
                   <div className="p-2 bg-green-100 rounded-lg">
                     <Users className="h-4 w-4 text-green-600" />
@@ -521,9 +521,9 @@ export default function StudentDashboard() {
                     <p className="text-xs text-gray-600">Completed 10 math lessons</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
+                  <div className="p-2 bg-slate-100 rounded-lg">
                     <Target className="h-4 w-4 text-blue-600" />
                   </div>
                   <div>
@@ -531,7 +531,7 @@ export default function StudentDashboard() {
                     <p className="text-xs text-gray-600">Reached weekly study goal</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-green-100 rounded-lg">
                     <Users className="h-4 w-4 text-green-600" />
@@ -563,7 +563,7 @@ export default function StudentDashboard() {
                   className="border-0 shadow-none bg-transparent"
                 />
                 <div className="flex justify-center space-x-1 mt-4">
-                  {[1,2,3,4,5,6,7].map((day) => (
+                  {[1, 2, 3, 4, 5, 6, 7].map((day) => (
                     <div key={day} className="w-6 h-6 bg-orange-500 rounded-full"></div>
                   ))}
                 </div>

@@ -78,7 +78,7 @@ export const PasswordResetRequestForm: React.FC<PasswordResetRequestFormProps> =
             <div className="mx-auto p-3 bg-green-100 rounded-lg w-fit">
               <CheckCircle className="h-6 w-6 text-green-600" />
             </div>
-            
+
             <div>
               <CardTitle className="text-2xl font-bold">Check Your Email</CardTitle>
               <CardDescription>
@@ -116,7 +116,7 @@ export const PasswordResetRequestForm: React.FC<PasswordResetRequestFormProps> =
 
               <Button
                 onClick={onBackToLogin}
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-slate-600 hover:bg-slate-700"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Login
@@ -150,12 +150,12 @@ export const PasswordResetRequestForm: React.FC<PasswordResetRequestFormProps> =
               Back to Login
             </Button>
           </div>
-          
+
           <div className="text-center">
-            <div className="mx-auto p-3 bg-blue-100 rounded-lg w-fit">
+            <div className="mx-auto p-3 bg-slate-100 rounded-lg w-fit">
               <KeyRound className="h-6 w-6 text-blue-600" />
             </div>
-            
+
             <div className="mt-4">
               <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
               <CardDescription>
@@ -213,7 +213,7 @@ export const PasswordResetRequestForm: React.FC<PasswordResetRequestFormProps> =
 
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                className="w-full bg-slate-600 hover:bg-slate-700 text-white font-medium"
                 disabled={isSubmitting || !form.formState.isValid}
               >
                 {isSubmitting ? (

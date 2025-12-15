@@ -51,7 +51,7 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hcaptchaToken, setHcaptchaToken] = useState<string>('');
-  
+
   const { setRegistrationStep } = useAuthStore();
 
   const form = useForm<StudentRegistrationData>({
@@ -124,9 +124,9 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
               Back to Role Selection
             </Button>
           </div>
-          
+
           <div className="flex items-center space-x-3">
-            <div className="p-3 bg-blue-100 rounded-lg">
+            <div className="p-3 bg-slate-100 rounded-lg">
               <GraduationCap className="h-6 w-6 text-blue-600" />
             </div>
             <div>
@@ -144,7 +144,7 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
               {/* Personal Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -209,7 +209,7 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
               {/* Password Section */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">Security</h3>
-                
+
                 <FormField
                   control={form.control}
                   name="password"
@@ -285,7 +285,7 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
               {/* Academic Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">Academic Information</h3>
-                
+
                 <FormField
                   control={form.control}
                   name="gradeLevel"
@@ -326,7 +326,7 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
                             <Checkbox
                               id={subject}
                               checked={form.watch('subjects').includes(subject)}
-                              onCheckedChange={(checked) => 
+                              onCheckedChange={(checked) =>
                                 handleSubjectToggle(subject, checked as boolean)
                               }
                             />
@@ -399,7 +399,7 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3"
+                className="w-full bg-slate-600 hover:bg-slate-700 text-white font-medium py-3"
                 disabled={isSubmitting || !form.formState.isValid}
               >
                 {isSubmitting ? (

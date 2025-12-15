@@ -21,8 +21,8 @@ import { Progress } from '@/components/ui/progress';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { enhancedTeacherRegistrationSchema, type EnhancedTeacherRegistrationData } from '@/lib/validators/auth';
 import { useAuthStore } from '@/lib/stores/auth.store';
-import { 
-  BookOpen, Eye, EyeOff, ArrowLeft, Loader2, Upload, X, User, 
+import {
+  BookOpen, Eye, EyeOff, ArrowLeft, Loader2, Upload, X, User,
   GraduationCap, Clock, Camera, FileText, Shield,
   MapPin, Video, Award, Heart
 } from 'lucide-react';
@@ -135,7 +135,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
   const [videoIntro, setVideoIntro] = useState<File | null>(null);
   const [currentTab, setCurrentTab] = useState('basic');
   const [completionProgress, setCompletionProgress] = useState(0);
-  
+
   const { setRegistrationStep } = useAuthStore();
   const { toast } = useToast();
 
@@ -203,7 +203,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
       'lessonTypes', 'availableDays', 'preferredTimes', 'timezone',
       'languages', 'education', 'agreeToTerms', 'agreeToBackgroundCheck'
     ];
-    
+
     let completedFields = 0;
     requiredFields.forEach(field => {
       const value = formValues[field as keyof EnhancedTeacherRegistrationData];
@@ -211,7 +211,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
         completedFields++;
       }
     });
-    
+
     const progress = Math.round((completedFields / requiredFields.length) * 100);
     setCompletionProgress(progress);
   }, [form]);
@@ -237,7 +237,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
     }
 
     setIsSubmitting(true);
-    
+
     try {
       // Show progress toast
       toast({
@@ -344,17 +344,17 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
       });
 
       await onSubmit(enhancedData);
-      
+
       toast({
         title: "Application Submitted!",
         description: "Your teacher application has been submitted successfully. You'll receive an email confirmation shortly.",
       });
-      
+
       setRegistrationStep('verification');
     } catch (error: unknown) {
       console.error('Registration failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.';
-      
+
       form.setError('root', {
         type: 'manual',
         message: errorMessage
@@ -378,10 +378,10 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
   // Generic array field toggle handler
   const handleArrayFieldToggle = (fieldName: keyof EnhancedTeacherRegistrationData, value: string, checked: boolean) => {
     const currentValues = (form.getValues(fieldName) as string[]) || [];
-    const newValues = checked 
-      ? [...currentValues, value] 
+    const newValues = checked
+      ? [...currentValues, value]
       : currentValues.filter(v => v !== value);
-    
+
     form.setValue(fieldName, newValues as EnhancedTeacherRegistrationData[typeof fieldName]);
     form.trigger(fieldName);
   };
@@ -414,7 +414,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
       const category = uploadToVercelBlob.getFileCategory(file);
       return category === 'document' || category === 'image';
     });
-    
+
     setUploadedFiles(prev => [...prev, ...validFiles]);
   };
 
@@ -476,7 +476,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
               Step {tabs.findIndex(tab => tab.id === currentTab) + 1} of {tabs.length}
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-3">
             <div className="p-3 bg-green-100 rounded-lg">
               <BookOpen className="h-6 w-6 text-green-600" />
@@ -511,9 +511,8 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                       <TabsTrigger
                         key={tab.id}
                         value={tab.id}
-                        className={`flex flex-col items-center gap-1 p-2 ${
-                          isCompleted ? 'text-green-600' : ''
-                        }`}
+                        className={`flex flex-col items-center gap-1 p-2 ${isCompleted ? 'text-green-600' : ''
+                          }`}
                       >
                         <Icon className="h-4 w-4" />
                         <span className="text-xs hidden sm:block">{tab.label}</span>
@@ -529,7 +528,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                       <User className="h-5 w-5" />
                       Basic Information
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
@@ -713,7 +712,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                       <MapPin className="h-5 w-5" />
                       Contact Information
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
@@ -929,7 +928,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                       <GraduationCap className="h-5 w-5" />
                       Professional Information
                     </h3>
-                    
+
                     <FormField
                       control={form.control}
                       name="qualifications"
@@ -945,7 +944,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                                 <Checkbox
                                   id={qualification}
                                   checked={form.watch('qualifications').includes(qualification)}
-                                  onCheckedChange={(checked) => 
+                                  onCheckedChange={(checked) =>
                                     handleArrayFieldToggle('qualifications', qualification, checked as boolean)
                                   }
                                 />
@@ -978,7 +977,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                                 <Checkbox
                                   id={subject}
                                   checked={form.watch('subjects').includes(subject)}
-                                  onCheckedChange={(checked) => 
+                                  onCheckedChange={(checked) =>
                                     handleArrayFieldToggle('subjects', subject, checked as boolean)
                                   }
                                 />
@@ -1136,15 +1135,15 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                       )}
                     />
                   </div>
-                </TabsContent> 
-               {/* Teaching Details Tab */}
+                </TabsContent>
+                {/* Teaching Details Tab */}
                 <TabsContent value="teaching" className="space-y-6">
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                       <BookOpen className="h-5 w-5" />
                       Teaching Details
                     </h3>
-                    
+
                     <FormField
                       control={form.control}
                       name="teachingMethods"
@@ -1160,7 +1159,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                                 <Checkbox
                                   id={method}
                                   checked={form.watch('teachingMethods')?.includes(method) || false}
-                                  onCheckedChange={(checked) => 
+                                  onCheckedChange={(checked) =>
                                     handleArrayFieldToggle('teachingMethods', method, checked as boolean)
                                   }
                                 />
@@ -1193,7 +1192,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                                 <Checkbox
                                   id={ageGroup}
                                   checked={form.watch('ageGroups')?.includes(ageGroup) || false}
-                                  onCheckedChange={(checked) => 
+                                  onCheckedChange={(checked) =>
                                     handleArrayFieldToggle('ageGroups', ageGroup, checked as boolean)
                                   }
                                 />
@@ -1226,7 +1225,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                                 <Checkbox
                                   id={lessonType}
                                   checked={form.watch('lessonTypes').includes(lessonType)}
-                                  onCheckedChange={(checked) => 
+                                  onCheckedChange={(checked) =>
                                     handleArrayFieldToggle('lessonTypes', lessonType, checked as boolean)
                                   }
                                 />
@@ -1259,7 +1258,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                                 <Checkbox
                                   id={skill}
                                   checked={form.watch('technologySkills')?.includes(skill) || false}
-                                  onCheckedChange={(checked) => 
+                                  onCheckedChange={(checked) =>
                                     handleArrayFieldToggle('technologySkills', skill, checked as boolean)
                                   }
                                 />
@@ -1338,7 +1337,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                       <Clock className="h-5 w-5" />
                       Availability & Schedule
                     </h3>
-                    
+
                     <FormField
                       control={form.control}
                       name="availableDays"
@@ -1354,7 +1353,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                                 <Checkbox
                                   id={day}
                                   checked={form.watch('availableDays').includes(day)}
-                                  onCheckedChange={(checked) => 
+                                  onCheckedChange={(checked) =>
                                     handleArrayFieldToggle('availableDays', day, checked as boolean)
                                   }
                                 />
@@ -1387,7 +1386,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                                 <Checkbox
                                   id={timeSlot}
                                   checked={form.watch('preferredTimes').includes(timeSlot)}
-                                  onCheckedChange={(checked) => 
+                                  onCheckedChange={(checked) =>
                                     handleArrayFieldToggle('preferredTimes', timeSlot, checked as boolean)
                                   }
                                 />
@@ -1448,7 +1447,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                                 <Checkbox
                                   id={language}
                                   checked={form.watch('languages').includes(language)}
-                                  onCheckedChange={(checked) => 
+                                  onCheckedChange={(checked) =>
                                     handleArrayFieldToggle('languages', language, checked as boolean)
                                   }
                                 />
@@ -1475,7 +1474,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                       <Camera className="h-5 w-5" />
                       Media & Documents
                     </h3>
-                    
+
                     {!process.env.NEXT_PUBLIC_BLOB_TOKEN && (
                       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                         <div className="flex items-start gap-3">
@@ -1483,14 +1482,14 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                           <div>
                             <h4 className="text-sm font-medium text-yellow-800">File Upload Notice</h4>
                             <p className="text-sm text-yellow-700 mt-1">
-                              File uploads are currently not configured. You can still submit your application, 
+                              File uploads are currently not configured. You can still submit your application,
                               and files can be uploaded later through your profile settings.
                             </p>
                           </div>
                         </div>
                       </div>
                     )}
-                    
+
                     {/* Profile Picture Upload */}
                     <div className="space-y-3">
                       <Label className="text-sm font-medium">Profile Picture</Label>
@@ -1643,7 +1642,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                       <p className="text-sm text-gray-600">
                         Upload certificates, diplomas, or other relevant documents
                       </p>
-                      
+
                       <Label htmlFor="documents" className="cursor-pointer">
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-500 transition-colors">
                           <FileText className="h-8 w-8 text-gray-400 mx-auto mb-2" />
@@ -1704,7 +1703,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                       <Heart className="h-5 w-5" />
                       Additional Information
                     </h3>
-                    
+
                     <FormField
                       control={form.control}
                       name="education"
@@ -1845,7 +1844,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                                 <Checkbox
                                   id={interest}
                                   checked={form.watch('personalInterests')?.includes(interest) || false}
-                                  onCheckedChange={(checked) => 
+                                  onCheckedChange={(checked) =>
                                     handleArrayFieldToggle('personalInterests', interest, checked as boolean)
                                   }
                                 />
@@ -1956,8 +1955,8 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                       <Shield className="h-5 w-5" />
                       Verification & Agreement
                     </h3>
-                    
-                    <div className="bg-blue-50 p-4 rounded-lg">
+
+                    <div className="bg-slate-50 p-4 rounded-lg">
                       <h4 className="font-medium text-blue-900 mb-2">Application Review Process</h4>
                       <ul className="text-sm text-blue-800 space-y-1">
                         <li>• Your application will be reviewed within 2-3 business days</li>
@@ -2048,7 +2047,7 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                       <p className="text-sm text-green-800 mb-4">
                         Please review all your information before submitting. You can edit most details later in your profile.
                       </p>
-                      
+
                       <Button
                         type="submit"
                         className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3"

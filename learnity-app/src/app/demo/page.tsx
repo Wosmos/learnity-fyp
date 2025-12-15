@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
+import {
   RoleSelection,
   LoginForm,
   StudentRegistrationForm,
@@ -22,7 +22,7 @@ import {
 import { UserRole } from '@/types/auth';
 import { ArrowLeft, Smartphone, Monitor } from 'lucide-react';
 
-type DemoComponent = 
+type DemoComponent =
   | 'overview'
   | 'role-selection'
   | 'login-desktop'
@@ -82,7 +82,7 @@ export default function DemoPage() {
     switch (currentComponent) {
       case 'role-selection':
         return <RoleSelection onRoleSelect={mockHandlers.onRoleSelect} />;
-      
+
       case 'login-desktop':
         return (
           <div className="max-w-md mx-auto">
@@ -94,7 +94,7 @@ export default function DemoPage() {
             />
           </div>
         );
-      
+
       case 'student-registration':
         return (
           <StudentRegistrationForm
@@ -102,7 +102,7 @@ export default function DemoPage() {
             onBack={mockHandlers.onBack}
           />
         );
-      
+
       case 'teacher-registration':
         return (
           <TeacherRegistrationForm
@@ -110,7 +110,7 @@ export default function DemoPage() {
             onBack={mockHandlers.onBack}
           />
         );
-      
+
       case 'password-reset-request':
         return (
           <div className="max-w-md mx-auto">
@@ -120,7 +120,7 @@ export default function DemoPage() {
             />
           </div>
         );
-      
+
       case 'password-reset':
         return (
           <div className="max-w-md mx-auto">
@@ -131,7 +131,7 @@ export default function DemoPage() {
             />
           </div>
         );
-      
+
       case 'email-verification-pending':
         return (
           <EmailVerificationPending
@@ -140,7 +140,7 @@ export default function DemoPage() {
             onBackToLogin={mockHandlers.onBackToLogin}
           />
         );
-      
+
       case 'email-verification-success':
         return (
           <EmailVerificationResult
@@ -149,7 +149,7 @@ export default function DemoPage() {
             onContinue={mockHandlers.onContinue}
           />
         );
-      
+
       case 'email-verification-error':
         return (
           <EmailVerificationResult
@@ -159,7 +159,7 @@ export default function DemoPage() {
             onRetry={mockHandlers.onRetry}
           />
         );
-      
+
       default:
         return (
           <div className="max-w-4xl mx-auto">
@@ -174,7 +174,7 @@ export default function DemoPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {demoComponents.map((component) => (
-                <Card 
+                <Card
                   key={component.id}
                   className="cursor-pointer hover:shadow-lg transition-shadow"
                   onClick={() => setCurrentComponent(component.id as DemoComponent)}
@@ -190,7 +190,7 @@ export default function DemoPage() {
               ))}
             </div>
 
-            <div className="mt-12 bg-blue-50 rounded-lg p-6">
+            <div className="mt-12 bg-slate-50 rounded-lg p-6">
               <h2 className="text-xl font-semibold text-blue-900 mb-4">
                 🚀 Features Implemented
               </h2>
@@ -244,7 +244,7 @@ export default function DemoPage() {
                   Authentication Demo
                 </h1>
               </div>
-              
+
               <div className="flex items-center space-x-2 text-sm text-gray-600">
                 {currentComponent.includes('mobile') ? (
                   <div className="flex items-center space-x-1">
@@ -271,7 +271,7 @@ export default function DemoPage() {
         <div className="bg-white border-t mt-12">
           <div className="container mx-auto px-4 py-6 text-center text-sm text-gray-600">
             <p>
-              This is a demo page showcasing the authentication components. 
+              This is a demo page showcasing the authentication components.
               All forms are in demo mode and will not actually submit data.
             </p>
           </div>

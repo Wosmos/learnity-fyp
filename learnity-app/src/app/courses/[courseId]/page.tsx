@@ -213,7 +213,7 @@ export default function CoursePreviewPage() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await fetch(`/api/courses/${courseId}`);
       if (!response.ok) {
         const errorData = await response.json();
@@ -476,8 +476,8 @@ export default function CoursePreviewPage() {
                   ) : (
                     <Accordion type="multiple" className="space-y-2">
                       {course.sections?.map((section, sectionIndex) => (
-                        <AccordionItem 
-                          key={section.id} 
+                        <AccordionItem
+                          key={section.id}
                           value={`section-${sectionIndex}`}
                           className="border rounded-lg px-4"
                         >
@@ -678,8 +678,8 @@ export default function CoursePreviewPage() {
                   </div>
 
                   {isEnrolled ? (
-                    <Button 
-                      className="w-full bg-emerald-600 hover:bg-emerald-700" 
+                    <Button
+                      className="w-full bg-emerald-600 hover:bg-emerald-700"
                       size="lg"
                       onClick={handleStartLearning}
                     >
@@ -687,8 +687,8 @@ export default function CoursePreviewPage() {
                       Continue Learning
                     </Button>
                   ) : (
-                    <Button 
-                      className="w-full" 
+                    <Button
+                      className="w-full"
                       size="lg"
                       onClick={handleEnroll}
                       disabled={isEnrolling}
@@ -735,7 +735,7 @@ export default function CoursePreviewPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                    <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center">
                       {course.teacher?.avatarUrl ? (
                         <Image
                           src={course.teacher.avatarUrl}

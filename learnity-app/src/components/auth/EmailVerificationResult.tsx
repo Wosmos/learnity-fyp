@@ -79,14 +79,14 @@ export const EmailVerificationResult: React.FC<EmailVerificationResultProps> = (
           <CardHeader className="text-center space-y-4">
             <div className={`
               mx-auto p-4 rounded-full w-16 h-16 flex items-center justify-center
-              ${successContent.color === 'blue' ? 'bg-blue-100' : 'bg-green-100'}
+              ${successContent.color === 'blue' ? 'bg-slate-100' : 'bg-green-100'}
             `}>
               <CheckCircle className={`
                 h-8 w-8
                 ${successContent.color === 'blue' ? 'text-blue-600' : 'text-green-600'}
               `} />
             </div>
-            
+
             <div>
               <CardTitle className="text-2xl font-bold text-gray-900">
                 {successContent.title}
@@ -101,7 +101,7 @@ export const EmailVerificationResult: React.FC<EmailVerificationResultProps> = (
             {/* Success Message */}
             <div className={`
               border rounded-lg p-4
-              ${successContent.color === 'blue' ? 'bg-blue-50 border-blue-200' : 'bg-green-50 border-green-200'}
+              ${successContent.color === 'blue' ? 'bg-slate-50 border-blue-200' : 'bg-green-50 border-green-200'}
             `}>
               <div className="flex items-center space-x-2">
                 <Mail className={`
@@ -131,7 +131,7 @@ export const EmailVerificationResult: React.FC<EmailVerificationResultProps> = (
                   <div key={index} className="flex items-start space-x-3">
                     <div className={`
                       flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white
-                      ${successContent.color === 'blue' ? 'bg-blue-600' : 'bg-green-600'}
+                      ${successContent.color === 'blue' ? 'bg-slate-600' : 'bg-green-600'}
                     `}>
                       {index + 1}
                     </div>
@@ -146,7 +146,7 @@ export const EmailVerificationResult: React.FC<EmailVerificationResultProps> = (
               onClick={onContinue}
               className={`
                 w-full font-medium
-                ${successContent.color === 'blue' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'}
+                ${successContent.color === 'blue' ? 'bg-slate-600 hover:bg-slate-700' : 'bg-green-600 hover:bg-green-700'}
               `}
             >
               {successContent.buttonText}
@@ -163,7 +163,7 @@ export const EmailVerificationResult: React.FC<EmailVerificationResultProps> = (
                   </p>
                 </div>
                 <p className="text-sm text-yellow-700 mt-1">
-                  While we review your application, you can update your profile and prepare 
+                  While we review your application, you can update your profile and prepare
                   your teaching materials. We'll notify you as soon as the review is complete.
                 </p>
               </div>
@@ -182,7 +182,7 @@ export const EmailVerificationResult: React.FC<EmailVerificationResultProps> = (
           <div className="mx-auto p-4 bg-red-100 rounded-full w-16 h-16 flex items-center justify-center">
             <XCircle className="h-8 w-8 text-red-600" />
           </div>
-          
+
           <div>
             <CardTitle className="text-2xl font-bold text-gray-900">
               Verification Failed
@@ -243,7 +243,7 @@ export const EmailVerificationResult: React.FC<EmailVerificationResultProps> = (
             {onRetry && (
               <Button
                 onClick={onRetry}
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-slate-600 hover:bg-slate-700"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Request New Verification Email

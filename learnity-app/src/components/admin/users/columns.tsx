@@ -98,7 +98,7 @@ export const createColumns = ({ onViewDetails, onUserAction }: ColumnActionsProp
       const getRoleBadgeColor = (role: string) => {
         switch (role) {
           case 'ADMIN': return 'bg-red-100 text-red-800 border-red-200';
-          case 'TEACHER': return 'bg-blue-100 text-blue-800 border-blue-200';
+          case 'TEACHER': return 'bg-slate-100 text-blue-800 border-blue-200';
           case 'STUDENT': return 'bg-green-100 text-green-800 border-green-200';
           case 'PENDING_TEACHER': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
           case 'REJECTED_TEACHER': return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -178,11 +178,11 @@ export const createColumns = ({ onViewDetails, onUserAction }: ColumnActionsProp
       if (!lastLogin) {
         return <span className="text-xs text-muted-foreground">Never</span>;
       }
-      
+
       const date = new Date(lastLogin);
       const now = new Date();
       const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-      
+
       if (diffInHours < 24) {
         return <span className="text-xs text-green-600">Today</span>;
       } else if (diffInHours < 168) {
@@ -222,14 +222,14 @@ export const createColumns = ({ onViewDetails, onUserAction }: ColumnActionsProp
             <DropdownMenuSeparator />
             {user.role === 'PENDING_TEACHER' && (
               <>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => onUserAction(user.id, 'approve-teacher')}
                   className="text-green-600"
                 >
                   <Check className="mr-2 h-4 w-4" />
                   Approve Teacher
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => onUserAction(user.id, 'reject-teacher')}
                   className="text-red-600"
                 >
@@ -240,7 +240,7 @@ export const createColumns = ({ onViewDetails, onUserAction }: ColumnActionsProp
               </>
             )}
             {user.isActive ? (
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => onUserAction(user.id, 'deactivate')}
                 className="text-orange-600"
               >
@@ -248,7 +248,7 @@ export const createColumns = ({ onViewDetails, onUserAction }: ColumnActionsProp
                 Deactivate
               </DropdownMenuItem>
             ) : (
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => onUserAction(user.id, 'activate')}
                 className="text-green-600"
               >
@@ -256,7 +256,7 @@ export const createColumns = ({ onViewDetails, onUserAction }: ColumnActionsProp
                 Activate
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={() => onUserAction(user.id, 'delete')}
               className="text-red-600"
             >

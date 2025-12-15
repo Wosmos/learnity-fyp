@@ -20,8 +20,8 @@ import { Progress } from '@/components/ui/progress';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { quickTeacherRegistrationSchema, type QuickTeacherRegistrationData } from '@/lib/validators/quick-teacher-registration';
 import { useAuthStore } from '@/lib/stores/auth.store';
-import { 
-  BookOpen, Eye, EyeOff, ArrowLeft, ArrowRight, Loader2, User, 
+import {
+  BookOpen, Eye, EyeOff, ArrowLeft, ArrowRight, Loader2, User,
   GraduationCap, Clock, Shield, CheckCircle, Youtube
 } from 'lucide-react';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
@@ -75,7 +75,7 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hcaptchaToken, setHcaptchaToken] = useState<string>('');
-  
+
   const { setRegistrationStep } = useAuthStore();
   const { toast } = useToast();
 
@@ -117,17 +117,17 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
   // Generic array field toggle handler
   const handleArrayFieldToggle = (fieldName: keyof QuickTeacherRegistrationData, value: string, checked: boolean) => {
     const currentValues = (form.getValues(fieldName) as string[]) || [];
-    const newValues = checked 
-      ? [...currentValues, value] 
+    const newValues = checked
+      ? [...currentValues, value]
       : currentValues.filter(v => v !== value);
-    
+
     form.setValue(fieldName, newValues as QuickTeacherRegistrationData[typeof fieldName]);
     form.trigger(fieldName);
   };
 
   const validateCurrentStep = async (): Promise<boolean> => {
     const values = form.getValues();
-    
+
     switch (currentStep) {
       case 1:
         return await form.trigger(['firstName', 'lastName', 'email', 'password', 'confirmPassword', 'country']);
@@ -168,7 +168,7 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
     }
 
     setIsSubmitting(true);
-    
+
     try {
       toast({
         title: "Submitting Application",
@@ -181,18 +181,18 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
       };
 
       await onSubmit(enhancedData);
-      
+
       toast({
         title: "Application Submitted! 🎉",
         description: "Welcome to Learnity! Redirecting to your dashboard...",
       });
-      
+
       // Redirect to dashboard after successful registration
       window.location.href = '/dashboard';
     } catch (error: unknown) {
       console.error('Registration failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.';
-      
+
       form.setError('root', {
         type: 'manual',
         message: errorMessage
@@ -232,7 +232,7 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
               Step {currentStep} of {steps.length}
             </div>
           </div>
-          
+
           {/* Title */}
           <div className="text-center space-y-2">
             <div className="flex items-center justify-center mb-4">
@@ -255,21 +255,21 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
               <span className="font-medium text-green-600">{Math.round(progress)}%</span>
             </div>
             <Progress value={progress} className="h-3" />
-            
+
             {/* Step indicators */}
             <div className="flex justify-between">
               {steps.map((step) => {
                 const Icon = step.icon;
                 const isCompleted = currentStep > step.id;
                 const isCurrent = currentStep === step.id;
-                
+
                 return (
                   <div key={step.id} className="flex flex-col items-center space-y-2">
                     <div className={`
                       w-10 h-10 rounded-full flex items-center justify-center transition-all
-                      ${isCompleted ? 'bg-green-500 text-white' : 
-                        isCurrent ? 'bg-blue-500 text-white' : 
-                        'bg-gray-200 text-gray-500'}
+                      ${isCompleted ? 'bg-green-500 text-white' :
+                        isCurrent ? 'bg-slate-500 text-white' :
+                          'bg-gray-200 text-gray-500'}
                     `}>
                       {isCompleted ? (
                         <CheckCircle className="h-5 w-5" />
@@ -277,11 +277,10 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                         <Icon className="h-5 w-5" />
                       )}
                     </div>
-                    <span className={`text-xs font-medium ${
-                      isCurrent ? 'text-blue-600' : 
-                      isCompleted ? 'text-green-600' : 
-                      'text-gray-500'
-                    }`}>
+                    <span className={`text-xs font-medium ${isCurrent ? 'text-blue-600' :
+                        isCompleted ? 'text-green-600' :
+                          'text-gray-500'
+                      }`}>
                       {step.title}
                     </span>
                   </div>
@@ -294,7 +293,7 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
         <CardContent className="space-y-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-              
+
               {/* Step 1: Basic Information */}
               {currentStep === 1 && (
                 <div className="space-y-6 animate-in slide-in-from-right-5 duration-300">
@@ -532,7 +531,7 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                               <Checkbox
                                 id={subject}
                                 checked={form.watch('subjects')?.includes(subject) || false}
-                                onCheckedChange={(checked) => 
+                                onCheckedChange={(checked) =>
                                   handleArrayFieldToggle('subjects', subject, checked as boolean)
                                 }
                                 disabled={form.watch('subjects')?.length >= 5 && !form.watch('subjects')?.includes(subject)}
@@ -566,7 +565,7 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                               <Checkbox
                                 id={ageGroup}
                                 checked={form.watch('ageGroups')?.includes(ageGroup) || false}
-                                onCheckedChange={(checked) => 
+                                onCheckedChange={(checked) =>
                                   handleArrayFieldToggle('ageGroups', ageGroup, checked as boolean)
                                 }
                                 disabled={form.watch('ageGroups')?.length >= 3 && !form.watch('ageGroups')?.includes(ageGroup)}
@@ -682,7 +681,7 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                               <Checkbox
                                 id={day}
                                 checked={form.watch('availableDays')?.includes(day) || false}
-                                onCheckedChange={(checked) => 
+                                onCheckedChange={(checked) =>
                                   handleArrayFieldToggle('availableDays', day, checked as boolean)
                                 }
                               />
@@ -741,7 +740,7 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                                 <Checkbox
                                   id={timeSlot}
                                   checked={form.watch('preferredTimes')?.includes(timeSlot) || false}
-                                  onCheckedChange={(checked) => 
+                                  onCheckedChange={(checked) =>
                                     handleArrayFieldToggle('preferredTimes', timeSlot, checked as boolean)
                                   }
                                   disabled={form.watch('preferredTimes')?.length >= 4 && !form.watch('preferredTimes')?.includes(timeSlot)}
@@ -767,7 +766,7 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                       <Shield className="h-5 w-5" />
                       Verification & Agreement
                     </h4>
-                    
+
                     <FormField
                       control={form.control}
                       name="agreeToTerms"

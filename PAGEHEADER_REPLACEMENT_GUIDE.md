@@ -40,7 +40,7 @@ interface PageHeaderProps {
      icon={BookOpen}
      actions={
        <Link href="/dashboard/teacher/courses/new">
-         <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+         <Button className="gap-2 bg-slate-600 hover:bg-slate-700 text-white">
            <Plus className="h-4 w-4" />
            Create Course
          </Button>

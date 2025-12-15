@@ -82,15 +82,15 @@ export function QuizPageLayout({
   const [remainingTime, setRemainingTime] = useState(timeLimit || 0);
 
   // Progress percentage
-  const progressPercent = totalQuestions > 0 
-    ? Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100) 
+  const progressPercent = totalQuestions > 0
+    ? Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)
     : 0;
 
   // Timer effect
   useEffect(() => {
     const interval = setInterval(() => {
       setElapsedTime((prev) => prev + 1);
-      
+
       if (timerEnabled && timeLimit) {
         setRemainingTime((prev) => {
           const newTime = prev - 1;
@@ -118,8 +118,8 @@ export function QuizPageLayout({
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Link href={`/courses/${courseId}/learn/${lessonId}`}>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="sm"
                   className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                 >
@@ -128,7 +128,7 @@ export function QuizPageLayout({
                 </Button>
               </Link>
             </div>
-            
+
             {/* Timer Display */}
             <div className="flex items-center gap-4">
               <div className={cn(
@@ -136,7 +136,7 @@ export function QuizPageLayout({
                 timerEnabled && timeLimit
                   ? isTimeLow
                     ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                    : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                    : "bg-slate-100 text-blue-700 dark:bg-slate-900/30 dark:text-blue-400"
                   : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
               )}>
                 <Clock className="h-4 w-4" />
@@ -177,7 +177,7 @@ export function QuizPageLayout({
                 </span>
               </div>
               <Progress value={progressPercent} className="h-2" />
-              
+
               {/* Passing Score Info */}
               <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                 <AlertCircle className="h-3.5 w-3.5" />

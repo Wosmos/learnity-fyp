@@ -120,11 +120,11 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
-  
+
   const initials = `${teacher.firstName[0]}${teacher.lastName[0]}`.toUpperCase();
   const rating = parseFloat(teacher.rating);
   const gradient = gradients[Math.abs(teacher.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % gradients.length];
-  
+
   // Calculate rating distribution
   const getRatingDistribution = () => {
     const total = teacher.reviewCount;
@@ -218,11 +218,10 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className={`h-5 w-5 ${
-                            i < Math.floor(rating)
+                          className={`h-5 w-5 ${i < Math.floor(rating)
                               ? 'fill-yellow-400 text-yellow-400'
                               : 'text-white/30'
-                          }`}
+                            }`}
                         />
                       ))}
                       <span className="text-2xl font-bold ml-2">{rating.toFixed(1)}</span>
@@ -355,7 +354,7 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
                     <h3 className="font-semibold text-gray-700 mb-2">Subjects Taught</h3>
                     <div className="flex flex-wrap gap-2">
                       {teacher.subjects.map((subject, index) => (
-                        <Badge key={index} className="px-4 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200">
+                        <Badge key={index} className="px-4 py-2 bg-slate-100 text-blue-700 hover:bg-slate-200">
                           {subject}
                         </Badge>
                       ))}
@@ -616,11 +615,10 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`h-4 w-4 ${
-                                  i < testimonial.rating
+                                className={`h-4 w-4 ${i < testimonial.rating
                                     ? 'fill-yellow-400 text-yellow-400'
                                     : 'text-gray-300'
-                                }`}
+                                  }`}
                               />
                             ))}
                           </div>
@@ -699,7 +697,7 @@ export function TeacherDetailContent({ teacher: initialTeacher }: TeacherDetailP
                 <div className="space-y-2">
                   {teacher.languages.map((language, index) => (
                     <div key={index} className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                      <div className="w-2 h-2 bg-slate-600 rounded-full"></div>
                       <span className="text-gray-700">{language}</span>
                     </div>
                   ))}

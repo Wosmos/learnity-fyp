@@ -238,7 +238,7 @@ export default function NewCoursePage() {
         </Card>
 
         {/* Help Section */}
-        <Card className="mt-6 bg-blue-50 border-blue-200">
+        <Card className="mt-6 bg-slate-50 border-blue-200">
           <CardContent className="py-4">
             <h3 className="font-medium text-blue-900 mb-2">What happens next?</h3>
             <ol className="text-sm text-blue-800 space-y-1">

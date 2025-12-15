@@ -115,7 +115,7 @@
 **Examples:**
 ```tsx
 // Inconsistent patterns found:
-className="bg-blue-600 hover:bg-blue-700 text-white text-base px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold"
+className="bg-slate-600 hover:bg-slate-700 text-white text-base px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold"
 className="bg-white text-blue-600 hover:bg-gray-100 text-base px-8 py-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg text-lg py-6"
 ```

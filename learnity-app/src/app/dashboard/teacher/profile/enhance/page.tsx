@@ -234,7 +234,7 @@ const ItemSelector = ({
               className={`
                 px-3 py-1.5 rounded-full text-sm font-medium transition-all border
                 ${isSelected
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                  ? 'bg-slate-600 text-white border-blue-600 shadow-sm'
                   : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'}
               `}
             >
@@ -536,7 +536,7 @@ export default function TeacherProfileEnhancement() {
                       <Label>Philosophy</Label>
                       <Textarea
                         placeholder="How do you help students learn best?"
-                        className="h-44"                
+                        className="h-44"
                         value={profile.teachingApproach || ''}
                         onChange={(e) => setProfile({ ...profile, teachingApproach: e.target.value })}
                       />
@@ -553,7 +553,7 @@ export default function TeacherProfileEnhancement() {
                     videoIntroUrl: profile.videoIntroUrl,
                     teachingApproach: profile.teachingApproach,
                     whyChooseMe: profile.whyChooseMe
-                  })} disabled={saving} className="bg-blue-600 hover:bg-blue-700">
+                  })} disabled={saving} className="bg-slate-600 hover:bg-slate-700">
                     {saving ? 'Saving...' : 'Save Identity Changes'}
                   </Button>
                 </div>
@@ -683,7 +683,7 @@ export default function TeacherProfileEnhancement() {
                 achievements: profile.achievements,
                 experience: profile.experience,
                 onlineExperience: profile.onlineExperience
-              })} disabled={saving} className="bg-blue-600 hover:bg-blue-700">
+              })} disabled={saving} className="bg-slate-600 hover:bg-slate-700">
                 {saving ? 'Saving...' : 'Save Expertise Changes'}
               </Button>
             </div>
@@ -778,7 +778,7 @@ export default function TeacherProfileEnhancement() {
                 availability: profile.availability,
                 availableDays: profile.availableDays,
                 preferredTimes: profile.preferredTimes
-              })} disabled={saving} className="bg-blue-600 hover:bg-blue-700">
+              })} disabled={saving} className="bg-slate-600 hover:bg-slate-700">
                 {saving ? 'Saving...' : 'Save Logistics Changes'}
               </Button>
             </div>

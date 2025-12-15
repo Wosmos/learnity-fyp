@@ -317,164 +317,164 @@ export default function MyCoursesPage() {
       </header>
 
       <main className="px-6 lg:px-8 py-8">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-100 rounded-lg">
-                    <BookOpen className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{totalCourses}</p>
-                    <p className="text-sm text-muted-foreground">Total Courses</p>
-                  </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-slate-100 rounded-lg">
+                  <BookOpen className="h-6 w-6 text-blue-600" />
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-yellow-100 rounded-lg">
-                    <Play className="h-6 w-6 text-yellow-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{inProgressCourses}</p>
-                    <p className="text-sm text-muted-foreground">In Progress</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-green-100 rounded-lg">
-                    <Trophy className="h-6 w-6 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{completedCourses}</p>
-                    <p className="text-sm text-muted-foreground">Completed</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Continue Learning Section */}
-          {!isLoading && continueLearningCourses.length > 0 && (
-            <Card className="mb-8 border-primary/20 bg-primary/5">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Play className="h-5 w-5 text-primary" />
-                  Continue Learning
-                </CardTitle>
-                <CardDescription>
-                  Pick up where you left off
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {continueLearningCourses.map((enrollment) => (
-                    <Card
-                      key={enrollment.id}
-                      className="cursor-pointer hover:shadow-md transition-shadow"
-                      onClick={() => handleContinueCourse(enrollment.course.id)}
-                    >
-                      <CardContent className="p-4">
-                        <h4 className="font-medium line-clamp-1 mb-2">
-                          {enrollment.course.title}
-                        </h4>
-                        <div className="flex items-center justify-between text-sm mb-2">
-                          <span className="text-muted-foreground">Progress</span>
-                          <span className="font-medium">{enrollment.progress}%</span>
-                        </div>
-                        <Progress value={enrollment.progress} className="h-1.5 mb-3" />
-                        <Button size="sm" className="w-full">
-                          <Play className="h-3 w-3 mr-1" />
-                          Continue
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Error State */}
-          {error && (
-            <Card className="mb-6 border-destructive">
-              <CardContent className="py-6 flex items-center gap-4">
-                <AlertCircle className="h-8 w-8 text-destructive" />
                 <div>
-                  <p className="font-medium text-destructive">Failed to load courses</p>
-                  <p className="text-sm text-muted-foreground">{error}</p>
+                  <p className="text-2xl font-bold">{totalCourses}</p>
+                  <p className="text-sm text-muted-foreground">Total Courses</p>
                 </div>
-                <Button variant="outline" onClick={fetchEnrollments} className="ml-auto">
-                  Try Again
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* Courses Tabs */}
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-            <TabsList className="mb-6">
-              <TabsTrigger value="all">
-                All Courses ({totalCourses})
-              </TabsTrigger>
-              <TabsTrigger value="in-progress">
-                In Progress ({inProgressCourses})
-              </TabsTrigger>
-              <TabsTrigger value="completed">
-                Completed ({completedCourses})
-              </TabsTrigger>
-            </TabsList>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-yellow-100 rounded-lg">
+                  <Play className="h-6 w-6 text-yellow-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{inProgressCourses}</p>
+                  <p className="text-sm text-muted-foreground">In Progress</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-            <TabsContent value={activeTab} className="space-y-4">
-              {isLoading ? (
-                <>
-                  <CourseCardSkeleton />
-                  <CourseCardSkeleton />
-                  <CourseCardSkeleton />
-                </>
-              ) : filteredEnrollments.length === 0 ? (
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <GraduationCap className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">
-                      {activeTab === 'completed'
-                        ? 'No completed courses yet'
-                        : activeTab === 'in-progress'
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-green-100 rounded-lg">
+                  <Trophy className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{completedCourses}</p>
+                  <p className="text-sm text-muted-foreground">Completed</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Continue Learning Section */}
+        {!isLoading && continueLearningCourses.length > 0 && (
+          <Card className="mb-8 border-primary/20 bg-primary/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Play className="h-5 w-5 text-primary" />
+                Continue Learning
+              </CardTitle>
+              <CardDescription>
+                Pick up where you left off
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {continueLearningCourses.map((enrollment) => (
+                  <Card
+                    key={enrollment.id}
+                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => handleContinueCourse(enrollment.course.id)}
+                  >
+                    <CardContent className="p-4">
+                      <h4 className="font-medium line-clamp-1 mb-2">
+                        {enrollment.course.title}
+                      </h4>
+                      <div className="flex items-center justify-between text-sm mb-2">
+                        <span className="text-muted-foreground">Progress</span>
+                        <span className="font-medium">{enrollment.progress}%</span>
+                      </div>
+                      <Progress value={enrollment.progress} className="h-1.5 mb-3" />
+                      <Button size="sm" className="w-full">
+                        <Play className="h-3 w-3 mr-1" />
+                        Continue
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <Card className="mb-6 border-destructive">
+            <CardContent className="py-6 flex items-center gap-4">
+              <AlertCircle className="h-8 w-8 text-destructive" />
+              <div>
+                <p className="font-medium text-destructive">Failed to load courses</p>
+                <p className="text-sm text-muted-foreground">{error}</p>
+              </div>
+              <Button variant="outline" onClick={fetchEnrollments} className="ml-auto">
+                Try Again
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Courses Tabs */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+          <TabsList className="mb-6">
+            <TabsTrigger value="all">
+              All Courses ({totalCourses})
+            </TabsTrigger>
+            <TabsTrigger value="in-progress">
+              In Progress ({inProgressCourses})
+            </TabsTrigger>
+            <TabsTrigger value="completed">
+              Completed ({completedCourses})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={activeTab} className="space-y-4">
+            {isLoading ? (
+              <>
+                <CourseCardSkeleton />
+                <CourseCardSkeleton />
+                <CourseCardSkeleton />
+              </>
+            ) : filteredEnrollments.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <GraduationCap className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">
+                    {activeTab === 'completed'
+                      ? 'No completed courses yet'
+                      : activeTab === 'in-progress'
                         ? 'No courses in progress'
                         : 'No enrolled courses'}
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      {activeTab === 'completed'
-                        ? 'Complete your first course to see it here!'
-                        : 'Start learning by enrolling in a course'}
-                    </p>
-                    <Link href="/courses">
-                      <Button>
-                        <BookOpen className="h-4 w-4 mr-2" />
-                        Browse Courses
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ) : (
-                filteredEnrollments.map((enrollment) => (
-                  <EnrolledCourseCard
-                    key={enrollment.id}
-                    enrollment={enrollment}
-                    onContinue={handleContinueCourse}
-                  />
-                ))
-              )}
-            </TabsContent>
-          </Tabs>
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    {activeTab === 'completed'
+                      ? 'Complete your first course to see it here!'
+                      : 'Start learning by enrolling in a course'}
+                  </p>
+                  <Link href="/courses">
+                    <Button>
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Browse Courses
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ) : (
+              filteredEnrollments.map((enrollment) => (
+                <EnrolledCourseCard
+                  key={enrollment.id}
+                  enrollment={enrollment}
+                  onContinue={handleContinueCourse}
+                />
+              ))
+            )}
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );

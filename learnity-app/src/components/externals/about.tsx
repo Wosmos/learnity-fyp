@@ -23,14 +23,14 @@ export interface AboutProps {
   // Two-column layout
   left?: AboutContent;
   right?: AboutContent;
-  
+
   // Single content
   content?: AboutContent;
-  
+
   // Layout
   layout?: 'two-column' | 'single' | 'stacked';
   reverse?: boolean;
-  
+
   // Styling
   className?: string;
   maxWidth?: 'md' | 'lg' | 'xl' | '2xl' | '4xl';
@@ -78,13 +78,13 @@ export function About({
 
   const renderCard = (item: AboutContent) => {
     const Icon = item.icon;
-    
+
     return (
       <div className={cn(
         'rounded-2xl p-8 text-white glass-card border-none',
-        item.gradient 
-          ? 'bg-gradient-to-br from-blue-500/80 to-purple-600/80 backdrop-blur-md shadow-xl' 
-          : 'bg-blue-600/80 backdrop-blur-md shadow-xl'
+        item.gradient
+          ? 'bg-gradient-to-br from-blue-500/80 to-purple-600/80 backdrop-blur-md shadow-xl'
+          : 'bg-slate-600/80 backdrop-blur-md shadow-xl'
       )}>
         {Icon && <Icon className="h-16 w-16 mb-6" />}
         {item.iconElement && <div className="mb-6">{item.iconElement}</div>}
@@ -113,13 +113,13 @@ export function About({
               {renderCard(right)}
             </div>
           )}
-          
+
           {layout === 'single' && content && (
             <div className="text-center">
               {renderContent(content)}
             </div>
           )}
-          
+
           {layout === 'stacked' && left && right && (
             <div className="space-y-12">
               {renderContent(left)}

@@ -66,7 +66,7 @@ export function TeacherCard({ teacher }: TeacherCardProps) {
               <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
                 {teacher.name}
               </h3>
-              
+
               {/* Rating */}
               <div className="flex items-center space-x-2 mb-2">
                 <div className="flex items-center space-x-1">
@@ -81,7 +81,7 @@ export function TeacherCard({ teacher }: TeacherCardProps) {
                 {teacher.subjects.slice(0, 2).map((subject, index) => (
                   <span
                     key={index}
-                    className="inline-block px-2 py-0.5 bg-blue-50/50 text-blue-700 text-xs font-medium rounded backdrop-blur-sm border border-blue-100/50"
+                    className="inline-block px-2 py-0.5 bg-slate-50/50 text-blue-700 text-xs font-medium rounded backdrop-blur-sm border border-blue-100/50"
                   >
                     {subject}
                   </span>

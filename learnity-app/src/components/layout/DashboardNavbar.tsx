@@ -104,7 +104,7 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, loading: authLoading } = useClientAuth();
   const api = useAuthenticatedApi();
-  
+
   const [profileData, setProfileData] = useState<{
     firstName: string;
     lastName: string;
@@ -148,8 +148,8 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
     return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() || 'U';
   };
 
-  const fullName = profileData 
-    ? `${profileData.firstName} ${profileData.lastName}`.trim() 
+  const fullName = profileData
+    ? `${profileData.firstName} ${profileData.lastName}`.trim()
     : user?.displayName || 'User';
 
   return (
@@ -160,12 +160,12 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
       )}
     >
       <div className="h-full px-4 md:px-6 mx-auto flex items-center justify-between gap-4 max-w-[1600px]">
-        
+
         {/* Left Side: Mobile Menu & Search */}
         <div className="flex items-center gap-3 flex-1">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="md:hidden -ml-2 text-slate-500"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -177,11 +177,11 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
         {showStats && stats && (
           <div className="hidden md:flex items-center gap-3">
             {stats.studyTime && (
-              <div 
+              <div
                 className="group relative flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-white border border-transparent hover:border-slate-200 hover:shadow-sm transition-all duration-300 cursor-default"
                 title="Time spent learning today"
               >
-                <div className="p-1 rounded-full bg-slate-200/50 group-hover:bg-blue-100/50 transition-colors">
+                <div className="p-1 rounded-full bg-slate-200/50 group-hover:bg-slate-100/50 transition-colors">
                   <Clock className="h-3.5 w-3.5 text-slate-600 group-hover:text-blue-600 transition-colors" />
                 </div>
                 <span className="text-sm font-semibold text-slate-600 group-hover:text-slate-900">{stats.studyTime}</span>
@@ -189,7 +189,7 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
             )}
 
             {stats.xpPoints !== undefined && (
-              <div 
+              <div
                 className="group relative flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-white border border-transparent hover:border-indigo-100 hover:shadow-sm hover:shadow-indigo-100/50 transition-all duration-300 cursor-default"
                 title="Total Experience Points"
               >
@@ -203,7 +203,7 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
             )}
 
             {stats.streak !== undefined && stats.streak > 0 && (
-              <div 
+              <div
                 className="group relative flex items-center gap-2 pr-4 pl-3 py-1.5 rounded-full bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 hover:from-orange-100 hover:via-amber-100 hover:to-yellow-100 border border-orange-100 hover:border-orange-200 hover:shadow-md hover:shadow-orange-100 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer"
                 title="Current Learning Streak"
               >

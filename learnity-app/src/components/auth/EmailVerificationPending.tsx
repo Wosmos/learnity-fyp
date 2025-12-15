@@ -33,7 +33,7 @@ export const EmailVerificationPending: React.FC<EmailVerificationPendingProps> =
     setIsResending(true);
     try {
       await onResendVerification();
-      
+
       // Start cooldown timer
       setResendCooldown(60);
       const timer = setInterval(() => {
@@ -99,7 +99,7 @@ export const EmailVerificationPending: React.FC<EmailVerificationPendingProps> =
         <CardHeader className="text-center space-y-4">
           <div className={`
             mx-auto p-4 rounded-full w-16 h-16 flex items-center justify-center
-            ${content.color === 'blue' ? 'bg-blue-100' : ''}
+            ${content.color === 'blue' ? 'bg-slate-100' : ''}
             ${content.color === 'green' ? 'bg-green-100' : ''}
             ${content.color === 'gray' ? 'bg-gray-100' : ''}
           `}>
@@ -110,7 +110,7 @@ export const EmailVerificationPending: React.FC<EmailVerificationPendingProps> =
               ${content.color === 'gray' ? 'text-gray-600' : ''}
             `} />
           </div>
-          
+
           <div>
             <CardTitle className="text-2xl font-bold text-gray-900">
               {content.title}
@@ -130,7 +130,7 @@ export const EmailVerificationPending: React.FC<EmailVerificationPendingProps> =
                 <div key={index} className="flex items-start space-x-3">
                   <div className={`
                     flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white
-                    ${content.color === 'blue' ? 'bg-blue-600' : ''}
+                    ${content.color === 'blue' ? 'bg-slate-600' : ''}
                     ${content.color === 'green' ? 'bg-green-600' : ''}
                     ${content.color === 'gray' ? 'bg-gray-600' : ''}
                   `}>
@@ -151,7 +151,7 @@ export const EmailVerificationPending: React.FC<EmailVerificationPendingProps> =
               </p>
             </div>
             <p className="text-sm text-yellow-700 mt-1">
-              We've sent a verification email to your registered email address. 
+              We've sent a verification email to your registered email address.
               Please check your inbox and spam folder.
             </p>
           </div>
@@ -163,7 +163,7 @@ export const EmailVerificationPending: React.FC<EmailVerificationPendingProps> =
               disabled={isResending || resendCooldown > 0}
               className={`
                 w-full font-medium
-                ${content.color === 'blue' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+                ${content.color === 'blue' ? 'bg-slate-600 hover:bg-slate-700' : ''}
                 ${content.color === 'green' ? 'bg-green-600 hover:bg-green-700' : ''}
                 ${content.color === 'gray' ? 'bg-gray-600 hover:bg-gray-700' : ''}
               `}
@@ -216,7 +216,7 @@ export const EmailVerificationPending: React.FC<EmailVerificationPendingProps> =
                 </p>
               </div>
               <p className="text-sm text-green-700 mt-1">
-                Once you verify your email, our team will review your teaching credentials 
+                Once you verify your email, our team will review your teaching credentials
                 and qualifications. You'll be notified via email once the review is complete.
               </p>
             </div>

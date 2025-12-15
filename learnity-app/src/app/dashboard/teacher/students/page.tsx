@@ -195,7 +195,7 @@ export default function TeacherStudentsPage() {
                 <Star className="h-8 w-8 text-yellow-500" />
                 <div>
                   <p className="text-2xl font-bold">
-                    {(students.filter(s => s.rating > 0).reduce((sum, s) => sum + s.rating, 0) / 
+                    {(students.filter(s => s.rating > 0).reduce((sum, s) => sum + s.rating, 0) /
                       students.filter(s => s.rating > 0).length || 0).toFixed(1)}
                   </p>
                   <p className="text-xs text-gray-500">Avg Rating</p>
@@ -240,11 +240,10 @@ export default function TeacherStudentsPage() {
               <CardContent>
                 <div className="space-y-4">
                   {filteredStudents.map((student) => (
-                    <div 
-                      key={student.id} 
-                      className={`p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors ${
-                        selectedStudent?.id === student.id ? 'border-blue-500 bg-blue-50' : ''
-                      }`}
+                    <div
+                      key={student.id}
+                      className={`p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors ${selectedStudent?.id === student.id ? 'border-blue-500 bg-slate-50' : ''
+                        }`}
                       onClick={() => setSelectedStudent(student)}
                     >
                       <div className="flex items-center justify-between">
@@ -265,7 +264,7 @@ export default function TeacherStudentsPage() {
                             </p>
                           </div>
                         </div>
-                        
+
                         <div className="text-right">
                           <div className="flex items-center space-x-1 mb-1">
                             <Star className="h-4 w-4 text-yellow-500" />
@@ -286,7 +285,7 @@ export default function TeacherStudentsPage() {
                       </div>
                     </div>
                   ))}
-                  
+
                   {filteredStudents.length === 0 && (
                     <div className="text-center py-12">
                       <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -341,7 +340,7 @@ export default function TeacherStudentsPage() {
                         </span>
                       </div>
                       <Progress value={selectedStudent.progress} className="h-2" />
-                      
+
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <p className="text-gray-500">Total Sessions</p>

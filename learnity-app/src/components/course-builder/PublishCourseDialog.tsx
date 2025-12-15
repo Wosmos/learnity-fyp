@@ -16,9 +16,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { 
-  CheckCircle, 
-  XCircle, 
+import {
+  CheckCircle,
+  XCircle,
   AlertTriangle,
   Rocket,
   Eye,
@@ -55,21 +55,21 @@ export function PublishCourseDialog({ open, onOpenChange }: PublishCourseDialogP
         label: 'Course title (3-100 characters)',
         passed: courseData.title.length >= 3 && courseData.title.length <= 100,
         required: true,
-        message: courseData.title.length < 3 
-          ? 'Title is too short' 
-          : courseData.title.length > 100 
-          ? 'Title is too long' 
-          : undefined,
+        message: courseData.title.length < 3
+          ? 'Title is too short'
+          : courseData.title.length > 100
+            ? 'Title is too long'
+            : undefined,
       },
       {
         label: 'Course description (10-2000 characters)',
         passed: courseData.description.length >= 10 && courseData.description.length <= 2000,
         required: true,
-        message: courseData.description.length < 10 
-          ? 'Description is too short' 
-          : courseData.description.length > 2000 
-          ? 'Description is too long' 
-          : undefined,
+        message: courseData.description.length < 10
+          ? 'Description is too short'
+          : courseData.description.length > 2000
+            ? 'Description is too long'
+            : undefined,
       },
       {
         label: 'Category selected',
@@ -164,9 +164,8 @@ export function PublishCourseDialog({ open, onOpenChange }: PublishCourseDialogP
             </div>
             <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className={`h-full transition-all ${
-                  allRequiredPassed ? 'bg-emerald-500' : 'bg-amber-500'
-                }`}
+                className={`h-full transition-all ${allRequiredPassed ? 'bg-emerald-500' : 'bg-amber-500'
+                  }`}
                 style={{ width: `${(passedCount / totalCount) * 100}%` }}
               />
             </div>
@@ -177,13 +176,12 @@ export function PublishCourseDialog({ open, onOpenChange }: PublishCourseDialogP
             {validationItems.map((item, index) => (
               <div
                 key={index}
-                className={`flex items-start gap-3 p-3 rounded-lg ${
-                  item.passed
+                className={`flex items-start gap-3 p-3 rounded-lg ${item.passed
                     ? 'bg-emerald-50'
                     : item.required
-                    ? 'bg-red-50'
-                    : 'bg-amber-50'
-                }`}
+                      ? 'bg-red-50'
+                      : 'bg-amber-50'
+                  }`}
               >
                 {item.passed ? (
                   <CheckCircle className="h-5 w-5 text-emerald-600 flex-shrink-0" />
@@ -194,13 +192,12 @@ export function PublishCourseDialog({ open, onOpenChange }: PublishCourseDialogP
                 )}
                 <div className="flex-1 min-w-0">
                   <p
-                    className={`text-sm font-medium ${
-                      item.passed
+                    className={`text-sm font-medium ${item.passed
                         ? 'text-emerald-700'
                         : item.required
-                        ? 'text-red-700'
-                        : 'text-amber-700'
-                    }`}
+                          ? 'text-red-700'
+                          : 'text-amber-700'
+                      }`}
                   >
                     {item.label}
                     {item.required && !item.passed && (
@@ -209,9 +206,8 @@ export function PublishCourseDialog({ open, onOpenChange }: PublishCourseDialogP
                   </p>
                   {item.message && !item.passed && (
                     <p
-                      className={`text-xs mt-0.5 ${
-                        item.required ? 'text-red-600' : 'text-amber-600'
-                      }`}
+                      className={`text-xs mt-0.5 ${item.required ? 'text-red-600' : 'text-amber-600'
+                        }`}
                     >
                       {item.message}
                     </p>
@@ -223,7 +219,7 @@ export function PublishCourseDialog({ open, onOpenChange }: PublishCourseDialogP
 
           {/* Warning for unpublished changes */}
           {isPublished && (
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+            <div className="mt-4 p-3 bg-slate-50 rounded-lg">
               <p className="text-sm text-blue-700">
                 <strong>Note:</strong> Any changes you make will be visible to students immediately.
               </p>
@@ -235,7 +231,7 @@ export function PublishCourseDialog({ open, onOpenChange }: PublishCourseDialogP
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {isPublished ? 'Close' : 'Cancel'}
           </Button>
-          
+
           {isPublished ? (
             <Button
               variant="outline"

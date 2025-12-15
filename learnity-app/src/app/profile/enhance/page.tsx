@@ -15,9 +15,9 @@ import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { ProfileEnhancementForm } from '@/components/profile/ProfileEnhancementForm';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { PrivacySettingsForm } from '@/components/profile/PrivacySettingsForm';
-import { 
-  User, 
-  Shield, 
+import {
+  User,
+  Shield,
   ArrowLeft,
   Sparkles,
   Award,
@@ -59,12 +59,12 @@ export default function ProfileEnhancePage() {
   // Handle authentication redirection
   useEffect(() => {
     if (authLoading) return;
-    
+
     if (!user) {
       router.replace('/auth/login');
       return;
     }
-    
+
     // Only fetch when authenticated and not already loading
     if (!loadingProfile && !profileData) {
       fetchProfileData();
@@ -73,11 +73,11 @@ export default function ProfileEnhancePage() {
 
   const fetchProfileData = useCallback(async (showLoading = true) => {
     if (!user || authLoading) return;
-    
+
     try {
       setIsFetching(true);
       if (showLoading) setLoadingProfile(true);
-      
+
       const response = await api.get('/api/auth/profile');
       setProfileData(response.data);
       setError(null);
@@ -130,7 +130,7 @@ export default function ProfileEnhancePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-gray-600">{error.message}</p>
-            <Button 
+            <Button
               onClick={() => fetchProfileData(true)}
               disabled={isFetching}
               className="w-full"
@@ -183,7 +183,7 @@ export default function ProfileEnhancePage() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="profile" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3 lg:w-[400px] mx-auto">
-            <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
+            <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-slate-50 data-[state=active]:text-blue-700">
               <User className="h-4 w-4" />
               Profile
             </TabsTrigger>

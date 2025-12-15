@@ -224,7 +224,7 @@ const NavContent = ({
                     isCollapsed ? "px-0 justify-center" : "px-4",
                     active
                       ? isDark
-                        ? "bg-blue-600 text-white shadow-md shadow-blue-900/20 hover:bg-blue-600 hover:text-white"
+                        ? "bg-slate-600 text-white shadow-md shadow-blue-900/20 hover:bg-slate-600 hover:text-white"
                         : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800"
                       : isDark
                         ? "text-slate-400 hover:bg-slate-800/50 hover:text-white"
@@ -247,7 +247,7 @@ const NavContent = ({
                         <Badge className={cn(
                           "ml-auto border-0 px-2 py-0.5 h-5 flex items-center justify-center rounded-full text-xs font-semibold",
                           isDark
-                            ? "bg-blue-500/20 text-blue-300"
+                            ? "bg-slate-500/20 text-blue-300"
                             : "bg-indigo-100 text-indigo-700"
                         )}>
                           {item.badge}
@@ -421,7 +421,7 @@ export function DashboardSidebar({
           <Squircle
             cornerRadius={10}
             cornerSmoothing={3}
-            className="absolute -right-3 bottom-64 rounded-full p-0 bg-blue-600 hover:bg-blue-500 border-2 border-blue-600 shadow-md flex items-center justify-center text-white transition-all hover:scale-110"
+            className="absolute -right-3 bottom-64 rounded-full p-0 bg-slate-600 hover:bg-slate-500 border-2 border-blue-600 shadow-md flex items-center justify-center text-white transition-all hover:scale-110"
           >
             <Button
               onClick={() => setCollapsed(!collapsed)}

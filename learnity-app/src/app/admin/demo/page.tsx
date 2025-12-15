@@ -76,7 +76,7 @@ export default function AdminDemoPage() {
 
   return (
     <AdminLayout
-      
+
     >
       <div className="space-y-6">
         {/* Instructions */}
@@ -90,7 +90,7 @@ export default function AdminDemoPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="bg-slate-50 p-4 rounded-lg">
                 <h3 className="font-medium text-blue-900 mb-2">What this demo does:</h3>
                 <ul className="text-sm text-blue-800 space-y-1">
                   <li>• Generates successful login events</li>
@@ -100,8 +100,8 @@ export default function AdminDemoPage() {
                 </ul>
               </div>
 
-              <Button 
-                onClick={generateTestEvents} 
+              <Button
+                onClick={generateTestEvents}
                 disabled={loading}
                 className="w-full"
               >

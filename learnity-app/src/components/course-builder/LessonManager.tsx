@@ -213,7 +213,7 @@ export function LessonManager({ sectionIndex }: LessonManagerProps) {
 
               <div className="flex items-center gap-2 flex-shrink-0">
                 {lesson.type === 'VIDEO' ? (
-                  <div className="p-1.5 bg-blue-100 rounded">
+                  <div className="p-1.5 bg-slate-100 rounded">
                     <Video className="h-4 w-4 text-blue-600" />
                   </div>
                 ) : (

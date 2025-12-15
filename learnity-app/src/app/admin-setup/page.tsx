@@ -107,8 +107,7 @@ export default function AdminSetupPage() {
 
           {result && (
             <div
-              className={`mt-4 p-4 rounded-lg ${
-                result.success
+              className={`mt-4 p-4 rounded-lg ${result.success
                   ? "bg-green-50 border border-green-200"
                   : "bg-red-50 border border-red-200"
               }`}
@@ -121,9 +120,8 @@ export default function AdminSetupPage() {
                 )}
                 <div>
                   <p
-                    className={`text-sm font-medium ${
-                      result.success ? "text-green-800" : "text-red-800"
-                    }`}
+                    className={`text-sm font-medium ${result.success ? "text-green-800" : "text-red-800"
+                      }`}
                   >
                     {result.message}
                   </p>
@@ -163,7 +161,7 @@ export default function AdminSetupPage() {
 
           <div className="mt-6 space-y-4">
             {/* Firebase Admin SDK Setup */}
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="p-4 bg-slate-50 border border-blue-200 rounded-lg">
               <h4 className="text-sm font-semibold text-blue-800 mb-2">
                 🔧 Firebase Admin SDK Setup (Recommended):
               </h4>

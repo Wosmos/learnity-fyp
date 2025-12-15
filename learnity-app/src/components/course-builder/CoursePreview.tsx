@@ -17,10 +17,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { 
-  Clock, 
-  Users, 
-  Star, 
+import {
+  Clock,
+  Users,
+  Star,
   BookOpen,
   Video,
   FileQuestion,
@@ -92,7 +92,7 @@ export function CoursePreview() {
   return (
     <div className="space-y-6">
       {/* Preview Notice */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+      <div className="bg-slate-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
         <GraduationCap className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
         <div>
           <p className="text-sm font-medium text-blue-800">Student Preview Mode</p>
@@ -129,7 +129,7 @@ export function CoursePreview() {
               {courseData.isFree ? (
                 <Badge className="bg-emerald-100 text-emerald-700">Free</Badge>
               ) : (
-                <Badge className="bg-blue-100 text-blue-700">
+                <Badge className="bg-slate-100 text-blue-700">
                   ${courseData.price?.toFixed(2)}
                 </Badge>
               )}

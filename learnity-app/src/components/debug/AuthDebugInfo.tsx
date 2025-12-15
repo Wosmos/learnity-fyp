@@ -62,9 +62,9 @@ export function AuthDebugInfo() {
       <pre className="whitespace-pre-wrap overflow-auto max-h-60">
         {JSON.stringify(debugInfo, null, 2)}
       </pre>
-      <button 
-        onClick={() => window.location.reload()} 
-        className="mt-2 bg-blue-600 text-white px-2 py-1 rounded text-xs"
+      <button
+        onClick={() => window.location.reload()}
+        className="mt-2 bg-slate-600 text-white px-2 py-1 rounded text-xs"
       >
         Refresh Page
       </button>

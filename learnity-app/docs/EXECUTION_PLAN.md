@@ -361,7 +361,7 @@ export const typography = {
 **New Variants:**
 ```tsx
 // Add to buttonVariants
-cta: "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl",
+cta: "bg-slate-600 hover:bg-slate-700 text-white shadow-lg hover:shadow-xl",
 ctaSecondary: "bg-white text-blue-600 hover:bg-gray-50 border-2",
 gradient: "bg-gradient-to-r from-blue-600 to-purple-600",
 ```

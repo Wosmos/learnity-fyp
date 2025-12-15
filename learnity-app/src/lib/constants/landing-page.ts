@@ -92,7 +92,7 @@ export const MAIN_FEATURES: Feature[] = [
       'Mobile-optimized learning',
     ],
     color: 'text-blue-600',
-    bgColor: 'bg-blue-100',
+    bgColor: 'bg-slate-100',
   },
   {
     icon: BookOpen,

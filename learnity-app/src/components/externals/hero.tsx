@@ -31,25 +31,25 @@ export interface HeroProps {
   title: string | React.ReactNode;
   subtitle?: string;
   description?: string;
-  
+
   // Badge
   badge?: HeroBadge;
-  
+
   // Actions
   primaryAction?: HeroAction;
   secondaryAction?: HeroAction;
-  
+
   // Layout
   centered?: boolean;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | '6xl';
-  
+
   // Styling
   background?: 'gradient' | 'solid' | 'none';
   className?: string;
-  
+
   // Children for custom content
   children?: React.ReactNode;
-  
+
   // Stats component
   stats?: React.ReactNode;
 }
@@ -109,13 +109,13 @@ export function Hero({
           {badge && (
             <div className={cn('mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700', centered && 'flex justify-center')}>
               <Badge className={cn(
-                'inline-flex items-center gap-2 px-4 py-2 glass border-blue-200/50 text-blue-700 hover:bg-blue-50/50 text-sm font-medium rounded-full shadow-lg backdrop-blur-md transition-all duration-300 hover:scale-105',
+                'inline-flex items-center gap-2 px-4 py-2 glass border-blue-200/50 text-blue-700 hover:bg-slate-50/50 text-sm font-medium rounded-full shadow-lg backdrop-blur-md transition-all duration-300 hover:scale-105',
                 badge.className
               )}>
                 {badge.showPulse && (
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-slate-500"></span>
                   </span>
                 )}
                 {badge.text}

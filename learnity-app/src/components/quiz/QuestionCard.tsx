@@ -80,7 +80,7 @@ export function QuestionCard({
     if (!showFeedback || !hasAnswered) {
       return selectedOption === index ? 'selected' : 'default';
     }
-    
+
     // Show feedback
     if (index === correctOptionIndex) {
       return 'correct';
@@ -92,8 +92,8 @@ export function QuestionCard({
   };
 
   const optionStyles = {
-    default: 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20',
-    selected: 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500/20',
+    default: 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-slate-50 dark:hover:bg-slate-900/20',
+    selected: 'border-blue-500 bg-slate-50 dark:bg-slate-900/30 ring-2 ring-blue-500/20',
     correct: 'border-green-500 bg-green-50 dark:bg-green-900/30 ring-2 ring-green-500/20',
     incorrect: 'border-red-500 bg-red-50 dark:bg-red-900/30 ring-2 ring-red-500/20',
   };
@@ -114,7 +114,7 @@ export function QuestionCard({
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Options */}
         <div className="space-y-3">
@@ -140,7 +140,7 @@ export function QuestionCard({
                 <span className={cn(
                   'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium',
                   state === 'default' && 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300',
-                  state === 'selected' && 'bg-blue-500 text-white',
+                  state === 'selected' && 'bg-slate-500 text-white',
                   state === 'correct' && 'bg-green-500 text-white',
                   state === 'incorrect' && 'bg-red-500 text-white',
                 )}>
@@ -152,7 +152,7 @@ export function QuestionCard({
                     String.fromCharCode(65 + index) // A, B, C, D
                   )}
                 </span>
-                
+
                 {/* Option Text */}
                 <span className={cn(
                   'flex-1 text-sm',
@@ -172,7 +172,7 @@ export function QuestionCard({
         {showFeedback && hasAnswered && (
           <div className={cn(
             'p-4 rounded-lg mt-4',
-            isCorrectAnswer 
+            isCorrectAnswer
               ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
               : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
           )}>
@@ -192,7 +192,7 @@ export function QuestionCard({
             {explanation && (
               <p className={cn(
                 'text-sm',
-                isCorrectAnswer 
+                isCorrectAnswer
                   ? 'text-green-700 dark:text-green-300'
                   : 'text-red-700 dark:text-red-300'
               )}>

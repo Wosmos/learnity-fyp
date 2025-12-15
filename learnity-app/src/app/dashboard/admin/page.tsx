@@ -67,12 +67,12 @@ export default function AdminDashboardPage() {
   const fetchDashboardData = useCallback(async (showRefreshToast = false) => {
     try {
       const response = await api.get('/api/admin/stats');
-      
+
       // Validate response structure
       if (response?.stats) {
         setStats(response.stats);
         setMetrics(response.platformMetrics || []);
-        
+
         if (showRefreshToast) {
           toast({
             title: "Dashboard Updated",
@@ -92,7 +92,7 @@ export default function AdminDashboardPage() {
       }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
-      
+
       // Only show error toast if it's NOT the initial load
       if (!isInitialLoad) {
         toast({
@@ -109,7 +109,7 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchDashboardData();
-    
+
     // Auto-refresh every 5 minutes
     const interval = setInterval(() => fetchDashboardData(false), 5 * 60 * 1000);
     return () => clearInterval(interval);
@@ -148,51 +148,51 @@ export default function AdminDashboardPage() {
     <AdminLayout
     >
       {/* Key Metrics Overview */}
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-  <MetricCard
-    title="Total Users"
-    value={stats?.totalUsers.toLocaleString() || '0'}
-    trendValue={`+${stats?.userGrowthRate || 0}%`}
-    trendLabel="this month"
-    icon={Users}
-    iconColor="text-blue-600"
-    bgColor="bg-blue-100"
-    trendColor="text-green-600"
-  />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <MetricCard
+          title="Total Users"
+          value={stats?.totalUsers.toLocaleString() || '0'}
+          trendValue={`+${stats?.userGrowthRate || 0}%`}
+          trendLabel="this month"
+          icon={Users}
+          iconColor="text-blue-600"
+          bgColor="bg-slate-100"
+          trendColor="text-green-600"
+        />
 
-  <MetricCard
-    title="Active Teachers"
-    value={stats?.approvedTeachers.toLocaleString() || '0'}
-    trendValue={stats?.pendingTeachers?.toString() || '0'}
-    trendLabel="pending approval"
-    icon={GraduationCap}
-    iconColor="text-green-600"
-    bgColor="bg-green-100"
-    trendColor="text-orange-600"
-  />
+        <MetricCard
+          title="Active Teachers"
+          value={stats?.approvedTeachers.toLocaleString() || '0'}
+          trendValue={stats?.pendingTeachers?.toString() || '0'}
+          trendLabel="pending approval"
+          icon={GraduationCap}
+          iconColor="text-green-600"
+          bgColor="bg-green-100"
+          trendColor="text-orange-600"
+        />
 
-  <MetricCard
-    title="Students"
-    value={stats?.totalStudents.toLocaleString() || '0'}
-    trendValue={stats?.recentSignups?.toString() || '0'}
-    trendLabel="new this week"
-    icon={BookOpen}
-    iconColor="text-purple-600"
-    bgColor="bg-purple-100"
-    trendColor="text-blue-600"
-  />
+        <MetricCard
+          title="Students"
+          value={stats?.totalStudents.toLocaleString() || '0'}
+          trendValue={stats?.recentSignups?.toString() || '0'}
+          trendLabel="new this week"
+          icon={BookOpen}
+          iconColor="text-purple-600"
+          bgColor="bg-purple-100"
+          trendColor="text-blue-600"
+        />
 
-  <MetricCard
-    title="Monthly Revenue"
-    value={`$${stats?.monthlyRevenue.toLocaleString() || '0'}`}
-    trendValue={`+${stats?.revenueGrowth || 0}%`}
-    trendLabel="vs last month"
-    icon={DollarSign}
-    iconColor="text-green-600"
-    bgColor="bg-green-100"
-    trendColor="text-green-600"
-  />
-</div>
+        <MetricCard
+          title="Monthly Revenue"
+          value={`$${stats?.monthlyRevenue.toLocaleString() || '0'}`}
+          trendValue={`+${stats?.revenueGrowth || 0}%`}
+          trendLabel="vs last month"
+          icon={DollarSign}
+          iconColor="text-green-600"
+          bgColor="bg-green-100"
+          trendColor="text-green-600"
+        />
+      </div>
 
       {/* Performance Metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -265,7 +265,7 @@ export default function AdminDashboardPage() {
                   trendLabel=""
                   icon={Activity}
                   iconColor="text-blue-600"
-                  bgColor="bg-blue-100"
+                  bgColor="bg-slate-100"
                   className="border-0 shadow-none bg-gray-50"
                 />
               </div>
@@ -278,7 +278,7 @@ export default function AdminDashboardPage() {
                 icon={Star}
                 iconColor="text-yellow-500"
                 bgColor="bg-yellow-100"
-                className="border-0 shadow-none bg-blue-50"
+                className="border-0 shadow-none bg-slate-50"
               />
             </div>
           </CardContent>
@@ -287,46 +287,46 @@ export default function AdminDashboardPage() {
 
       {/* Quick Actions */}
       {/* Quick Actions */}
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-  <Link href="/admin/users" className="block">
-    <MetricCard
-      title="Manage Users"
-      value="" // empty since it's not a number
-      trendLabel="View and manage all users"
-      trendValue=""
-      icon={Users}
-      iconColor="text-blue-600"
-      bgColor="bg-blue-100"
-      className="h-32"
-    />
-  </Link>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Link href="/admin/users" className="block">
+          <MetricCard
+            title="Manage Users"
+            value="" // empty since it's not a number
+            trendLabel="View and manage all users"
+            trendValue=""
+            icon={Users}
+            iconColor="text-blue-600"
+            bgColor="bg-slate-100"
+            className="h-32"
+          />
+        </Link>
 
-  <Link href="/admin/teachers" className="block">
-    <MetricCard
-      title="Teacher Applications"
-      value={stats?.pendingTeachers ? `${stats.pendingTeachers}` : ""}
-      trendLabel="Review pending applications"
-      trendValue=""
-      icon={GraduationCap}
-      iconColor="text-green-600"
-      bgColor="bg-green-100"
-      className="h-32"
-    />
-  </Link>
+        <Link href="/admin/teachers" className="block">
+          <MetricCard
+            title="Teacher Applications"
+            value={stats?.pendingTeachers ? `${stats.pendingTeachers}` : ""}
+            trendLabel="Review pending applications"
+            trendValue=""
+            icon={GraduationCap}
+            iconColor="text-green-600"
+            bgColor="bg-green-100"
+            className="h-32"
+          />
+        </Link>
 
-  <Link href="/admin" className="block">
-    <MetricCard
-      title="Security Dashboard"
-      value=""
-      trendLabel="Monitor security events"
-      trendValue=""
-      icon={Shield}
-      iconColor="text-red-600"
-      bgColor="bg-red-100"
-      className="h-32"
-    />
-  </Link>
-</div>
+        <Link href="/admin" className="block">
+          <MetricCard
+            title="Security Dashboard"
+            value=""
+            trendLabel="Monitor security events"
+            trendValue=""
+            icon={Shield}
+            iconColor="text-red-600"
+            bgColor="bg-red-100"
+            className="h-32"
+          />
+        </Link>
+      </div>
     </AdminLayout>
   );
 }

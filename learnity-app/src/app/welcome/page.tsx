@@ -61,7 +61,7 @@ export default function WelcomePage() {
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-600 rounded-lg">
+              <div className="p-2 bg-slate-600 rounded-lg">
                 <GraduationCap className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -120,7 +120,7 @@ export default function WelcomePage() {
           <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-lg">
             <CardHeader>
               <div className="flex items-center space-x-3 mb-2">
-                <div className="p-2 bg-blue-100 rounded-lg">
+                <div className="p-2 bg-slate-100 rounded-lg">
                   <Target className="h-5 w-5 text-blue-600" />
                 </div>
                 <CardTitle className="text-lg">Choose Your Role</CardTitle>
@@ -311,7 +311,7 @@ export default function WelcomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
-              <div className="mx-auto p-3 bg-blue-100 rounded-full w-fit mb-4">
+              <div className="mx-auto p-3 bg-slate-100 rounded-full w-fit mb-4">
                 <User className="h-6 w-6 text-blue-600" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">1. Complete Profile</h3>

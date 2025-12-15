@@ -12,11 +12,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { 
-  BookOpen, 
-  Layers, 
-  Eye, 
-  Save, 
+import {
+  BookOpen,
+  Layers,
+  Eye,
+  Save,
   ArrowLeft,
   CheckCircle,
   AlertCircle,
@@ -48,9 +48,9 @@ export function CourseBuilderPage({ courseId }: CourseBuilderPageProps) {
   const [showPublishDialog, setShowPublishDialog] = useState(false);
 
   // Calculate completion status for each step
-  const basicInfoComplete = 
-    courseData.title.length >= 3 && 
-    courseData.description.length >= 10 && 
+  const basicInfoComplete =
+    courseData.title.length >= 3 &&
+    courseData.description.length >= 10 &&
     courseData.categoryId;
 
   const sectionsComplete = sections.length > 0 && sections.some(s => s.lessons.length > 0);
@@ -93,9 +93,9 @@ export function CourseBuilderPage({ courseId }: CourseBuilderPageProps) {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={handleBack}
                 className="gap-2"
               >
@@ -119,22 +119,22 @@ export function CourseBuilderPage({ courseId }: CourseBuilderPageProps) {
                 </Badge>
               )}
               {courseData.status && (
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className={
-                    courseData.status === 'PUBLISHED' 
+                    courseData.status === 'PUBLISHED'
                       ? 'text-emerald-600 border-emerald-300 bg-emerald-50'
                       : courseData.status === 'DRAFT'
-                      ? 'text-slate-600 border-slate-300 bg-slate-50'
-                      : 'text-amber-600 border-amber-300 bg-amber-50'
+                        ? 'text-slate-600 border-slate-300 bg-slate-50'
+                        : 'text-amber-600 border-amber-300 bg-amber-50'
                   }
                 >
                   {courseData.status}
                 </Badge>
               )}
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleSaveDraft}
                 disabled={isSaving}
                 className="gap-2"
@@ -142,11 +142,11 @@ export function CourseBuilderPage({ courseId }: CourseBuilderPageProps) {
                 <Save className="h-4 w-4" />
                 {isSaving ? 'Saving...' : 'Save Draft'}
               </Button>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 onClick={() => setShowPublishDialog(true)}
                 // disabled={!basicInfoComplete || !sectionsComplete}
-                className="gap-2 bg-blue-600 hover:bg-blue-700"
+                className="gap-2 bg-slate-600 hover:bg-slate-700"
               >
                 Publish Course
               </Button>
@@ -159,17 +159,17 @@ export function CourseBuilderPage({ courseId }: CourseBuilderPageProps) {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={currentStep} onValueChange={handleTabChange} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid bg-white shadow-sm border">
-            <TabsTrigger value="basic-info" className="gap-2 data-[state=active]:bg-blue-50">
+            <TabsTrigger value="basic-info" className="gap-2 data-[state=active]:bg-slate-50">
               <StepIndicator status={getStepStatus('basic-info')} />
               <BookOpen className="h-4 w-4" />
               <span className="hidden sm:inline">Basic Info</span>
             </TabsTrigger>
-            <TabsTrigger value="sections" className="gap-2 data-[state=active]:bg-blue-50">
+            <TabsTrigger value="sections" className="gap-2 data-[state=active]:bg-slate-50">
               <StepIndicator status={getStepStatus('sections')} />
               <Layers className="h-4 w-4" />
               <span className="hidden sm:inline">Content</span>
             </TabsTrigger>
-            <TabsTrigger value="preview" className="gap-2 data-[state=active]:bg-blue-50">
+            <TabsTrigger value="preview" className="gap-2 data-[state=active]:bg-slate-50">
               <StepIndicator status={getStepStatus('preview')} />
               <Eye className="h-4 w-4" />
               <span className="hidden sm:inline">Preview</span>
@@ -221,8 +221,8 @@ export function CourseBuilderPage({ courseId }: CourseBuilderPageProps) {
       </main>
 
       {/* Publish Dialog */}
-      <PublishCourseDialog 
-        open={showPublishDialog} 
+      <PublishCourseDialog
+        open={showPublishDialog}
         onOpenChange={setShowPublishDialog}
       />
     </div>

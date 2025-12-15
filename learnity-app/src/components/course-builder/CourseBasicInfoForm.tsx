@@ -23,18 +23,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { 
-  Form, 
-  FormControl, 
-  FormDescription, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
 } from '@/components/ui/form';
-import { 
-  Upload, 
-  X, 
+import {
+  Upload,
+  X,
   Image as ImageIcon,
   Plus,
   DollarSign,
@@ -180,7 +180,7 @@ export function CourseBasicInfoForm() {
       // Upload to server (implement actual upload logic)
       const formData = new FormData();
       formData.append('file', file);
-      
+
       const response = await fetch('/api/upload/thumbnail', {
         method: 'POST',
         body: formData,
@@ -216,9 +216,9 @@ export function CourseBasicInfoForm() {
             <FormItem>
               <FormLabel>Course Title *</FormLabel>
               <FormControl>
-                <Input 
-                  placeholder="e.g., Introduction to Web Development" 
-                  {...field} 
+                <Input
+                  placeholder="e.g., Introduction to Web Development"
+                  {...field}
                   className="max-w-xl"
                 />
               </FormControl>
@@ -238,7 +238,7 @@ export function CourseBasicInfoForm() {
             <FormItem>
               <FormLabel>Description *</FormLabel>
               <FormControl>
-                <Textarea 
+                <Textarea
                   placeholder="Describe what students will learn in this course..."
                   className="min-h-[120px] max-w-xl"
                   {...field}
@@ -325,7 +325,7 @@ export function CourseBasicInfoForm() {
                 </Button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-48 h-32 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-colors">
+              <label className="flex flex-col items-center justify-center w-48 h-32 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-slate-50/50 transition-colors">
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
@@ -473,7 +473,7 @@ export function CourseBasicInfoForm() {
         {/* Communication Settings */}
         <div className="space-y-4 max-w-xl">
           <h3 className="text-lg font-medium">Communication (Optional)</h3>
-          
+
           <FormField
             control={form.control}
             name="whatsappGroupLink"
@@ -481,9 +481,9 @@ export function CourseBasicInfoForm() {
               <FormItem>
                 <FormLabel>WhatsApp Group Link</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="https://chat.whatsapp.com/..." 
-                    {...field} 
+                  <Input
+                    placeholder="https://chat.whatsapp.com/..."
+                    {...field}
                   />
                 </FormControl>
                 <FormDescription>
@@ -501,10 +501,10 @@ export function CourseBasicInfoForm() {
               <FormItem>
                 <FormLabel>Contact Email</FormLabel>
                 <FormControl>
-                  <Input 
+                  <Input
                     type="email"
-                    placeholder="teacher@example.com" 
-                    {...field} 
+                    placeholder="teacher@example.com"
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
@@ -519,9 +519,9 @@ export function CourseBasicInfoForm() {
               <FormItem>
                 <FormLabel>Contact WhatsApp Number</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="+1234567890" 
-                    {...field} 
+                  <Input
+                    placeholder="+1234567890"
+                    {...field}
                   />
                 </FormControl>
                 <FormDescription>

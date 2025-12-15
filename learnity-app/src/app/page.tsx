@@ -63,7 +63,7 @@ export default function Home() {
         {/* Background Elements */}
         <div className="absolute inset-0 bg-grid-black pointer-events-none z-0" />
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-          <div className="blob bg-blue-400/30 w-96 h-96 top-0 left-0 blur-3xl" />
+          <div className="blob bg-slate-400/30 w-96 h-96 top-0 left-0 blur-3xl" />
           <div className="blob blob-delay-2 bg-purple-400/30 w-96 h-96 top-1/2 right-0 blur-3xl" />
           <div className="blob blob-delay-4 bg-green-400/30 w-80 h-80 bottom-0 left-1/4 blur-3xl" />
         </div>
@@ -122,7 +122,7 @@ export default function Home() {
                 icon: CheckCircle,
                 title: 'Live Sessions',
                 description: 'Interactive one-on-one video sessions with screen sharing',
-                bgColor: 'bg-blue-100',
+                bgColor: 'bg-slate-100',
                 iconColor: 'text-blue-600',
               },
               {
@@ -179,7 +179,7 @@ export default function Home() {
           <section className="glass py-16">
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-600 rounded-full mb-6">
                   <CheckCircle className="h-8 w-8 text-white" />
                 </div>
                 <SectionHeader

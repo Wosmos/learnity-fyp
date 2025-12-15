@@ -51,7 +51,7 @@ interface AdminSidebarProps {
 
 export class AdminNavigationService {
   private static instance: AdminNavigationService;
-  
+
   public static getInstance(): AdminNavigationService {
     if (!AdminNavigationService.instance) {
       AdminNavigationService.instance = new AdminNavigationService();
@@ -69,7 +69,7 @@ export class AdminNavigationService {
         icon: Home,
         category: 'main'
       },
-      
+
       // Security Section
       {
         id: 'security-dashboard',
@@ -99,7 +99,7 @@ export class AdminNavigationService {
         icon: BarChart3,
         category: 'management'
       },
-      
+
       // Tools Section
       {
         id: 'demo',
@@ -141,10 +141,10 @@ export class AdminNavigationService {
 
   public filterItems(items: AdminNavItem[], searchQuery: string): AdminNavItem[] {
     if (!searchQuery.trim()) return items;
-    
+
     const query = searchQuery.toLowerCase();
-    return items.filter(item => 
-      item.label.toLowerCase().includes(query) 
+    return items.filter(item =>
+      item.label.toLowerCase().includes(query)
     );
   }
 
@@ -164,13 +164,13 @@ export function AdminSidebar({ isOpen, onToggle, quickStats }: AdminSidebarProps
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
   const navigationService = AdminNavigationService.getInstance();
-  
+
   const allItems = navigationService.getNavigationItems();
-  const filteredItems = useMemo(() => 
+  const filteredItems = useMemo(() =>
     navigationService.filterItems(allItems, searchQuery),
     [allItems, searchQuery, navigationService]
   );
-  
+
 
 
   const isActiveRoute = (href: string): boolean => {
@@ -200,7 +200,7 @@ export function AdminSidebar({ isOpen, onToggle, quickStats }: AdminSidebarProps
         {/* Logo Header */}
         <div className="flex items-center justify-between p-6  ">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-600 rounded-lg">
+            <div className="p-2 bg-slate-600 rounded-lg">
               <GraduationCap className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -234,20 +234,19 @@ export function AdminSidebar({ isOpen, onToggle, quickStats }: AdminSidebarProps
             {filteredItems.map((item) => {
               const Icon = item.icon;
               const isActive = isActiveRoute(item.href);
-              
+
               return (
                 <Link key={item.id} href={item.href} onClick={() => onToggle()}>
                   <div className={`
                     group flex items-center space-x-3 px-3 py-3 text-sm rounded-lg
                     transition-all duration-200 cursor-pointer
                     ${isActive
-                      ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-sm'
+                      ? 'bg-slate-50 text-blue-700 border border-blue-200 shadow-sm'
                       : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                     }
                   `}>
-                    <Icon className={`h-5 w-5 shrink-0 ${
-                      isActive ? 'text-blue-600' : 'text-gray-500 group-hover:text-gray-700'
-                    }`} />
+                    <Icon className={`h-5 w-5 shrink-0 ${isActive ? 'text-blue-600' : 'text-gray-500 group-hover:text-gray-700'
+                      }`} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <span className="font-medium truncate">{item.label}</span>
@@ -267,59 +266,57 @@ export function AdminSidebar({ isOpen, onToggle, quickStats }: AdminSidebarProps
 
         {/* Quick Stats - Fixed at bottom */}
         {quickStats && (
-         <div className="py-4 px-4 border-t border-gray-200 bg-gray-50">
-  <Card className="bg-linear-to-br from-blue-50/60 to-indigo-50/60 border border-blue-200 rounded-lg">
-    <CardHeader className="">
-      <CardTitle className="text-xs font-semibold flex items-center gap-1.5 text-gray-700 uppercase tracking-wide">
-        <TrendingUp className="h-3.5 w-3.5 text-blue-600" />
-        System Status
-      </CardTitle>
-    </CardHeader>
-    <CardContent>
-      <div className="grid grid-cols-4 gap-x-4 ">
-        {/* Active Users */}
-        <div className="text-center">
-          <div className="text-[10px] text-gray-500 uppercase tracking-tight">Active</div>
-          <div className="text-sm font-bold text-gray-900 mt-0.5">
-            {quickStats.activeUsers.toLocaleString()}
-          </div>
-        </div>
+          <div className="py-4 px-4 border-t border-gray-200 bg-gray-50">
+            <Card className="bg-linear-to-br from-blue-50/60 to-indigo-50/60 border border-blue-200 rounded-lg">
+              <CardHeader className="">
+                <CardTitle className="text-xs font-semibold flex items-center gap-1.5 text-gray-700 uppercase tracking-wide">
+                  <TrendingUp className="h-3.5 w-3.5 text-blue-600" />
+                  System Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-4 gap-x-4 ">
+                  {/* Active Users */}
+                  <div className="text-center">
+                    <div className="text-[10px] text-gray-500 uppercase tracking-tight">Active</div>
+                    <div className="text-sm font-bold text-gray-900 mt-0.5">
+                      {quickStats.activeUsers.toLocaleString()}
+                    </div>
+                  </div>
 
-        {/* Logins */}
-        <div className="text-center">
-          <div className="text-[10px] text-gray-500 uppercase tracking-tight">Logins</div>
-          <div className="text-sm font-bold text-gray-900 mt-0.5">
-            {quickStats.todaysLogins.toLocaleString()}
-          </div>
-        </div>
+                  {/* Logins */}
+                  <div className="text-center">
+                    <div className="text-[10px] text-gray-500 uppercase tracking-tight">Logins</div>
+                    <div className="text-sm font-bold text-gray-900 mt-0.5">
+                      {quickStats.todaysLogins.toLocaleString()}
+                    </div>
+                  </div>
 
-        {/* Security Events */}
-        <div className="text-center">
-          <div className="text-[10px] text-gray-500 uppercase tracking-tight">Security</div>
-          <div
-            className={`text-sm font-bold mt-0.5 ${
-              quickStats.securityEvents > 10 ? 'text-orange-600' : 'text-green-600'
-            }`}
-          >
-            {quickStats.securityEvents.toLocaleString()}
-          </div>
-        </div>
+                  {/* Security Events */}
+                  <div className="text-center">
+                    <div className="text-[10px] text-gray-500 uppercase tracking-tight">Security</div>
+                    <div
+                      className={`text-sm font-bold mt-0.5 ${quickStats.securityEvents > 10 ? 'text-orange-600' : 'text-green-600'
+                        }`}
+                    >
+                      {quickStats.securityEvents.toLocaleString()}
+                    </div>
+                  </div>
 
-        {/* System */}
-        <div className="text-center">
-          <div className="text-[10px] text-gray-500 uppercase tracking-tight">System</div>
-          <div
-            className={`text-sm font-bold mt-0.5 ${
-              quickStats.systemStatus === 'Healthy' ? 'text-green-600' : 'text-gray-600'
-            }`}
-          >
-            {quickStats.systemStatus}
+                  {/* System */}
+                  <div className="text-center">
+                    <div className="text-[10px] text-gray-500 uppercase tracking-tight">System</div>
+                    <div
+                      className={`text-sm font-bold mt-0.5 ${quickStats.systemStatus === 'Healthy' ? 'text-green-600' : 'text-gray-600'
+                        }`}
+                    >
+                      {quickStats.systemStatus}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-</div>
         )}
       </aside>
     </>

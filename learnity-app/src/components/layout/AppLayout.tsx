@@ -121,7 +121,7 @@ export function AppLayout({
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="flex items-center justify-center mb-4">
-                <div className="p-3 bg-blue-600 rounded-lg mr-3">
+                <div className="p-3 bg-slate-600 rounded-lg mr-3">
                   <GraduationCap className="h-6 w-6 text-white" />
                 </div>
                 <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
@@ -149,7 +149,7 @@ export function AppLayout({
               {/* Logo and Brand */}
               <div className="flex items-center space-x-4">
                 <Link href="/" className="flex items-center space-x-2">
-                  <div className="p-2 bg-blue-600 rounded-lg">
+                  <div className="p-2 bg-slate-600 rounded-lg">
                     <GraduationCap className="h-6 w-6 text-white" />
                   </div>
                   <span className="text-xl font-bold text-gray-900">Learnity</span>

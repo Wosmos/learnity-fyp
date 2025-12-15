@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col sm:flex-row justify-between items-center">
           <div className="flex items-center space-x-2 mb-4 sm:mb-0">
-            <div className="p-1 bg-blue-600 rounded">
+            <div className="p-1 bg-slate-600 rounded">
               <GraduationCap className="h-4 w-4 text-white" />
             </div>
             <span className="text-sm text-gray-600">

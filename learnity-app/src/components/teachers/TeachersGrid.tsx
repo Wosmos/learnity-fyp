@@ -121,7 +121,7 @@ export function TeachersGrid() {
         <div className="text-center mt-12">
           <button
             onClick={() => setShowAll(true)}
-            className="inline-flex items-center px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+            className="inline-flex items-center px-8 py-3 bg-slate-600 hover:bg-slate-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
           >
             Show All Teachers ({teachers.length})
             <svg className="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

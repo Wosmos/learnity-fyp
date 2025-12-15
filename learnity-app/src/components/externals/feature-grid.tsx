@@ -15,9 +15,9 @@ export interface FeatureItem {
   description?: string;
   content?: React.ReactNode;
   /** Use 'theme' for the Steps variant to automatically coordinate border/icon/bg colors */
-  theme?: ThemeColor; 
+  theme?: ThemeColor;
   /** Manual overrides */
-  color?: string; 
+  color?: string;
   bgColor?: string;
   className?: string;
 }
@@ -42,7 +42,7 @@ const gridColsClasses = {
 
 // Maps themes to specific styles for the 'steps' variant
 const themeStyles: Record<ThemeColor, { iconBg: string; iconText: string; iconBorder: string; numberHover: string }> = {
-  blue: { iconBg: 'bg-blue-500/10', iconText: 'text-blue-500', iconBorder: 'border-blue-500/20', numberHover: 'group-hover:text-blue-500/10' },
+  blue: { iconBg: 'bg-slate-500/10', iconText: 'text-blue-500', iconBorder: 'border-blue-500/20', numberHover: 'group-hover:text-blue-500/10' },
   purple: { iconBg: 'bg-purple-500/10', iconText: 'text-purple-500', iconBorder: 'border-purple-500/20', numberHover: 'group-hover:text-purple-500/10' },
   emerald: { iconBg: 'bg-emerald-500/10', iconText: 'text-emerald-500', iconBorder: 'border-emerald-500/20', numberHover: 'group-hover:text-emerald-500/10' },
   orange: { iconBg: 'bg-orange-500/10', iconText: 'text-orange-500', iconBorder: 'border-orange-500/20', numberHover: 'group-hover:text-orange-500/10' },
@@ -81,14 +81,14 @@ export function FeatureGrid({
     )}>
       {items.map((item, index) => {
         const Icon = item.icon;
-        
+
         // --- Color Logic ---
         // If theme is provided, derive styles from themeStyles. 
         // Otherwise fallback to passed colors or defaults.
         const theme = item.theme || 'blue';
         const styles = themeStyles[theme];
 
-        const iconBgColor = item.bgColor || (isStepVariant ? styles.iconBg : 'bg-blue-100');
+        const iconBgColor = item.bgColor || (isStepVariant ? styles.iconBg : 'bg-slate-100');
         const iconColor = item.color || (isStepVariant ? styles.iconText : 'text-blue-600');
         const iconBorder = isStepVariant ? styles.iconBorder : '';
         const numberHoverClass = isStepVariant ? styles.numberHover : '';
@@ -105,29 +105,29 @@ export function FeatureGrid({
           >
             {/* --- Special Background Number for Steps Variant --- */}
             {isStepVariant && (
-               <div className={cn(
-                  "absolute -right-4 -top-6 text-[10rem] leading-none font-bold text-gray-900/5 dark:text-white/5 transition-colors select-none z-0 pointer-events-none",
-                  numberHoverClass
-               )}>
+              <div className={cn(
+                "absolute -right-4 -top-6 text-[10rem] leading-none font-bold text-gray-900/5 dark:text-white/5 transition-colors select-none z-0 pointer-events-none",
+                numberHoverClass
+              )}>
                 {index + 1}
               </div>
             )}
 
             <CardContent className={cn("p-1 relative z-10", !isStepVariant && "p-6")}>
-              
+
               {/* --- Icon Section --- */}
               {showIcons && (Icon || item.iconElement) && (
                 <div className={cn(
                   'flex items-center justify-center mb-6',
                   // Styles specific to Steps variant
-                  isStepVariant 
+                  isStepVariant
                     ? `w-14 h-14 rounded-2xl border ${iconBorder} ${iconBgColor}`
                     : `w-14 h-14 rounded-xl ${iconBgColor}`,
                   effectiveCentered ? 'mx-auto' : ''
                 )}>
                   {Icon ? (
                     <Icon className={cn(
-                      isStepVariant ? 'h-6 w-6' : 'h-7 w-7', 
+                      isStepVariant ? 'h-6 w-6' : 'h-7 w-7',
                       iconColor
                     )} />
                   ) : (

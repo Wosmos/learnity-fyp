@@ -68,7 +68,7 @@ export function TeacherFilters({
               <Badge
                 key={subject}
                 variant={selectedSubject === subject ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-blue-100"
+                className="cursor-pointer hover:bg-slate-100"
                 onClick={() => onSubjectChange(selectedSubject === subject ? null : subject)}
               >
                 {subject}
@@ -85,7 +85,7 @@ export function TeacherFilters({
               <Badge
                 key={range.value}
                 variant={priceRange === range.value ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-blue-100"
+                className="cursor-pointer hover:bg-slate-100"
                 onClick={() => onPriceChange(priceRange === range.value ? null : range.value)}
               >
                 {range.label}
@@ -102,7 +102,7 @@ export function TeacherFilters({
               <Badge
                 key={rating}
                 variant={minRating === rating ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-blue-100"
+                className="cursor-pointer hover:bg-slate-100"
                 onClick={() => onRatingChange(minRating === rating ? null : rating)}
               >
                 {rating}+ ⭐

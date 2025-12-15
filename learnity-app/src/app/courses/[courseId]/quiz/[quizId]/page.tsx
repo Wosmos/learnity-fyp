@@ -65,7 +65,7 @@ export default function QuizPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
-  
+
   const courseId = params.courseId as string;
   const quizId = params.quizId as string;
 
@@ -162,7 +162,7 @@ export default function QuizPage() {
 
     try {
       setQuizState('submitting');
-      
+
       const timeTaken = Math.round((Date.now() - startTime) / 1000);
       const answersArray = Array.from(answers.entries()).map(([questionId, selectedOptionIndex]) => ({
         questionId,
@@ -309,14 +309,14 @@ export default function QuizPage() {
         <div className="max-w-4xl mx-auto px-4">
           <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
             <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
                 <PlayCircle className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
-              
+
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
                 {quiz.title}
               </h1>
-              
+
               {quiz.description && (
                 <p className="text-slate-600 dark:text-slate-400 mb-6">
                   {quiz.description}

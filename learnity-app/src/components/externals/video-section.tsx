@@ -49,7 +49,7 @@ export function VideoSection({
   className,
   maxWidth = '5xl',
 }: VideoSectionProps) {
-  const videoSrc = videoId 
+  const videoSrc = videoId
     ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`
     : videoUrl;
 
@@ -97,9 +97,9 @@ export function VideoSection({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
-                const bgColor = feature.bgColor || 'bg-blue-100';
+                const bgColor = feature.bgColor || 'bg-slate-100';
                 const iconColor = feature.iconColor || 'text-blue-600';
-                
+
                 return (
                   <div key={index} className="text-center group">
                     <div className={cn(

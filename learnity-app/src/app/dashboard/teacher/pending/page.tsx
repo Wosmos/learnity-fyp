@@ -10,9 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Clock, CheckCircle, AlertCircle, Camera, FileText, 
-  Video, Award, BookOpen, TrendingUp, Eye, Mail, 
+import {
+  Clock, CheckCircle, AlertCircle, Camera, FileText,
+  Video, Award, BookOpen, TrendingUp, Eye, Mail,
   Calendar, Star, MessageCircle, ArrowRight,
   Edit, Play, ExternalLink
 } from 'lucide-react';
@@ -172,23 +172,23 @@ export default function PendingTeacherDashboard() {
   useEffect(() => {
     const fetchTeacherProfile = async () => {
       if (!user) return;
-      
+
       try {
         const response = await fetch('/api/teacher/profile', {
           headers: {
             'Authorization': `Bearer ${await user.getIdToken()}`
           }
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           setTeacherProfile(data.profile);
-          
+
           // Set real application date
           if (data.profile?.submittedAt) {
             const submitDate = new Date(data.profile.submittedAt);
             setApplicationDate(submitDate.toLocaleDateString());
-            
+
             // Calculate expected response (3 business days)
             const expectedDate = new Date(submitDate);
             expectedDate.setDate(expectedDate.getDate() + 3);
@@ -211,7 +211,7 @@ export default function PendingTeacherDashboard() {
   // Calculate profile completion based on real data
   useEffect(() => {
     if (!teacherProfile) return;
-    
+
     const completionFactors = [
       !!teacherProfile.profilePicture,
       !!teacherProfile.videoIntroUrl,
@@ -222,12 +222,12 @@ export default function PendingTeacherDashboard() {
       !!teacherProfile.teachingApproach,
       (teacherProfile.specialties?.length || 0) > 0
     ];
-    
+
     const completed = completionFactors.filter(Boolean).length;
     const total = completionFactors.length;
     const completion = Math.round((completed / total) * 100);
     setProfileCompletion(completion);
-    
+
     // Update profile sections based on real data
     profileSections.forEach(section => {
       switch (section.id) {
@@ -267,7 +267,7 @@ export default function PendingTeacherDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        
+
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
@@ -279,7 +279,7 @@ export default function PendingTeacherDashboard() {
             Welcome to Learnity, {user?.displayName || 'Teacher'}! 👋
           </h1>
           <p className="text-xl text-gray-600 mb-4">
-            {teacherProfile ? 
+            {teacherProfile ?
               `${teacherProfile.subjects?.join(', ') || 'Subject'} Teacher Application Under Review` :
               'Your teacher application is under review'
             }
@@ -296,10 +296,10 @@ export default function PendingTeacherDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Left Column - Application Status */}
           <div className="lg:col-span-2 space-y-6">
-            
+
             {/* Application Progress */}
             <Card className="shadow-lg border-0 bg-white/80 backdrop-blur">
               <CardHeader>
@@ -316,15 +316,15 @@ export default function PendingTeacherDashboard() {
                   <span>Submitted: {applicationDate}</span>
                   <span>Expected Response: {expectedResponse}</span>
                 </div>
-                
+
                 <div className="space-y-4">
                   {applicationSteps.map((step, index) => (
                     <div key={index} className="flex items-center gap-4">
                       <div className={`
                         w-8 h-8 rounded-full flex items-center justify-center
                         ${step.status === 'completed' ? 'bg-green-500 text-white' :
-                          step.status === 'current' ? 'bg-blue-500 text-white animate-pulse' :
-                          'bg-gray-200 text-gray-500'}
+                          step.status === 'current' ? 'bg-slate-500 text-white animate-pulse' :
+                            'bg-gray-200 text-gray-500'}
                       `}>
                         {step.status === 'completed' ? (
                           <CheckCircle className="h-4 w-4" />
@@ -336,9 +336,8 @@ export default function PendingTeacherDashboard() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <h4 className={`font-medium ${
-                            step.status === 'current' ? 'text-blue-600' : 'text-gray-900'
-                          }`}>
+                          <h4 className={`font-medium ${step.status === 'current' ? 'text-blue-600' : 'text-gray-900'
+                            }`}>
                             {step.step}
                           </h4>
                           {step.date && (
@@ -351,13 +350,13 @@ export default function PendingTeacherDashboard() {
                   ))}
                 </div>
 
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <div className="mt-6 p-4 bg-slate-50 rounded-lg">
                   <div className="flex items-start gap-3">
                     <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
                     <div>
                       <h4 className="font-medium text-blue-900">What happens next?</h4>
                       <p className="text-sm text-blue-800 mt-1">
-                        Our team will review your application within 2-3 business days. 
+                        Our team will review your application within 2-3 business days.
                         You'll receive an email notification once the review is complete.
                       </p>
                     </div>
@@ -387,26 +386,25 @@ export default function PendingTeacherDashboard() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <Progress value={profileCompletion} className="h-3" />
-                
+
                 <div className="space-y-3">
                   {profileSections.map((section) => {
                     const Icon = section.icon;
                     return (
                       <div key={section.id} className={`
                         p-4 rounded-lg border transition-all
-                        ${section.completed ? 
-                          'bg-green-50 border-green-200' : 
+                        ${section.completed ?
+                          'bg-green-50 border-green-200' :
                           'bg-gray-50 border-gray-200 hover:border-blue-300'}
                       `}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className={`
                               p-2 rounded-lg
-                              ${section.completed ? 'bg-green-100' : 'bg-blue-100'}
+                              ${section.completed ? 'bg-green-100' : 'bg-slate-100'}
                             `}>
-                              <Icon className={`h-4 w-4 ${
-                                section.completed ? 'text-green-600' : 'text-blue-600'
-                              }`} />
+                              <Icon className={`h-4 w-4 ${section.completed ? 'text-green-600' : 'text-blue-600'
+                                }`} />
                             </div>
                             <div>
                               <h4 className="font-medium text-gray-900">{section.title}</h4>
@@ -421,10 +419,10 @@ export default function PendingTeacherDashboard() {
                                 Done
                               </Badge>
                             ) : (
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 onClick={handleSectionAction}
-                                className="bg-blue-500 hover:bg-blue-600"
+                                className="bg-slate-500 hover:bg-slate-600"
                               >
                                 {section.action}
                                 <ArrowRight className="h-3 w-3 ml-1" />
@@ -442,7 +440,7 @@ export default function PendingTeacherDashboard() {
 
           {/* Right Column - Learning Resources & Stats */}
           <div className="space-y-6">
-            
+
             {/* Quick Stats */}
             <Card className="shadow-lg border-0 bg-gradient-to-br from-green-500 to-blue-500 text-white">
               <CardContent className="p-6">
@@ -485,7 +483,7 @@ export default function PendingTeacherDashboard() {
                   return (
                     <div key={index} className="p-3 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer">
                       <div className="flex items-start gap-3">
-                        <div className="p-2 bg-blue-100 rounded-lg">
+                        <div className="p-2 bg-slate-100 rounded-lg">
                           <Icon className="h-4 w-4 text-blue-600" />
                         </div>
                         <div className="flex-1">
@@ -503,7 +501,7 @@ export default function PendingTeacherDashboard() {
                     </div>
                   );
                 })}
-                
+
                 <Button variant="outline" className="w-full mt-4">
                   <BookOpen className="h-4 w-4 mr-2" />
                   View All Resources

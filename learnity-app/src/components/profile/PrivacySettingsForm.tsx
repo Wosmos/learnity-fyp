@@ -50,7 +50,7 @@ export function PrivacySettingsForm({ onSuccess }: PrivacySettingsFormProps) {
 
   const fetchPrivacySettings = useCallback(async () => {
     if (authLoading) return; // Don't fetch if auth is still loading
-    
+
     try {
       const data = await api.get('/api/profile/privacy');
       setSettings(data.settings);
@@ -111,7 +111,7 @@ export function PrivacySettingsForm({ onSuccess }: PrivacySettingsFormProps) {
             <Label htmlFor="visibility">Who can view your profile?</Label>
             <Select
               value={settings.profileVisibility}
-              onValueChange={(value: any) => 
+              onValueChange={(value: any) =>
                 setSettings({ ...settings, profileVisibility: value })
               }
             >
@@ -165,7 +165,7 @@ export function PrivacySettingsForm({ onSuccess }: PrivacySettingsFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Show Email */}
-          <div 
+          <div
             className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={() => toggleSetting('showEmail')}
           >
@@ -176,17 +176,15 @@ export function PrivacySettingsForm({ onSuccess }: PrivacySettingsFormProps) {
                 <div className="text-sm text-gray-500">Display your email on your profile</div>
               </div>
             </div>
-            <div className={`w-12 h-6 rounded-full transition-colors ${
-              settings.showEmail ? 'bg-blue-600' : 'bg-gray-300'
-            } relative`}>
-              <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                settings.showEmail ? 'transform translate-x-6' : ''
-              }`} />
+            <div className={`w-12 h-6 rounded-full transition-colors ${settings.showEmail ? 'bg-slate-600' : 'bg-gray-300'
+              } relative`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${settings.showEmail ? 'transform translate-x-6' : ''
+                }`} />
             </div>
           </div>
 
           {/* Show Learning Goals */}
-          <div 
+          <div
             className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={() => toggleSetting('showLearningGoals')}
           >
@@ -197,17 +195,15 @@ export function PrivacySettingsForm({ onSuccess }: PrivacySettingsFormProps) {
                 <div className="text-sm text-gray-500">Display your learning objectives</div>
               </div>
             </div>
-            <div className={`w-12 h-6 rounded-full transition-colors ${
-              settings.showLearningGoals ? 'bg-blue-600' : 'bg-gray-300'
-            } relative`}>
-              <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                settings.showLearningGoals ? 'transform translate-x-6' : ''
-              }`} />
+            <div className={`w-12 h-6 rounded-full transition-colors ${settings.showLearningGoals ? 'bg-slate-600' : 'bg-gray-300'
+              } relative`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${settings.showLearningGoals ? 'transform translate-x-6' : ''
+                }`} />
             </div>
           </div>
 
           {/* Show Interests */}
-          <div 
+          <div
             className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={() => toggleSetting('showInterests')}
           >
@@ -218,17 +214,15 @@ export function PrivacySettingsForm({ onSuccess }: PrivacySettingsFormProps) {
                 <div className="text-sm text-gray-500">Display your hobbies and interests</div>
               </div>
             </div>
-            <div className={`w-12 h-6 rounded-full transition-colors ${
-              settings.showInterests ? 'bg-blue-600' : 'bg-gray-300'
-            } relative`}>
-              <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                settings.showInterests ? 'transform translate-x-6' : ''
-              }`} />
+            <div className={`w-12 h-6 rounded-full transition-colors ${settings.showInterests ? 'bg-slate-600' : 'bg-gray-300'
+              } relative`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${settings.showInterests ? 'transform translate-x-6' : ''
+                }`} />
             </div>
           </div>
 
           {/* Show Progress */}
-          <div 
+          <div
             className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={() => toggleSetting('showProgress')}
           >
@@ -239,17 +233,15 @@ export function PrivacySettingsForm({ onSuccess }: PrivacySettingsFormProps) {
                 <div className="text-sm text-gray-500">Display your achievements and progress</div>
               </div>
             </div>
-            <div className={`w-12 h-6 rounded-full transition-colors ${
-              settings.showProgress ? 'bg-blue-600' : 'bg-gray-300'
-            } relative`}>
-              <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                settings.showProgress ? 'transform translate-x-6' : ''
-              }`} />
+            <div className={`w-12 h-6 rounded-full transition-colors ${settings.showProgress ? 'bg-slate-600' : 'bg-gray-300'
+              } relative`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${settings.showProgress ? 'transform translate-x-6' : ''
+                }`} />
             </div>
           </div>
 
           {/* Allow Messages */}
-          <div 
+          <div
             className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={() => toggleSetting('allowMessages')}
           >
@@ -260,12 +252,10 @@ export function PrivacySettingsForm({ onSuccess }: PrivacySettingsFormProps) {
                 <div className="text-sm text-gray-500">Let others send you messages</div>
               </div>
             </div>
-            <div className={`w-12 h-6 rounded-full transition-colors ${
-              settings.allowMessages ? 'bg-blue-600' : 'bg-gray-300'
-            } relative`}>
-              <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                settings.allowMessages ? 'transform translate-x-6' : ''
-              }`} />
+            <div className={`w-12 h-6 rounded-full transition-colors ${settings.allowMessages ? 'bg-slate-600' : 'bg-gray-300'
+              } relative`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${settings.allowMessages ? 'transform translate-x-6' : ''
+                }`} />
             </div>
           </div>
         </CardContent>

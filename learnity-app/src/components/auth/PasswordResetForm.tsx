@@ -70,7 +70,7 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
     };
 
     strength = Object.values(checks).filter(Boolean).length;
-    
+
     return {
       score: strength,
       checks,
@@ -90,7 +90,7 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
             <div className="mx-auto p-3 bg-green-100 rounded-lg w-fit">
               <CheckCircle className="h-6 w-6 text-green-600" />
             </div>
-            
+
             <div>
               <CardTitle className="text-2xl font-bold">Password Reset Successful</CardTitle>
               <CardDescription>
@@ -110,7 +110,7 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
 
             <Button
               onClick={onBackToLogin}
-              className="w-full bg-blue-600 hover:bg-blue-700"
+              className="w-full bg-slate-600 hover:bg-slate-700"
             >
               Continue to Login
             </Button>
@@ -124,10 +124,10 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
     <div className={`w-full max-w-md mx-auto p-6 ${className}`}>
       <Card className="shadow-lg">
         <CardHeader className="text-center space-y-4">
-          <div className="mx-auto p-3 bg-blue-100 rounded-lg w-fit">
+          <div className="mx-auto p-3 bg-slate-100 rounded-lg w-fit">
             <KeyRound className="h-6 w-6 text-blue-600" />
           </div>
-          
+
           <div>
             <CardTitle className="text-2xl font-bold">Set New Password</CardTitle>
             <CardDescription>
@@ -169,7 +169,7 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
                         </Button>
                       </div>
                     </FormControl>
-                    
+
                     {/* Password Strength Indicator */}
                     {passwordValue && (
                       <div className="space-y-2">
@@ -179,17 +179,16 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
                             {passwordStrength.label}
                           </span>
                         </div>
-                        
+
                         <div className="w-full bg-gray-200 rounded-full h-1.5">
-                          <div 
-                            className={`h-1.5 rounded-full transition-all duration-300 ${
-                              passwordStrength.score < 3 ? 'bg-red-500' : 
-                              passwordStrength.score < 5 ? 'bg-yellow-500' : 'bg-green-500'
-                            }`}
+                          <div
+                            className={`h-1.5 rounded-full transition-all duration-300 ${passwordStrength.score < 3 ? 'bg-red-500' :
+                                passwordStrength.score < 5 ? 'bg-yellow-500' : 'bg-green-500'
+                              }`}
                             style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
                           />
                         </div>
-                        
+
                         <div className="grid grid-cols-2 gap-2 text-xs">
                           <div className={passwordStrength.checks.length ? 'text-green-600' : 'text-gray-400'}>
                             ✓ 8+ characters
@@ -209,7 +208,7 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
                         </div>
                       </div>
                     )}
-                    
+
                     <FormMessage />
                   </FormItem>
                 )}
@@ -252,7 +251,7 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
 
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                className="w-full bg-slate-600 hover:bg-slate-700 text-white font-medium"
                 disabled={isSubmitting || !form.formState.isValid}
               >
                 {isSubmitting ? (

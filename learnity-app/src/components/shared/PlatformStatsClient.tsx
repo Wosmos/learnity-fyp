@@ -18,10 +18,10 @@ interface PlatformStatsClientProps {
   className?: string;
 }
 
-export function PlatformStatsClient({ 
+export function PlatformStatsClient({
   stats,
   variant = 'default',
-  className = '' 
+  className = ''
 }: PlatformStatsClientProps) {
   // Define stat items with icons and styling
   const statItems = [
@@ -32,7 +32,7 @@ export function PlatformStatsClient({
       trendLabel: 'this month',
       icon: Users,
       iconColor: 'text-blue-600',
-      bgColor: 'bg-blue-100',
+      bgColor: 'bg-slate-100',
     },
     {
       title: 'Expert Tutors',

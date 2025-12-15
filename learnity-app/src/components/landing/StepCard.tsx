@@ -11,7 +11,7 @@ interface StepCardProps {
 }
 
 const colorClasses = {
-  blue: 'bg-blue-100/50 text-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.3)] backdrop-blur-sm',
+  blue: 'bg-slate-100/50 text-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.3)] backdrop-blur-sm',
   purple: 'bg-purple-100/50 text-purple-600 shadow-[0_0_15px_rgba(147,51,234,0.3)] backdrop-blur-sm',
   green: 'bg-green-100/50 text-green-600 shadow-[0_0_15px_rgba(22,163,74,0.3)] backdrop-blur-sm',
 };

@@ -271,7 +271,7 @@ export default function TeacherCoursesPage() {
         icon={BookOpen}
         actions={
           <Link href="/dashboard/teacher/courses/new">
-            <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+            <Button className="gap-2 bg-slate-600 hover:bg-slate-700 text-white">
               <Plus className="h-4 w-4" />
               Create Course
             </Button>
@@ -289,7 +289,7 @@ export default function TeacherCoursesPage() {
                   <p className="text-sm text-slate-500">Total Courses</p>
                   <p className="text-2xl font-bold text-slate-900">{courses.length}</p>
                 </div>
-                <div className="p-3 bg-blue-100 rounded-lg">
+                <div className="p-3 bg-slate-100 rounded-lg">
                   <BookOpen className="h-5 w-5 text-blue-600" />
                 </div>
               </div>
@@ -376,7 +376,7 @@ export default function TeacherCoursesPage() {
                 Start creating your first course to share your knowledge with students around the world.
               </p>
               <Link href="/dashboard/teacher/courses/new">
-                <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
+                <Button className="gap-2 bg-slate-600 hover:bg-slate-700">
                   <Plus className="h-4 w-4" />
                   Create Your First Course
                 </Button>

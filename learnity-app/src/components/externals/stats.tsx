@@ -19,10 +19,10 @@ export interface StatItem {
 export interface StatsProps {
   // Use existing HeroStatsClient
   useClient?: boolean;
-  
+
   // Or provide custom stats
   stats?: StatItem[];
-  
+
   // Layout
   columns?: 2 | 3 | 4;
   variant?: 'default' | 'minimal' | 'cards';
@@ -64,7 +64,7 @@ export function Stats({
             trendLabel=""
             icon={stat.icon ? () => stat.icon : undefined}
             iconColor="text-blue-600"
-            bgColor="bg-blue-100"
+            bgColor="bg-slate-100"
             className="border-0 shadow-sm"
           />
         ))}

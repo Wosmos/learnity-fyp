@@ -24,7 +24,7 @@ export function MetricCard({
   trendValue,
   icon: Icon,
   iconColor = 'text-blue-600',
-  bgColor = 'bg-blue-100',
+  bgColor = 'bg-slate-100',
   textColor = 'text-slate-900',
   trendColor = 'text-emerald-600',
   className,

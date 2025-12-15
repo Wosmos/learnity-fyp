@@ -60,7 +60,7 @@ export function UserDetailDialog({
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'ADMIN': return 'bg-red-100 text-red-800 border-red-200';
-      case 'TEACHER': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'TEACHER': return 'bg-slate-100 text-blue-800 border-blue-200';
       case 'STUDENT': return 'bg-green-100 text-green-800 border-green-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -68,7 +68,7 @@ export function UserDetailDialog({
 
   const handleAction = async (action: string) => {
     if (!onUserAction) return;
-    
+
     setLoading(true);
     try {
       await onUserAction(user.id, action);
@@ -142,7 +142,7 @@ export function UserDetailDialog({
                   <p className="font-medium">{user.email}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <User className="h-5 w-5 text-gray-500" />
                 <div>
@@ -201,7 +201,7 @@ export function UserDetailDialog({
                       </div>
                     </div>
                   )}
-                  
+
                   {user.location && (
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <MapPin className="h-5 w-5 text-gray-500" />
@@ -231,7 +231,7 @@ export function UserDetailDialog({
                 <h3 className="text-lg font-medium mb-3">Teacher Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {user.teacherProfile.subjects && (
-                    <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="p-3 bg-slate-50 rounded-lg">
                       <p className="text-sm text-blue-600 mb-2">Subjects</p>
                       <div className="flex flex-wrap gap-1">
                         {user.teacherProfile.subjects.map((subject: string, index: number) => (
@@ -242,7 +242,7 @@ export function UserDetailDialog({
                       </div>
                     </div>
                   )}
-                  
+
                   {user.teacherProfile.hourlyRate && (
                     <div className="p-3 bg-green-50 rounded-lg">
                       <p className="text-sm text-green-600 mb-1">Hourly Rate</p>
@@ -281,12 +281,12 @@ export function UserDetailDialog({
                   </Button>
                 </>
               )}
-              
+
               <Button variant="outline" size="sm">
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Profile
               </Button>
-              
+
               {user.isActive ? (
                 <Button
                   variant="outline"
@@ -308,7 +308,7 @@ export function UserDetailDialog({
                   Activate
                 </Button>
               )}
-              
+
               <Button
                 variant="outline"
                 size="sm"
@@ -318,7 +318,7 @@ export function UserDetailDialog({
                 <Shield className="h-4 w-4 mr-2" />
                 Reset Password
               </Button>
-              
+
               <Button
                 variant="destructive"
                 size="sm"

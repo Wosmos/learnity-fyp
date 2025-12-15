@@ -19,7 +19,7 @@ import { auditLogger } from '@/lib/services/audit-logger.service';
 export function UnauthorizedContent() {
   const { user, claims } = useClientAuth();
   const searchParams = useSearchParams();
-  
+
   // Derive values directly instead of using state
   const attemptedResource = searchParams.get('resource') || (typeof window !== 'undefined' ? document.referrer : '') || 'unknown resource';
   const userRole = claims?.role || null;
@@ -56,7 +56,7 @@ export function UnauthorizedContent() {
   const getRoleColor = (role: UserRole | null) => {
     switch (role) {
       case UserRole.STUDENT:
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-slate-100 text-blue-800';
       case UserRole.TEACHER:
         return 'bg-green-100 text-green-800';
       case UserRole.ADMIN:
@@ -140,7 +140,7 @@ export function UnauthorizedContent() {
             {/* Error Details */}
             <div className="text-center text-sm text-gray-600 space-y-2">
               <p>
-                {userRole 
+                {userRole
                   ? `Your current role (${userRole.replace('_', ' ')}) doesn't have access to this resource.`
                   : "You need to be logged in with the appropriate permissions."
                 }
@@ -153,7 +153,7 @@ export function UnauthorizedContent() {
             </div>
 
             {/* Recommended Action */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="bg-slate-50 border border-blue-200 rounded-lg p-3">
               <p className="text-sm text-blue-800 mb-2">{recommendedAction.message}</p>
               <Link href={recommendedAction.href}>
                 <Button className="w-full" size="sm">
@@ -161,11 +161,11 @@ export function UnauthorizedContent() {
                 </Button>
               </Link>
             </div>
-            
+
             {/* Navigation Options */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="flex-1"
                 onClick={() => window.history.back()}
               >

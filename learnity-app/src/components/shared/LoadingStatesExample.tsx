@@ -56,9 +56,9 @@ export function LoadingStatesExample() {
     setAction(actionType);
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
-      toast({ 
-        title: 'Success!', 
-        description: `${actionType} completed` 
+      toast({
+        title: 'Success!',
+        description: `${actionType} completed`
       });
     } finally {
       setAction(null);
@@ -348,7 +348,7 @@ isLoading={action === 'save'} // Show loading for specific action`}
       </Card>
 
       {/* Best Practices */}
-      <Card className="border-blue-200 bg-blue-50">
+      <Card className="border-blue-200 bg-slate-50">
         <CardHeader>
           <CardTitle className="text-blue-900">✨ Best Practices</CardTitle>
         </CardHeader>

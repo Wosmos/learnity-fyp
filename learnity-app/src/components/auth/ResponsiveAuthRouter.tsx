@@ -24,11 +24,11 @@ export interface ResponsiveAuthRouterProps {
   onSocialLogin: (provider: 'google' | 'microsoft') => Promise<void>;
   onPasswordResetRequest: (email: string) => Promise<void>;
   onPasswordReset: (data: { password: string; token: string }) => Promise<void>;
-  
+
   // Navigation
   initialView?: 'login' | 'register' | 'forgot-password' | 'reset-password';
   resetToken?: string;
-  
+
   // Configuration
   requireCaptcha?: boolean;
   className?: string;
@@ -55,18 +55,18 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
   // Detect mobile device and screen size
   useEffect(() => {
     setIsClient(true);
-    
+
     const checkMobile = () => {
       const userAgent = navigator.userAgent;
       const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
       const isSmallScreen = window.innerWidth < 768; // md breakpoint
-      
+
       setIsMobile(isMobileDevice || isSmallScreen);
     };
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -92,7 +92,7 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
         <div className="animate-pulse">
-          <div className="w-8 h-8 bg-blue-600 rounded-full"></div>
+          <div className="w-8 h-8 bg-slate-600 rounded-full"></div>
         </div>
       </div>
     );
@@ -149,7 +149,7 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
             ) : (
               <div className="text-center">
                 <p className="text-red-600">Invalid or missing reset token</p>
-                <button 
+                <button
                   onClick={() => handleViewChange('login')}
                   className="text-blue-600 hover:text-blue-700 underline mt-2"
                 >
@@ -214,7 +214,7 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
           ) : (
             <div className="text-center">
               <p className="text-red-600">Invalid or missing reset token</p>
-              <button 
+              <button
                 onClick={() => handleViewChange('login')}
                 className="text-blue-600 hover:text-blue-700 underline mt-2"
               >

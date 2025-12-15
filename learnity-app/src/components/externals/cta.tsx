@@ -24,21 +24,21 @@ export interface CTAProps {
   // Content
   title: string | React.ReactNode;
   description?: string | React.ReactNode;
-  
+
   // Actions
   primaryAction?: CTAAction;
   secondaryAction?: CTAAction;
   actions?: CTAAction[]; // For multiple actions
-  
+
   // Styling
   variant?: 'default' | 'gradient' | 'minimal' | 'card';
   size?: 'sm' | 'md' | 'lg';
   background?: 'blue' | 'purple' | 'gradient' | 'white' | 'gray';
-  
+
   // Layout
   centered?: boolean;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl';
-  
+
   // Custom
   className?: string;
   icon?: React.ReactNode;
@@ -53,7 +53,7 @@ const variantClasses = {
 };
 
 const backgroundClasses = {
-  blue: 'bg-blue-600',
+  blue: 'bg-slate-600',
   purple: 'bg-purple-600',
   gradient: 'bg-gradient-to-br from-blue-600 to-purple-600',
   white: 'bg-white',

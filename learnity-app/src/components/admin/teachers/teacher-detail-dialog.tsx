@@ -309,7 +309,7 @@ export function TeacherDetailDialog({
                       <h3 className="text-lg font-semibold">Education & Certifications</h3>
                       <div className="mt-4 space-y-4">
                         {teacher.education && (
-                          <div className="flex items-start gap-3 rounded-xl bg-blue-50 p-3">
+                          <div className="flex items-start gap-3 rounded-xl bg-slate-50 p-3">
                             <GraduationCap className="h-5 w-5 text-blue-500" />
                             <div>
                               <p className="text-sm font-medium text-blue-700">Education</p>
@@ -407,7 +407,7 @@ export function TeacherDetailDialog({
                       <h3 className="text-lg font-semibold">Application Timeline</h3>
                       <div className="mt-4 space-y-4 text-sm">
                         <div className="flex items-center gap-3">
-                          <div className="h-2 w-2 rounded-full bg-blue-500" />
+                          <div className="h-2 w-2 rounded-full bg-slate-500" />
                           <span>Applied on {formatDate(teacher.createdAt)}</span>
                         </div>
                         <div className="flex items-center gap-3">
