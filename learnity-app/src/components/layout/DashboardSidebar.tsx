@@ -3,7 +3,7 @@
 /**
  * Unified Dashboard Sidebar Component
  * Supports both Teacher and Student roles with role-based navigation
- * Following React best practices for reusable components
+ * Stats moved to DashboardNavbar for cleaner layout
  */
 
 import React, { useState } from 'react';
@@ -18,8 +18,6 @@ import {
   Award,
   User,
   Search,
-  Clock,
-  Star,
   Settings,
   Menu,
   LogOut,
@@ -62,12 +60,6 @@ export interface SidebarConfig {
   brandGradient: string;
   navItems: NavItem[];
   theme: 'light' | 'dark';
-  showStats?: boolean;
-  stats?: {
-    studyTime?: string;
-    xpPoints?: number;
-    streak?: number;
-  };
   upgradePromo?: {
     title: string;
     description: string;
@@ -87,11 +79,11 @@ const teacherNavItems: NavItem[] = [
 
 const studentNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard/student', icon: Home },
-  { label: 'Browse Courses', href: '/courses', icon: Search },
+  { label: 'Browse Courses', href: '/dashboard/student/public-cources', icon: Search },
   { label: 'My Courses', href: '/dashboard/student/courses', icon: BookOpen },
   { label: 'My Progress', href: '/dashboard/student/progress', icon: GraduationCap },
   { label: 'Achievements', href: '/dashboard/student/achievements', icon: Award },
-  { label: 'Profile', href: '/profile/enhance', icon: User },
+  { label: 'Profile', href: '/dashboard/student/profile/enhance', icon: User },
 ];
 
 // --- Default Configurations ---
@@ -113,18 +105,18 @@ export const teacherSidebarConfig: SidebarConfig = {
 export const studentSidebarConfig: SidebarConfig = {
   role: 'student',
   brandName: 'Learnity',
-  brandSubtitle: 'Student',
+  brandSubtitle: 'Student Portal',
   brandIcon: GraduationCap,
-  brandGradient: 'from-indigo-500 to-purple-600',
+  brandGradient: 'from-emerald-600 to-teal-600',
   navItems: studentNavItems,
-  theme: 'light',
-  showStats: true,
-  stats: {
-    studyTime: '24h',
-    xpPoints: 1250,
-    streak: 7
+  theme: 'dark',
+  upgradePromo: {
+    title: 'Premium Student',
+    description: 'Get unlimited access to all courses & features.',
+    link: '#'
   }
 };
+
 
 // --- Sub-Component: Navigation Content ---
 interface NavContentProps {
@@ -192,51 +184,10 @@ const NavContent = ({
 
       {/* Decorative Line (Dark theme only) */}
       {isDark && (
-        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-slate-800 to-transparent"></div>
+        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-slate-800 to-transparent" />
       )}
 
-      {/* Student Stats Panel */}
-      {!isCollapsed && config.showStats && config.stats && (
-        <div className="px-4 py-4 border-b border-gray-100">
-          <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-xl p-4 border border-indigo-100/50 shadow-sm">
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="w-4 h-4 text-purple-600" />
-              <span className="text-xs font-bold text-purple-900 uppercase tracking-wide">Daily Overview</span>
-            </div>
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between text-sm group">
-                <span className="text-gray-600 flex items-center gap-2 group-hover:text-gray-900 transition-colors">
-                  <Clock className="h-3.5 w-3.5" />
-                  <span className="text-xs">Study Time</span>
-                </span>
-                <span className="font-bold text-gray-800 text-xs bg-white px-2 py-0.5 rounded-full shadow-sm">
-                  {config.stats.studyTime}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-sm group">
-                <span className="text-gray-600 flex items-center gap-2 group-hover:text-gray-900 transition-colors">
-                  <Star className="h-3.5 w-3.5" />
-                  <span className="text-xs">XP Points</span>
-                </span>
-                <span className="font-bold text-gray-800 text-xs bg-white px-2 py-0.5 rounded-full shadow-sm">
-                  {config.stats.xpPoints?.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-sm group">
-                <span className="text-gray-600 flex items-center gap-2 group-hover:text-gray-900 transition-colors">
-                  <Award className="h-3.5 w-3.5" />
-                  <span className="text-xs">Streak</span>
-                </span>
-                <span className="font-bold text-orange-600 text-xs bg-white px-2 py-0.5 rounded-full shadow-sm border border-orange-100">
-                  {config.stats.streak} days 🔥
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Main Nav Links */}
+      {/* Main Nav Links with Scroll */}
       <ScrollArea className="flex-1 py-4">
         <nav className={cn("space-y-1", isCollapsed ? "px-2" : "px-3")}>
           {config.navItems.map((item) => {
@@ -246,7 +197,7 @@ const NavContent = ({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "w-full justify-start h-10 mb-2 transition-all duration-300 relative group overflow-hidden",
+                    "w-full justify-start h-10 mb-1 transition-all duration-300 relative group overflow-hidden",
                     isCollapsed ? "px-0 justify-center" : "px-4",
                     active 
                       ? isDark
@@ -295,7 +246,7 @@ const NavContent = ({
 
       {/* Footer Area */}
       <div className={cn(
-        "p-4 border-t space-y-2 mt-auto",
+        "p-4 border-t space-y-2 mt-auto flex-shrink-0",
         isDark ? "border-slate-800/60 bg-slate-950/50" : "border-gray-100",
         isCollapsed && "flex flex-col items-center p-2"
       )}>
@@ -357,6 +308,7 @@ const NavContent = ({
     </div>
   );
 };
+
 
 // --- Main Component ---
 export interface DashboardSidebarProps {
@@ -430,7 +382,7 @@ export function DashboardSidebar({
           isDark 
             ? "bg-slate-950 border-slate-800" 
             : "bg-white border-gray-200 shadow-sm",
-          collapsed ? "w-[80px]" : "w-72",
+          collapsed ? "w-[80px]" : "w-64",
           className
         )}
       >
@@ -473,9 +425,10 @@ export function DashboardSidebar({
       <div 
         className={cn(
           "hidden md:block transition-all duration-300 ease-in-out shrink-0", 
-          collapsed ? "w-[80px]" : "w-72"
+          collapsed ? "w-[80px]" : "w-64"
         )} 
       />
     </>
   );
 }
+  

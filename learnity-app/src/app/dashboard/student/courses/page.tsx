@@ -292,31 +292,31 @@ export default function MyCoursesPage() {
   ).length;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="flex-1 bg-slate-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-                  <GraduationCap className="h-8 w-8 text-primary" />
-                  My Courses
-                </h1>
-                <p className="text-slate-600 mt-1">
-                  Track your learning progress and continue where you left off
-                </p>
-              </div>
-              <Link href="/courses">
-                <Button>
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Browse Courses
-                </Button>
-              </Link>
+      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10">
+        <div className="px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+                <GraduationCap className="h-7 w-7 text-primary" />
+                My Courses
+              </h1>
+              <p className="text-slate-600 mt-1">
+                Track your learning progress and continue where you left off
+              </p>
             </div>
+            <Link href="/courses">
+              <Button>
+                <BookOpen className="h-4 w-4 mr-2" />
+                Browse Courses
+              </Button>
+            </Link>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="px-6 lg:px-8 py-8">
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <Card>
@@ -475,7 +475,7 @@ export default function MyCoursesPage() {
               )}
             </TabsContent>
           </Tabs>
-        </main>
+      </main>
     </div>
   );
 }

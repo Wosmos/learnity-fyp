@@ -76,9 +76,7 @@ model StudentProfile {
   showInterests     Boolean           @default(true)
   showProgress      Boolean           @default(true)
   allowMessages     Boolean           @default(true)
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@map("student_profiles")
 }
 

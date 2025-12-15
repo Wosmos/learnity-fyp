@@ -67,7 +67,15 @@ interface PaginatedResponse {
 
 type ViewMode = 'grid' | 'list';
 
-export default function CourseCatalogPage() {
+interface CourseCatalogPageProps {
+  basePath?: string;
+  skipUrlUpdate?: boolean;
+}
+
+export default function CourseCatalogPage({ 
+  basePath = '/courses',
+  skipUrlUpdate = false 
+}: CourseCatalogPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -147,6 +155,8 @@ export default function CourseCatalogPage() {
 
   // Update URL with current filters
   const updateURL = useCallback(() => {
+    if (skipUrlUpdate) return; // Skip URL updates when embedded
+    
     const params = new URLSearchParams();
     if (searchQuery) params.set('search', searchQuery);
     if (filters.categoryId) params.set('categoryId', filters.categoryId);
@@ -156,8 +166,8 @@ export default function CourseCatalogPage() {
     if (currentPage > 1) params.set('page', currentPage.toString());
 
     const queryString = params.toString();
-    router.push(queryString ? `/courses?${queryString}` : '/courses', { scroll: false });
-  }, [searchQuery, filters, currentPage, router]);
+    router.push(queryString ? `${basePath}?${queryString}` : basePath, { scroll: false });
+  }, [searchQuery, filters, currentPage, router, basePath, skipUrlUpdate]);
 
   // Effects
   useEffect(() => {
@@ -252,7 +262,7 @@ export default function CourseCatalogPage() {
   };
 
   return (
-    <AuthenticatedLayout>
+   
       <div className="min-h-screen bg-slate-50">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
@@ -301,7 +311,7 @@ export default function CourseCatalogPage() {
                 {/* Mobile Filter Toggle */}
                 <Button
                   variant="outline"
-                  className="md:hidden"
+                  
                   onClick={() => setShowMobileFilters(true)}
                 >
                   <Filter className="h-4 w-4 mr-2" />
@@ -314,34 +324,6 @@ export default function CourseCatalogPage() {
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex gap-8">
-            {/* Sidebar Filters (Desktop) */}
-            <aside className="hidden lg:block w-64 shrink-0">
-              <Card className="sticky top-4">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Filter className="h-5 w-5" />
-                    Filters
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingCategories ? (
-                    <div className="space-y-4">
-                      <Skeleton className="h-10 w-full" />
-                      <Skeleton className="h-10 w-full" />
-                      <Skeleton className="h-10 w-full" />
-                      <Skeleton className="h-10 w-full" />
-                    </div>
-                  ) : (
-                    <CourseFiltersCompact
-                      categories={categories}
-                      filters={filters}
-                      onFiltersChange={handleFiltersChange}
-                    />
-                  )}
-                </CardContent>
-              </Card>
-            </aside>
-
             {/* Main Content */}
             <div className="flex-1 min-w-0">
               {/* Desktop Filters Bar */}
@@ -460,7 +442,7 @@ export default function CourseCatalogPage() {
 
         {/* Mobile Filters Drawer */}
         {showMobileFilters && (
-          <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 z-50 ">
             <div
               className="absolute inset-0 bg-black/50"
               onClick={() => setShowMobileFilters(false)}
@@ -492,6 +474,6 @@ export default function CourseCatalogPage() {
           </div>
         )}
       </div>
-    </AuthenticatedLayout>
+   
   );
 }

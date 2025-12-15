@@ -5,14 +5,14 @@
  * Enhanced dashboard with real profile data and modern UI
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { 
   GraduationCap, 
@@ -62,7 +62,7 @@ interface ProfileData {
 }
 
 export default function StudentDashboard() {
-  const { user, loading: authLoading } = useClientAuth();
+  const { user, loading: authLoading } = useAuth();
   const api = useAuthenticatedApi();
   const router = useRouter();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
@@ -119,7 +119,7 @@ export default function StudentDashboard() {
 
   if (authLoading || loadingProfile) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your dashboard...</p>
@@ -129,13 +129,13 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-green-50">
+    <div className="flex-1 bg-slate-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-10">
+        <div className="px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900">
                 Welcome back, {userName}! 👋
               </h1>
               <p className="text-gray-600 mt-1">Ready to continue your learning journey?</p>
@@ -153,7 +153,7 @@ export default function StudentDashboard() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="px-6 lg:px-8 py-8">
         {/* Profile Completion Banner */}
         {loadingCompletion ? (
           <div className="mb-8">
@@ -572,30 +572,6 @@ export default function StudentDashboard() {
           </div>
         </div>
 
-        {/* Quick Links */}
-        <div className="mt-12 text-center">
-          <p className="text-gray-600 mb-4">Need help or want to explore more?</p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/welcome">
-              <Button variant="outline" size="sm">
-                <GraduationCap className="h-4 w-4 mr-2" />
-                Back to Welcome
-              </Button>
-            </Link>
-            <Link href="/demo">
-              <Button variant="outline" size="sm">
-                <Play className="h-4 w-4 mr-2" />
-                Platform Demo
-              </Button>
-            </Link>
-            <Link href="/">
-              <Button variant="outline" size="sm">
-                <GraduationCap className="h-4 w-4 mr-2" />
-                Home
-              </Button>
-            </Link>
-          </div>
-        </div>
       </main>
     </div>
   );

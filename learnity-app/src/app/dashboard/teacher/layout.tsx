@@ -1,16 +1,13 @@
 /**
  * Teacher Dashboard Layout
- * Protects teacher routes and provides common layout
+ * Protects teacher routes and provides common layout with sidebar and navbar
  */
 
-import { Metadata } from 'next';
+'use client';
+
 import { TeacherRoute } from '@/components/auth/ProtectedRoute';
 import { TeacherSidebar } from '@/components/layout/TeacherSidebar';
-
-export const metadata: Metadata = {
-  title: 'Teacher Dashboard - Learnity',
-  description: 'Teacher dashboard with session management, student progress, and content tools',
-};
+import { DashboardNavbar, teacherNavbarConfig } from '@/components/layout/DashboardNavbar';
 
 export default function TeacherDashboardLayout({
   children,
@@ -20,14 +17,20 @@ export default function TeacherDashboardLayout({
   return (
     <TeacherRoute>
       <div className="flex min-h-screen bg-slate-50">
-              {/* Student Sidebar Navigation */}
-              <TeacherSidebar/>
-              
-              {/* Main Content Area */}
-              <div className="flex-1 overflow-x-hidden">
-                {children}
-              </div>
-            </div>
+        {/* Teacher Sidebar Navigation */}
+        <TeacherSidebar />
+        
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col overflow-x-hidden">
+          {/* Top Navbar */}
+          <DashboardNavbar config={teacherNavbarConfig} />
+          
+          {/* Page Content */}
+          <main className="flex-1">
+            {children}
+          </main>
+        </div>
+      </div>
     </TeacherRoute>
   );
 }
