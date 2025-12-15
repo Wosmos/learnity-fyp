@@ -41,8 +41,7 @@ const AGE_GROUPS = [
 ];
 
 const COUNTRIES = [
-  'United States', 'Canada', 'United Kingdom', 'Australia', 'Germany',
-  'France', 'Spain', 'Italy', 'Netherlands', 'India', 'Brazil'
+  'United States', 'Brazil', "Pakistan", "Sri Lanka", "Saudi Arabia"
 ];
 
 const TIMEZONES = [
@@ -63,12 +62,14 @@ export interface QuickTeacherRegistrationFormProps {
   onSubmit: (data: QuickTeacherRegistrationData) => Promise<void>;
   onBack: () => void;
   className?: string;
+  variant?: 'card' | 'simple';
 }
 
 export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationFormProps> = ({
   onSubmit,
   onBack,
-  className = ''
+  className = '',
+  variant = 'card'
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
@@ -213,81 +214,104 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
     onBack();
   };
 
-  return (
-    <div className={`w-full max-w-2xl mx-auto p-6 ${className}`}>
-      <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
-        <CardHeader className="space-y-6 pb-8">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBack}
-              className="text-gray-600 hover:text-gray-800"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            <div className="text-sm text-gray-500">
-              Step {currentStep} of {steps.length}
-            </div>
-          </div>
+  const isSimple = variant === 'simple';
+  const cardClasses = isSimple ? "shadow-none border-0" : "shadow-xl border-0 bg-white/95 backdrop-blur";
 
-          {/* Title */}
-          <div className="text-center space-y-2">
-            <div className="flex items-center justify-center mb-4">
-              <div className="p-3 bg-gradient-to-r from-green-500 to-blue-500 rounded-full">
-                <BookOpen className="h-8 w-8 text-white" />
+  return (
+    <div>
+      <div >
+        <CardHeader className={isSimple ? "space-y-6 px-0" : "space-y-6 pb-8"}>
+          {isSimple ? (
+            /* Simple Header */
+            <div className="space-y-4">
+              
+              <div className="space-y-1 flex items-center justify-between ">
+
+                <h1 className="text-2xl font-bold tracking-tight">Become a Teacher</h1>
+                {/* <p className="text-muted-foreground">{currentStepData?.description}</p> */}
+                <span className="text-sm text-muted-foreground">Step {currentStep} of {steps.length}</span>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Progress</span>
+                  <span>{Math.round(progress)}%</span>
+                </div>
+                <Progress value={progress} className="h-2" />
               </div>
             </div>
-            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-              Become a Teacher
-            </CardTitle>
-            <CardDescription className="text-lg text-gray-600">
-              {currentStepData?.description} • Quick & Easy Setup
-            </CardDescription>
-          </div>
+          ) : (
+            /* Original Header */
+            <>
+              <div className="flex items-center justify-between">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBack}
+                  className="text-gray-600 hover:text-gray-800"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Button>
+                <div className="text-sm text-gray-500">
+                  Step {currentStep} of {steps.length}
+                </div>
+              </div>
 
-          {/* Progress */}
-          <div className="space-y-4">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Progress</span>
-              <span className="font-medium text-green-600">{Math.round(progress)}%</span>
-            </div>
-            <Progress value={progress} className="h-3" />
-
-            {/* Step indicators */}
-            <div className="flex justify-between">
-              {steps.map((step) => {
-                const Icon = step.icon;
-                const isCompleted = currentStep > step.id;
-                const isCurrent = currentStep === step.id;
-
-                return (
-                  <div key={step.id} className="flex flex-col items-center space-y-2">
-                    <div className={`
-                      w-10 h-10 rounded-full flex items-center justify-center transition-all
-                      ${isCompleted ? 'bg-green-500 text-white' :
-                        isCurrent ? 'bg-slate-500 text-white' :
-                          'bg-gray-200 text-gray-500'}
-                    `}>
-                      {isCompleted ? (
-                        <CheckCircle className="h-5 w-5" />
-                      ) : (
-                        <Icon className="h-5 w-5" />
-                      )}
-                    </div>
-                    <span className={`text-xs font-medium ${isCurrent ? 'text-blue-600' :
-                        isCompleted ? 'text-green-600' :
-                          'text-gray-500'
-                      }`}>
-                      {step.title}
-                    </span>
+              <div className="text-center space-y-2">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="p-3 bg-gradient-to-r from-green-500 to-blue-500 rounded-full">
+                    <BookOpen className="h-8 w-8 text-white" />
                   </div>
-                );
-              })}
-            </div>
-          </div>
+                </div>
+                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                  Become a Teacher
+                </CardTitle>
+                <CardDescription className="text-lg text-gray-600">
+                  {currentStepData?.description} • Quick & Easy Setup
+                </CardDescription>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Progress</span>
+                  <span className="font-medium text-green-600">{Math.round(progress)}%</span>
+                </div>
+                <Progress value={progress} className="h-3" />
+
+                <div className="flex justify-between">
+                  {steps.map((step) => {
+                    const Icon = step.icon;
+                    const isCompleted = currentStep > step.id;
+                    const isCurrent = currentStep === step.id;
+
+                    return (
+                      <div key={step.id} className="flex flex-col items-center space-y-2">
+                        <div className={`
+                          w-10 h-10 rounded-full flex items-center justify-center transition-all
+                          ${isCompleted ? 'bg-green-500 text-white' :
+                            isCurrent ? 'bg-slate-500 text-white' :
+                              'bg-gray-200 text-gray-500'}
+                        `}>
+                          {isCompleted ? (
+                            <CheckCircle className="h-5 w-5" />
+                          ) : (
+                            <Icon className="h-5 w-5" />
+                          )}
+                        </div>
+                        <span className={`text-xs font-medium ${isCurrent ? 'text-blue-600' :
+                          isCompleted ? 'text-green-600' :
+                            'text-gray-500'
+                          }`}>
+                          {step.title}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
         </CardHeader>
 
         <CardContent className="space-y-6">
@@ -860,7 +884,7 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                   <Button
                     type="button"
                     onClick={handleNext}
-                    className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                    className="flex items-center gap-2 bg-zinc-600 hover:bg-zinc-700"
                   >
                     Next
                     <ArrowRight className="h-4 w-4" />
@@ -869,7 +893,7 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                   <Button
                     type="submit"
                     disabled={isSubmitting || !form.formState.isValid}
-                    className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                    className="flex items-center gap-2 bg-zinc-600 hover:bg-zinc-700"
                   >
                     {isSubmitting ? (
                       <>
@@ -894,7 +918,7 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
             </form>
           </Form>
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 };

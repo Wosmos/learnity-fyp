@@ -11,6 +11,11 @@ import { useAuthService } from '@/hooks/useAuthService';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { useRouter } from 'next/navigation';
 
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, GraduationCap } from 'lucide-react';
+import LedtSideSection from '@/components/auth/LedtSideSection';
+
 export default function ForgotPasswordPage() {
   const { requestPasswordReset } = useAuthService();
   const router = useRouter();
@@ -25,11 +30,38 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
-        <PasswordResetRequestForm
-          onSubmit={handleSubmit}
-          onBackToLogin={handleBackToLogin}
-        />
+      <div className="min-h-screen w-full flex">
+        <LedtSideSection />
+
+        {/* Right Panel */}
+        <div className="w-full lg:w-1/2 bg-white flex flex-col justify-center items-center p-8 lg:p-12 relative">
+          <Link href="/" className="absolute top-8 left-8 lg:hidden">
+            <div className="flex items-center space-x-2 text-slate-600">
+              <div className="p-2 bg-slate-100 rounded-lg">
+                <GraduationCap className="h-6 w-6 text-slate-900" />
+              </div>
+              <span className="text-xl font-bold text-slate-900">Learnity</span>
+            </div>
+          </Link>
+
+          <div className="absolute top-8 right-8">
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Home
+              </Button>
+            </Link>
+          </div>
+
+          <div className="w-full max-w-md space-y-8">
+            <PasswordResetRequestForm
+              onSubmit={handleSubmit}
+              onBackToLogin={handleBackToLogin}
+              variant="simple"
+              className="w-full max-w-none px-0"
+            />
+          </div>
+        </div>
       </div>
     </AuthProvider>
   );

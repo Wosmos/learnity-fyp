@@ -40,12 +40,14 @@ export interface StudentRegistrationFormProps {
   onSubmit: (data: StudentRegistrationData) => Promise<void>;
   onBack: () => void;
   className?: string;
+  variant?: 'card' | 'simple';
 }
 
 export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = ({
   onSubmit,
   onBack,
-  className = ''
+  className = '',
+  variant = 'card'
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -108,6 +110,310 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
     }
     form.trigger('subjects');
   };
+
+  if (variant === 'simple') {
+    return (
+      <div className={`w-full max-w-2xl mx-auto ${className}`}>
+        <div className="space-y-6">
+          <div className="space-y-2 text-center lg:text-left">
+            {/* Back Button for simple variant if needed, or rely on external navigation */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBack}
+              className="text-gray-600 hover:text-gray-900 pl-0 -ml-3"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+
+            <h1 className="text-3xl font-bold tracking-tight">Student Registration</h1>
+            <p className="text-muted-foreground">
+              Create your student account to start learning
+            </p>
+          </div>
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+              {/* Personal Information */}
+              <div className="space-y-4 ">
+                <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter your first name"
+                            {...field}
+                            className="transition-colors focus:border-blue-500 h-10"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter your last name"
+                            {...field}
+                            className="transition-colors focus:border-blue-500 h-10"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email Address</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Enter your email address"
+                          {...field}
+                          className="transition-colors focus:border-blue-500 h-10"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        We'll send a verification email to this address
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Password Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">Security</h3>
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Create a strong password"
+                            {...field}
+                            className="pr-10 transition-colors focus:border-blue-500 h-10"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4 text-gray-400" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-gray-400" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        Must contain uppercase, lowercase, number, and special character
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            placeholder="Confirm your password"
+                            {...field}
+                            className="pr-10 transition-colors focus:border-blue-500 h-10"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-4 w-4 text-gray-400" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-gray-400" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Academic Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">Academic Information</h3>
+                <FormField
+                  control={form.control}
+                  name="gradeLevel"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Grade Level</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="transition-colors focus:border-blue-500 h-10">
+                            <SelectValue placeholder="Select your grade level" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {GRADE_LEVELS.map((grade) => (
+                            <SelectItem key={grade.value} value={grade.value}>
+                              {grade.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="subjects"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>Subjects of Interest</FormLabel>
+                      <FormDescription>
+                        Select the subjects you're interested in learning (choose at least one)
+                      </FormDescription>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                        {SUBJECTS.map((subject) => (
+                          <div key={subject} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={subject}
+                              checked={form.watch('subjects').includes(subject)}
+                              onCheckedChange={(checked) =>
+                                handleSubjectToggle(subject, checked as boolean)
+                              }
+                            />
+                            <Label
+                              htmlFor={subject}
+                              className="text-sm font-normal cursor-pointer"
+                            >
+                              {subject}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Terms and Captcha */}
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="agreeToTerms"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-normal">
+                          I agree to the{' '}
+                          <button type="button" className="text-blue-600 hover:text-blue-700 underline">
+                            Terms of Service
+                          </button>{' '}
+                          and{' '}
+                          <button type="button" className="text-blue-600 hover:text-blue-700 underline">
+                            Privacy Policy
+                          </button>
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-center">
+                  <HCaptcha
+                    sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''}
+                    onVerify={(token) => {
+                      setHcaptchaToken(token);
+                      form.setValue('hcaptchaToken', token);
+                      form.clearErrors('hcaptchaToken');
+                    }}
+                    onExpire={() => {
+                      setHcaptchaToken('');
+                      form.setValue('hcaptchaToken', '');
+                    }}
+                  />
+                </div>
+                {form.formState.errors.hcaptchaToken && (
+                  <p className="text-sm text-red-600 text-center">
+                    {form.formState.errors.hcaptchaToken.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                className="w-full bg-slate-600 hover:bg-slate-700 text-white font-medium py-3 h-10"
+                disabled={isSubmitting || !form.formState.isValid}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  'Create Student Account'
+                )}
+              </Button>
+
+              {form.formState.errors.root && (
+                <div className="text-sm text-red-600 text-center bg-red-50 p-3 rounded-md">
+                  {form.formState.errors.root.message}
+                </div>
+              )}
+            </form>
+          </Form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`w-full max-w-2xl mx-auto p-6 ${className}`}>

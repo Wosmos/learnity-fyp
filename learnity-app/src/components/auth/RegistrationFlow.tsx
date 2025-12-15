@@ -24,6 +24,7 @@ export interface RegistrationFlowProps {
   onTeacherRegister: (data: QuickTeacherRegistrationData) => Promise<void>;
   onBackToLogin?: () => void;
   className?: string;
+  variant?: 'card' | 'simple';
 }
 
 const STEPS = [
@@ -48,7 +49,8 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
   onStudentRegister,
   onTeacherRegister,
   onBackToLogin,
-  className = ''
+  className = '',
+  variant = 'card'
 }) => {
   const {
     registrationStep,
@@ -128,11 +130,19 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
     );
   }
 
+  const isSimple = variant === 'simple';
+  const containerClasses = isSimple
+    ? `w-full ${className}`
+    : `min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 ${className}`;
+
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 ${className}`}>
-      {/* Mobile Header */}
+    <div className={containerClasses}>
+      {/* Mobile Header - Show only if mobile AND not simple (or keep it? simple usually implies desktop split screen) */}
+      {/* Actually, if isSimple is true (desktop split view), isMobile will likely be false. */}
       {isMobile && (
         <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+          {/* ... existing mobile header content ... */}
+          {/* copying existing mobile header logic */}
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center space-x-3">
               {currentStepIndex > 0 && (
@@ -170,9 +180,9 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
         </div>
       )}
 
-      <div className="container mx-auto px-4 py-8 md:py-12">
-        {/* Desktop Header */}
-        {!isMobile && (
+      <div className={`container mx-auto px-4 ${isSimple ? 'py-0' : 'py-8 md:py-12'}`}>
+        {/* Desktop Header - Hide if simple, as forms have their own headers now */}
+        {!isMobile && !isSimple && (
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               {currentStep.title}
@@ -233,13 +243,17 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
         {/* Main Content */}
         <div className="max-w-4xl mx-auto">
           {registrationStep === 'role-selection' && (
-            <RoleSelection onRoleSelect={handleRoleSelect} />
+            <RoleSelection
+              onRoleSelect={handleRoleSelect}
+              className={isSimple ? "p-0" : ""}
+            />
           )}
 
           {registrationStep === 'form' && selectedRole === UserRole.STUDENT && (
             <StudentRegistrationForm
               onSubmit={handleStudentSubmit}
               onBack={handleBackToRoleSelection}
+              variant={variant}
             />
           )}
 
@@ -247,6 +261,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
             <QuickTeacherRegistrationForm
               onSubmit={handleTeacherSubmit}
               onBack={handleBackToRoleSelection}
+              variant={variant}
             />
           )}
 
@@ -268,7 +283,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
           )}
         </div>
 
-        {/* Mobile Quick Actions */}
+        {/* Mobile Quick Actions - keeping them as is, they only show on mobile */}
         {isMobile && (
           <div className="mt-8 space-y-4">
             {/* Quick Actions Panel */}
