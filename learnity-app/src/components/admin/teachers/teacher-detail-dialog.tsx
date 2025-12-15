@@ -146,7 +146,7 @@ export function TeacherDetailDialog({
 
   const handleAction = async (action: string) => {
     if (!onTeacherAction) return;
-    
+
     setLoading(true);
     try {
       await onTeacherAction(teacher.id, action);
@@ -160,7 +160,7 @@ export function TeacherDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-hidden border-0 p-0 shadow-2xl">
+      <DialogContent className="max-w-[1600px] max-h-[90vh] overflow-hidden border-0 p-0 shadow-2xl">
         <div className="flex h-full flex-col overflow-hidden bg-linear-to-br from-white via-gray-50 to-white">
           <div className="border-b bg-white/80 px-6 py-5">
             <DialogHeader className="space-y-3">

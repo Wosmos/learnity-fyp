@@ -46,9 +46,9 @@ export interface AppLayoutProps {
   hideNavigationLinks?: boolean; // New prop to hide nav links but keep user menu
 }
 
-export function AppLayout({ 
-  children, 
-  showNavigation = true, 
+export function AppLayout({
+  children,
+  showNavigation = true,
   showHeader = true,
   className,
   hideNavigationLinks = false
@@ -75,7 +75,7 @@ export function AppLayout({
           console.error('Failed to fetch profile:', error);
         }
       };
-      
+
       fetchProfileData();
     }
   }, [loading, isAuthenticated, api]);
@@ -97,7 +97,7 @@ export function AppLayout({
   };
 
   const fullName = profileData ? `${profileData.firstName} ${profileData.lastName}` : user?.displayName || 'User';
-  
+
   // Debug: Log when profileData changes
   useEffect(() => {
     if (profileData) {
@@ -144,239 +144,239 @@ export function AppLayout({
       {/* Header */}
       {showHeader && (
         <header className="bg-white/65 backdrop-blur-xl shadow-sm border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo and Brand */}
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="flex items-center space-x-2">
-                <div className="p-2 bg-blue-600 rounded-lg">
-                  <GraduationCap className="h-6 w-6 text-white" />
-                </div>
-                <span className="text-xl font-bold text-gray-900">Learnity</span>
-              </Link>
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              {/* Logo and Brand */}
+              <div className="flex items-center space-x-4">
+                <Link href="/" className="flex items-center space-x-2">
+                  <div className="p-2 bg-blue-600 rounded-lg">
+                    <GraduationCap className="h-6 w-6 text-white" />
+                  </div>
+                  <span className="text-xl font-bold text-gray-900">Learnity</span>
+                </Link>
 
-              {/* Desktop Navigation */}
-              {!hideNavigationLinks && (
-                <nav className="hidden md:flex items-center space-x-1">
-                  {isAuthenticated && showNavigation && (
-                    <Link href={getDashboardRoute(claims?.role || UserRole.STUDENT)}>
-                      <Button variant="ghost" size="sm">
-                        <Home className="h-4 w-4 mr-2" />
-                        Dashboard
-                      </Button>
-                    </Link>
-                  )}
-                  <Link href="/teachers">
-                    <Button variant="ghost" size="sm">
-                      Our Teachers
-                    </Button>
-                  </Link>
-                  <Link href="/about">
-                    <Button variant="ghost" size="sm">
-                      About Us
-                    </Button>
-                  </Link>
-                </nav>
-              )}
-            </div>
-
-            {/* User Menu */}
-            <div className="flex items-center space-x-4">
-              {isAuthenticated ? (
-                <>
-                  {/* Notifications */}
-                  <Button variant="ghost" size="sm" className="hidden sm:flex">
-                    <Bell className="h-4 w-4" />
-                  </Button>
-
-                  {/* User Dropdown Menu */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="hidden sm:flex items-center space-x-3 h-auto py-2">
-                        <div className="text-right">
-                          <p className="text-sm font-medium text-gray-900">
-                            {user?.displayName || user?.email?.split('@')[0] || 'User'}
-                          </p>
-                          {claims?.role && (
-                            <Badge className={cn('text-xs', getRoleBadgeColor(claims.role))}>
-                              {getRoleDisplayName(claims.role)}
-                            </Badge>
-                          )}
-                        </div>
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage 
-                            src={profileData?.profilePicture || ''} 
-                            alt={fullName}
-                            onError={(e) => console.error('Avatar image failed to load:', e)}
-                          />
-                          <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white">
-                            {getInitials()}
-                          </AvatarFallback>
-                        </Avatar>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuLabel>
-                        <div className="flex flex-col space-y-1">
-                          <p className="text-sm font-medium leading-none">{fullName}</p>
-                          <p className="text-xs leading-none text-gray-500">
-                            {profileData?.email || user?.email}
-                          </p>
-                        </div>
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => router.push('/profile/enhance')}>
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => router.push(getDashboardRoute(claims?.role || UserRole.STUDENT))}>
-                        <Home className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
-                        {isLoggingOut ? (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                          <LogOut className="mr-2 h-4 w-4" />
-                        )}
-                        <span>{isLoggingOut ? 'Signing out...' : 'Sign out'}</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  {/* Mobile Menu Button */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="md:hidden"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  >
-                    {isMobileMenuOpen ? (
-                      <X className="h-5 w-5" />
-                    ) : (
-                      <Menu className="h-5 w-5" />
-                    )}
-                  </Button>
-                </>
-              ) : (
-                <div className="flex items-center space-x-2">
-                  <Link href="/auth/login">
-                    <Button variant="ghost" size="sm">
-                      Sign in
-                    </Button>
-                  </Link>
-                  <Link href="/auth/register">
-                    <Button size="sm">
-                      Get started
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {isAuthenticated && isMobileMenuOpen && (
-          <div className="md:hidden border-t bg-white">
-            <div className="px-4 py-4 space-y-4">
-              {/* User Info */}
-              <div className="flex items-center space-x-3 pb-4 border-b">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage 
-                    src={profileData?.profilePicture || ''} 
-                    alt={fullName}
-                    onError={(e) => console.error('Mobile avatar image failed to load:', e)}
-                  />
-                  <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white">
-                    {getInitials()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {user?.displayName || user?.email?.split('@')[0] || 'User'}
-                  </p>
-                  {claims?.role && (
-                    <Badge className={cn('text-xs', getRoleBadgeColor(claims.role))}>
-                      {getRoleDisplayName(claims.role)}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-
-              {/* Mobile Navigation */}
-              <div className="space-y-2">
-                {showNavigation && !hideNavigationLinks && (
-                  <>
-                    <Link 
-                      href={getDashboardRoute(claims?.role || UserRole.STUDENT)}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Button variant="ghost" className="w-full justify-start">
-                        <Home className="h-4 w-4 mr-2" />
-                        Dashboard
-                      </Button>
-                    </Link>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start"
-                      onClick={() => {
-                        router.push('/profile/enhance');
-                        setIsMobileMenuOpen(false);
-                      }}
-                    >
-                      <User className="h-4 w-4 mr-2" />
-                      Profile
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start">
-                      <Bell className="h-4 w-4 mr-2" />
-                      Notifications
-                    </Button>
-                  </>
-                )}
+                {/* Desktop Navigation */}
                 {!hideNavigationLinks && (
-                  <>
-                    <Link 
-                      href="/teachers"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Button variant="ghost" className="w-full justify-start">
+                  <nav className="hidden md:flex items-center space-x-1">
+                    {isAuthenticated && showNavigation && (
+                      <Link href={getDashboardRoute(claims?.role || UserRole.STUDENT)}>
+                        <Button variant="ghost" size="sm">
+                          <Home className="h-4 w-4 mr-2" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                    )}
+                    <Link href="/teachers">
+                      <Button variant="ghost" size="sm">
                         Our Teachers
                       </Button>
                     </Link>
-                    <Link 
-                      href="/about"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Button variant="ghost" className="w-full justify-start">
+                    <Link href="/about">
+                      <Button variant="ghost" size="sm">
                         About Us
                       </Button>
                     </Link>
-                  </>
+                  </nav>
                 )}
               </div>
 
-              {/* Mobile Logout */}
-              <div className="pt-4 border-t">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={handleLogout}
-                  disabled={isLoggingOut}
-                >
-                  {isLoggingOut ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : (
-                    <LogOut className="h-4 w-4 mr-2" />
-                  )}
-                  {isLoggingOut ? 'Signing out...' : 'Sign out'}
-                </Button>
+              {/* User Menu */}
+              <div className="flex items-center space-x-4">
+                {isAuthenticated ? (
+                  <>
+                    {/* Notifications */}
+                    <Button variant="ghost" size="sm" className="hidden sm:flex">
+                      <Bell className="h-4 w-4" />
+                    </Button>
+
+                    {/* User Dropdown Menu */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="hidden sm:flex items-center space-x-3 h-auto py-2">
+                          <div className="text-right">
+                            <p className="text-sm font-medium text-gray-900">
+                              {user?.displayName || user?.email?.split('@')[0] || 'User'}
+                            </p>
+                            {claims?.role && (
+                              <Badge className={cn('text-xs', getRoleBadgeColor(claims.role))}>
+                                {getRoleDisplayName(claims.role)}
+                              </Badge>
+                            )}
+                          </div>
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage
+                              src={profileData?.profilePicture || ''}
+                              alt={fullName}
+                              onError={(e) => console.error('Avatar image failed to load:', e)}
+                            />
+                            <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white">
+                              {getInitials()}
+                            </AvatarFallback>
+                          </Avatar>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuLabel>
+                          <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">{fullName}</p>
+                            <p className="text-xs leading-none text-gray-500">
+                              {profileData?.email || user?.email}
+                            </p>
+                          </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => router.push('/profile/enhance')}>
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Profile</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push(getDashboardRoute(claims?.role || UserRole.STUDENT))}>
+                          <Home className="mr-2 h-4 w-4" />
+                          <span>Dashboard</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
+                          {isLoggingOut ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <LogOut className="mr-2 h-4 w-4" />
+                          )}
+                          <span>{isLoggingOut ? 'Signing out...' : 'Sign out'}</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Mobile Menu Button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="md:hidden"
+                      onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    >
+                      {isMobileMenuOpen ? (
+                        <X className="h-5 w-5" />
+                      ) : (
+                        <Menu className="h-5 w-5" />
+                      )}
+                    </Button>
+                  </>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <Link href="/auth/login">
+                      <Button variant="ghost" size="sm">
+                        Sign in
+                      </Button>
+                    </Link>
+                    <Link href="/auth/register">
+                      <Button size="sm">
+                        Get started
+                      </Button>
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        )}
-      </header>
+
+          {/* Mobile Menu */}
+          {isAuthenticated && isMobileMenuOpen && (
+            <div className="md:hidden border-t bg-white">
+              <div className="px-4 py-4 space-y-4">
+                {/* User Info */}
+                <div className="flex items-center space-x-3 pb-4 border-b">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage
+                      src={profileData?.profilePicture || ''}
+                      alt={fullName}
+                      onError={(e) => console.error('Mobile avatar image failed to load:', e)}
+                    />
+                    <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white">
+                      {getInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {user?.displayName || user?.email?.split('@')[0] || 'User'}
+                    </p>
+                    {claims?.role && (
+                      <Badge className={cn('text-xs', getRoleBadgeColor(claims.role))}>
+                        {getRoleDisplayName(claims.role)}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
+                {/* Mobile Navigation */}
+                <div className="space-y-2">
+                  {showNavigation && !hideNavigationLinks && (
+                    <>
+                      <Link
+                        href={getDashboardRoute(claims?.role || UserRole.STUDENT)}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Button variant="ghost" className="w-full justify-start">
+                          <Home className="h-4 w-4 mr-2" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start"
+                        onClick={() => {
+                          router.push('/profile/enhance');
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        <User className="h-4 w-4 mr-2" />
+                        Profile
+                      </Button>
+                      <Button variant="ghost" className="w-full justify-start">
+                        <Bell className="h-4 w-4 mr-2" />
+                        Notifications
+                      </Button>
+                    </>
+                  )}
+                  {!hideNavigationLinks && (
+                    <>
+                      <Link
+                        href="/teachers"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Button variant="ghost" className="w-full justify-start">
+                          Our Teachers
+                        </Button>
+                      </Link>
+                      <Link
+                        href="/about"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Button variant="ghost" className="w-full justify-start">
+                          About Us
+                        </Button>
+                      </Link>
+                    </>
+                  )}
+                </div>
+
+                {/* Mobile Logout */}
+                <div className="pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                  >
+                    {isLoggingOut ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <LogOut className="h-4 w-4 mr-2" />
+                    )}
+                    {isLoggingOut ? 'Signing out...' : 'Sign out'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </header>
       )}
 
       {/* Main Content */}
@@ -385,7 +385,7 @@ export function AppLayout({
       </main>
 
       {/* Footer */}
-      <Footer/>
+      <Footer />
     </div>
   );
 }

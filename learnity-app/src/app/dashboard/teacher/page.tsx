@@ -5,15 +5,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
-import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { AsyncButton } from '@/components/ui/async-button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  Users, Star, FileText, Plus, Eye, 
+import {
+  Users, Star, FileText, Plus, Eye,
   BarChart3, CheckCircle, User, GraduationCap, Zap, BookOpen,
   HelpCircle, MessageSquare, Video, ArrowRight, Settings
 } from 'lucide-react';
@@ -129,7 +128,7 @@ export default function TeacherDashboard() {
   const { user, loading, isAuthenticated, claims } = useClientAuth();
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
-  
+
   const [stats, setStats] = useState<TeacherStats>({
     totalStudents: 0, totalCourses: 0, publishedCourses: 0, totalLessons: 0, averageRating: 0, totalReviews: 0
   });
@@ -139,7 +138,7 @@ export default function TeacherDashboard() {
 
   const fetchData = useCallback(async () => {
     if (!isAuthenticated) return;
-    
+
     try {
       setIsLoadingData(true);
       const [coursesRes, activitiesRes] = await Promise.all([
@@ -150,7 +149,7 @@ export default function TeacherDashboard() {
       if (coursesRes.ok) {
         const data = await coursesRes.json();
         const courses = data.data?.courses || [];
-        
+
         // Calculations
         const totalStudents = courses.reduce((sum: any, c: any) => sum + (c.enrollmentCount || 0), 0);
         const totalLessons = courses.reduce((sum: any, c: any) => sum + (c.lessonCount || 0), 0);
@@ -202,10 +201,10 @@ export default function TeacherDashboard() {
     if (!loading && claims?.role === UserRole.PENDING_TEACHER) router.push('/dashboard/teacher/pending');
   }, [loading, isAuthenticated, claims, router, fetchData]);
 
-  if (loading) return null; 
+  if (loading) return null;
 
   return (
-    <AuthenticatedLayout>
+
       <div className="min-h-screen bg-slate-50/50">
         <PageHeader
           title="Overview"
@@ -220,18 +219,18 @@ export default function TeacherDashboard() {
           }
         />
 
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-2 space-y-6">
-          
+        <div className="max-w-[1600px]  mx-auto px-4 sm:px-6 py-2 space-y-6">
+
           {/* Stats Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <StatCard 
+            <StatCard
               loading={isLoadingData}
-              title="Total Students" 
-              value={stats.totalStudents} 
+              title="Total Students"
+              value={stats.totalStudents}
               subtext="Across all courses"
-              icon={Users} 
-              colorClass="text-blue-600" 
-              bgClass="bg-blue-50" 
+              icon={Users}
+              colorClass="text-blue-600"
+              bgClass="bg-blue-50"
             />
             {/* <StatCard 
               loading={isLoadingData}
@@ -242,61 +241,61 @@ export default function TeacherDashboard() {
               colorClass="text-indigo-600" 
               bgClass="bg-indigo-50" 
             /> */}
-            <StatCard 
+            <StatCard
               loading={isLoadingData}
-              title="Content Library" 
-              value={stats.totalLessons} 
+              title="Content Library"
+              value={stats.totalLessons}
               subtext="Total active lessons"
-              icon={FileText} 
-              colorClass="text-emerald-600" 
-              bgClass="bg-emerald-50" 
+              icon={FileText}
+              colorClass="text-emerald-600"
+              bgClass="bg-emerald-50"
             />
-            <StatCard 
+            <StatCard
               loading={isLoadingData}
-              title="Instructor Rating" 
-              value={stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '-'} 
+              title="Instructor Rating"
+              value={stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '-'}
               subtext={`${stats.totalReviews} reviews`}
-              icon={Star} 
-              colorClass="text-amber-500" 
-              bgClass="bg-amber-50" 
+              icon={Star}
+              colorClass="text-amber-500"
+              bgClass="bg-amber-50"
             />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            
+
             {/* Left Column (8 cols) - Actions & Courses */}
             <div className="lg:col-span-8 space-y-4">
-              
+
               {/* Quick Actions Row */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <QuickActionTile 
-                  href="/dashboard/teacher/courses" 
-                  icon={BookOpen} 
-                  title="My Courses" 
+                <QuickActionTile
+                  href="/dashboard/teacher/courses"
+                  icon={BookOpen}
+                  title="My Courses"
                   desc="Manage content"
                   colorClass="text-blue-600"
                   bgClass="bg-blue-50"
                 />
-                <QuickActionTile 
-                  href="/dashboard/teacher/courses/new" 
-                  icon={Plus} 
-                  title="Create New" 
+                <QuickActionTile
+                  href="/dashboard/teacher/courses/new"
+                  icon={Plus}
+                  title="Create New"
                   desc="Start a course"
                   colorClass="text-emerald-600"
                   bgClass="bg-emerald-50"
                 />
-                <QuickActionTile 
-                  href="/dashboard/teacher/sessions" 
-                  icon={Video} 
-                  title="Live Sessions" 
+                <QuickActionTile
+                  href="/dashboard/teacher/sessions"
+                  icon={Video}
+                  title="Live Sessions"
                   desc="Schedule calls"
                   colorClass="text-purple-600"
                   bgClass="bg-purple-50"
                 />
-                <QuickActionTile 
-                  href="/dashboard/teacher/profile" 
-                  icon={Settings} 
-                  title="Profile" 
+                <QuickActionTile
+                  href="/dashboard/teacher/profile"
+                  icon={Settings}
+                  title="Profile"
                   desc="Edit details"
                   colorClass="text-slate-600"
                   bgClass="bg-slate-100"
@@ -371,62 +370,62 @@ export default function TeacherDashboard() {
                   </div>
                 </CardContent>
               </Card>
-              
+
             </div>
           </div>
-           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-               {/* Getting Started - Visual Pop */}
-              <Card className="border-0 shadow-md bg-gradient-to-br from-indigo-600 to-violet-700 text-white overflow-hidden relative">
-                {/* Decor elements */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -ml-5 -mb-5" />
-                
-                <CardHeader className="relative z-10 pb-2">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <HelpCircle className="h-4 w-4 opacity-80" /> 
-                    Setup Guide
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="relative z-10 pt-0">
-                  <div className="space-y-3 mb-5">
-                    <div className="flex items-center gap-3 text-sm font-medium text-indigo-100">
-                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">1</div>
-                      <span>Draft course structure</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm font-medium text-indigo-100">
-                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">2</div>
-                      <span>Upload video content</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm font-medium text-indigo-100">
-                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">3</div>
-                      <span>Publish & Share</span>
-                    </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Getting Started - Visual Pop */}
+            <Card className="border-0 shadow-md bg-gradient-to-br from-indigo-600 to-violet-700 text-white overflow-hidden relative">
+              {/* Decor elements */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -ml-5 -mb-5" />
+
+              <CardHeader className="relative z-10 pb-2">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <HelpCircle className="h-4 w-4 opacity-80" />
+                  Setup Guide
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="relative z-10 pt-0">
+                <div className="space-y-3 mb-5">
+                  <div className="flex items-center gap-3 text-sm font-medium text-indigo-100">
+                    <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">1</div>
+                    <span>Draft course structure</span>
                   </div>
-                  <Link href="/dashboard/teacher/courses/new">
-                    <Button size="sm" className="w-full bg-white text-indigo-600 hover:bg-indigo-50 border-0 font-semibold">
-                      Start Creating
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-               {/* Support Links */}
-              <Card className="border shadow-sm">
-                <CardHeader className="py-3 px-5 bg-slate-50 border-b border-slate-100">
-                  <CardTitle className="text-sm font-medium text-slate-600">Student Connection</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 space-y-3">
-                  <div className="flex items-center gap-3 text-sm text-slate-600">
-                    <CheckCircle className="h-4 w-4 text-green-500" /> <span>WhatsApp Group active</span>
+                  <div className="flex items-center gap-3 text-sm font-medium text-indigo-100">
+                    <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">2</div>
+                    <span>Upload video content</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-600">
-                    <CheckCircle className="h-4 w-4 text-green-500" /> <span>Support Email set</span>
+                  <div className="flex items-center gap-3 text-sm font-medium text-indigo-100">
+                    <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">3</div>
+                    <span>Publish & Share</span>
                   </div>
-                  <Button variant="outline" size="sm" className="w-full text-xs mt-2 h-8">Manage Settings</Button>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+                <Link href="/dashboard/teacher/courses/new">
+                  <Button size="sm" className="w-full bg-white text-indigo-600 hover:bg-indigo-50 border-0 font-semibold">
+                    Start Creating
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+            {/* Support Links */}
+            <Card className="border shadow-sm">
+              <CardHeader className="py-3 px-5 bg-slate-50 border-b border-slate-100">
+                <CardTitle className="text-sm font-medium text-slate-600">Student Connection</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center gap-3 text-sm text-slate-600">
+                  <CheckCircle className="h-4 w-4 text-green-500" /> <span>WhatsApp Group active</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-slate-600">
+                  <CheckCircle className="h-4 w-4 text-green-500" /> <span>Support Email set</span>
+                </div>
+                <Button variant="outline" size="sm" className="w-full text-xs mt-2 h-8">Manage Settings</Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </AuthenticatedLayout>
+
   );
 }

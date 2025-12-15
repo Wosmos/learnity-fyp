@@ -72,9 +72,9 @@ interface CourseCatalogPageProps {
   skipUrlUpdate?: boolean;
 }
 
-export default function CourseCatalogPage({ 
+export default function CourseCatalogPage({
   basePath = '/courses',
-  skipUrlUpdate = false 
+  skipUrlUpdate = false
 }: CourseCatalogPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -141,7 +141,7 @@ export default function CourseCatalogPage({
 
       const responseData = await response.json();
       const data: PaginatedResponse = responseData.data || responseData;
-      
+
       setCourses(data.courses || []);
       setTotalCourses(data.total || 0);
       setTotalPages(data.totalPages || 1);
@@ -156,7 +156,7 @@ export default function CourseCatalogPage({
   // Update URL with current filters
   const updateURL = useCallback(() => {
     if (skipUrlUpdate) return; // Skip URL updates when embedded
-    
+
     const params = new URLSearchParams();
     if (searchQuery) params.set('search', searchQuery);
     if (filters.categoryId) params.set('categoryId', filters.categoryId);
@@ -262,218 +262,218 @@ export default function CourseCatalogPage({
   };
 
   return (
-   
-      <div className="min-h-screen bg-slate-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-                    <BookOpen className="h-8 w-8 text-primary" />
-                    Course Catalog
-                  </h1>
-                  <p className="text-slate-600 mt-1">
-                    Discover {totalCourses > 0 ? `${totalCourses} courses` : 'courses'} to enhance your skills
-                  </p>
-                </div>
 
-                {/* View Mode Toggle (Desktop) */}
-                <div className="hidden md:flex items-center gap-2">
-                  <Button
-                    variant={viewMode === 'grid' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setViewMode('grid')}
-                  >
-                    <Grid3X3 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === 'list' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setViewMode('list')}
-                  >
-                    <List className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* Search Bar */}
-              <div className="flex gap-3">
-                <SearchInput
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  placeholder="Search courses by title, description, or tags..."
-                  isLoading={isLoading}
-                  className="flex-1 max-w-2xl"
-                />
-
-                {/* Mobile Filter Toggle */}
-                <Button
-                  variant="outline"
-                  
-                  onClick={() => setShowMobileFilters(true)}
-                >
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filters
-                </Button>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex gap-8">
-            {/* Main Content */}
-            <div className="flex-1 min-w-0">
-              {/* Desktop Filters Bar */}
-              <div className="hidden md:block lg:hidden mb-6">
-                {!isLoadingCategories && (
-                  <CourseFilters
-                    categories={categories}
-                    filters={filters}
-                    onFiltersChange={handleFiltersChange}
-                  />
-                )}
-              </div>
-
-              {/* Results Info */}
-              <div className="flex items-center justify-between mb-6">
-                <p className="text-sm text-muted-foreground">
-                  {isLoading ? (
-                    <Skeleton className="h-4 w-32 inline-block" />
-                  ) : (
-                    <>
-                      Showing {courses.length} of {totalCourses} courses
-                      {searchQuery && ` for "${searchQuery}"`}
-                    </>
-                  )}
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
+                  <BookOpen className="h-8 w-8 text-primary" />
+                  Course Catalog
+                </h1>
+                <p className="text-slate-600 mt-1">
+                  Discover {totalCourses > 0 ? `${totalCourses} courses` : 'courses'} to enhance your skills
                 </p>
               </div>
 
-              {/* Error State */}
-              {error && (
-                <Card className="mb-6 border-destructive">
-                  <CardContent className="py-4">
-                    <p className="text-destructive">{error}</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={fetchCourses}
-                      className="mt-2"
-                    >
-                      Try Again
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Course Grid/List */}
-              {isLoading ? (
-                <div
-                  className={cn(
-                    viewMode === 'grid'
-                      ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6'
-                      : 'flex flex-col gap-4'
-                  )}
-                >
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <CourseCardSkeleton key={i} size={viewMode} />
-                  ))}
-                </div>
-              ) : courses.length === 0 ? (
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No courses found</h3>
-                    <p className="text-muted-foreground mb-4">
-                      {searchQuery
-                        ? `No courses match "${searchQuery}". Try adjusting your search or filters.`
-                        : 'No courses match your current filters. Try adjusting them.'}
-                    </p>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSearchQuery('');
-                        setFilters({ sortBy: 'popular' });
-                        setCurrentPage(1);
-                      }}
-                    >
-                      Clear all filters
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div
-                  className={cn(
-                    viewMode === 'grid'
-                      ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6'
-                      : 'flex flex-col gap-4'
-                  )}
-                >
-                  {courses.map((course) => (
-                    <CourseCard
-                      key={course.id}
-                      id={course.id}
-                      title={course.title}
-                      description={course.description}
-                      thumbnailUrl={course.thumbnailUrl}
-                      teacherName={course.teacher?.name || 'Unknown Teacher'}
-                      teacherAvatarUrl={course.teacher?.avatarUrl}
-                      rating={Number(course.averageRating) || 0}
-                      reviewCount={course.reviewCount || 0}
-                      enrollmentCount={course.enrollmentCount || 0}
-                      difficulty={course.difficulty}
-                      totalDuration={course.totalDuration}
-                      lessonCount={course.lessonCount}
-                      isFree={course.isFree}
-                      price={course.price ? Number(course.price) : null}
-                      size={viewMode}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Pagination */}
-              {!isLoading && courses.length > 0 && <Pagination />}
-            </div>
-          </div>
-        </main>
-
-        {/* Mobile Filters Drawer */}
-        {showMobileFilters && (
-          <div className="fixed inset-0 z-50 ">
-            <div
-              className="absolute inset-0 bg-black/50"
-              onClick={() => setShowMobileFilters(false)}
-            />
-            <div className="absolute right-0 top-0 bottom-0 w-80 bg-white shadow-xl">
-              <div className="flex items-center justify-between p-4 border-b">
-                <h2 className="text-lg font-semibold">Filters</h2>
+              {/* View Mode Toggle (Desktop) */}
+              <div className="hidden md:flex items-center gap-2">
                 <Button
-                  variant="ghost"
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setShowMobileFilters(false)}
+                  onClick={() => setViewMode('grid')}
                 >
-                  <X className="h-5 w-5" />
+                  <Grid3X3 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                >
+                  <List className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="p-4 overflow-y-auto h-[calc(100%-60px)]">
-                {!isLoadingCategories && (
-                  <CourseFiltersCompact
-                    categories={categories}
-                    filters={filters}
-                    onFiltersChange={(newFilters) => {
-                      handleFiltersChange(newFilters);
-                      setShowMobileFilters(false);
-                    }}
-                  />
-                )}
-              </div>
+            </div>
+
+            {/* Search Bar */}
+            <div className="flex gap-3">
+              <SearchInput
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Search courses by title, description, or tags..."
+                isLoading={isLoading}
+                className="flex-1 max-w-2xl"
+              />
+
+              {/* Mobile Filter Toggle */}
+              <Button
+                variant="outline"
+
+                onClick={() => setShowMobileFilters(true)}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Filters
+              </Button>
             </div>
           </div>
-        )}
-      </div>
-   
+        </div>
+      </header>
+
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex gap-8">
+          {/* Main Content */}
+          <div className="flex-1 min-w-0">
+            {/* Desktop Filters Bar */}
+            <div className="hidden md:block lg:hidden mb-6">
+              {!isLoadingCategories && (
+                <CourseFilters
+                  categories={categories}
+                  filters={filters}
+                  onFiltersChange={handleFiltersChange}
+                />
+              )}
+            </div>
+
+            {/* Results Info */}
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-sm text-muted-foreground">
+                {isLoading ? (
+                  <Skeleton className="h-4 w-32 inline-block" />
+                ) : (
+                  <>
+                    Showing {courses.length} of {totalCourses} courses
+                    {searchQuery && ` for "${searchQuery}"`}
+                  </>
+                )}
+              </p>
+            </div>
+
+            {/* Error State */}
+            {error && (
+              <Card className="mb-6 border-destructive">
+                <CardContent className="py-4">
+                  <p className="text-destructive">{error}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchCourses}
+                    className="mt-2"
+                  >
+                    Try Again
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Course Grid/List */}
+            {isLoading ? (
+              <div
+                className={cn(
+                  viewMode === 'grid'
+                    ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6'
+                    : 'flex flex-col gap-4'
+                )}
+              >
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <CourseCardSkeleton key={i} size={viewMode} />
+                ))}
+              </div>
+            ) : courses.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No courses found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {searchQuery
+                      ? `No courses match "${searchQuery}". Try adjusting your search or filters.`
+                      : 'No courses match your current filters. Try adjusting them.'}
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setFilters({ sortBy: 'popular' });
+                      setCurrentPage(1);
+                    }}
+                  >
+                    Clear all filters
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div
+                className={cn(
+                  viewMode === 'grid'
+                    ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6'
+                    : 'flex flex-col gap-4'
+                )}
+              >
+                {courses.map((course) => (
+                  <CourseCard
+                    key={course.id}
+                    id={course.id}
+                    title={course.title}
+                    description={course.description}
+                    thumbnailUrl={course.thumbnailUrl}
+                    teacherName={course.teacher?.name || 'Unknown Teacher'}
+                    teacherAvatarUrl={course.teacher?.avatarUrl}
+                    rating={Number(course.averageRating) || 0}
+                    reviewCount={course.reviewCount || 0}
+                    enrollmentCount={course.enrollmentCount || 0}
+                    difficulty={course.difficulty}
+                    totalDuration={course.totalDuration}
+                    lessonCount={course.lessonCount}
+                    isFree={course.isFree}
+                    price={course.price ? Number(course.price) : null}
+                    size={viewMode}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {!isLoading && courses.length > 0 && <Pagination />}
+          </div>
+        </div>
+      </main>
+
+      {/* Mobile Filters Drawer */}
+      {showMobileFilters && (
+        <div className="fixed inset-0 z-50 ">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowMobileFilters(false)}
+          />
+          <div className="absolute right-0 top-0 bottom-0 w-80 bg-white shadow-xl">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-lg font-semibold">Filters</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMobileFilters(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="p-4 overflow-y-auto h-[calc(100%-60px)]">
+              {!isLoadingCategories && (
+                <CourseFiltersCompact
+                  categories={categories}
+                  filters={filters}
+                  onFiltersChange={(newFilters) => {
+                    handleFiltersChange(newFilters);
+                    setShowMobileFilters(false);
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+
   );
 }

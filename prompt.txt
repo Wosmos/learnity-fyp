@@ -1,7 +1,0 @@
-now student supppose to browser courses the courses page(which is being private page make it public page like teachers page jsut we did with teachers ) we build is for individual teacher i want you to make a public (like teachers ) courses page which will redirect student to start a course keep the previous flow in track (follow project structure and ui ux flow ) also a dedecated user flow , also why it redirect me to /profile/enhace when i am authenticated and at home page it should redirect me to dashboard page not that enhance profile page 
-
-
-
-  why are we using hard coded 50 xp points also how to also why we over engineer3ed the downloading pdf stuff that we are calling api to downlaoding the pdf where we could jsut use inbuild brower function to downlaod it explain me everything also i want you to make the certificate better  something liek this sing hard coded 50 xp points also how to also why we over engineer3ed the downloading pdf stuff that we are calling api to downlaoding the pdf where we could jsut use inbuild brower function to downlaod it explain me everything also i want you to make the certificate better  something liek this  
-
-  why not jsut simple 1 check or not even one why do we need check year permissioms on each admin page redirect i have permissions obviously thats why i am accessing these pages why not just redirect to the page already as it is with no time (show casing server side rendered page : if not make all admin pages server side rendered and then add skeleton loading to text only simple as that )

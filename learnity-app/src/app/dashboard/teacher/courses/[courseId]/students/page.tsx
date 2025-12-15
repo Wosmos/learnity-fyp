@@ -119,7 +119,7 @@ export default function CourseStudentsPage() {
   const [data, setData] = useState<StudentsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -145,7 +145,7 @@ export default function CourseStudentsPage() {
   // Fetch students data
   const fetchStudents = useCallback(async () => {
     if (!user || authLoading) return;
-    
+
     try {
       setIsLoading(true);
       setError(null);
@@ -154,23 +154,23 @@ export default function CourseStudentsPage() {
       const queryParams = new URLSearchParams();
       queryParams.set('page', currentPage.toString());
       queryParams.set('limit', '20');
-      
+
       if (statusFilter !== 'all') {
         queryParams.set('status', statusFilter);
       }
-      
+
       if (progressFilter !== 'all') {
         const [min, max] = progressFilter.split('-').map(Number);
         queryParams.set('minProgress', min.toString());
         queryParams.set('maxProgress', max.toString());
       }
-      
+
       if (debouncedSearch) {
         queryParams.set('search', debouncedSearch);
       }
 
       const response = await authenticatedFetch(`/api/courses/${courseId}/students?${queryParams.toString()}`);
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error?.message || errorData.message || 'Failed to fetch students');
@@ -211,7 +211,7 @@ export default function CourseStudentsPage() {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -233,7 +233,7 @@ export default function CourseStudentsPage() {
     return (
       <AuthenticatedLayout>
         <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Skeleton className="h-8 w-48 mb-8" />
             <div className="flex gap-4 mb-6">
               <Skeleton className="h-10 w-64" />
@@ -289,7 +289,7 @@ export default function CourseStudentsPage() {
     total: data.total,
     active: data.students.filter(s => s.status === 'ACTIVE').length,
     completed: data.students.filter(s => s.status === 'COMPLETED').length,
-    avgProgress: data.students.length > 0 
+    avgProgress: data.students.length > 0
       ? Math.round(data.students.reduce((sum, s) => sum + s.progress, 0) / data.students.length)
       : 0,
   } : { total: 0, active: 0, completed: 0, avgProgress: 0 };
@@ -320,7 +320,7 @@ export default function CourseStudentsPage() {
           }
         />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Stats Summary */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <Card className="border-0 shadow-sm">
@@ -392,7 +392,7 @@ export default function CourseStudentsPage() {
                     className="pl-10"
                   />
                 </div>
-                
+
                 {/* Status Filter */}
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="w-full md:w-40">
@@ -406,7 +406,7 @@ export default function CourseStudentsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                
+
                 {/* Progress Filter */}
                 <Select value={progressFilter} onValueChange={setProgressFilter}>
                   <SelectTrigger className="w-full md:w-40">
@@ -511,8 +511,8 @@ export default function CourseStudentsPage() {
                     {/* Progress */}
                     <div className="col-span-2 flex flex-col items-center justify-center gap-1">
                       <div className="flex items-center gap-2 w-full max-w-[120px]">
-                        <Progress 
-                          value={student.progress} 
+                        <Progress
+                          value={student.progress}
                           className={`h-2 flex-1 ${getProgressColor(student.progress)}`}
                         />
                         <span className="text-sm font-medium text-slate-700 w-10 text-right">
@@ -573,7 +573,7 @@ export default function CourseStudentsPage() {
                         } else {
                           pageNum = currentPage - 2 + i;
                         }
-                        
+
                         return (
                           <Button
                             key={pageNum}

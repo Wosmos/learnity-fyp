@@ -111,7 +111,7 @@ For each file:
 2. **Find the header block** (usually looks like):
    ```tsx
    <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200">
-     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
        <div className="flex justify-between items-center py-6">
          {/* ... content ... */}
        </div>

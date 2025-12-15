@@ -99,7 +99,7 @@ export default function PublicCoursesPage() {
   return (
     <div className="min-h-screen bg-[#02040a] text-white antialiased">
       {/* Noise Texture */}
-      <div 
+      <div
         className="fixed inset-0 pointer-events-none z-50 opacity-[0.04]"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
@@ -114,7 +114,7 @@ export default function PublicCoursesPage() {
 
       {/* Navbar */}
       <nav className="fixed w-full z-40 top-0 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center backdrop-blur-xl bg-white/5 border border-white/10 rounded-full px-6 py-3">
+        <div className="max-w-[1600px] mx-auto flex justify-between items-center backdrop-blur-xl bg-white/5 border border-white/10 rounded-full px-6 py-3">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-linear-to-br from-emerald-500 to-emerald-800 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
               L
@@ -126,7 +126,7 @@ export default function PublicCoursesPage() {
             <Link href="/teachers" className="hover:text-white transition-colors">Teachers</Link>
             <Link href="/auth/login" className="hover:text-white transition-colors">Login</Link>
           </div>
-          <Link 
+          <Link
             href="/auth/register"
             className="bg-white text-black px-5 py-2 rounded-full text-sm font-bold hover:scale-105 transition-all"
           >
@@ -136,7 +136,7 @@ export default function PublicCoursesPage() {
       </nav>
 
       {/* Hero Section */}
-      <header className="pt-32 pb-16 px-4 md:px-6 max-w-7xl mx-auto">
+      <header className="pt-32 pb-16 px-4 md:px-6 max-w-[1600px] mx-auto">
         <div className="text-center max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-xs font-bold text-emerald-400 mb-6">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -166,7 +166,7 @@ export default function PublicCoursesPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-transparent border-none outline-none text-white px-4 py-2 w-full placeholder-gray-500"
             />
-            <button 
+            <button
               onClick={() => fetchCourses()}
               className="bg-emerald-500 hover:bg-emerald-400 text-black px-6 py-2 rounded-full font-bold transition-colors"
             >
@@ -178,11 +178,10 @@ export default function PublicCoursesPage() {
           <div className="flex flex-wrap justify-center gap-2 mt-6 text-xs text-gray-500">
             <button
               onClick={() => setSelectedCategory('')}
-              className={`border px-3 py-1 rounded-full transition-colors ${
-                !selectedCategory 
-                  ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-400' 
+              className={`border px-3 py-1 rounded-full transition-colors ${!selectedCategory
+                  ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-400'
                   : 'border-white/10 hover:bg-white/5'
-              }`}
+                }`}
             >
               All
             </button>
@@ -190,11 +189,10 @@ export default function PublicCoursesPage() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`border px-3 py-1 rounded-full transition-colors ${
-                  selectedCategory === cat.id 
-                    ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-400' 
+                className={`border px-3 py-1 rounded-full transition-colors ${selectedCategory === cat.id
+                    ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-400'
                     : 'border-white/10 hover:bg-white/5'
-                }`}
+                  }`}
               >
                 {cat.name}
               </button>
@@ -205,7 +203,7 @@ export default function PublicCoursesPage() {
 
       {/* Stats Strip */}
       <section className="border-y border-white/5 bg-white/5">
-        <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div className="max-w-[1600px] mx-auto px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div>
             <p className="text-3xl font-bold text-white">{courses.length}+</p>
             <p className="text-xs text-gray-500 uppercase tracking-widest">Courses</p>
@@ -226,7 +224,7 @@ export default function PublicCoursesPage() {
       </section>
 
       {/* Courses Section */}
-      <section className="py-20 px-4 md:px-6 max-w-7xl mx-auto">
+      <section className="py-20 px-4 md:px-6 max-w-[1600px] mx-auto">
         <div className="flex justify-between items-end mb-12">
           <div>
             <h2 className="text-3xl md:text-5xl font-bold mb-2">Featured Courses</h2>
@@ -240,11 +238,10 @@ export default function PublicCoursesPage() {
             <button
               key={diff}
               onClick={() => setSelectedDifficulty(diff)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                selectedDifficulty === diff
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedDifficulty === diff
                   ? 'bg-emerald-500 text-black'
                   : 'bg-white/5 text-gray-400 hover:bg-white/10'
-              }`}
+                }`}
             >
               {diff ? difficultyConfig[diff as keyof typeof difficultyConfig].label : 'All Levels'}
             </button>
@@ -305,7 +302,7 @@ export default function PublicCoursesPage() {
 
       {/* Footer */}
       <footer className="border-t border-white/10 bg-black py-12">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="max-w-[1600px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-emerald-500 rounded flex items-center justify-center text-black font-bold text-xs">L</div>
             <span className="font-bold text-gray-300">Learnity</span>
@@ -331,7 +328,7 @@ function CourseCardPublic({ course }: { course: CourseData }) {
     INTERMEDIATE: 'bg-amber-500/20 text-amber-400 border-amber-500/20',
     ADVANCED: 'bg-rose-500/20 text-rose-400 border-rose-500/20',
   };
-  
+
   return (
     <Link href={`/courses/${course.id}`} className="group">
       <div className="relative h-[420px] rounded-[2rem] overflow-hidden border border-white/10 bg-[#050505] transition-all duration-300 hover:border-emerald-500/40 hover:bg-white/5">
@@ -352,7 +349,7 @@ function CourseCardPublic({ course }: { course: CourseData }) {
             </div>
           )}
           <div className="absolute inset-0 bg-linear-to-t from-[#050505] via-transparent to-transparent" />
-          
+
           {/* Badges */}
           <div className="absolute top-3 left-3 flex gap-2">
             <span className={`px-2 py-1 rounded-full text-xs font-bold border ${difficultyColorClasses[course.difficulty]}`}>
@@ -379,11 +376,11 @@ function CourseCardPublic({ course }: { course: CourseData }) {
               {course.category?.name || 'Course'}
             </span>
           </div>
-          
+
           <h3 className="text-xl font-bold text-white mb-2 line-clamp-2 group-hover:text-emerald-400 transition-colors">
             {course.title}
           </h3>
-          
+
           <p className="text-sm text-gray-400 line-clamp-2 mb-4">
             {course.description}
           </p>

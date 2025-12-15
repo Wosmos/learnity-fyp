@@ -12,11 +12,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useClientAuth } from '@/hooks/useClientAuth';
-import { 
-  GraduationCap, 
-  BookOpen, 
-  Users, 
-  ArrowRight, 
+import {
+  GraduationCap,
+  BookOpen,
+  Users,
+  ArrowRight,
   CheckCircle,
   User,
   Mail,
@@ -58,7 +58,7 @@ export default function WelcomePage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-blue-600 rounded-lg">
@@ -87,7 +87,7 @@ export default function WelcomePage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Hero */}
         <div className="text-center mb-12">
           <div className="mb-6">
@@ -99,10 +99,10 @@ export default function WelcomePage() {
             Welcome to Learnity, {userName}! 🎉
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-6">
-            You're just a few steps away from unlocking personalized learning experiences. 
+            You're just a few steps away from unlocking personalized learning experiences.
             Let's complete your profile to get started.
           </p>
-          
+
           {/* Profile Completion Progress */}
           <div className="max-w-md mx-auto">
             <div className="flex justify-between items-center mb-2">
@@ -148,17 +148,14 @@ export default function WelcomePage() {
           </Card>
 
           {/* Verify Email */}
-          <Card className={`hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-lg ${
-            !isEmailVerified ? 'ring-2 ring-orange-200' : ''
-          }`}>
+          <Card className={`hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-lg ${!isEmailVerified ? 'ring-2 ring-orange-200' : ''
+            }`}>
             <CardHeader>
               <div className="flex items-center space-x-3 mb-2">
-                <div className={`p-2 rounded-lg ${
-                  isEmailVerified ? 'bg-green-100' : 'bg-orange-100'
-                }`}>
-                  <Mail className={`h-5 w-5 ${
-                    isEmailVerified ? 'text-green-600' : 'text-orange-600'
-                  }`} />
+                <div className={`p-2 rounded-lg ${isEmailVerified ? 'bg-green-100' : 'bg-orange-100'
+                  }`}>
+                  <Mail className={`h-5 w-5 ${isEmailVerified ? 'text-green-600' : 'text-orange-600'
+                    }`} />
                 </div>
                 <CardTitle className="text-lg">Verify Email</CardTitle>
               </div>
@@ -311,7 +308,7 @@ export default function WelcomePage() {
               What happens next?
             </h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="mx-auto p-3 bg-blue-100 rounded-full w-fit mb-4">
@@ -322,7 +319,7 @@ export default function WelcomePage() {
                 Tell us about yourself and your learning goals
               </p>
             </div>
-            
+
             <div className="text-center">
               <div className="mx-auto p-3 bg-green-100 rounded-full w-fit mb-4">
                 <Target className="h-6 w-6 text-green-600" />
@@ -332,7 +329,7 @@ export default function WelcomePage() {
                 Customize your learning experience and interests
               </p>
             </div>
-            
+
             <div className="text-center">
               <div className="mx-auto p-3 bg-purple-100 rounded-full w-fit mb-4">
                 <Sparkles className="h-6 w-6 text-purple-600" />

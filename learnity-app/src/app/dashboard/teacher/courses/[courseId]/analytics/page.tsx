@@ -113,13 +113,13 @@ export default function CourseAnalyticsPage() {
 
   const fetchAnalytics = useCallback(async () => {
     if (!user || authLoading) return;
-    
+
     try {
       setIsLoading(true);
       setError(null);
 
       const response = await authenticatedFetch(`/api/courses/${courseId}/analytics`);
-      
+
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.error?.message || data.message || 'Failed to fetch analytics');
@@ -168,7 +168,7 @@ export default function CourseAnalyticsPage() {
     return (
       <AuthenticatedLayout>
         <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Skeleton className="h-8 w-48 mb-8" />
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
               {[1, 2, 3, 4].map((i) => (
@@ -241,7 +241,7 @@ export default function CourseAnalyticsPage() {
           }
         />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Overview Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <Card className="border-0 shadow-sm">
@@ -362,7 +362,7 @@ export default function CourseAnalyticsPage() {
                     const count = ratingDistribution[rating as keyof typeof ratingDistribution];
                     const total = Object.values(ratingDistribution).reduce((a, b) => a + b, 0);
                     const percentage = total > 0 ? (count / total) * 100 : 0;
-                    
+
                     return (
                       <div key={rating} className="flex items-center gap-3">
                         <div className="flex items-center gap-1 w-12">

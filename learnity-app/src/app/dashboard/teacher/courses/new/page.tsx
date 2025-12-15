@@ -9,8 +9,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { AuthenticatedLayout } from '@/components/layout/AppLayout';
-import { ClientTeacherProtection } from '@/components/auth/ClientTeacherProtection';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,7 +40,7 @@ export default function NewCoursePage() {
 
   const [isCreating, setIsCreating] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
-  
+
   // Form data
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -120,144 +119,137 @@ export default function NewCoursePage() {
 
   if (authLoading) {
     return (
-      <ClientTeacherProtection>
-        <AuthenticatedLayout>
-          <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          </div>
-        </AuthenticatedLayout>
-      </ClientTeacherProtection>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
     );
   }
 
   return (
-    <ClientTeacherProtection>
-      <AuthenticatedLayout>
-        <div className="min-h-screen bg-slate-50">
-          {/* Header */}
-          <header className="bg-white shadow-sm border-b">
-            <div className="max-w-7xl mx-auto px-4">
-              <div className="flex items-center gap-4 py-4">
-                <Link href="/dashboard/teacher/courses">
-                  <Button variant="ghost" size="sm">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
-                  </Button>
-                </Link>
-                <div>
-                  <h1 className="text-lg font-bold text-slate-900">Create New Course</h1>
-                  <p className="text-sm text-slate-500">Start with the basics, add content later</p>
-                </div>
+
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-[1600px] mx-auto px-4">
+          <div className="flex items-center gap-4 py-4">
+            <Link href="/dashboard/teacher/courses">
+              <Button variant="ghost" size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-lg font-bold text-slate-900">Create New Course</h1>
+              <p className="text-sm text-slate-500">Start with the basics, add content later</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-[1600px] mx-auto px-4 py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5" />
+              Course Details
+            </CardTitle>
+            <CardDescription>
+              Fill in the basic information to create your course. You can add sections and lessons after.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="title">Course Title *</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Introduction to Web Development"
+              />
+              <p className="text-xs text-slate-500">Choose a clear, descriptive title (3-100 characters)</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description *</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe what students will learn in this course..."
+                rows={4}
+              />
+              <p className="text-xs text-slate-500">Explain what the course covers (10-2000 characters)</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="category">Category *</Label>
+                <Select value={categoryId} onValueChange={setCategoryId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="difficulty">Difficulty Level</Label>
+                <Select
+                  value={difficulty}
+                  onValueChange={(v: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED') => setDifficulty(v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BEGINNER">Beginner</SelectItem>
+                    <SelectItem value="INTERMEDIATE">Intermediate</SelectItem>
+                    <SelectItem value="ADVANCED">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-          </header>
 
-          <main className="max-w-7xl mx-auto px-4 py-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
-                  Course Details
-                </CardTitle>
-                <CardDescription>
-                  Fill in the basic information to create your course. You can add sections and lessons after.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Course Title *</Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g., Introduction to Web Development"
-                  />
-                  <p className="text-xs text-slate-500">Choose a clear, descriptive title (3-100 characters)</p>
-                </div>
+            <div className="pt-4 flex justify-end gap-3">
+              <Link href="/dashboard/teacher/courses">
+                <Button variant="outline">Cancel</Button>
+              </Link>
+              <Button
+                onClick={handleCreate}
+                disabled={isCreating || !title.trim() || !description.trim() || !categoryId}
+              >
+                {isCreating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  'Create Course'
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description *</Label>
-                  <Textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Describe what students will learn in this course..."
-                    rows={4}
-                  />
-                  <p className="text-xs text-slate-500">Explain what the course covers (10-2000 characters)</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category *</Label>
-                    <Select value={categoryId} onValueChange={setCategoryId}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="difficulty">Difficulty Level</Label>
-                    <Select 
-                      value={difficulty} 
-                      onValueChange={(v: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED') => setDifficulty(v)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="BEGINNER">Beginner</SelectItem>
-                        <SelectItem value="INTERMEDIATE">Intermediate</SelectItem>
-                        <SelectItem value="ADVANCED">Advanced</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="pt-4 flex justify-end gap-3">
-                  <Link href="/dashboard/teacher/courses">
-                    <Button variant="outline">Cancel</Button>
-                  </Link>
-                  <Button 
-                    onClick={handleCreate} 
-                    disabled={isCreating || !title.trim() || !description.trim() || !categoryId}
-                  >
-                    {isCreating ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Creating...
-                      </>
-                    ) : (
-                      'Create Course'
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Help Section */}
-            <Card className="mt-6 bg-blue-50 border-blue-200">
-              <CardContent className="py-4">
-                <h3 className="font-medium text-blue-900 mb-2">What happens next?</h3>
-                <ol className="text-sm text-blue-800 space-y-1">
-                  <li>1. After creating, you&apos;ll be taken to the course editor</li>
-                  <li>2. Add sections to organize your content (like chapters)</li>
-                  <li>3. Add video lessons to each section using YouTube links</li>
-                  <li>4. When ready, publish your course for students to enroll</li>
-                </ol>
-              </CardContent>
-            </Card>
-          </main>
-        </div>
-      </AuthenticatedLayout>
-    </ClientTeacherProtection>
+        {/* Help Section */}
+        <Card className="mt-6 bg-blue-50 border-blue-200">
+          <CardContent className="py-4">
+            <h3 className="font-medium text-blue-900 mb-2">What happens next?</h3>
+            <ol className="text-sm text-blue-800 space-y-1">
+              <li>1. After creating, you&apos;ll be taken to the course editor</li>
+              <li>2. Add sections to organize your content (like chapters)</li>
+              <li>3. Add video lessons to each section using YouTube links</li>
+              <li>4. When ready, publish your course for students to enroll</li>
+            </ol>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
   );
 }

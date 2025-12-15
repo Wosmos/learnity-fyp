@@ -1,3 +1,4 @@
+import { AdminRoute } from '@/components/auth';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -10,5 +11,5 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <AdminRoute>{children}</AdminRoute>;
 }

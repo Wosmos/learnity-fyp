@@ -10,7 +10,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { AuthenticatedLayout } from '@/components/layout/AppLayout';
+
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -98,7 +98,7 @@ export default function TeacherCoursesPage() {
   const router = useRouter();
   const { toast } = useToast();
   const authenticatedFetch = useAuthenticatedFetch();
-  
+
   const [courses, setCourses] = useState<TeacherCourse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -109,7 +109,7 @@ export default function TeacherCoursesPage() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await authenticatedFetch('/api/courses?teacherOnly=true');
 
       if (!response.ok) {
@@ -155,7 +155,7 @@ export default function TeacherCoursesPage() {
         title: 'Success',
         description: 'Course published successfully!',
       });
-      
+
       fetchCourses();
     } catch (err) {
       toast({
@@ -185,7 +185,7 @@ export default function TeacherCoursesPage() {
         title: 'Success',
         description: 'Course unpublished successfully!',
       });
-      
+
       fetchCourses();
     } catch (err) {
       toast({
@@ -219,7 +219,7 @@ export default function TeacherCoursesPage() {
         title: 'Success',
         description: 'Course deleted successfully!',
       });
-      
+
       fetchCourses();
     } catch (err) {
       toast({
@@ -244,167 +244,165 @@ export default function TeacherCoursesPage() {
 
   if (authLoading || isLoading) {
     return (
-      <AuthenticatedLayout>
-        <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex justify-between items-center mb-8">
-              <Skeleton className="h-8 w-48" />
-              <Skeleton className="h-10 w-32" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <CourseCardSkeleton key={i} />
-              ))}
-            </div>
+
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex justify-between items-center mb-8">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <CourseCardSkeleton key={i} />
+            ))}
           </div>
         </div>
-      </AuthenticatedLayout>
+      </div>
+
     );
   }
 
   return (
-    <AuthenticatedLayout>
-      <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100">
-        {/* Header */}
-        <PageHeader
-          title="My Courses"
-          subtitle="Manage and track your course content"
-          icon={BookOpen}
-          actions={
-            <Link href="/dashboard/teacher/courses/new">
-              <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
-                <Plus className="h-4 w-4" />
-                Create Course
-              </Button>
-            </Link>
-          }
-        />
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-50 to-slate-100">
+      {/* Header */}
+      <PageHeader
+        title="My Courses"
+        subtitle="Manage and track your course content"
+        icon={BookOpen}
+        actions={
+          <Link href="/dashboard/teacher/courses/new">
+            <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+              <Plus className="h-4 w-4" />
+              Create Course
+            </Button>
+          </Link>
+        }
+      />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Stats Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <Card className="border-0 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-500">Total Courses</p>
-                    <p className="text-2xl font-bold text-slate-900">{courses.length}</p>
-                  </div>
-                  <div className="p-3 bg-blue-100 rounded-lg">
-                    <BookOpen className="h-5 w-5 text-blue-600" />
-                  </div>
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Card className="border-0 shadow-sm">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-500">Total Courses</p>
+                  <p className="text-2xl font-bold text-slate-900">{courses.length}</p>
                 </div>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-500">Published</p>
-                    <p className="text-2xl font-bold text-emerald-600">
-                      {courses.filter(c => c.status === 'PUBLISHED').length}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-emerald-100 rounded-lg">
-                    <Globe className="h-5 w-5 text-emerald-600" />
-                  </div>
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <BookOpen className="h-5 w-5 text-blue-600" />
                 </div>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-500">Total Students</p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {courses.reduce((sum, c) => sum + c.enrollmentCount, 0)}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-indigo-100 rounded-lg">
-                    <Users className="h-5 w-5 text-indigo-600" />
-                  </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-0 shadow-sm">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-500">Published</p>
+                  <p className="text-2xl font-bold text-emerald-600">
+                    {courses.filter(c => c.status === 'PUBLISHED').length}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-500">Avg. Rating</p>
-                    <p className="text-2xl font-bold text-amber-600">
-                      {courses.length > 0
-                        ? (courses.reduce((sum, c) => sum + c.averageRating, 0) / courses.length).toFixed(1)
-                        : '0.0'}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-amber-100 rounded-lg">
-                    <Star className="h-5 w-5 text-amber-600" />
-                  </div>
+                <div className="p-3 bg-emerald-100 rounded-lg">
+                  <Globe className="h-5 w-5 text-emerald-600" />
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Error State */}
-          {error && (
-            <Card className="border-red-200 bg-red-50 mb-8">
-              <CardContent className="flex items-center gap-3 py-4">
-                <AlertCircle className="h-5 w-5 text-red-600" />
-                <p className="text-red-700">{error}</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={fetchCourses}
-                  className="ml-auto"
-                >
-                  Retry
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Empty State */}
-          {!error && courses.length === 0 && (
-            <Card className="border-0 shadow-md">
-              <CardContent className="flex flex-col items-center justify-center py-16">
-                <div className="p-4 bg-slate-100 rounded-full mb-4">
-                  <BookOpen className="h-12 w-12 text-slate-400" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-0 shadow-sm">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-500">Total Students</p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {courses.reduce((sum, c) => sum + c.enrollmentCount, 0)}
+                  </p>
                 </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">
-                  No courses yet
-                </h3>
-                <p className="text-slate-500 text-center mb-6 max-w-md">
-                  Start creating your first course to share your knowledge with students around the world.
-                </p>
-                <Link href="/dashboard/teacher/courses/new">
-                  <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
-                    <Plus className="h-4 w-4" />
-                    Create Your First Course
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Courses Grid */}
-          {courses.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  course={course}
-                  isLoading={actionLoading === course.id}
-                  onPublish={() => handlePublish(course.id)}
-                  onUnpublish={() => handleUnpublish(course.id)}
-                  onDelete={() => handleDelete(course.id)}
-                  formatDuration={formatDuration}
-                />
-              ))}
-            </div>
-          )}
+                <div className="p-3 bg-indigo-100 rounded-lg">
+                  <Users className="h-5 w-5 text-indigo-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-0 shadow-sm">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-500">Avg. Rating</p>
+                  <p className="text-2xl font-bold text-amber-600">
+                    {courses.length > 0
+                      ? (courses.reduce((sum, c) => sum + c.averageRating, 0) / courses.length).toFixed(1)
+                      : '0.0'}
+                  </p>
+                </div>
+                <div className="p-3 bg-amber-100 rounded-lg">
+                  <Star className="h-5 w-5 text-amber-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Error State */}
+        {error && (
+          <Card className="border-red-200 bg-red-50 mb-8">
+            <CardContent className="flex items-center gap-3 py-4">
+              <AlertCircle className="h-5 w-5 text-red-600" />
+              <p className="text-red-700">{error}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchCourses}
+                className="ml-auto"
+              >
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Empty State */}
+        {!error && courses.length === 0 && (
+          <Card className="border-0 shadow-md">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="p-4 bg-slate-100 rounded-full mb-4">
+                <BookOpen className="h-12 w-12 text-slate-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                No courses yet
+              </h3>
+              <p className="text-slate-500 text-center mb-6 max-w-md">
+                Start creating your first course to share your knowledge with students around the world.
+              </p>
+              <Link href="/dashboard/teacher/courses/new">
+                <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
+                  <Plus className="h-4 w-4" />
+                  Create Your First Course
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Courses Grid */}
+        {courses.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {courses.map((course) => (
+              <CourseCard
+                key={course.id}
+                course={course}
+                isLoading={actionLoading === course.id}
+                onPublish={() => handlePublish(course.id)}
+                onUnpublish={() => handleUnpublish(course.id)}
+                onDelete={() => handleDelete(course.id)}
+                formatDuration={formatDuration}
+              />
+            ))}
+          </div>
+        )}
       </div>
-    </AuthenticatedLayout>
+    </div>
   );
 }
 
@@ -426,7 +424,7 @@ function CourseCard({
   onDelete,
   formatDuration,
 }: CourseCardProps) {
-  
+
   const status = statusConfig[course.status];
   const StatusIcon = status.icon;
 
@@ -446,7 +444,7 @@ function CourseCard({
             <BookOpen className="h-12 w-12 text-blue-300" />
           </div>
         )}
-        
+
         {/* Status Badge */}
         <Badge className={`absolute top-3 left-3 ${status.className}`}>
           <StatusIcon className="h-3 w-3 mr-1" />
@@ -496,7 +494,7 @@ function CourseCard({
               Edit
             </Button>
           </Link>
-          
+
           <Link href={`/dashboard/teacher/courses/${course.id}/analytics`}>
             <Button variant="outline" size="sm" className="gap-2">
               <BarChart3 className="h-4 w-4" />
