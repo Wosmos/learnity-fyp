@@ -6,7 +6,7 @@
  * Requirements: 3.1, 3.2, 3.3, 3.4 - Course discovery and browsing
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -72,7 +72,7 @@ interface CourseCatalogPageProps {
   skipUrlUpdate?: boolean;
 }
 
-export default function CourseCatalogPage({
+function CourseCatalogContent({
   basePath = '/courses',
   skipUrlUpdate = false
 }: CourseCatalogPageProps) {
@@ -475,5 +475,20 @@ export default function CourseCatalogPage({
       )}
     </div>
 
+  );
+}
+
+export default function CourseCatalogPage(props: CourseCatalogPageProps) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <Skeleton className="h-12 w-12 rounded-full mx-auto mb-4" />
+          <Skeleton className="h-4 w-48 rounded mx-auto" />
+        </div>
+      </div>
+    }>
+      <CourseCatalogContent {...props} />
+    </Suspense>
   );
 }

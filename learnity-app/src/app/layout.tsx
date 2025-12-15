@@ -4,6 +4,7 @@ import { AppProviders } from "@/components/providers/AppProviders";
 import { Toaster } from "@/components/ui/toaster";
 import { GlobalLoadingIndicator } from "@/components/shared/GlobalLoadingIndicator";
 import "./globals.css";
+import React from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -115,7 +116,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AppProviders>
-          <GlobalLoadingIndicator />
+          <React.Suspense fallback={null}>
+            <GlobalLoadingIndicator />
+          </React.Suspense>
           {children}
           <Toaster />
         </AppProviders>
