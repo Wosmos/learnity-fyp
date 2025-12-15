@@ -150,6 +150,8 @@ export interface CreateProfileData {
   role: UserRole;
   emailVerified?: boolean;
   profilePicture?: string;
+  authProvider?: string;
+  socialProviders?: string[];
   studentProfile?: {
     gradeLevel?: string;
     subjects?: string[];

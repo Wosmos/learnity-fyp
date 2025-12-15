@@ -65,20 +65,26 @@ export {
   type MobileAuthLayoutProps
 } from './MobileAuthLayout';
 
-export {
-  default as MobileLoginForm,
-  type MobileLoginFormProps
-} from './MobileLoginForm';
+// MobileLoginForm has been merged into LoginForm
+// This export is kept for backward compatibility but will be removed
+export type { LoginFormProps as MobileLoginFormProps } from './LoginForm';
 
-export {
-  default as MobileRegistrationFlow,
-  type MobileRegistrationFlowProps
-} from './MobileRegistrationFlow';
+// MobileRegistrationFlow has been merged into RegistrationFlow
+// This export is kept for backward compatibility but will be removed
+export type { RegistrationFlowProps as MobileRegistrationFlowProps } from './RegistrationFlow';
 
 export {
   default as ResponsiveAuthRouter,
   type ResponsiveAuthRouterProps
 } from './ResponsiveAuthRouter';
+
+// Protected Route Components
+export {
+  ProtectedRoute,
+  AdminRoute,
+  TeacherRoute,
+  StudentRoute
+} from './ProtectedRoute';
 
 // Client-safe hooks
 export { useAuthService } from '../../hooks/useAuthService';

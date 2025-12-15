@@ -35,7 +35,7 @@ const roleOptions: RoleOption[] = [
       'Mobile-optimized learning experience'
     ],
     icon: GraduationCap,
-    color: 'border-blue-200 hover:border-blue-300 bg-blue-50/50',
+    color: 'border-blue-200 hover:border-blue-300 bg-slate-50/50',
     available: true
   },
   {
@@ -52,32 +52,19 @@ const roleOptions: RoleOption[] = [
     icon: BookOpen,
     color: 'border-green-200 hover:border-green-300 bg-green-50/50',
     available: true
-  },
-  {
-    role: UserRole.ADMIN,
-    title: 'Administrator',
-    description: 'Platform management and oversight (Invitation only)',
-    features: [
-      'Full platform management access',
-      'User and content moderation',
-      'Teacher application review and approval',
-      'Analytics and reporting dashboard',
-      'System configuration and settings'
-    ],
-    icon: Shield,
-    color: 'border-purple-200 hover:border-purple-300 bg-purple-50/50',
-    available: false
   }
 ];
 
 export interface RoleSelectionProps {
   onRoleSelect: (role: UserRole) => void;
   className?: string;
+  showUnavailableRoles?: boolean; // For admin setup pages
 }
 
 export const RoleSelection: React.FC<RoleSelectionProps> = ({
   onRoleSelect,
-  className = ''
+  className = '',
+  showUnavailableRoles = false
 }) => {
   const { selectedRole, setSelectedRole, setRegistrationStep } = useAuthStore();
 
@@ -85,14 +72,19 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({
     if (!roleOptions.find(option => option.role === role)?.available) {
       return;
     }
-    
+
     setSelectedRole(role);
     setRegistrationStep('form');
     onRoleSelect(role);
   };
 
+  // Filter roles - only show available roles by default, or all if showUnavailableRoles is true
+  const visibleRoles = showUnavailableRoles
+    ? roleOptions
+    : roleOptions.filter(option => option.available);
+
   return (
-    <div className={`w-full max-w-6xl mx-auto p-6 ${className}`}>
+    <div className={`w-full mx-auto px-2 p-6 ${className}`}>
       {/* Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center mb-4">
@@ -105,8 +97,8 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({
       </div>
 
       {/* Role Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {roleOptions.map((option) => {
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {visibleRoles.map((option) => {
           const IconComponent = option.icon;
           const isSelected = selectedRole === option.role;
           const isDisabled = !option.available;
@@ -127,12 +119,12 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({
                   Invitation Only
                 </div>
               )}
-              
+
               <CardHeader className="pb-4">
                 <div className="flex items-center space-x-3">
                   <div className={`
                     p-3 rounded-lg
-                    ${option.role === UserRole.STUDENT ? 'bg-blue-100 text-blue-600' : ''}
+                    ${option.role === UserRole.STUDENT ? 'bg-slate-100 text-blue-600' : ''}
                     ${option.role === UserRole.TEACHER ? 'bg-green-100 text-green-600' : ''}
                     ${option.role === UserRole.ADMIN ? 'bg-purple-100 text-purple-600' : ''}
                   `}>
@@ -162,7 +154,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({
                 <Button
                   className={`
                     w-full font-medium
-                    ${option.role === UserRole.STUDENT ? 'bg-blue-600 hover:bg-blue-700' : ''}
+                    ${option.role === UserRole.STUDENT ? 'bg-slate-600 hover:bg-slate-700' : ''}
                     ${option.role === UserRole.TEACHER ? 'bg-green-600 hover:bg-green-700' : ''}
                     ${option.role === UserRole.ADMIN ? 'bg-purple-600 hover:bg-purple-700' : ''}
                     ${isDisabled ? 'bg-gray-400 cursor-not-allowed' : ''}

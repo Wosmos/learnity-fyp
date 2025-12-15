@@ -6,8 +6,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth } from '@/lib/config/firebase-admin';
 import { DecodedIdToken } from 'firebase-admin/auth';
+import { authMiddleware } from '@/lib/middleware/auth.middleware';
+import { UserRole, AuthErrorCode } from '@/types/auth';
 
 export interface AuthResult {
+  user?: {
+    id: string;
+    email: string;
+    role: UserRole;
+  };
   success: boolean;
   decodedToken?: DecodedIdToken;
   error?: string;
@@ -238,4 +245,133 @@ export async function authenticateApiRequest(
       uid: decodedToken.uid
     };
   }
+}
+/*
+*
+ * Create standardized API success response
+ */
+export function createApiSuccessResponse(
+  data: any,
+  message: string = 'Success'
+): NextResponse {
+  return NextResponse.json({
+    success: true,
+    message,
+    data
+  });
+}
+
+/**
+ * Create standardized API error response
+ */
+export function createApiErrorResponse(
+  code: AuthErrorCode | string,
+  message: string,
+  status: number = 400
+): NextResponse {
+  return NextResponse.json({
+    success: false,
+    error: {
+      code,
+      message
+    }
+  }, { status });
+}
+
+/**
+ * Validate HTTP method
+ */
+export function validateMethod(
+  request: NextRequest,
+  allowedMethods: string[]
+): NextResponse | null {
+  if (!allowedMethods.includes(request.method)) {
+    return createApiErrorResponse(
+      'METHOD_NOT_ALLOWED',
+      `Method ${request.method} not allowed. Allowed methods: ${allowedMethods.join(', ')}`,
+      405
+    );
+  }
+  return null;
+}
+
+/**
+ * Parse request body safely
+ */
+export async function parseRequestBody(request: NextRequest): Promise<any | null> {
+  try {
+    return await request.json();
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Higher-order function for admin-only API routes
+ */
+export function withAdminApiAuth(
+  handler: (request: NextRequest, user: any) => Promise<NextResponse>
+) {
+  return async (request: NextRequest): Promise<NextResponse> => {
+    const authResult = await authMiddleware(request, { requiredRole: UserRole.ADMIN });
+    
+    if (authResult instanceof NextResponse) {
+      return authResult; // Return error response
+    }
+
+    return handler(request, authResult.user);
+  };
+}
+
+/**
+ * Higher-order function for teacher-only API routes
+ */
+export function withTeacherApiAuth(
+  handler: (request: NextRequest, user: any) => Promise<NextResponse>
+) {
+  return async (request: NextRequest): Promise<NextResponse> => {
+    const authResult = await authMiddleware(request, { 
+      allowMultipleRoles: [UserRole.TEACHER, UserRole.ADMIN] 
+    });
+    
+    if (authResult instanceof NextResponse) {
+      return authResult; // Return error response
+    }
+
+    return handler(request, authResult.user);
+  };
+}
+
+/**
+ * Higher-order function for student-only API routes
+ */
+export function withStudentApiAuth(
+  handler: (request: NextRequest, user: any) => Promise<NextResponse>
+) {
+  return async (request: NextRequest): Promise<NextResponse> => {
+    const authResult = await authMiddleware(request, { requiredRole: UserRole.STUDENT });
+    
+    if (authResult instanceof NextResponse) {
+      return authResult; // Return error response
+    }
+
+    return handler(request, authResult.user);
+  };
+}
+
+/**
+ * Higher-order function for any authenticated user API routes
+ */
+export function withApiAuth(
+  handler: (request: NextRequest, user: unknown) => Promise<NextResponse>
+) {
+  return async (request: NextRequest): Promise<NextResponse> => {
+    const authResult = await authMiddleware(request);
+    
+    if (authResult instanceof NextResponse) {
+      return authResult; // Return error response
+    }
+
+    return handler(request, authResult.user);
+  };
 }

@@ -193,7 +193,7 @@ export function handleApiError(error: any): NextResponse {
 /**
  * Async wrapper for API route handlers with error handling
  */
-export function withErrorHandling<T extends any[], R>(
+export function withErrorHandling<T extends any[]>(
   handler: (...args: T) => Promise<NextResponse>
 ) {
   return async (...args: T): Promise<NextResponse> => {

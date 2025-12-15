@@ -68,6 +68,11 @@ export class DatabaseUtils {
           'update:application'
         ];
       
+      case UserRole.REJECTED_TEACHER:
+        return [
+          'view:application_status'
+        ];
+      
       case UserRole.ADMIN:
         return [
           'view:admin_panel',
@@ -88,7 +93,8 @@ export class DatabaseUtils {
   static canTransitionToRole(currentRole: UserRole, newRole: UserRole): boolean {
     const allowedTransitions: Record<UserRole, UserRole[]> = {
       [UserRole.STUDENT]: [], // Students cannot change roles directly
-      [UserRole.PENDING_TEACHER]: [UserRole.TEACHER], // Can be approved to teacher
+      [UserRole.PENDING_TEACHER]: [UserRole.TEACHER, UserRole.REJECTED_TEACHER], // Can be approved or rejected
+      [UserRole.REJECTED_TEACHER]: [UserRole.PENDING_TEACHER], // Can reapply
       [UserRole.TEACHER]: [], // Teachers cannot change roles directly
       [UserRole.ADMIN]: [UserRole.STUDENT, UserRole.TEACHER] // Admins can assign roles
     };
@@ -99,7 +105,7 @@ export class DatabaseUtils {
   /**
    * Generate audit log metadata
    */
-  static generateAuditMetadata(action: string, additionalData?: Record<string, any>): Record<string, any> {
+  static generateAuditMetadata(action: string, additionalData?: Record<string, any>): Record<string, unknown> {
     return {
       timestamp: new Date().toISOString(),
       action,

@@ -6,32 +6,29 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { StudentRegistrationData, TeacherRegistrationData, LoginData } from '@/lib/validators/auth';
+import { StudentRegistrationData, LoginData } from '@/lib/validators/auth';
+import { QuickTeacherRegistrationData } from '@/lib/validators/quick-teacher-registration';
 import { useAuthStore } from '@/lib/stores/auth.store';
 
-// Desktop components
+// Unified responsive components
 import LoginForm from './LoginForm';
 import RegistrationFlow from './RegistrationFlow';
 import PasswordResetRequestForm from './PasswordResetRequestForm';
 import PasswordResetForm from './PasswordResetForm';
 
-// Mobile components
-import MobileLoginForm from './MobileLoginForm';
-import MobileRegistrationFlow from './MobileRegistrationFlow';
-
 export interface ResponsiveAuthRouterProps {
   // Authentication handlers
   onLogin: (data: LoginData) => Promise<void>;
   onStudentRegister: (data: StudentRegistrationData) => Promise<void>;
-  onTeacherRegister: (data: TeacherRegistrationData) => Promise<void>;
+  onTeacherRegister: (data: QuickTeacherRegistrationData) => Promise<void>;
   onSocialLogin: (provider: 'google' | 'microsoft') => Promise<void>;
   onPasswordResetRequest: (email: string) => Promise<void>;
   onPasswordReset: (data: { password: string; token: string }) => Promise<void>;
-  
+
   // Navigation
   initialView?: 'login' | 'register' | 'forgot-password' | 'reset-password';
   resetToken?: string;
-  
+
   // Configuration
   requireCaptcha?: boolean;
   className?: string;
@@ -58,18 +55,18 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
   // Detect mobile device and screen size
   useEffect(() => {
     setIsClient(true);
-    
+
     const checkMobile = () => {
       const userAgent = navigator.userAgent;
       const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
       const isSmallScreen = window.innerWidth < 768; // md breakpoint
-      
+
       setIsMobile(isMobileDevice || isSmallScreen);
     };
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -95,30 +92,32 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
         <div className="animate-pulse">
-          <div className="w-8 h-8 bg-blue-600 rounded-full"></div>
+          <div className="w-8 h-8 bg-slate-600 rounded-full"></div>
         </div>
       </div>
     );
   }
 
-  // Mobile components
+  // Mobile components (now using unified responsive components)
   if (isMobile) {
     switch (currentView) {
       case 'login':
         return (
-          <MobileLoginForm
-            onSubmit={onLogin}
-            onForgotPassword={() => handleViewChange('forgot-password')}
-            onSignUp={() => handleViewChange('register')}
-            onSocialLogin={onSocialLogin}
-            requireCaptcha={requireCaptcha}
-            className={className}
-          />
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+            <LoginForm
+              onSubmit={onLogin}
+              onForgotPassword={() => handleViewChange('forgot-password')}
+              onSignUp={() => handleViewChange('register')}
+              onSocialLogin={onSocialLogin}
+              requireCaptcha={requireCaptcha}
+              className={className}
+            />
+          </div>
         );
 
       case 'register':
         return (
-          <MobileRegistrationFlow
+          <RegistrationFlow
             onStudentRegister={onStudentRegister}
             onTeacherRegister={onTeacherRegister}
             onBackToLogin={() => handleViewChange('login')}
@@ -150,7 +149,7 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
             ) : (
               <div className="text-center">
                 <p className="text-red-600">Invalid or missing reset token</p>
-                <button 
+                <button
                   onClick={() => handleViewChange('login')}
                   className="text-blue-600 hover:text-blue-700 underline mt-2"
                 >
@@ -215,7 +214,7 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
           ) : (
             <div className="text-center">
               <p className="text-red-600">Invalid or missing reset token</p>
-              <button 
+              <button
                 onClick={() => handleViewChange('login')}
                 className="text-blue-600 hover:text-blue-700 underline mt-2"
               >

@@ -14,6 +14,8 @@ export interface CustomClaims {
   permissions: Permission[];
   profileComplete: boolean;
   emailVerified: boolean;
+  profileId?: string;
+  lastLoginAt?: string;
 }
 
 // User Profile Types
@@ -77,7 +79,8 @@ export enum UserRole {
   STUDENT = 'STUDENT',
   TEACHER = 'TEACHER',
   ADMIN = 'ADMIN',
-  PENDING_TEACHER = 'PENDING_TEACHER'
+  PENDING_TEACHER = 'PENDING_TEACHER',
+  REJECTED_TEACHER = 'REJECTED_TEACHER'
 }
 
 export enum Permission {

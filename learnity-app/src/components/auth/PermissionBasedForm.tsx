@@ -61,15 +61,15 @@ export function PermissionBasedField({
 
   // Check permission access
   let hasAccess = true;
-  
+
   if (permission && !claims.permissions.includes(permission)) {
     hasAccess = false;
   }
-  
+
   if (role && claims.role !== role) {
     hasAccess = false;
   }
-  
+
   if (roles && !roles.includes(claims.role)) {
     hasAccess = false;
   }
@@ -112,8 +112,8 @@ export function PermissionBasedButton({
 
   if (loading) {
     return (
-      <button 
-        disabled 
+      <button
+        disabled
         className={`${className} opacity-50 cursor-not-allowed`}
         {...props}
       >
@@ -124,8 +124,8 @@ export function PermissionBasedButton({
 
   if (!claims) {
     return (
-      <button 
-        disabled 
+      <button
+        disabled
         className={`${className} opacity-50 cursor-not-allowed`}
         {...props}
       >
@@ -136,23 +136,23 @@ export function PermissionBasedButton({
 
   // Check permission access
   let hasAccess = true;
-  
+
   if (permission && !claims.permissions.includes(permission)) {
     hasAccess = false;
   }
-  
+
   if (role && claims.role !== role) {
     hasAccess = false;
   }
-  
+
   if (roles && !roles.includes(claims.role)) {
     hasAccess = false;
   }
 
   if (!hasAccess) {
     return (
-      <button 
-        disabled 
+      <button
+        disabled
         className={`${className} opacity-50 cursor-not-allowed`}
         {...props}
       >
@@ -162,7 +162,7 @@ export function PermissionBasedButton({
   }
 
   return (
-    <button 
+    <button
       disabled={disabled}
       className={className}
       {...props}
@@ -188,8 +188,8 @@ export function PermissionBasedInput({
 
   if (loading) {
     return (
-      <input 
-        disabled 
+      <input
+        disabled
         className={`${className} animate-pulse bg-gray-200`}
         {...props}
       />
@@ -198,8 +198,8 @@ export function PermissionBasedInput({
 
   if (!claims) {
     return (
-      <input 
-        disabled 
+      <input
+        disabled
         className={`${className} opacity-50`}
         {...props}
       />
@@ -208,15 +208,15 @@ export function PermissionBasedInput({
 
   // Check if field should be hidden
   let hasAccess = true;
-  
+
   if (permission && !claims.permissions.includes(permission)) {
     hasAccess = false;
   }
-  
+
   if (role && claims.role !== role) {
     hasAccess = false;
   }
-  
+
   if (roles && !roles.includes(claims.role)) {
     hasAccess = false;
   }
@@ -227,17 +227,17 @@ export function PermissionBasedInput({
 
   // Check if field should be read-only
   let isReadOnly = props.readOnly || false;
-  
+
   if (readOnlyPermission && !claims.permissions.includes(readOnlyPermission)) {
     isReadOnly = true;
   }
-  
+
   if (readOnlyRole && claims.role !== readOnlyRole) {
     isReadOnly = true;
   }
 
   return (
-    <input 
+    <input
       readOnly={isReadOnly}
       className={`${className} ${isReadOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
       {...props}
@@ -267,8 +267,8 @@ export function PermissionBasedSelect({
 
   if (loading) {
     return (
-      <select 
-        disabled 
+      <select
+        disabled
         className={`${className} animate-pulse bg-gray-200`}
         {...props}
       >
@@ -279,8 +279,8 @@ export function PermissionBasedSelect({
 
   if (!claims) {
     return (
-      <select 
-        disabled 
+      <select
+        disabled
         className={`${className} opacity-50`}
         {...props}
       >
@@ -291,15 +291,15 @@ export function PermissionBasedSelect({
 
   // Check permission access
   let hasAccess = true;
-  
+
   if (permission && !claims.permissions.includes(permission)) {
     hasAccess = false;
   }
-  
+
   if (role && claims.role !== role) {
     hasAccess = false;
   }
-  
+
   if (roles && !roles.includes(claims.role)) {
     hasAccess = false;
   }
@@ -339,8 +339,8 @@ export function PermissionBasedTextarea({
 
   if (loading) {
     return (
-      <textarea 
-        disabled 
+      <textarea
+        disabled
         className={`${className} animate-pulse bg-gray-200`}
         {...props}
       />
@@ -349,8 +349,8 @@ export function PermissionBasedTextarea({
 
   if (!claims) {
     return (
-      <textarea 
-        disabled 
+      <textarea
+        disabled
         className={`${className} opacity-50`}
         {...props}
       />
@@ -359,15 +359,15 @@ export function PermissionBasedTextarea({
 
   // Check if field should be hidden
   let hasAccess = true;
-  
+
   if (permission && !claims.permissions.includes(permission)) {
     hasAccess = false;
   }
-  
+
   if (role && claims.role !== role) {
     hasAccess = false;
   }
-  
+
   if (roles && !roles.includes(claims.role)) {
     hasAccess = false;
   }
@@ -378,17 +378,17 @@ export function PermissionBasedTextarea({
 
   // Check if field should be read-only
   let isReadOnly = props.readOnly || false;
-  
+
   if (readOnlyPermission && !claims.permissions.includes(readOnlyPermission)) {
     isReadOnly = true;
   }
-  
+
   if (readOnlyRole && claims.role !== readOnlyRole) {
     isReadOnly = true;
   }
 
   return (
-    <textarea 
+    <textarea
       readOnly={isReadOnly}
       className={`${className} ${isReadOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
       {...props}
@@ -509,9 +509,9 @@ export function PermissionBasedCheckbox({
   if (loading) {
     return (
       <div className="flex items-center">
-        <input 
+        <input
           type="checkbox"
-          disabled 
+          disabled
           className={`${className} animate-pulse`}
           {...props}
         />
@@ -526,15 +526,15 @@ export function PermissionBasedCheckbox({
 
   // Check permission access
   let hasAccess = true;
-  
+
   if (permission && !claims.permissions.includes(permission)) {
     hasAccess = false;
   }
-  
+
   if (role && claims.role !== role) {
     hasAccess = false;
   }
-  
+
   if (roles && !roles.includes(claims.role)) {
     hasAccess = false;
   }
@@ -545,7 +545,7 @@ export function PermissionBasedCheckbox({
 
   return (
     <div className="flex items-center">
-      <input 
+      <input
         type="checkbox"
         className={className}
         {...props}
@@ -581,9 +581,9 @@ export function PermissionBasedFileInput({
     return (
       <div className="space-y-2">
         {label && <label className="block text-sm font-medium text-gray-400">Loading...</label>}
-        <input 
+        <input
           type="file"
-          disabled 
+          disabled
           className={`${className} animate-pulse bg-gray-200`}
           {...props}
         />
@@ -597,15 +597,15 @@ export function PermissionBasedFileInput({
 
   // Check permission access
   let hasAccess = true;
-  
+
   if (permission && !claims.permissions.includes(permission)) {
     hasAccess = false;
   }
-  
+
   if (role && claims.role !== role) {
     hasAccess = false;
   }
-  
+
   if (roles && !roles.includes(claims.role)) {
     hasAccess = false;
   }
@@ -623,10 +623,10 @@ export function PermissionBasedFileInput({
           {label}
         </label>
       )}
-      <input 
+      <input
         type="file"
         accept={accept}
-        className={`${className} block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100`}
+        className={`${className} block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-blue-700 hover:file:bg-slate-100`}
         {...props}
       />
     </div>

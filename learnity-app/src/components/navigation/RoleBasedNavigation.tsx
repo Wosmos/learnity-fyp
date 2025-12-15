@@ -9,11 +9,11 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { 
-  useAuth, 
-  useIsAdmin, 
-  useIsTeacher, 
-  useIsStudent, 
+import {
+  useAuth,
+  useIsAdmin,
+  useIsTeacher,
+  useIsStudent,
   useIsPendingTeacher
 } from '@/hooks/useAuth';
 import { UserRole, Permission } from '@/types/auth';
@@ -115,9 +115,27 @@ const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
 
   // Admin Navigation
   {
-    label: 'Admin Panel',
-    href: '/dashboard/admin',
+    label: 'Admin Dashboard',
+    href: '/admin',
     permission: Permission.VIEW_ADMIN_PANEL,
+    role: UserRole.ADMIN
+  },
+  {
+    label: 'Security Dashboard',
+    href: '/admin',
+    permission: Permission.VIEW_AUDIT_LOGS,
+    role: UserRole.ADMIN
+  },
+  {
+    label: 'Audit Logs',
+    href: '/admin/audit-logs',
+    permission: Permission.VIEW_AUDIT_LOGS,
+    role: UserRole.ADMIN
+  },
+  {
+    label: 'Security Events',
+    href: '/admin/security-events',
+    permission: Permission.VIEW_AUDIT_LOGS,
     role: UserRole.ADMIN
   },
   {
@@ -130,18 +148,6 @@ const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
     label: 'Teacher Applications',
     href: '/admin/teachers',
     permission: Permission.APPROVE_TEACHERS,
-    role: UserRole.ADMIN
-  },
-  {
-    label: 'Audit Logs',
-    href: '/admin/audit',
-    permission: Permission.VIEW_AUDIT_LOGS,
-    role: UserRole.ADMIN
-  },
-  {
-    label: 'Platform Management',
-    href: '/admin/platform',
-    permission: Permission.MANAGE_PLATFORM,
     role: UserRole.ADMIN
   }
 ];
@@ -225,8 +231,8 @@ function NavigationItemComponent({
     'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
     'hover:bg-gray-100 dark:hover:bg-gray-800',
     'focus:outline-none focus:ring-2 focus:ring-blue-500',
-    isActive 
-      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' 
+    isActive
+      ? 'bg-slate-100 text-blue-700 dark:bg-slate-900 dark:text-blue-300'
       : 'text-gray-700 dark:text-gray-300'
   );
 
@@ -270,7 +276,7 @@ function NavigationItemComponent({
  * Student-specific navigation component
  */
 export function StudentNavigation(props: Omit<RoleBasedNavigationProps, 'items'>) {
-  const studentItems = DEFAULT_NAVIGATION_ITEMS.filter(item => 
+  const studentItems = DEFAULT_NAVIGATION_ITEMS.filter(item =>
     item.role === UserRole.STUDENT
   );
 
@@ -285,7 +291,7 @@ export function StudentNavigation(props: Omit<RoleBasedNavigationProps, 'items'>
  * Teacher-specific navigation component
  */
 export function TeacherNavigation(props: Omit<RoleBasedNavigationProps, 'items'>) {
-  const teacherItems = DEFAULT_NAVIGATION_ITEMS.filter(item => 
+  const teacherItems = DEFAULT_NAVIGATION_ITEMS.filter(item =>
     item.roles?.includes(UserRole.TEACHER) || item.role === UserRole.TEACHER
   );
 
@@ -300,7 +306,7 @@ export function TeacherNavigation(props: Omit<RoleBasedNavigationProps, 'items'>
  * Admin-specific navigation component
  */
 export function AdminNavigation(props: Omit<RoleBasedNavigationProps, 'items'>) {
-  const adminItems = DEFAULT_NAVIGATION_ITEMS.filter(item => 
+  const adminItems = DEFAULT_NAVIGATION_ITEMS.filter(item =>
     item.role === UserRole.ADMIN
   );
 
@@ -315,7 +321,7 @@ export function AdminNavigation(props: Omit<RoleBasedNavigationProps, 'items'>) 
  * Pending teacher-specific navigation component
  */
 export function PendingTeacherNavigation(props: Omit<RoleBasedNavigationProps, 'items'>) {
-  const pendingTeacherItems = DEFAULT_NAVIGATION_ITEMS.filter(item => 
+  const pendingTeacherItems = DEFAULT_NAVIGATION_ITEMS.filter(item =>
     item.role === UserRole.PENDING_TEACHER
   );
 
@@ -443,7 +449,7 @@ export function QuickActions({ className }: QuickActionProps) {
       <RequirePermission permission={Permission.ENHANCE_PROFILE}>
         <Link
           href="/profile/enhance"
-          className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200"
+          className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-blue-800 hover:bg-slate-200"
         >
           Complete Profile
         </Link>

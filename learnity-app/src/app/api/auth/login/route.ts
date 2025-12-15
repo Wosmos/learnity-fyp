@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { FirebaseAuthService } from '@/lib/services/firebase-auth.service';
 import { DatabaseService } from '@/lib/services/database.service';
 import { HCaptchaService } from '@/lib/services/hcaptcha.service';
@@ -172,7 +173,15 @@ export async function POST(request: NextRequest) {
           email: authResult.user.email!,
           role: UserRole.STUDENT, // Default role for new users
           emailVerified: authResult.user.emailVerified,
-          profilePicture: authResult.user.photoURL || undefined
+          profilePicture: authResult.user.photoURL || undefined,
+          studentProfile: {
+            gradeLevel: 'Not specified',
+            subjects: [],
+            learningGoals: [],
+            interests: [],
+            studyPreferences: [],
+            profileCompletionPercentage: 20
+          }
         });
 
         // Log new user creation for audit
@@ -272,7 +281,23 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      return NextResponse.json({
+            // Ensure idToken exists
+      if (!authResult.idToken) {
+        console.error('Login succeeded but no ID token returned from Firebase');
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: 'MISSING_ID_TOKEN',
+              message: 'Authentication succeeded but session token is missing.'
+            }
+          },
+          { status: 500 }
+        );
+      }
+
+      // Build response body (note: consider removing idToken from response for security)
+      const responseBody = {
         success: true,
         data: {
           user: {
@@ -290,6 +315,7 @@ export async function POST(request: NextRequest) {
             profileComplete: calculateProfileCompletion(userProfile!),
             lastLoginAt: userProfile!.lastLoginAt
           },
+          // ⚠️ Optional: remove `idToken` from response since it's in HTTP-only cookie
           idToken: authResult.idToken,
           permissions: customClaims.permissions,
           isNewDevice: deviceAnalysis.isNewDevice,
@@ -300,7 +326,28 @@ export async function POST(request: NextRequest) {
             captchaVerified: !!loginData.hcaptchaToken
           }
         }
-      });
+      };
+
+      // Create response
+      const response = NextResponse.json(responseBody);
+
+      // ✅ Set HTTP-only session cookie via header (reliable in Route Handlers)
+      const maxAge = 7 * 24 * 60 * 60; // 1 week in seconds
+      const cookieParts = [
+        `session=${encodeURIComponent(authResult.idToken)}`,
+        'HttpOnly',
+        'Path=/',
+        'SameSite=Lax',
+        `Max-Age=${maxAge}`
+      ];
+
+      if (process.env.NODE_ENV === 'production') {
+        cookieParts.push('Secure');
+      }
+
+      response.headers.set('Set-Cookie', cookieParts.join('; '));
+
+      return response;
 
     } catch (dbError: any) {
       console.error('Failed to retrieve/create user profile in Neon DB:', dbError);

@@ -1,206 +1,279 @@
 /**
- * Learnity Landing Page
- * Main entry point with authentication options
+ * Learnity Landing Page - Refactored
+ * Clean, DRY implementation with reusable components
  */
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, BookOpen, Users, ArrowRight, Star, Shield, Zap } from "lucide-react";
+'use client';
+
+import Link from 'next/link';
+import { PublicLayout } from '@/components/layout/AppLayout';
+import { Button } from '@/components/ui/button';
+import { AuthLoadingSpinner } from '@/components/ui/AuthLoadingSpinner';
+import { useHomeAuthRedirect } from '@/hooks/useAuthRedirect';
+import { StepCard } from '@/components/landing/StepCard';
+import { ArrowRight, CheckCircle } from 'lucide-react';
+import {
+  Hero,
+  SectionHeader,
+  CTA,
+  FeatureGrid,
+  Footer,
+  Stats,
+  VideoSection,
+} from '@/components/externals';
+import {
+  HOW_IT_WORKS_STEPS,
+  MAIN_FEATURES,
+  TRUST_INDICATORS,
+  GUARANTEE_FEATURES,
+} from '@/lib/constants/landing-page';
 
 export default function Home() {
+  const { isRedirecting, shouldShowContent, error } = useHomeAuthRedirect();
+
+  // Loading states
+  if (isRedirecting || (!shouldShowContent && !error)) {
+    return (
+      <PublicLayout showNavigation={false}>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
+          <AuthLoadingSpinner
+            message={isRedirecting ? 'Redirecting to your dashboard...' : 'Loading...'}
+            showLogo={true}
+            size="lg"
+          />
+        </div>
+      </PublicLayout>
+    );
+  }
+
+  // Error handling with retry
+  if (error && error.includes('Retrying')) {
+    return (
+      <PublicLayout showNavigation={false}>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
+          <AuthLoadingSpinner message={error} showLogo={true} size="lg" />
+        </div>
+      </PublicLayout>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <nav className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <GraduationCap className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">Learnity</span>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <Link href="/auth/login">
-              <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/auth/register">
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                Get Started
-              </Button>
-            </Link>
-          </div>
-        </nav>
-      </header>
-
-      {/* Hero Section */}
-      <main className="container mx-auto px-4 py-12">
-        <div className="text-center max-w-4xl mx-auto mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            Learn, Teach, and Grow with{" "}
-            <span className="text-blue-600">Learnity</span>
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Connect with expert tutors, join study groups, and accelerate your learning journey. 
-            Whether you're a student or teacher, Learnity is your platform for educational success.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/register">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4">
-                Start Learning Today
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/auth/login">
-              <Button size="lg" variant="outline" className="text-lg px-8 py-4">
-                Sign In to Continue
-              </Button>
-            </Link>
-          </div>
+    <PublicLayout showNavigation={false}>
+      <div className="min-h-screen bg-white relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 bg-grid-black pointer-events-none z-0" />
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+          <div className="blob bg-slate-400/30 w-96 h-96 top-0 left-0 blur-3xl" />
+          <div className="blob blob-delay-2 bg-purple-400/30 w-96 h-96 top-1/2 right-0 blur-3xl" />
+          <div className="blob blob-delay-4 bg-green-400/30 w-80 h-80 bottom-0 left-1/4 blur-3xl" />
         </div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          <Card className="text-center hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="mx-auto p-3 bg-blue-100 rounded-lg w-fit mb-4">
-                <GraduationCap className="h-8 w-8 text-blue-600" />
-              </div>
-              <CardTitle className="text-xl">For Students</CardTitle>
-              <CardDescription>
-                Access personalized tutoring, join study groups, and track your progress
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="text-sm text-gray-600 space-y-2">
-                <li>• One-on-one tutoring sessions</li>
-                <li>• Interactive study groups</li>
-                <li>• Progress tracking & analytics</li>
-                <li>• Mobile-optimized learning</li>
-              </ul>
-            </CardContent>
-          </Card>
+        <main className="relative z-10">
+          {/* Hero Section */}
+          <Hero
+            badge={{
+              text: 'Now with Advanced Security & Audit Logging',
+              showPulse: true,
+            }}
+            title={
+              <>
+                <span className="block text-gray-900 mb-2">Learn faster with</span>
+                <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  your best tutor
+                </span>
+              </>
+            }
+            description="Connect with 500+ verified expert tutors for personalized 1-on-1 lessons. Join study groups and accelerate your learning journey."
+            primaryAction={{
+              label: 'Find your tutor',
+              href: '/auth/register/student',
+              variant: 'cta',
+            }}
+            secondaryAction={{
+              label: 'Sign In',
+              href: '/auth/login',
+              variant: 'outline',
+            }}
+            stats={<Stats useClient={true} />}
+          />
 
-          <Card className="text-center hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="mx-auto p-3 bg-green-100 rounded-lg w-fit mb-4">
-                <BookOpen className="h-8 w-8 text-green-600" />
+          {/* How It Works Section */}
+          <section className="bg-gray-50 py-20">
+            <div className="container mx-auto px-4">
+              <SectionHeader
+                title="How Learnity works"
+                description="Get started in three simple steps"
+              />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                {HOW_IT_WORKS_STEPS.map((step) => (
+                  <StepCard key={step.number} number={step.number} title={step.title} description={step.description} color={step.color as 'blue' | 'purple' | 'green'} />
+                ))}
               </div>
-              <CardTitle className="text-xl">For Teachers</CardTitle>
-              <CardDescription>
-                Share your expertise, manage students, and earn income through teaching
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="text-sm text-gray-600 space-y-2">
-                <li>• Flexible scheduling system</li>
-                <li>• Student progress monitoring</li>
-                <li>• Content creation tools</li>
-                <li>• Verified teacher profiles</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="text-center hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="mx-auto p-3 bg-purple-100 rounded-lg w-fit mb-4">
-                <Users className="h-8 w-8 text-purple-600" />
-              </div>
-              <CardTitle className="text-xl">Community</CardTitle>
-              <CardDescription>
-                Join a vibrant learning community with collaborative features
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="text-sm text-gray-600 space-y-2">
-                <li>• Peer-to-peer learning</li>
-                <li>• Discussion forums</li>
-                <li>• Study group matching</li>
-                <li>• Achievement system</li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Trust Indicators */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-16">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
-            Why Choose Learnity?
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="mx-auto p-3 bg-yellow-100 rounded-lg w-fit mb-4">
-                <Star className="h-8 w-8 text-yellow-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Verified Teachers</h3>
-              <p className="text-gray-600">
-                All teachers go through a rigorous verification process to ensure quality education
-              </p>
             </div>
-            
-            <div className="text-center">
-              <div className="mx-auto p-3 bg-green-100 rounded-lg w-fit mb-4">
-                <Shield className="h-8 w-8 text-green-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Secure Platform</h3>
-              <p className="text-gray-600">
-                Advanced security measures protect your data and ensure safe learning environment
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="mx-auto p-3 bg-blue-100 rounded-lg w-fit mb-4">
-                <Zap className="h-8 w-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Fast & Reliable</h3>
-              <p className="text-gray-600">
-                Lightning-fast platform with 99.9% uptime for uninterrupted learning
-              </p>
-            </div>
-          </div>
-        </div>
+          </section>
 
-        {/* CTA Section */}
-        <div className="text-center bg-blue-600 rounded-2xl p-12 text-white">
-          <h2 className="text-3xl font-bold mb-4">Ready to Start Your Learning Journey?</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Join thousands of students and teachers already using Learnity
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/register">
-              <Button size="lg" variant="secondary" className="text-lg px-8 py-4">
-                Create Account
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/auth">
-              <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-blue-600">
-                Explore Features
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </main>
+          {/* Video Section */}
+          <VideoSection
+            title="See Learnity in Action"
+            description="Watch how our platform connects students with expert tutors for personalized learning experiences"
+            videoId="rLRIB6AF2Dg"
+            features={[
+              {
+                icon: CheckCircle,
+                title: 'Live Sessions',
+                description: 'Interactive one-on-one video sessions with screen sharing',
+                bgColor: 'bg-slate-100',
+                iconColor: 'text-blue-600',
+              },
+              {
+                icon: CheckCircle,
+                title: 'Recording Available',
+                description: 'Review your lessons anytime with automatic recordings',
+                bgColor: 'bg-purple-100',
+                iconColor: 'text-purple-600',
+              },
+              {
+                icon: CheckCircle,
+                title: 'HD Quality',
+                description: 'Crystal clear video and audio for the best learning experience',
+                bgColor: 'bg-green-100',
+                iconColor: 'text-green-600',
+              },
+            ]}
+          />
 
-      {/* Footer */}
-      <footer className="container mx-auto px-4 py-8 mt-16 border-t border-gray-200">
-        <div className="flex flex-col md:flex-row items-center justify-between">
-          <div className="flex items-center space-x-2 mb-4 md:mb-0">
-            <GraduationCap className="h-6 w-6 text-blue-600" />
-            <span className="text-lg font-semibold text-gray-900">Learnity</span>
-          </div>
-          
-          <div className="flex items-center space-x-6 text-sm text-gray-600">
-            <Link href="/auth" className="hover:text-gray-900">Authentication Demo</Link>
-            <Link href="/auth/register" className="hover:text-gray-900">Register</Link>
-            <Link href="/auth/login" className="hover:text-gray-900">Login</Link>
-          </div>
-        </div>
-      </footer>
-    </div>
+          {/* Features Grid */}
+          <section id="features" className="py-20">
+            <div className="container mx-auto px-4">
+              <SectionHeader
+                title="Everything you need to succeed"
+                description="Comprehensive features designed for modern education"
+              />
+              <div className="max-w-6xl mx-auto">
+                <FeatureGrid
+                  items={MAIN_FEATURES.map((feature) => ({
+                    icon: feature.icon,
+                    title: feature.title,
+                    description: feature.description,
+                    bgColor: feature.bgColor,
+                    color: feature.color,
+                    content: feature.benefits && feature.benefits.length > 0 ? (
+                      <ul className="space-y-3 mt-4">
+                        {feature.benefits.map((benefit, idx) => (
+                          <li key={idx} className="flex items-start">
+                            <CheckCircle className="h-5 w-5 text-green-500 mr-3 mt-0.5 shrink-0" />
+                            <span className="text-gray-700">{benefit}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : undefined,
+                  }))}
+                  columns={3}
+                  variant="default"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Guarantee Section */}
+          <section className="glass py-16">
+            <div className="container mx-auto px-4">
+              <div className="max-w-4xl mx-auto text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-600 rounded-full mb-6">
+                  <CheckCircle className="h-8 w-8 text-white" />
+                </div>
+                <SectionHeader
+                  title="Lessons you'll love. Guaranteed."
+                  description="Try another tutor for free if you're not satisfied with your first lesson. Your success is our priority."
+                  maxWidth="2xl"
+                />
+                <div className="mt-12">
+                  <FeatureGrid
+                    items={GUARANTEE_FEATURES.map((feature) => ({
+                      icon: feature.icon,
+                      title: feature.title,
+                      description: feature.description,
+                      color: feature.color,
+                      className: 'bg-white',
+                    }))}
+                    columns={3}
+                    variant="minimal"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Featured Teachers Section */}
+          <section className="py-20">
+            <div className="container mx-auto px-4">
+              <SectionHeader
+                title="Meet Our Expert Tutors"
+                description="Learn from verified professionals passionate about teaching"
+              />
+              <div className="text-center">
+                <Link href="/teachers">
+                  <Button size="lg" variant="cta">
+                    View All Tutors
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </section>
+
+          {/* Trust Indicators */}
+          <section className="mb-20">
+            <div className="glass-card p-12 rounded-2xl">
+              <SectionHeader
+                title="Enterprise-Grade Security & Reliability"
+                description="Built with security-first architecture and comprehensive audit logging"
+                maxWidth="4xl"
+              />
+              <FeatureGrid
+                items={TRUST_INDICATORS.map((indicator) => ({
+                  iconElement: (
+                    <div className={`p-4 bg-gradient-to-br ${indicator.gradient} rounded-xl shadow-lg`}>
+                      <indicator.icon className="h-8 w-8 text-white" />
+                    </div>
+                  ),
+                  title: indicator.title,
+                  description: indicator.description,
+                  className: 'bg-transparent border-0 shadow-none',
+                }))}
+                columns={4}
+                variant="minimal"
+                showIcons={true}
+              />
+            </div>
+          </section>
+
+          {/* CTA Section */}
+          <CTA
+            title="Ready to start learning?"
+            description="Join 1,000+ active learners and connect with expert tutors today. Your learning journey starts here."
+            primaryAction={{
+              label: 'Find your tutor',
+              href: '/auth/register/student',
+              variant: 'ctaSecondary',
+            }}
+            secondaryAction={{
+              label: 'Meet Our Tutors',
+              href: '/teachers',
+              variant: 'outline',
+            }}
+            background="blue"
+          />
+        </main>
+
+        {/* Footer */}
+        <Footer
+          status={{
+            text: 'All Systems Operational',
+            online: true,
+          }}
+        />
+      </div>
+    </PublicLayout>
   );
 }

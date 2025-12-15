@@ -111,7 +111,15 @@ export async function POST(request: NextRequest) {
         emailVerified: userData.emailVerified,
         profilePicture: userData.photoURL || undefined,
         authProvider: isSocialLogin ? 'social' : 'email',
-        socialProviders: userData.providerData?.map(p => p.providerId) || []
+        socialProviders: userData.providerData?.map(p => p.providerId) || [],
+        studentProfile: {
+          gradeLevel: 'Not specified',
+          subjects: [],
+          learningGoals: [],
+          interests: [],
+          studyPreferences: [],
+          profileCompletionPercentage: 20
+        }
       });
 
       // Set initial custom claims

@@ -8,7 +8,7 @@
 import { useState, useCallback } from 'react';
 import { 
   StudentRegistrationData, 
-  TeacherRegistrationData, 
+  EnhancedTeacherRegistrationData, 
   LoginData,
   PasswordResetRequestData,
   PasswordResetData
@@ -16,11 +16,13 @@ import {
 import { clientAuthService } from '@/lib/services/client-auth.service';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { AuthError, AuthErrorCode } from '@/types/auth';
+import { formatErrorForDisplay } from '@/lib/utils/error-messages';
 
 export interface AuthServiceHooks {
   // Registration
   registerStudent: (data: StudentRegistrationData) => Promise<void>;
-  registerTeacher: (data: TeacherRegistrationData) => Promise<void>;
+  registerTeacher: (data: any) => Promise<void>;
+  registerQuickTeacher: (data: any) => Promise<void>;
   
   // Login
   login: (data: LoginData) => Promise<void>;
@@ -43,49 +45,24 @@ export const useAuthService = (): AuthServiceHooks => {
   const [error, setError] = useState<AuthError | null>(null);
   const { setUser, setClaims, setError: setStoreError } = useAuthStore();
 
-  const handleError = useCallback((error: any): AuthError => {
+  const handleError = useCallback((error: any): never => {
     console.error('Auth service error:', error);
     
-    // Map Firebase errors to our error codes
+    // Get user-friendly error message
+    const errorMessage = formatErrorForDisplay(error);
+    
+    // Map to AuthError for store
     const authError: AuthError = {
-      code: AuthErrorCode.INTERNAL_ERROR,
-      message: 'An unexpected error occurred. Please try again.',
+      code: error.code || AuthErrorCode.INTERNAL_ERROR,
+      message: errorMessage.description,
       details: { originalError: error.message }
     };
 
-    if (error.code) {
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          authError.code = AuthErrorCode.ACCOUNT_NOT_FOUND;
-          authError.message = 'An account with this email already exists.';
-          break;
-        case 'auth/invalid-email':
-          authError.code = AuthErrorCode.INVALID_CREDENTIALS;
-          authError.message = 'Please enter a valid email address.';
-          break;
-        case 'auth/weak-password':
-          authError.code = AuthErrorCode.WEAK_PASSWORD;
-          authError.message = 'Password is too weak. Please choose a stronger password.';
-          break;
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-          authError.code = AuthErrorCode.INVALID_CREDENTIALS;
-          authError.message = 'Invalid email or password.';
-          break;
-        case 'auth/too-many-requests':
-          authError.code = AuthErrorCode.TOO_MANY_ATTEMPTS;
-          authError.message = 'Too many failed attempts. Please try again later.';
-          break;
-        case 'auth/user-disabled':
-          authError.code = AuthErrorCode.ACCOUNT_LOCKED;
-          authError.message = 'This account has been disabled.';
-          break;
-      }
-    }
-
     setError(authError);
     setStoreError(authError);
-    return authError;
+    
+    // Throw error with user-friendly message
+    throw new Error(errorMessage.description);
   }, [setStoreError]);
 
   const registerStudent = useCallback(async (data: StudentRegistrationData) => {
@@ -107,12 +84,31 @@ export const useAuthService = (): AuthServiceHooks => {
     }
   }, [setUser, handleError]);
 
-  const registerTeacher = useCallback(async (data: TeacherRegistrationData) => {
+  const registerTeacher = useCallback(async (data: any) => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const result = await clientAuthService.registerTeacher(data);
+      const result = await clientAuthService.registerEnhancedTeacher(data);
+      if (result.success && result.user) {
+        setUser(result.user);
+        // Claims will be set by the auth provider
+      } else {
+        throw new Error(result.error?.message || 'Registration failed');
+      }
+    } catch (error: any) {
+      throw handleError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setUser, handleError]);
+
+  const registerQuickTeacher = useCallback(async (data: any) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const result = await clientAuthService.registerQuickTeacher(data);
       if (result.success && result.user) {
         setUser(result.user);
         // Claims will be set by the auth provider
@@ -210,6 +206,7 @@ export const useAuthService = (): AuthServiceHooks => {
   return {
     registerStudent,
     registerTeacher,
+    registerQuickTeacher,
     login,
     socialLogin,
     requestPasswordReset,

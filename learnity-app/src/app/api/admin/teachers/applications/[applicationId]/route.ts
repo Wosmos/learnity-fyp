@@ -5,7 +5,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { 
-  withAdminApiAuth, 
   createApiSuccessResponse, 
   createApiErrorResponse, 
   validateMethod,

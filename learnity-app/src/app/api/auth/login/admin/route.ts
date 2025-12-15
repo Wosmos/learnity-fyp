@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { FirebaseAuthService } from '@/lib/services/firebase-auth.service';
 import { DatabaseService } from '@/lib/services/database.service';
 import { HCaptchaService } from '@/lib/services/hcaptcha.service';
+import { auditService } from '@/lib/services/audit.service';
 import { staticAdminLoginSchema } from '@/lib/validators/auth';
 import { UserRole, EventType } from '@/types/auth';
 import { generateDeviceFingerprintLegacy } from '@/lib/utils/device-fingerprint';
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
 
     if (!authResult.success || !authResult.user) {
       // Log failed admin login attempt
-      await logAuditEvent(databaseService, {
+      await auditService.logAuthenticationEvent({
         eventType: EventType.AUTH_LOGIN,
         action: 'admin_login_failed',
         ipAddress: clientIP,
@@ -121,10 +122,10 @@ export async function POST(request: NextRequest) {
       }
 
       // Log successful admin login
-      await logAuditEvent(databaseService, {
+      await auditService.logAuthenticationEvent({
+        firebaseUid: authResult.user.uid,
         eventType: EventType.AUTH_LOGIN,
         action: 'admin_login_success',
-        firebaseUid: authResult.user.uid,
         ipAddress: clientIP,
         userAgent,
         success: true,
@@ -138,14 +139,14 @@ export async function POST(request: NextRequest) {
       });
 
       // Log admin action for enhanced audit trail
-      await logAuditEvent(databaseService, {
-        eventType: EventType.ADMIN_ACTION,
+      await auditService.logAdminAction({
+        adminFirebaseUid: authResult.user.uid,
         action: 'admin_session_started',
-        firebaseUid: authResult.user.uid,
+        targetResource: 'admin_session',
         ipAddress: clientIP,
         userAgent,
         success: true,
-        metadata: {
+        newValues: {
           sessionType: 'static_admin',
           adminLevel: 'platform_owner'
         }
@@ -183,10 +184,10 @@ export async function POST(request: NextRequest) {
       console.error('Failed to create/update admin profile in Neon DB:', dbError);
 
       // Log the database sync failure
-      await logAuditEvent(databaseService, {
+      await auditService.logAuthenticationEvent({
+        firebaseUid: authResult.user.uid,
         eventType: EventType.AUTH_LOGIN,
         action: 'admin_login_db_sync_failed',
-        firebaseUid: authResult.user.uid,
         ipAddress: clientIP,
         userAgent,
         success: false,
@@ -230,7 +231,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Static admin login error:', error);
 
     // Log unexpected error
@@ -240,15 +241,15 @@ export async function POST(request: NextRequest) {
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
     try {
-      await logAuditEvent(databaseService, {
+      await auditService.logAuthenticationEvent({
         eventType: EventType.AUTH_LOGIN,
         action: 'admin_login_error',
         ipAddress: clientIP,
         userAgent,
         success: false,
-        errorMessage: error.message,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
         metadata: {
-          errorStack: error.stack,
+          errorStack: error instanceof Error ? error.stack : 'No stack trace',
           attemptType: 'static_admin'
         }
       });
@@ -272,42 +273,3 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * Helper function to log audit events
- */
-async function logAuditEvent(
-  databaseService: DatabaseService,
-  event: {
-    eventType: EventType;
-    action: string;
-    firebaseUid?: string;
-    ipAddress: string;
-    userAgent: string;
-    success: boolean;
-    errorMessage?: string;
-    metadata?: Record<string, unknown>;
-  }
-) {
-  try {
-    // Note: This would typically use a dedicated audit service
-    // For now, we'll use Prisma directly through the database service
-    const prisma = (databaseService as unknown).prisma;
-    
-    await prisma.auditLog.create({
-      data: {
-        firebaseUid: event.firebaseUid,
-        eventType: event.eventType,
-        action: event.action,
-        ipAddress: event.ipAddress,
-        userAgent: event.userAgent,
-        success: event.success,
-        errorMessage: event.errorMessage,
-        metadata: event.metadata || {},
-        deviceFingerprint: generateDeviceFingerprintLegacy(event.userAgent, event.ipAddress)
-      }
-    });
-  } catch (error) {
-    console.error('Failed to log audit event:', error);
-    // Don't throw here to avoid breaking the main flow
-  }
-}

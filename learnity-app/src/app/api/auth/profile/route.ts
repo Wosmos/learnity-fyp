@@ -41,10 +41,13 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     // Role-specific data
     ...(userProfile.role === 'STUDENT' && userProfile.studentProfile && {
       studentProfile: {
-        profileCompletionPercentage: userProfile.studentProfile.profileCompletionPercentage,
+        gradeLevel: userProfile.studentProfile.gradeLevel,
+        subjects: userProfile.studentProfile.subjects,
+        learningGoals: userProfile.studentProfile.learningGoals,
         interests: userProfile.studentProfile.interests,
-        academicLevel: userProfile.studentProfile.academicLevel,
-        preferredSubjects: userProfile.studentProfile.preferredSubjects
+        studyPreferences: userProfile.studentProfile.studyPreferences,
+        bio: userProfile.studentProfile.bio,
+        profileCompletionPercentage: userProfile.studentProfile.profileCompletionPercentage
       }
     }),
     
