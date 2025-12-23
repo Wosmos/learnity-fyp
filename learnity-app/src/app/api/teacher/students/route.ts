@@ -1,177 +1,105 @@
-/**
- * Teacher Students API Route
- * GET /api/teacher/students - Get all students enrolled in teacher's courses
- */
-
 import { NextRequest, NextResponse } from 'next/server';
+import { adminAuth } from '@/lib/firebase/admin';
 import { prisma } from '@/lib/prisma';
-import { authMiddleware } from '@/lib/middleware/auth.middleware';
-import { UserRole } from '@/types/auth';
-import {
-  createSuccessResponse,
-  createAuthErrorResponse,
-  createInternalErrorResponse,
-} from '@/lib/utils/api-response.utils';
+import { EnrollmentStatus } from '@prisma/client';
 
-export interface TeacherStudent {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  profilePicture: string | null;
-  enrolledCourses: {
-    courseId: string;
-    courseTitle: string;
-    progress: number;
-    enrolledAt: Date;
-    lastAccessedAt: Date;
-    status: string;
-  }[];
-  totalProgress: number;
-  lastActive: Date;
-  totalCoursesEnrolled: number;
-}
-
-export interface TeacherStudentsResponse {
-  students: TeacherStudent[];
-  total: number;
-  activeCount: number;
-  completedCount: number;
-  averageProgress: number;
-}
-
-/**
- * GET /api/teacher/students
- * Retrieve all students enrolled in teacher's courses with their progress
- */
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(req: NextRequest) {
   try {
-    // Authenticate teacher
-    const authResult = await authMiddleware(request, {
-      allowMultipleRoles: [UserRole.TEACHER, UserRole.ADMIN],
-    });
-
-    if (authResult instanceof NextResponse) {
-      return authResult;
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { user } = authResult;
+    const token = authHeader.split('Bearer ')[1];
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const firebaseUid = decodedToken.uid;
 
-    // Get user from database
-    const dbUser = await prisma.user.findUnique({
-      where: { firebaseUid: user.firebaseUid },
-      select: { id: true },
+    const teacher = await prisma.user.findUnique({
+      where: { firebaseUid },
     });
 
-    if (!dbUser) {
-      return createAuthErrorResponse('User not found in database');
+    if (!teacher) {
+      return NextResponse.json({ error: 'Teacher not found' }, { status: 404 });
     }
 
-    // Get all enrollments for teacher's courses with student details
-    const enrollments = await prisma.enrollment.findMany({
-      where: {
-        course: {
-          teacherId: dbUser.id,
-        },
-      },
+    // Fetch all courses for the teacher
+    const courses = await prisma.course.findMany({
+      where: { teacherId: teacher.id },
       include: {
-        student: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            profilePicture: true,
-            lastLoginAt: true,
-          },
-        },
-        course: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-      },
-      orderBy: {
-        lastAccessedAt: 'desc',
-      },
+        enrollments: {
+            include: {
+                user: true // Determine student details
+            }
+        }
+      }
     });
 
-    // Group enrollments by student
-    const studentMap = new Map<string, TeacherStudent>();
+    // Flatten enrollments to get a list of students
+    const studentMap = new Map<string, any>();
 
-    for (const enrollment of enrollments) {
-      const studentId = enrollment.student.id;
-      
-      if (!studentMap.has(studentId)) {
-        studentMap.set(studentId, {
-          id: studentId,
-          firstName: enrollment.student.firstName,
-          lastName: enrollment.student.lastName,
-          email: enrollment.student.email,
-          profilePicture: enrollment.student.profilePicture,
-          enrolledCourses: [],
-          totalProgress: 0,
-          lastActive: enrollment.student.lastLoginAt || enrollment.lastAccessedAt,
-          totalCoursesEnrolled: 0,
+    courses.forEach(course => {
+        course.enrollments.forEach(enrollment => {
+            const updateStudent = studentMap.get(enrollment.user.id) || {
+                id: enrollment.user.id,
+                firstName: enrollment.user.firstName,
+                lastName: enrollment.user.lastName,
+                email: enrollment.user.email,
+                profilePicture: enrollment.user.profilePicture,
+                enrolledCourses: [],
+                totalProgress: 0,
+                lastActive: enrollment.lastAccessedAt,
+                totalCoursesEnrolled: 0,
+            };
+
+            updateStudent.enrolledCourses.push({
+                courseId: course.id,
+                courseTitle: course.title,
+                progress: enrollment.progress,
+                enrolledAt: enrollment.enrolledAt,
+                lastAccessedAt: enrollment.lastAccessedAt,
+                status: enrollment.status
+            });
+            updateStudent.totalCoursesEnrolled += 1;
+            
+            // Keep most recent activity
+            if (new Date(enrollment.lastAccessedAt).getTime() > new Date(updateStudent.lastActive).getTime()) {
+                updateStudent.lastActive = enrollment.lastAccessedAt;
+            }
+
+            studentMap.set(enrollment.user.id, updateStudent);
         });
+    });
+
+    const students = Array.from(studentMap.values()).map(s => {
+        // Calculate average progress across enrolled courses
+        const totalP = s.enrolledCourses.reduce((acc: number, curr: any) => acc + curr.progress, 0);
+        s.totalProgress = Math.round(totalP / s.enrolledCourses.length);
+        return s;
+    });
+
+    const activeCount = students.filter(s => {
+        // Active if last login within 7 days
+        const lastActive = new Date(s.lastActive);
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        return lastActive > sevenDaysAgo;
+    }).length;
+
+    // Avg progress for entire cohort
+    const totalCohortProgress = students.reduce((acc, s) => acc + s.totalProgress, 0);
+    const averageProgress = students.length > 0 ? Math.round(totalCohortProgress / students.length) : 0;
+
+    return NextResponse.json({
+      data: {
+        students,
+        total: students.length,
+        activeCount,
+        completedCount: 0, // Placeholder
+        averageProgress
       }
-
-      const student = studentMap.get(studentId)!;
-      student.enrolledCourses.push({
-        courseId: enrollment.course.id,
-        courseTitle: enrollment.course.title,
-        progress: enrollment.progress,
-        enrolledAt: enrollment.enrolledAt,
-        lastAccessedAt: enrollment.lastAccessedAt,
-        status: enrollment.status,
-      });
-    }
-
-    // Calculate aggregated stats for each student
-    const students: TeacherStudent[] = [];
-    let totalActiveCount = 0;
-    let totalCompletedCount = 0;
-    let totalProgressSum = 0;
-
-    for (const student of studentMap.values()) {
-      const courseCount = student.enrolledCourses.length;
-      const progressSum = student.enrolledCourses.reduce((sum, c) => sum + c.progress, 0);
-      student.totalProgress = courseCount > 0 ? Math.round(progressSum / courseCount) : 0;
-      student.totalCoursesEnrolled = courseCount;
-      
-      // Find most recent activity
-      const mostRecentAccess = student.enrolledCourses.reduce((latest, c) => 
-        c.lastAccessedAt > latest ? c.lastAccessedAt : latest, 
-        student.enrolledCourses[0]?.lastAccessedAt || new Date()
-      );
-      student.lastActive = mostRecentAccess;
-
-      // Count active and completed
-      const activeEnrollments = student.enrolledCourses.filter(c => c.status === 'ACTIVE').length;
-      const completedEnrollments = student.enrolledCourses.filter(c => c.status === 'COMPLETED').length;
-      
-      if (activeEnrollments > 0) totalActiveCount++;
-      totalCompletedCount += completedEnrollments;
-      totalProgressSum += student.totalProgress;
-
-      students.push(student);
-    }
-
-    // Sort by last active
-    students.sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime());
-
-    const response: TeacherStudentsResponse = {
-      students,
-      total: students.length,
-      activeCount: totalActiveCount,
-      completedCount: totalCompletedCount,
-      averageProgress: students.length > 0 ? Math.round(totalProgressSum / students.length) : 0,
-    };
-
-    return createSuccessResponse(response, 'Teacher students retrieved successfully');
+    });
   } catch (error) {
-    console.error('Error fetching teacher students:', error);
-    return createInternalErrorResponse('Failed to fetch teacher students');
+    console.error('Error fetching students:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

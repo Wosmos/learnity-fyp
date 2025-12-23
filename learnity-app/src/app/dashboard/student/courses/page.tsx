@@ -250,8 +250,9 @@ export default function MyCoursesPage() {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await api.get('/api/enrollments?limit=50') as EnrollmentsResponse;
-      setEnrollments(data.enrollments || []);
+      const response = await api.get('/api/enrollments?limit=50');
+      // API returns { success: true, data: { enrollments: ... } }
+      setEnrollments(response.data?.enrollments || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load courses');
     } finally {
