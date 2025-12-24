@@ -10,7 +10,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -331,7 +330,6 @@ export default function CoursePreviewPage() {
   // Loading state
   if (isLoading) {
     return (
-      <AuthenticatedLayout>
         <div className="min-h-screen bg-slate-50">
           <div className="max-w-6xl mx-auto px-4 py-8">
             <Skeleton className="h-8 w-48 mb-4" />
@@ -346,14 +344,12 @@ export default function CoursePreviewPage() {
             </div>
           </div>
         </div>
-      </AuthenticatedLayout>
     );
   }
 
   // Error state
   if (error || !course) {
     return (
-      <AuthenticatedLayout>
         <div className="min-h-screen bg-slate-50 flex items-center justify-center">
           <Card className="w-full max-w-md">
             <CardContent className="flex flex-col items-center justify-center py-12">
@@ -366,7 +362,6 @@ export default function CoursePreviewPage() {
             </CardContent>
           </Card>
         </div>
-      </AuthenticatedLayout>
     );
   }
 
@@ -374,7 +369,6 @@ export default function CoursePreviewPage() {
   const totalLessons = course.sections?.reduce((sum, s) => sum + (s.lessons?.length || 0), 0) || 0;
 
   return (
-    <AuthenticatedLayout>
       <div className="min-h-screen bg-slate-50">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
@@ -772,6 +766,5 @@ export default function CoursePreviewPage() {
           </div>
         </main>
       </div>
-    </AuthenticatedLayout>
   );
 }

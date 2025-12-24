@@ -8,8 +8,8 @@ type CardVariant = 'glassy' | 'modern' | 'primary' | 'secondary';
 interface MetricCardProps {
   title: string;
   value: string | number;
-  trendLabel: string;
-  trendValue: string;
+  trendLabel?: string;
+  trendValue?: string;
   isTrendUp?: boolean;
   variant?: CardVariant;
   icon: LucideIcon;
@@ -26,7 +26,7 @@ export function MetricCard({
   icon: Icon,
   className,
 }: MetricCardProps) {
-  
+
   // Define styles for each variant
   const variants = {
     glassy: "bg-white/40 backdrop-blur-xl border border-white/40 shadow-xl shadow-indigo-500/5 text-slate-900",
@@ -44,7 +44,7 @@ export function MetricCard({
 
   return (
     <div className={cn(
-      "relative p-6 rounded-[2rem] transition-all duration-500 group overflow-hidden",
+      "relative p-6 rounded-2xl transition-all duration-500 group overflow-hidden",
       variants[variant],
       className
     )}>
@@ -59,7 +59,7 @@ export function MetricCard({
       </div>
 
       <div className="relative z-10 flex flex-col h-full justify-between">
-        
+
         {/* HEADER: Icon & Title */}
         <div className="flex items-center justify-between mb-6">
           <div className={cn(
@@ -82,12 +82,12 @@ export function MetricCard({
             <h3 className="text-4xl font-black tracking-tighter leading-none">
               {value}
             </h3>
-            
+
             <div className="flex items-center gap-2 mt-2">
               <div className={cn(
                 "flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase",
-                isTrendUp 
-                  ? "bg-emerald-500/10 text-emerald-500" 
+                isTrendUp
+                  ? "bg-emerald-500/10 text-emerald-500"
                   : "bg-rose-500/10 text-rose-500"
               )}>
                 {isTrendUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
@@ -106,8 +106,8 @@ export function MetricCard({
           <div className="w-20 h-10 mb-1 opacity-60 group-hover:opacity-100 transition-opacity">
             <svg viewBox="0 0 100 40" className="w-full h-full overflow-visible">
               <path
-                d={isTrendUp 
-                  ? "M0 35 Q 25 35, 40 20 T 70 25 T 100 5" 
+                d={isTrendUp
+                  ? "M0 35 Q 25 35, 40 20 T 70 25 T 100 5"
                   : "M0 5 Q 25 5, 40 20 T 70 15 T 100 35"}
                 fill="none"
                 stroke="currentColor"
@@ -116,12 +116,12 @@ export function MetricCard({
                 className={isTrendUp ? "text-emerald-500" : "text-rose-500"}
               />
               {/* Animated point at end of graph */}
-              <circle 
-                cx="100" 
-                cy={isTrendUp ? "5" : "35"} 
-                r="3" 
-                fill="currentColor" 
-                className={cn("animate-ping", isTrendUp ? "text-emerald-400" : "text-rose-400")} 
+              <circle
+                cx="100"
+                cy={isTrendUp ? "5" : "35"}
+                r="3"
+                fill="currentColor"
+                className={cn("animate-ping", isTrendUp ? "text-emerald-400" : "text-rose-400")}
               />
             </svg>
           </div>

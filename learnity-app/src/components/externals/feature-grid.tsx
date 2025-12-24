@@ -56,7 +56,7 @@ const cardVariantClasses = {
   elevated: 'bg-card shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300',
   outlined: 'bg-transparent border-2 shadow-none hover:border-primary hover:shadow-md hover:-translate-y-0.5 transition-all duration-300',
   // Specific Step Design
-  steps: 'bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border border-gray-200/50 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] rounded-[2rem] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group',
+  steps: 'bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border border-gray-200/50 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] rounded-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group',
 };
 
 export function FeatureGrid({

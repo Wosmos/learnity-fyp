@@ -3,7 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Heart, Brain, Rocket, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { LearningGoalsSection } from './LearningGoalsSection';
+
 
 interface ProfileTagsSectionProps {
   interests: string[];
@@ -62,13 +62,6 @@ export function ProfileTagsSection({
         )}
       </div>
 
-      {/* Learning Goals List - Delegated to dedicated component */}
-      {learningGoals.length > 0 && (
-        <LearningGoalsSection 
-          learningGoals={learningGoals} 
-          onEnhanceProfile={onEnhanceProfile}
-        />
-      )}
     </div>
   );
 }

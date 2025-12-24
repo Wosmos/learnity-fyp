@@ -95,9 +95,9 @@ export function SearchInput({
   const showClearButton = localValue.length > 0;
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative ", className)}>
       {/* Search Icon */}
-      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none ">
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
@@ -115,7 +115,7 @@ export function SearchInput({
         placeholder={placeholder}
         autoFocus={autoFocus}
         className={cn(
-          "pl-10 pr-10",
+          "pl-4  mt-2",
           inputClassName
         )}
         aria-label="Search courses"

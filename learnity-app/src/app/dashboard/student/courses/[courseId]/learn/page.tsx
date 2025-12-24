@@ -8,7 +8,6 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { AuthenticatedLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -393,7 +392,6 @@ export default function CoursePlayerPage() {
   // Loading state
   if (authLoading || isLoading) {
     return (
-      <AuthenticatedLayout>
         <div className="min-h-screen bg-slate-900">
           <div className="flex">
             <div className="flex-1 p-4">
@@ -405,14 +403,12 @@ export default function CoursePlayerPage() {
             </div>
           </div>
         </div>
-      </AuthenticatedLayout>
     );
   }
 
   // Error state
   if (error || !course) {
     return (
-      <AuthenticatedLayout>
         <div className="min-h-screen bg-slate-50 flex items-center justify-center">
           <Card className="w-full max-w-md">
             <CardContent className="flex flex-col items-center justify-center py-12">
@@ -425,7 +421,6 @@ export default function CoursePlayerPage() {
             </CardContent>
           </Card>
         </div>
-      </AuthenticatedLayout>
     );
   }
 
@@ -461,7 +456,7 @@ export default function CoursePlayerPage() {
     currentLessonIndex === course.sections[currentSectionIndex].lessons.length - 1;
 
   return (
-    <AuthenticatedLayout>
+    <>
       {/* XP Celebration Animation */}
       <XPCelebration
         show={showXPCelebration}
@@ -552,7 +547,7 @@ export default function CoursePlayerPage() {
           </div>
         )}
       </CoursePlayerLayout>
-    </AuthenticatedLayout>
+    </>
   );
 }
 
