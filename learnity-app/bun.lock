@@ -75,6 +75,10 @@
       },
     },
   },
+  "overrides": {
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+  },
   "packages": {
     "@100mslive/hms-video-store": ["@100mslive/hms-video-store@0.13.0", "", { "dependencies": { "eventemitter2": "^6.4.9", "immer": "^9.0.6", "lodash.isequal": "^4.5.0", "reselect": "4.0.0", "sdp-transform": "^2.14.1", "ua-parser-js": "^2.0.6", "uuid": "^8.3.2", "webrtc-adapter": "^8.0.0", "zustand": "3.5.7" } }, "sha512-pQp5v7R5jCBX1WfEFDRLUvKntr+sqCb3KXivIA6Krdxyvh83yVvSKnKaeVAq5vEHwybelLvvLV+XD365IxKeDA=="],
 
