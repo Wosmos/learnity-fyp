@@ -15,7 +15,7 @@ import { Badge } from '../ui/badge';
 
 export function EliteProfileCard({ profileData }: { profileData: any }) {
   const initials = profileData?.name?.split(' ').map((n: any) => n[0]).join('') || 'ST';
-  
+  console.log(profileData.profilePicture, 'profileData')
   // Format the last login to a readable session time
   const lastLogin = profileData?.lastLoginAt 
     ? new Date(profileData.lastLoginAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
@@ -42,7 +42,7 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
             <div className="relative mb-6">
               <div className="absolute -inset-4 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-full blur-xl opacity-10 group-hover:opacity-20 transition-opacity" />
               <Avatar className="h-32 w-32 ring-4 ring-white shadow-2xl relative z-10">
-                <AvatarImage src={profileData?.picture} />
+                <AvatarImage src={profileData?.profilePicture} />
                 <AvatarFallback className="text-3xl bg-slate-900 text-white font-black">{initials}</AvatarFallback>
               </Avatar>
               <motion.div 

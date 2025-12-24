@@ -220,15 +220,22 @@ export function DirectMessages({ className, onClose }: DirectMessagesProps) {
         </div>
       </CardHeader>
       <CardContent className="p-0 h-[450px]">
-        <Chat client={client} theme="str-chat__theme-light">
-          <Channel channel={selectedChannel}>
-            <Window>
-              <MessageList />
-              <MessageInput />
-            </Window>
-            <Thread />
-          </Channel>
-        </Chat>
+        {client ? (
+          <Chat client={client} theme="str-chat__theme-light">
+            <Channel channel={selectedChannel}>
+              <Window>
+                <MessageList />
+                <MessageInput />
+              </Window>
+              <Thread />
+            </Channel>
+          </Chat>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full gap-4">
+            <AlertCircle className="h-8 w-8 text-amber-500" />
+            <p className="text-slate-500">Chat client not available</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
