@@ -166,10 +166,13 @@ export default function CoursePlayerPage() {
       setCourse(data);
 
       // Set first lesson as current
-      if (data.sections?.length > 0 && data.sections[0].lessons?.length > 0) {
+      if (data.sections?.length > 0 && data.sections[0]?.lessons?.length > 0) {
         setCurrentLesson(data.sections[0].lessons[0]);
         setCurrentSectionIndex(0);
         setCurrentLessonIndex(0);
+      } else {
+        // No lessons available
+        setError('This course has no lessons available yet.');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load course');
@@ -270,8 +273,12 @@ export default function CoursePlayerPage() {
 
   // Navigate to lesson
   const goToLesson = (sectionIndex: number, lessonIndex: number) => {
-    if (!course) return;
-    const lesson = course.sections[sectionIndex]?.lessons[lessonIndex];
+    if (!course || !course.sections || course.sections.length === 0) return;
+    
+    const section = course.sections[sectionIndex];
+    if (!section || !section.lessons || section.lessons.length === 0) return;
+    
+    const lesson = section.lessons[lessonIndex];
     if (lesson) {
       setCurrentLesson(lesson);
       setCurrentSectionIndex(sectionIndex);
@@ -285,8 +292,12 @@ export default function CoursePlayerPage() {
 
   // Navigate to next lesson
   const goToNextLesson = () => {
-    if (!course) return;
+    if (!course || !course.sections || course.sections.length === 0) return;
+    
     const currentSection = course.sections[currentSectionIndex];
+    if (!currentSection || !currentSection.lessons || currentSection.lessons.length === 0) {
+      return;
+    }
     
     if (currentLessonIndex < currentSection.lessons.length - 1) {
       goToLesson(currentSectionIndex, currentLessonIndex + 1);
@@ -299,11 +310,15 @@ export default function CoursePlayerPage() {
 
   // Navigate to previous lesson
   const goToPrevLesson = () => {
+    if (!course || !course.sections || course.sections.length === 0) return;
+    
     if (currentLessonIndex > 0) {
       goToLesson(currentSectionIndex, currentLessonIndex - 1);
-    } else if (currentSectionIndex > 0 && course) {
+    } else if (currentSectionIndex > 0) {
       const prevSection = course.sections[currentSectionIndex - 1];
-      goToLesson(currentSectionIndex - 1, prevSection.lessons.length - 1);
+      if (prevSection && prevSection.lessons && prevSection.lessons.length > 0) {
+        goToLesson(currentSectionIndex - 1, prevSection.lessons.length - 1);
+      }
     }
   };
 
@@ -377,13 +392,18 @@ export default function CoursePlayerPage() {
 
   // Get next lesson title
   const getNextLessonTitle = (): string | undefined => {
-    if (!course) return undefined;
+    if (!course || !course.sections || course.sections.length === 0) return undefined;
+    
     const currentSection = course.sections[currentSectionIndex];
+    if (!currentSection || !currentSection.lessons || currentSection.lessons.length === 0) {
+      return undefined;
+    }
     
     if (currentLessonIndex < currentSection.lessons.length - 1) {
-      return currentSection.lessons[currentLessonIndex + 1].title;
+      return currentSection.lessons[currentLessonIndex + 1]?.title;
     } else if (currentSectionIndex < course.sections.length - 1) {
-      return course.sections[currentSectionIndex + 1].lessons[0]?.title;
+      const nextSection = course.sections[currentSectionIndex + 1];
+      return nextSection?.lessons?.[0]?.title;
     }
     return undefined;
   };
@@ -428,31 +448,33 @@ export default function CoursePlayerPage() {
   const videoId = currentLesson?.youtubeUrl 
     ? extractYouTubeId(currentLesson.youtubeUrl) 
     : currentLesson?.youtubeId;
-  const totalLessons = course.sections.reduce((sum, s) => sum + s.lessons.length, 0);
+  const totalLessons = course?.sections?.reduce((sum, s) => sum + (s.lessons?.length || 0), 0) || 0;
   const completedCount = progress?.completedLessons?.length || 0;
   const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
   
   // Convert sections for LessonSidebar
-  const sidebarSections: SectionItem[] = course.sections.map(s => ({
+  const sidebarSections: SectionItem[] = course?.sections?.map(s => ({
     id: s.id,
     title: s.title,
     description: s.description,
     order: s.order,
-    lessons: s.lessons.map(l => ({
+    lessons: s.lessons?.map(l => ({
       id: l.id,
       title: l.title,
       type: l.type,
       duration: l.duration,
       order: l.order,
-    })),
-  }));
+    })) || [],
+  })) || [];
   
   const completedLessonIds = new Set(progress?.completedLessons || []);
   const currentLessonProgress = currentLesson ? getLessonProgress(currentLesson.id) : undefined;
 
   // Check if at first/last lesson
   const isFirstLesson = currentSectionIndex === 0 && currentLessonIndex === 0;
-  const isLastLesson = currentSectionIndex === course.sections.length - 1 &&
+  const isLastLesson = course?.sections && course.sections.length > 0 && 
+    currentSectionIndex === course.sections.length - 1 &&
+    course.sections[currentSectionIndex]?.lessons &&
     currentLessonIndex === course.sections[currentSectionIndex].lessons.length - 1;
 
   return (

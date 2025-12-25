@@ -1,9 +1,4 @@
-/**
- * About Page
- * Information about Learnity platform
- */
 
-'use client';
 
 import { PublicLayout } from '@/components/layout/AppLayout';
 import {
@@ -162,26 +157,23 @@ through personalized, expert-led instruction.`,
                       icon: Award,
                       title: 'Verified Tutors',
                       description: 'All tutors undergo rigorous verification including background checks and credential validation.',
-                      bgColor: 'bg-yellow-100',
-                      color: 'text-yellow-600',
+                     
                     },
                     {
                       icon: Shield,
                       title: 'Secure Platform',
                       description: 'Enterprise-grade security with encryption, secure payments, and comprehensive audit logging.',
-                      bgColor: 'bg-slate-100',
-                      color: 'text-blue-600',
+       
                     },
                     {
                       icon: Zap,
                       title: 'Proven Results',
                       description: '95% of students see improvement within 3 months. 4.9 average rating from thousands of satisfied learners.',
-                      bgColor: 'bg-green-100',
-                      color: 'text-green-600',
+
                     },
                   ]}
                   columns={3}
-                  variant="elevated"
+                  variant="steps"
                 />
               </div>
             </div>
