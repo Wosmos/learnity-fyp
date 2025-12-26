@@ -132,6 +132,7 @@ async function getXPEarnedForCourse(studentId: string, courseId: string): Promis
       sections: {
         include: {
           lessons: {
+            select: { id: true },
             include: {
               quiz: {
                 select: { id: true },
