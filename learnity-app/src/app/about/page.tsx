@@ -125,18 +125,43 @@ through personalized, expert-led instruction.`,
           </section>
 
           {/* What We Offer */}
-          <section className="bg-gray-50 py-20">
-            <div className="container mx-auto px-4">
-              <div className="max-w-4xl mx-auto">
-                <SectionHeader
-                  title="What We Offer"
-                  description="Everything you need for successful learning"
-                />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <section className="relative overflow-hidden">
+            {/* Subtle vertical accent line */}
+            <div className="absolute left-1/2 top-0 w-px h-full bg-slate-50 -translate-x-1/2 hidden lg:block" />
+
+            <div className="container mx-auto px-6 relative z-10 text-center">
+              <div className="max-w-5xl mx-auto">
+                <div className="flex flex-col md:flex-row mx-auto items-center justify-center gap-6">
+                  <SectionHeader
+                      title="What We Offer"
+                      description="Everything you need for successful learning"
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {FEATURES.map((feature, index) => (
-                    <div key={index} className="flex items-center bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
-                      <CheckCircle className="h-5 w-5 text-green-500 mr-3 shrink-0" />
-                      <span className="text-gray-700 font-medium">{feature}</span>
+                    <div
+                      key={index}
+                      className="group relative bg-white border border-slate-100 p-6 rounded-2xl transition-all duration-500 hover:border-slate-900 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.05)]"
+                    >
+                      {/* Hover Accent Glow */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+
+                      <div className="relative flex items-center gap-4">
+                        {/* Refined Check Icon */}
+                        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-950 text-slate-400 group-hover:bg-slate-950 group-hover:text-white transition-all duration-300">
+                          <CheckCircle className="h-4 w-4" />
+                        </div>
+
+                        <div>
+                          <span className="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-900 transition-colors">
+                            Benefit {String(index + 1).padStart(2, '0')}
+                          </span>
+                          <p className="text-[13px] font-bold text-slate-900 uppercase italic tracking-tight mt-0.5">
+                            {feature}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -157,13 +182,13 @@ through personalized, expert-led instruction.`,
                       icon: Award,
                       title: 'Verified Tutors',
                       description: 'All tutors undergo rigorous verification including background checks and credential validation.',
-                     
+
                     },
                     {
                       icon: Shield,
                       title: 'Secure Platform',
                       description: 'Enterprise-grade security with encryption, secure payments, and comprehensive audit logging.',
-       
+
                     },
                     {
                       icon: Zap,
@@ -193,16 +218,8 @@ through personalized, expert-led instruction.`,
               href: '/teachers',
               variant: 'outline',
             }}
-            background="blue"
           />
-
-          {/* Footer */}
-          <Footer
-            status={{
-              text: 'All Systems Operational',
-              online: true,
-            }}
-          />
+          
         </div>
       </div>
     </PublicLayout>

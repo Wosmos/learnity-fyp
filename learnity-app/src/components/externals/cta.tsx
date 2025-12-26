@@ -1,188 +1,123 @@
-/**
- * CTA (Call to Action) Section Component
- * Modern, flexible CTA section with customizable content
- * Apple-inspired design with smooth animations
- */
-
 'use client';
 
 import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, LucideIcon } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, LucideIcon, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface CTAAction {
   label: string;
   href: string;
-  variant?: 'cta' | 'ctaSecondary' | 'outline' | 'default' | 'gradient';
+  variant?: any;
   icon?: LucideIcon;
-  className?: string;
 }
 
 export interface CTAProps {
-  // Content
-  title: string | React.ReactNode;
-  description?: string | React.ReactNode;
-
-  // Actions
+  title: string;
+  description?: string;
   primaryAction?: CTAAction;
   secondaryAction?: CTAAction;
-  actions?: CTAAction[]; // For multiple actions
-
-  // Styling
-  variant?: 'default' | 'gradient' | 'minimal' | 'card';
-  size?: 'sm' | 'md' | 'lg';
-  background?: 'blue' | 'purple' | 'gradient' | 'white' | 'gray';
-
-  // Layout
-  centered?: boolean;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl';
-
-  // Custom
   className?: string;
-  icon?: React.ReactNode;
-  children?: React.ReactNode;
+  isDark?: boolean; // Toggle for Onyx vs White theme
 }
-
-const variantClasses = {
-  default: 'rounded-3xl px-8 py-16 md:px-16 md:py-20',
-  gradient: 'rounded-3xl px-8 py-16 md:px-16 md:py-20',
-  minimal: 'rounded-2xl px-6 py-12 md:px-12 md:py-16',
-  card: 'rounded-2xl px-6 py-12 md:px-12 md:py-16 shadow-xl',
-};
-
-const backgroundClasses = {
-  blue: 'bg-slate-600',
-  purple: 'bg-purple-600',
-  gradient: 'bg-gradient-to-br from-blue-600 to-purple-600',
-  white: 'bg-white',
-  gray: 'bg-gray-50',
-};
-
-const textColorClasses = {
-  blue: 'text-white',
-  purple: 'text-white',
-  gradient: 'text-white',
-  white: 'text-gray-900',
-  gray: 'text-gray-900',
-};
-
-const descriptionColorClasses = {
-  blue: 'text-blue-100',
-  purple: 'text-purple-100',
-  gradient: 'text-blue-100',
-  white: 'text-gray-600',
-  gray: 'text-gray-600',
-};
-
-const maxWidthClasses = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
-  xl: 'max-w-xl',
-  '2xl': 'max-w-2xl',
-  '4xl': 'max-w-4xl',
-};
 
 export function CTA({
   title,
   description,
   primaryAction,
   secondaryAction,
-  actions,
-  variant = 'default',
-  background = 'blue',
-  centered = true,
-  maxWidth = '4xl',
   className,
-  icon,
-  children,
+  isDark = true,
 }: CTAProps) {
-  const displayActions = actions || [primaryAction, secondaryAction].filter(Boolean) as CTAAction[];
-
   return (
-    <section className={cn('py-20', className)}>
-      <div className="container mx-auto px-4">
+    <section className={cn('py-24 px-6', className)}>
+      <div className="max-w-7xl mx-auto">
         <div className={cn(
-          'relative overflow-hidden',
-          variantClasses[variant],
-          backgroundClasses[background],
-          'animate-in fade-in slide-in-from-bottom-4 duration-700'
+          'relative rounded-3xl px-10 py-8 md:p-24 overflow-hidden transition-all duration-700 border',
+          isDark 
+            ? 'bg-slate-950 border-white/5 text-white' 
+            : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-slate-200/50'
         )}>
-          {/* Decorative Background Elements */}
-          {background !== 'white' && background !== 'gray' && (
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full translate-x-32 -translate-y-32"></div>
-              <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full -translate-x-48 translate-y-48"></div>
-            </div>
+          
+          {/* Subtle Depth Accents */}
+          {isDark && (
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
           )}
 
-          {/* Content */}
-          <div className={cn(
-            'relative z-10',
-            centered && 'text-center',
-            maxWidthClasses[maxWidth],
-            centered && 'mx-auto'
-          )}>
-            {/* Icon */}
-            {icon && (
-              <div className={cn('mb-6', centered && 'flex justify-center')}>
-                {icon}
-              </div>
-            )}
+          <div className="relative z-10 max-w-3xl">
+            {/* Top Badge */}
+            {/* <div className="flex items-center gap-3 mb-8">
+              <Zap className={cn("w-4 h-4", isDark ? "text-amber-400 fill-amber-400" : "text-indigo-600")} />
+              <span className={cn(
+                "text-[10px] font-black uppercase tracking-[0.4em] italic",
+                isDark ? "text-slate-500" : "text-slate-400"
+              )}>
+                Exclusive Membership
+              </span>
+            </div> */}
 
-            {/* Title */}
-            <h2 className={cn(
-              'text-4xl md:text-5xl font-bold mb-6',
-              textColorClasses[background]
-            )}>
+            {/* Title - Ultra Impact */}
+            <h2 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-[0.9] mb-8">
               {title}
             </h2>
 
-            {/* Description */}
+            {/* Description - Sophisticated Font Weight */}
             {description && (
               <p className={cn(
-                'text-xl mb-10 leading-relaxed',
-                descriptionColorClasses[background]
+                "text-md md:text-lg font-medium leading-relaxed max-w-xl mb-12 italic opacity-80",
+                isDark ? "text-slate-400" : "text-slate-600"
               )}>
                 {description}
               </p>
             )}
 
             {/* Actions */}
-            {displayActions.length > 0 && (
-              <div className={cn(
-                'flex flex-col sm:flex-row gap-4',
-                centered ? 'justify-center' : ''
-              )}>
-                {displayActions.map((action, index) => (
-                  <Link key={index} href={action.href}>
-                    <Button
-                      size="lg"
-                      variant={action.variant || (index === 0 ? 'ctaSecondary' : 'outline')}
-                      className={cn(
-                        'text-base px-8 py-6 rounded-xl font-semibold'
-                      )}
-                    >
-                      {action.label}
-                      {action.icon ? (
-                        <action.icon className="ml-2 h-5 w-5" />
-                      ) : (
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      )}
-                    </Button>
+            <div className="flex flex-wrap gap-6">
+              {primaryAction && (
+                   <Link href={primaryAction.href} className="inline-block group ">
+                    <button className="h-14 px-10 border border-slate-200 hover:border-slate-950 rounded-xl flex items-center gap-4 transition-all duration-300 active:scale-95 bg-white hover:bg-slate-950 group-hover:cursor-pointer">
+                      
+                      {/* Label - Swaps color on hover */}
+                      <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-600 group-hover:text-white transition-colors duration-300 group-hover:cursor-pointer">
+                        {primaryAction?.label}
+                      </span>
+                      
+                      {/* Icon - Circular frame that scales and colors */}
+                      <div className="flex items-center justify-center w-7 h-7 rounded-xl bg-slate-50 group-hover:bg-white/10 transition-all duration-300">
+                        <ArrowRight className="h-3.5 w-3.5 text-slate-900 group-hover:text-slate-950 transition-transform group-hover:translate-x-0.5" />
+                      </div>
+                    </button>
                   </Link>
-                ))}
-              </div>
-            )}
+              )}
 
-            {/* Custom Children */}
-            {children}
+              {secondaryAction && (
+               <Link href={secondaryAction.href} className="group border-slate-200 hover:border-slate-950 rounded-xl flex items-center gap-4 transition-all duration-300 active:scale-95  hover:bg-slate-950 group-hover:cursor-pointer">
+                  <button className={cn(
+                    "h-14 px-8 rounded-2xl border transition-all duration-300 active:scale-95 cursor-pointer flex items-center gap-4",
+                    isDark 
+                      ? "border-white/10 text-white hover:bg-white/5 bg-transparent" 
+                      : "border-slate-200 text-slate-600 hover:border-slate-900 hover:text-slate-900"
+                  )}>
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em]">
+                      {secondaryAction.label}
+                    </span>
+                    <ArrowRight className="h-3.5 w-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                  </button>
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* Large Background Glyph */}
+          <div className={cn(
+            "absolute bottom-0 right-0 translate-y-1/4 translate-x-1/4 text-[20rem] font-black italic select-none pointer-events-none opacity-[0.03]",
+            isDark ? "text-white" : "text-slate-950"
+          )}>
+            ELITE
           </div>
         </div>
       </div>
     </section>
   );
 }
-

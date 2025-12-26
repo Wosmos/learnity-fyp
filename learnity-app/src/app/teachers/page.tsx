@@ -58,30 +58,25 @@ export default async function TeachersPage() {
               </>
             }
             description="All our tutors are carefully vetted, highly qualified, and passionate about helping students succeed"
-            primaryAction={{
-              label: "Browse Courses",
-              href: "/courses",
-              variant: "cta",
-            }}
+            // primaryAction={{
+            //   label: "Learn More About Us",
+            //   href: "/about",
+            //   variant: "cta",
+            // }}
             stats={
               <PlatformStatsWithSuspense variant="hero" showTrends={true} />
             }
-          />
-          <SectionHeader
-            title="Our Teaching Community"
-            description="Real-time statistics from our growing network of expert educators"
           />
 
           {/* Top Rated Teachers Preview */}
           {teachersData?.topRatedTeachers &&
             teachersData.topRatedTeachers.length > 0 && (
-              <section className="py-24 relative overflow-hidden">
+              <section className="py-20 relative overflow-hidden">
                 {/* Decorative Background Element */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-50/30 rounded-full blur-[120px] -z-10" />
 
                 <div className="container mx-auto px-6">
                   <SectionHeader
-                    subtitle="Registry: Tier-01"
                     title="Top Rated"
                     highlightWord="Mentors"
                     description="Access the highest-rated educators in our network, verified for elite-level instruction."
@@ -109,7 +104,7 @@ export default async function TeachersPage() {
                               <div className="absolute inset-0 bg-indigo-600 rounded-[2rem] rotate-6 group-hover:rotate-12 transition-transform duration-500 opacity-10" />
                               <div className="relative w-full h-full bg-slate-900 rounded-[2rem] flex items-center justify-center text-white font-black text-3xl italic overflow-hidden border-4 border-white shadow-xl">
                                 {teacher.profilePicture ||
-                                teacher.teacherProfile?.profilePicture ? (
+                                  teacher.teacherProfile?.profilePicture ? (
                                   <img
                                     src={
                                       (teacher.profilePicture ||
@@ -184,11 +179,6 @@ export default async function TeachersPage() {
                                 "Certified specialist in advanced linguistic protocols and rapid fluency."}
                               "
                             </p>
-
-                            {/* CTA Action */}
-                            {/* <button className="w-full py-4 bg-slate-900 hover:bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all active:scale-95 shadow-lg shadow-slate-200 hover:shadow-indigo-200">
-                              View Deployment
-                            </button> */}
                           </div>
                         </div>
                       ))}
@@ -200,15 +190,11 @@ export default async function TeachersPage() {
           {/* All Teachers Grid */}
           <section className="py-20 bg-gray-50">
             <div className="container mx-auto px-4">
-              <div className="text-center mb-12">
-                <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                  All Tutors
-                </h2>
-                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  Browse our complete selection of qualified tutors across
-                  various subjects
-                </p>
-              </div>
+              <SectionHeader
+                title="All"
+                highlightWord="Teachers"
+                description="Browse our complete selection of qualified tutors across various subjects."
+              />
 
               <Suspense fallback={<TeachersGridSkeleton />}>
                 <TeachersGrid initialData={teachersData} />
@@ -220,13 +206,21 @@ export default async function TeachersPage() {
           {teachersData?.subjects && teachersData.subjects.length > 0 && (
             <section className="py-20">
               <div className="container mx-auto px-4">
-                <div className="text-center mb-12">
-                  <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                    Popular Subjects
-                  </h2>
-                  <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                    Find expert tutors in these high-demand subjects
-                  </p>
+                <SectionHeader
+                  title="Popular"
+                  highlightWord="Subjects"
+                  description="Find expert tutors in these high-demand subjects"
+                />
+
+                <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
+                  {teachersData.subjects.slice(0, 20).map((subject) => (
+                    <span
+                      key={subject}
+                      className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-700 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors cursor-pointer"
+                    >
+                      {subject}
+                    </span>
+                  ))}
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
@@ -247,56 +241,63 @@ export default async function TeachersPage() {
           <section className="bg-gray-50 py-20">
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-12">
-                  <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                    Why Teach With Learnity?
-                  </h2>
-                  <p className="text-lg text-gray-600">
-                    Join our community of expert educators and make a difference
-                  </p>
-                </div>
+                <SectionHeader
+                  title="Why"
+                  highlightWord="Learnity"
+                  description="Join our community of expert educators and make a difference"
+                />
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
-                      <GraduationCap className="h-8 w-8 text-blue-600" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                      Flexible Schedule
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      Set your own hours and teach when it works for you.
-                      Perfect work-life balance with complete control over your
-                      schedule.
-                    </p>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                  {[
+                    {
+                      title: 'Your Schedule, Your Rules',
+                      desc: 'Work when you want. Set your own hours and balance teaching with your life perfectly.',
+                      icon: GraduationCap,
+                      color: 'from-blue-500 to-indigo-600'
+                    },
+                    {
+                      title: 'Global Student Base',
+                      desc: 'Connect with students from around the world. Grow your reputation in a massive learning community.',
+                      icon: Users,
+                      color: 'from-purple-500 to-pink-600'
+                    },
+                    {
+                      title: 'Keep What You Earn',
+                      desc: 'Set your own competitive rates. Our transparent system ensures you get paid exactly what you’re worth.',
+                      icon: Award,
+                      color: 'from-emerald-500 to-teal-600'
+                    }
+                  ].map((item, i) => (
+                    <div key={i} className="group relative flex flex-col items-start text-left">
+                      {/* Icon with Onyx styling */}
+                      <div className="relative mb-8 transition-transform duration-500 group-hover:-translate-y-2">
+                        <div className="absolute inset-0 bg-slate-950 blur-xl opacity-0 group-hover:opacity-20 transition-opacity" />
+                        <div className="relative w-16 h-16 bg-slate-900 border border-slate-100 rounded-2xl flex items-center justify-center text-slate-950 group-hover:bg-slate-950 group-hover:text-white transition-all duration-500 shadow-xl shadow-slate-200/50 group-hover:shadow-slate-950">
+                          <item.icon className="h-7 w-7 stroke-[1.5] text-white opacity-70 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </div>
 
-                  <div className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="w-16 h-16 bg-purple-100 rounded-xl flex items-center justify-center mb-6">
-                      <Users className="h-8 w-8 text-purple-600" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                      Growing Community
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      Connect with thousands of eager students worldwide. Be
-                      part of a supportive teaching community that values
-                      excellence.
-                    </p>
-                  </div>
+                      {/* Content */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600 italic">
+                          0{i + 1}
+                        </span>
+                        <div className="h-px w-8 bg-slate-100 group-hover:w-12 group-hover:bg-indigo-600 transition-all duration-500" />
 
-                  <div className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center mb-6">
-                      <Award className="h-8 w-8 text-green-600" />
+                      </div>
+
+                      <h3 className="text-2xl font-black text-slate-950 uppercase italic tracking-tighter mb-4 leading-none">
+                        {item.title}
+                      </h3>
+
+                      <p className="text-sm text-slate-500 leading-relaxed font-medium italic opacity-80 group-hover:opacity-100 transition-opacity">
+                        {item.desc}
+                      </p>
+
+                      {/* Subtle corner accent */}
+                      <div className="mt-8 h-1 w-0 bg-slate-950 group-hover:w-full transition-all duration-700" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                      Competitive Pay
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      Set your own rates and earn what you deserve. Transparent
-                      pricing with no hidden fees or commission caps.
-                    </p>
-                  </div>
+                  ))}
                 </div>
 
                 <div className="text-center mt-12">
@@ -313,7 +314,7 @@ export default async function TeachersPage() {
         </div>
       </div>
     </PublicLayout>
-);
+  );
 }
 
 function TeachersGridSkeleton() {

@@ -43,17 +43,7 @@ export default function StudentRegisterPage() {
     <AuthProvider>
       <div className="min-h-screen bg-slate-50 lg:flex">
         {/* Left Side - Branding (Desktop Only) */}
-        <LedtSideSection
-          title="Join the Learning Revolution"
-          subtitle="Connect with expert mentors and passionate students in a community dedicated to growth."
-          statCount="50k+"
-          statLabel="Active Students"
-          testimonial={{
-            quote: "Learnity helped me find the perfect tutor for my calculus exam. Highly recommended!",
-            author: "Sarah J.",
-            role: "University Student"
-          }}
-        />
+        <LedtSideSection/>
 
         {/* Right Side - Registration Form */}
         <div className="flex-1 flex flex-col p-4 sm:p-8 lg:p-12 bg-white lg:bg-transparent overflow-y-auto h-screen relative">

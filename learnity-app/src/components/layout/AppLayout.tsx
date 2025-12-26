@@ -36,7 +36,8 @@ import {
 import { UserRole } from '@/types/auth';
 import { cn } from '@/lib/utils';
 import { getDashboardRoute, getRoleBadgeColor, getRoleDisplayName } from './utils';
-import Footer from './Footer';
+import { Footer } from '../externals';
+
 
 export interface AppLayoutProps {
   children: React.ReactNode;
@@ -384,8 +385,13 @@ export function AppLayout({
         {children}
       </main>
 
-      {/* Footer */}
-      <Footer />
+    {/* Footer */}
+      <Footer
+      status={{
+        text: 'All Systems Operational',
+        online: true,
+      }}
+    />
     </div>
   );
 }
@@ -442,5 +448,8 @@ export function AdminAuthenticatedLayout({ children, ...props }: AppLayoutProps)
  * Layout wrapper for public pages (no authentication required)
  */
 export function PublicLayout({ children, ...props }: AppLayoutProps) {
-  return <AppLayout {...props}>{children}</AppLayout>;
+  return <AppLayout {...props}>
+    {children}
+    
+  </AppLayout>;
 }

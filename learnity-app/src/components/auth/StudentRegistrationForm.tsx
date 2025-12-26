@@ -697,7 +697,7 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
                 </div>
                 {form.formState.errors.hcaptchaToken && (
                   <p className="text-sm text-red-600 text-center">
-                    {form.formState.errors.hcaptchaToken.message}
+                    {form.formState.errors.hcaptchaToken.message}dsdsds
                   </p>
                 )}
               </div>
