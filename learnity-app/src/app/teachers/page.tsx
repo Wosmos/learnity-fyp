@@ -302,7 +302,7 @@ export default async function TeachersPage() {
 
                 <div className="text-center mt-12">
                   <Link href="/auth/register/teacher">
-                    <Button size="lg" variant="cta" className="px-8 py-4">
+                    <Button size="lg"  className="px-8 py-4">
                       Apply to Teach Today
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>

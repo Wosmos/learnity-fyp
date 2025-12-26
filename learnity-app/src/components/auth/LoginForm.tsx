@@ -430,7 +430,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       </Form>
 
       {/* Sign Up Link */}
-      <div className="text-center text-sm text-gray-600">
+      <div className="text-center text-sm text-slate-950">
         Don&apos;t have an account?{' '}
         <Button
           type="button"

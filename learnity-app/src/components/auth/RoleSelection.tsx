@@ -1,185 +1,133 @@
-/**
- * Role Selection Component
- * Allows users to choose their role during registration
- */
-
 'use client';
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CheckCircle2, GraduationCap, BookOpen, Users, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserRole } from '@/types/auth';
 import { useAuthStore } from '@/lib/stores/auth.store';
-import { GraduationCap, BookOpen, Shield, Users } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface RoleOption {
   role: UserRole;
   title: string;
   description: string;
   features: string[];
-  icon: React.ComponentType<{ className?: string }>;
-  color: string;
+  icon: React.ElementType;
+  glowColor: string;
   available: boolean;
 }
 
 const roleOptions: RoleOption[] = [
   {
     role: UserRole.STUDENT,
-    title: 'Student',
-    description: 'Join study groups, book tutoring sessions, and track your learning progress',
-    features: [
-      'Access to study groups and peer learning',
-      'Book one-on-one tutoring sessions',
-      'Track learning progress and achievements',
-      'Personalized learning recommendations',
-      'Mobile-optimized learning experience'
-    ],
+    title: 'I want to learn',
+    description: 'Find a tutor, join a study group, and grow your skills.',
+    features: ['Easy tutor booking', 'Study with friends', 'Track your progress'],
     icon: GraduationCap,
-    color: 'border-blue-200 hover:border-blue-300 bg-slate-50/50',
+    glowColor: 'group-hover:border-blue-500/50',
     available: true
   },
   {
     role: UserRole.TEACHER,
-    title: 'Teacher',
-    description: 'Share your expertise, teach students, and earn income through tutoring',
-    features: [
-      'Create and manage tutoring sessions',
-      'Upload educational content and resources',
-      'Track student progress and performance',
-      'Flexible scheduling and pricing',
-      'Professional teacher verification process'
-    ],
+    title: 'I want to teach',
+    description: 'Share what you know, help students, and earn money.',
+    features: ['Set your own prices', 'Manage your schedule', 'Share your resources'],
     icon: BookOpen,
-    color: 'border-green-200 hover:border-green-300 bg-green-50/50',
+    glowColor: 'group-hover:border-emerald-500/50',
     available: true
   }
 ];
 
-export interface RoleSelectionProps {
-  onRoleSelect: (role: UserRole) => void;
-  className?: string;
-  showUnavailableRoles?: boolean; // For admin setup pages
-}
-
-export const RoleSelection: React.FC<RoleSelectionProps> = ({
-  onRoleSelect,
-  className = '',
-  showUnavailableRoles = false
-}) => {
+export const RoleSelection = ({ onRoleSelect }: { onRoleSelect: (role: UserRole) => void }) => {
   const { selectedRole, setSelectedRole, setRegistrationStep } = useAuthStore();
 
   const handleRoleSelect = (role: UserRole) => {
-    if (!roleOptions.find(option => option.role === role)?.available) {
-      return;
-    }
-
     setSelectedRole(role);
     setRegistrationStep('form');
     onRoleSelect(role);
   };
 
-  // Filter roles - only show available roles by default, or all if showUnavailableRoles is true
-  const visibleRoles = showUnavailableRoles
-    ? roleOptions
-    : roleOptions.filter(option => option.available);
-
   return (
-    <div className={`w-full mx-auto px-2 p-6 ${className}`}>
-      {/* Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center mb-4">
-          <Users className="h-12 w-12 text-blue-600 mr-3" />
-          <h1 className="text-3xl font-bold text-gray-900">Join Learnity</h1>
+    <div className="w-full max-w-2xl mx-auto px-4 py-8 md:py-12">
+      {/* Header - Simplified Language */}
+      <div className="text-center mb-10 animate-in fade-in slide-in-from-top-4 duration-700">
+        <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 mb-4">
+          <Users className="h-6 w-6 text-blue-400" />
         </div>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Choose your role to get started with personalized features and experiences
+        <h1 className="text-3xl md:text-4xl font-black italic uppercase tracking-tighter text-white mb-3">
+          Join Learnity
+        </h1>
+        <p className="text-slate-400 text-sm md:text-base font-medium max-w-sm mx-auto">
+          How would you like to use our platform? Choose an option to start.
         </p>
       </div>
 
-      {/* Role Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {visibleRoles.map((option) => {
-          const IconComponent = option.icon;
+      {/* Role Tiles */}
+      <div className="grid grid-cols-1 gap-4 md:gap-6">
+        {roleOptions.map((option, index) => {
+          const Icon = option.icon;
           const isSelected = selectedRole === option.role;
-          const isDisabled = !option.available;
-
+          
           return (
-            <Card
+            <div
               key={option.role}
-              className={`
-                relative cursor-pointer transition-all duration-200 transform hover:scale-105
-                ${option.color}
-                ${isSelected ? 'ring-2 ring-blue-500 shadow-lg' : 'shadow-md hover:shadow-lg'}
-                ${isDisabled ? 'opacity-60 cursor-not-allowed' : ''}
-              `}
-              onClick={() => !isDisabled && handleRoleSelect(option.role)}
-            >
-              {isDisabled && (
-                <div className="absolute top-4 right-4 bg-gray-500 text-white text-xs px-2 py-1 rounded-full">
-                  Invitation Only
-                </div>
+              onClick={() => handleRoleSelect(option.role)}
+              className={cn(
+                "group relative overflow-hidden rounded-3xl border transition-all duration-300 cursor-pointer",
+                "bg-white/[0.02] border-white/10 hover:bg-white/[0.04]",
+                isSelected ? "border-blue-500 bg-blue-500/[0.05]" : "hover:border-white/20",
+                `animate-in fade-in slide-in-from-bottom-8 duration-700`
               )}
+              style={{ animationDelay: `${index * 150}ms` }}
+            >
+              <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-6">
+                {/* Icon Circle */}
+                <div className={cn(
+                  "h-14 w-14 shrink-0 rounded-2xl flex items-center justify-center transition-colors",
+                  isSelected ? "bg-blue-500 text-white" : "bg-white/5 text-slate-400 group-hover:text-white"
+                )}>
+                  <Icon className="h-7 w-7" />
+                </div>
 
-              <CardHeader className="pb-4">
-                <div className="flex items-center space-x-3">
-                  <div className={`
-                    p-3 rounded-lg
-                    ${option.role === UserRole.STUDENT ? 'bg-slate-100 text-blue-600' : ''}
-                    ${option.role === UserRole.TEACHER ? 'bg-green-100 text-green-600' : ''}
-                    ${option.role === UserRole.ADMIN ? 'bg-purple-100 text-purple-600' : ''}
-                  `}>
-                    <IconComponent className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl font-semibold">
+                {/* Text Content */}
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-bold text-white uppercase italic tracking-tight">
                       {option.title}
-                    </CardTitle>
+                    </h3>
+                    <ChevronRight className={cn(
+                      "h-5 w-5 transition-transform",
+                      isSelected ? "text-blue-500 translate-x-1" : "text-slate-600 group-hover:text-slate-400"
+                    )} />
+                  </div>
+                  <p className="text-slate-400 text-sm leading-relaxed">
+                    {option.description}
+                  </p>
+                  
+                  {/* Features - Visible on Tablet/Desktop, Hidden or simplified on tiny phones */}
+                  <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2">
+                    {option.features.map((feature) => (
+                      <span key={feature} className="flex items-center text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                        <CheckCircle2 className="h-3 w-3 text-blue-500/70 mr-1.5" />
+                        {feature}
+                      </span>
+                    ))}
                   </div>
                 </div>
-                <CardDescription className="text-sm text-gray-600 mt-2">
-                  {option.description}
-                </CardDescription>
-              </CardHeader>
-
-              <CardContent>
-                <ul className="space-y-2 mb-6">
-                  {option.features.map((feature, index) => (
-                    <li key={index} className="flex items-start text-sm text-gray-700">
-                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 shrink-0" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                <Button
-                  className={`
-                    w-full font-medium
-                    ${option.role === UserRole.STUDENT ? 'bg-slate-600 hover:bg-slate-700' : ''}
-                    ${option.role === UserRole.TEACHER ? 'bg-green-600 hover:bg-green-700' : ''}
-                    ${option.role === UserRole.ADMIN ? 'bg-purple-600 hover:bg-purple-700' : ''}
-                    ${isDisabled ? 'bg-gray-400 cursor-not-allowed' : ''}
-                  `}
-                  disabled={isDisabled}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!isDisabled) handleRoleSelect(option.role);
-                  }}
-                >
-                  {isDisabled ? 'Contact Admin' : `Continue as ${option.title}`}
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           );
         })}
       </div>
 
-      {/* Additional Information */}
-      <div className="mt-8 text-center">
-        <p className="text-sm text-gray-500">
+      {/* Footer Info */}
+      <div className="mt-10 text-center animate-in fade-in duration-1000 delay-500">
+        <p className="text-sm text-slate-500 font-medium">
           Already have an account?{' '}
-          <button className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer">
-            Sign in here
-          </button>
+          <Link href="/login" className="text-blue-400 hover:text-blue-300 font-bold underline-offset-4 hover:underline">
+            Sign in
+          </Link>
         </p>
       </div>
     </div>
