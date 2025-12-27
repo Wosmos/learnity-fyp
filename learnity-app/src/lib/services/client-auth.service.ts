@@ -1,15 +1,15 @@
 /**
  * Client-Side Authentication Service
- * 
+ *
  * Handles authentication operations in the browser using Firebase Client SDK.
  * This service is for CLIENT-SIDE use only (React components, hooks).
- * 
+ *
  * For server-side operations (API routes), use FirebaseAuthService instead.
- * 
+ *
  * Key differences:
  * - ClientAuthService: Uses Firebase Client SDK, calls API endpoints for server operations
  * - FirebaseAuthService: Uses both Client and Admin SDK, can set custom claims directly
- * 
+ *
  * Usage:
  * - Client components/hooks: Use ClientAuthService (via useAuthService hook)
  * - API routes: Use FirebaseAuthService
@@ -26,16 +26,16 @@ import {
   updatePassword as firebaseUpdatePassword,
   signOut,
   User as FirebaseUser,
-  UserCredential
-} from 'firebase/auth';
-import { auth } from '@/lib/config/firebase';
-import { 
-  StudentRegistrationData, 
+  UserCredential,
+} from "firebase/auth";
+import { auth } from "@/lib/config/firebase";
+import {
+  StudentRegistrationData,
   TeacherRegistrationData,
-  EnhancedTeacherRegistrationData, 
-  LoginData 
-} from '@/lib/validators/auth';
-import { FirebaseAuthResult } from '@/types/auth';
+  EnhancedTeacherRegistrationData,
+  LoginData,
+} from "@/lib/validators/auth";
+import { FirebaseAuthResult } from "@/types/auth";
 
 export class ClientAuthService {
   private googleProvider: GoogleAuthProvider;
@@ -43,14 +43,14 @@ export class ClientAuthService {
 
   constructor() {
     this.googleProvider = new GoogleAuthProvider();
-    this.microsoftProvider = new OAuthProvider('microsoft.com');
-    
+    this.microsoftProvider = new OAuthProvider("microsoft.com");
+
     // Configure providers
-    this.googleProvider.addScope('email');
-    this.googleProvider.addScope('profile');
-    
-    this.microsoftProvider.addScope('email');
-    this.microsoftProvider.addScope('profile');
+    this.googleProvider.addScope("email");
+    this.googleProvider.addScope("profile");
+
+    this.microsoftProvider.addScope("email");
+    this.microsoftProvider.addScope("profile");
   }
 
   /**
@@ -58,13 +58,13 @@ export class ClientAuthService {
    */
   private async setSessionCookie(idToken: string): Promise<void> {
     try {
-      await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken })
+      await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
       });
     } catch (error) {
-      console.error('Failed to set session cookie:', error);
+      console.error("Failed to set session cookie:", error);
       // Don't throw, let client-side auth proceed
     }
   }
@@ -72,7 +72,9 @@ export class ClientAuthService {
   /**
    * Register a new student
    */
-  async registerStudent(data: StudentRegistrationData): Promise<FirebaseAuthResult> {
+  async registerStudent(
+    data: StudentRegistrationData
+  ): Promise<FirebaseAuthResult> {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -85,19 +87,19 @@ export class ClientAuthService {
 
       // Call API to create user profile
       const idToken = await userCredential.user.getIdToken();
-      const response = await fetch('/api/auth/register/student', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register/student", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
-          'X-Firebase-UID': userCredential.user.uid,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+          "X-Firebase-UID": userCredential.user.uid,
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create user profile');
+        throw new Error(errorData.message || "Failed to create user profile");
       }
 
       // Set session cookie for middleware
@@ -106,15 +108,15 @@ export class ClientAuthService {
       return {
         success: true,
         user: userCredential.user,
-        needsEmailVerification: true
+        needsEmailVerification: true,
       };
     } catch (error: any) {
       return {
         success: false,
         error: {
-          code: error.code || 'REGISTRATION_FAILED',
-          message: error.message || 'Registration failed'
-        }
+          code: error.code || "REGISTRATION_FAILED",
+          message: error.message || "Registration failed",
+        },
       };
     }
   }
@@ -122,7 +124,9 @@ export class ClientAuthService {
   /**
    * Register a new teacher (legacy)
    */
-  async registerTeacher(data: TeacherRegistrationData): Promise<FirebaseAuthResult> {
+  async registerTeacher(
+    data: TeacherRegistrationData
+  ): Promise<FirebaseAuthResult> {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -134,16 +138,16 @@ export class ClientAuthService {
       await sendEmailVerification(userCredential.user);
 
       // Call API to create teacher application
-      const response = await fetch('/api/auth/register/teacher', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register/teacher", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create teacher application');
+        throw new Error("Failed to create teacher application");
       }
 
       // Set session cookie for middleware
@@ -152,15 +156,15 @@ export class ClientAuthService {
       return {
         success: true,
         user: userCredential.user,
-        needsEmailVerification: true
+        needsEmailVerification: true,
       };
     } catch (error: any) {
       return {
         success: false,
         error: {
-          code: error.code || 'REGISTRATION_FAILED',
-          message: error.message || 'Registration failed'
-        }
+          code: error.code || "REGISTRATION_FAILED",
+          message: error.message || "Registration failed",
+        },
       };
     }
   }
@@ -181,19 +185,21 @@ export class ClientAuthService {
 
       // Call API to create quick teacher application
       const idToken = await userCredential.user.getIdToken();
-      const response = await fetch('/api/auth/register/teacher/quick', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register/teacher/quick", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
-          'X-Firebase-UID': userCredential.user.uid,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+          "X-Firebase-UID": userCredential.user.uid,
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create quick teacher application');
+        throw new Error(
+          errorData.message || "Failed to create quick teacher application"
+        );
       }
 
       // Set session cookie for middleware
@@ -202,15 +208,15 @@ export class ClientAuthService {
       return {
         success: true,
         user: userCredential.user,
-        needsEmailVerification: true
+        needsEmailVerification: true,
       };
     } catch (error: any) {
       return {
         success: false,
         error: {
-          code: error.code || 'REGISTRATION_FAILED',
-          message: error.message || 'Quick teacher registration failed'
-        }
+          code: error.code || "REGISTRATION_FAILED",
+          message: error.message || "Quick teacher registration failed",
+        },
       };
     }
   }
@@ -218,7 +224,9 @@ export class ClientAuthService {
   /**
    * Register a new teacher with enhanced profile data (legacy)
    */
-  async registerEnhancedTeacher(data: EnhancedTeacherRegistrationData): Promise<FirebaseAuthResult> {
+  async registerEnhancedTeacher(
+    data: EnhancedTeacherRegistrationData
+  ): Promise<FirebaseAuthResult> {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -231,19 +239,21 @@ export class ClientAuthService {
 
       // Call API to create enhanced teacher application
       const idToken = await userCredential.user.getIdToken();
-      const response = await fetch('/api/auth/register/teacher/enhanced', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register/teacher/enhanced", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
-          'X-Firebase-UID': userCredential.user.uid,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+          "X-Firebase-UID": userCredential.user.uid,
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create enhanced teacher application');
+        throw new Error(
+          errorData.message || "Failed to create enhanced teacher application"
+        );
       }
 
       // Set session cookie for middleware
@@ -252,15 +262,15 @@ export class ClientAuthService {
       return {
         success: true,
         user: userCredential.user,
-        needsEmailVerification: true
+        needsEmailVerification: true,
       };
     } catch (error: any) {
       return {
         success: false,
         error: {
-          code: error.code || 'REGISTRATION_FAILED',
-          message: error.message || 'Enhanced teacher registration failed'
-        }
+          code: error.code || "REGISTRATION_FAILED",
+          message: error.message || "Enhanced teacher registration failed",
+        },
       };
     }
   }
@@ -282,15 +292,15 @@ export class ClientAuthService {
       return {
         success: true,
         user: userCredential.user,
-        idToken: idToken
+        idToken: idToken,
       };
     } catch (error: any) {
       return {
         success: false,
         error: {
-          code: error.code || 'LOGIN_FAILED',
-          message: error.message || 'Login failed'
-        }
+          code: error.code || "LOGIN_FAILED",
+          message: error.message || "Login failed",
+        },
       };
     }
   }
@@ -298,30 +308,33 @@ export class ClientAuthService {
   /**
    * Social login with Google or Microsoft
    */
-  async socialLogin(provider: 'google' | 'microsoft'): Promise<FirebaseAuthResult> {
+  async socialLogin(
+    provider: "google" | "microsoft"
+  ): Promise<FirebaseAuthResult> {
     try {
-      const authProvider = provider === 'google' ? this.googleProvider : this.microsoftProvider;
+      const authProvider =
+        provider === "google" ? this.googleProvider : this.microsoftProvider;
       const userCredential = await signInWithPopup(auth, authProvider);
       const user = userCredential.user;
 
       // The profile sync will be handled automatically by the AuthProvider
       // when the auth state changes, so we don't need to call it here
-      
+
       const idToken = await user.getIdToken();
       await this.setSessionCookie(idToken);
 
       return {
         success: true,
         user,
-        idToken: idToken
+        idToken: idToken,
       };
     } catch (error: any) {
       return {
         success: false,
         error: {
-          code: error.code || 'SOCIAL_LOGIN_FAILED',
-          message: error.message || `${provider} login failed`
-        }
+          code: error.code || "SOCIAL_LOGIN_FAILED",
+          message: error.message || `${provider} login failed`,
+        },
       };
     }
   }
@@ -339,9 +352,9 @@ export class ClientAuthService {
   async updatePassword(newPassword: string): Promise<void> {
     const user = auth.currentUser;
     if (!user) {
-      throw new Error('No authenticated user');
+      throw new Error("No authenticated user");
     }
-    
+
     await firebaseUpdatePassword(user, newPassword);
   }
 
