@@ -15,14 +15,12 @@ import { useClientAuth } from '@/hooks/useClientAuth';
 import {
   GraduationCap,
   BookOpen,
-  Users,
   ArrowRight,
   CheckCircle,
   User,
   Mail,
   Shield,
   Star,
-  Clock,
   Target,
   Sparkles
 } from 'lucide-react';
@@ -31,7 +29,7 @@ import Link from 'next/link';
 export default function WelcomePage() {
   const { user, loading } = useClientAuth();
   const router = useRouter();
-  const [profileCompletion, setProfileCompletion] = useState(20);
+  const [profileCompletion] = useState(20);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -235,19 +233,19 @@ export default function WelcomePage() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-slate-950" />
                     <span className="text-sm">One-on-one tutoring sessions</span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-slate-950" />
                     <span className="text-sm">Interactive study groups</span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-slate-950" />
                     <span className="text-sm">Progress tracking & analytics</span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-slate-950" />
                     <span className="text-sm">Mobile-optimized learning</span>
                   </div>
                 </div>
@@ -274,19 +272,19 @@ export default function WelcomePage() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-slate-950" />
                     <span className="text-sm">Flexible scheduling system</span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-slate-950" />
                     <span className="text-sm">Student progress monitoring</span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-slate-950" />
                     <span className="text-sm">Content creation tools</span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-slate-950" />
                     <span className="text-sm">Verified teacher profiles</span>
                   </div>
                 </div>

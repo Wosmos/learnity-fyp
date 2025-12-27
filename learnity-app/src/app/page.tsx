@@ -21,6 +21,7 @@ import {
   MAIN_FEATURES,
   TRUST_INDICATORS,
   GUARANTEE_FEATURES,
+  VIDEO_SECTION,
 } from '@/lib/constants/landing-page';
 import { AuthRedirectHandler } from '@/components/auth/AuthRedirectHandler';
 import { PlatformStatsWithSuspense } from '@/components/shared/PlatformStats';
@@ -79,7 +80,8 @@ export default async function Home() {
             <section className="bg-gray-50 py-20">
               <div className="container mx-auto px-4">
                 <SectionHeader
-                  title="How Learnity works"
+                  title="How Learnity"
+                  highlightWord='works'
                   description="Get started in three simple steps"
                 />
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -91,40 +93,16 @@ export default async function Home() {
             </section>
 
             {/* Video Section */}
-            <VideoSection
-              title="See Learnity in Action"
-              description="Watch how our platform connects students with expert tutors for personalized learning experiences"
-              videoId="rLRIB6AF2Dg"
-              features={[
-                {
-                  icon: CheckCircle,
-                  title: 'Live Sessions',
-                  description: 'Interactive one-on-one video sessions with screen sharing',
-                  bgColor: 'bg-slate-100',
-                  iconColor: 'text-blue-600',
-                },
-                {
-                  icon: CheckCircle,
-                  title: 'Recording Available',
-                  description: 'Review your lessons anytime with automatic recordings',
-                  bgColor: 'bg-purple-100',
-                  iconColor: 'text-purple-600',
-                },
-                {
-                  icon: CheckCircle,
-                  title: 'HD Quality',
-                  description: 'Crystal clear video and audio for the best learning experience',
-                  bgColor: 'bg-green-100',
-                  iconColor: 'text-green-600',
-                },
-              ]}
-            />
+            {VIDEO_SECTION.map((section, index) => (
+                <VideoSection key={index} {...section} />
+              ))}
 
             {/* Features Grid */}
             <section id="features" className="py-20">
               <div className="container mx-auto px-4">
                 <SectionHeader
-                  title="Everything you need to succeed"
+                  title="Everything you need to"
+                  highlightWord='succeed'
                   description="Comprehensive features designed for modern education"
                 />
                 <div className="max-w-6xl mx-auto">
@@ -139,7 +117,7 @@ export default async function Home() {
                         <ul className="space-y-3 mt-4">
                           {feature.benefits.map((benefit, idx) => (
                             <li key={idx} className="flex items-start">
-                              <CheckCircle className="h-5 w-5 text-green-500 mr-3 mt-0.5 shrink-0" />
+                              <CheckCircle className="h-5 w-5 text-slate-950 mr-3 mt-0.5 shrink-0" />
                               <span className="text-gray-700">{benefit}</span>
                             </li>
                           ))}
@@ -157,7 +135,8 @@ export default async function Home() {
             <section className="py-20 bg-gradient-to-br from-blue-50 via-white to-purple-50/30">
               <div className="container mx-auto px-4">
                 <SectionHeader
-                  title="Join Our Growing Community"
+                  title="Join Our Growing"
+                  highlightWord='Community'
                   description="Real-time statistics from our thriving learning platform"
                 />
                 <PlatformStatsWithSuspense
@@ -172,21 +151,18 @@ export default async function Home() {
             <section className="glass py-16">
               <div className="container mx-auto px-4">
                 <div className="max-w-4xl mx-auto text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-600 rounded-full mb-6">
-                    <CheckCircle className="h-8 w-8 text-white" />
-                  </div>
                   <SectionHeader
-                    title="Lessons you'll love. Guaranteed."
+                    title="Lessons you'll love."
+                    highlightWord='Guaranteed'
                     description="Try another tutor for free if you're not satisfied with your first lesson. Your success is our priority."
                     maxWidth="2xl"
                   />
-                  <div className="mt-12">
+                  <div >
                     <FeatureGrid
                       items={GUARANTEE_FEATURES.map((feature) => ({
                         icon: feature.icon,
                         title: feature.title,
                         description: feature.description,
-                        color: feature.color,
                         className: 'bg-white',
                       }))}
                       columns={3}
@@ -201,7 +177,8 @@ export default async function Home() {
             <section className="py-20">
               <div className="container mx-auto px-4">
                 <SectionHeader
-                  title="Meet Our Expert Tutors"
+                  title="Meet Our Expert"
+                  highlightWord='Tutors'
                   description="Learn from verified professionals passionate about teaching"
                 />
 
@@ -261,8 +238,9 @@ export default async function Home() {
                               <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between">
                                 <div>
                                   <p className="text-[10px] font-black text-slate-900 italic">
-                                    ${teacher.teacherProfile?.hourlyRate || '0'}
+                                    ${teacher.teacherProfile?.hourlyRate?.toString() ?? "0"}
                                   </p>
+
                                   <p className="text-[8px] font-bold text-slate-300 uppercase">Per Month</p>
                                 </div>
                               </div>
@@ -298,10 +276,11 @@ export default async function Home() {
             </section>
 
             {/* Trust Indicators */}
-            <section className="mb-20">
+            {/* <section className="mb-20">
               <div className="glass-card p-12 rounded-2xl">
                 <SectionHeader
-                  title="Enterprise-Grade Security & Reliability"
+                  title="Enterprise-Grade"
+                  highlightWord='Security & Reliability'
                   description="Built with security-first architecture and comprehensive audit logging"
                   maxWidth="4xl"
                 />
@@ -318,10 +297,9 @@ export default async function Home() {
                   }))}
                   columns={4}
                   variant="minimal"
-                // showIcons={true}
                 />
               </div>
-            </section>
+            </section> */}
 
             {/* CTA Section */}
             <CTA

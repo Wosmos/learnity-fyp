@@ -51,7 +51,6 @@ export function FeatureGrid({
       className
     )}>
       {items.map((item, index) => {
-        const style = themeStyles[item.theme || 'blue'];
         const Icon = item.icon;
 
         return (
@@ -64,7 +63,7 @@ export function FeatureGrid({
             <Card className={cn(
               "h-full border transition-all duration-500 overflow-hidden relative",
               variant === 'steps' ? 
-                "bg-white rounded-[32px] border-slate-100 hover:border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-2" : 
+                "bg-white rounded-[32px] border-slate-100 hover:border-slate-200 shadow-sm hover:shadow-xl" : 
                 "bg-transparent border-none shadow-none"
             )}>
               {/* Massive Watermark Number */}
@@ -77,12 +76,14 @@ export function FeatureGrid({
               <CardContent className="p-8 relative z-10 space-y-5">
                 {/* Icon Header */}
                 <div className={cn(
-                  "w-14 h-14 rounded-2xl flex items-center justify-center border transition-transform duration-500 group-hover:rotate-12",
-                  style.bg, style.border
+                  "w-14 h-14 rounded-2xl flex items-center justify-center border transition-transform duration-500 ",
                 )}>
-                  {Icon ? <Icon className={cn("w-7 h-7", style.accent)} /> : item.iconElement}
                 </div>
 
+ <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-950 text-white transition-transform group-hover:scale-110 ">
+                        {Icon ? <Icon className={cn("w-7 h-7")} /> : item.iconElement}
+
+                      </div>
                 {/* Text Content */}
                 <div className="space-y-2">
                   <h3 className="text-xl font-black uppercase italic tracking-tight text-slate-900">
@@ -100,8 +101,8 @@ export function FeatureGrid({
                   <div className="pt-4 space-y-3">
                     {item.benefits?.map((benefit, bIdx) => (
                       <div key={bIdx} className="flex items-start gap-3">
-                        <div className={cn("mt-1 p-0.5 rounded-full bg-white border", style.border)}>
-                          <CheckCircle2 className={cn("w-3.5 h-3.5", style.accent)} />
+                        <div className={cn("mt-1 p-0.5 rounded-full bg-slate-950 border")}>
+                          <CheckCircle2 className={cn("w-3.5 h-3.5")} />
                         </div>
                         <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">
                           {benefit}

@@ -11,7 +11,6 @@ import Link from 'next/link';
 import { LoginForm } from "@/components/auth";
 import { useAuthService } from "@/hooks/useAuthService";
 import { useClientAuth } from "@/hooks/useClientAuth";
-import { UserRole } from "@/types/auth";
 import { AuthDebugInfo } from "@/components/debug/AuthDebugInfo";
 import { getDashboardRoute } from "@/lib/utils/auth-redirect.utils";
 import { Button } from '@/components/ui/button';

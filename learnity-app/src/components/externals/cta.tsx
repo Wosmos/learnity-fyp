@@ -114,7 +114,7 @@ export function CTA({
             "absolute bottom-0 right-0 translate-y-1/4 translate-x-1/4 text-[20rem] font-black italic select-none pointer-events-none opacity-[0.03]",
             isDark ? "text-white" : "text-slate-950"
           )}>
-            ELITE
+            Learnity
           </div>
         </div>
       </div>
