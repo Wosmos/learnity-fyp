@@ -156,19 +156,16 @@ export const GUARANTEE_FEATURES = [
     icon: Star,
     title: 'Verified Tutors',
     description: 'All tutors are verified with background checks',
-    color: 'text-yellow-500',
   },
   {
     icon: Shield,
     title: 'Secure Platform',
     description: 'Enterprise-grade security for all your data',
-    color: 'text-blue-600',
   },
   {
     icon: Award,
     title: 'Quality Assured',
     description: '4.9 average rating from thousands of students',
-    color: 'text-purple-600',
   },
 ];
 
@@ -211,3 +208,31 @@ export const WHY_CHOOSE_US = [
     description: '95% of students see improvement within 3 months',
   },
 ];
+
+export const VIDEO_SECTION = [
+  {
+    title: 'See Learnity in',
+    highlightWord: 'Action',
+    description:
+      'Watch how our platform connects students with expert tutors for personalized learning experiences',
+    videoId : 'rLRIB6AF2Dg',
+    alt: 'Learn from the best',
+     features: [
+    {
+      icon: CheckCircle,
+      title: "Live Sessions",
+      description: "Interactive one-on-one video sessions with screen sharing",
+    },
+    {
+      icon: CheckCircle,
+      title: "Recording Available",
+      description: "Review your lessons anytime with automatic recordings",
+    },
+    {
+      icon: CheckCircle,
+      title: "HD Quality",
+      description: "Crystal clear video and audio for the best learning experience",
+    },
+  ],
+  },
+]

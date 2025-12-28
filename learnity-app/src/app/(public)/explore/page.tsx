@@ -179,8 +179,8 @@ export default function PublicCoursesPage() {
             <button
               onClick={() => setSelectedCategory('')}
               className={`border px-3 py-1 rounded-full transition-colors ${!selectedCategory
-                  ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-400'
-                  : 'border-white/10 hover:bg-white/5'
+                ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-400'
+                : 'border-white/10 hover:bg-white/5'
                 }`}
             >
               All
@@ -190,8 +190,8 @@ export default function PublicCoursesPage() {
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`border px-3 py-1 rounded-full transition-colors ${selectedCategory === cat.id
-                    ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-400'
-                    : 'border-white/10 hover:bg-white/5'
+                  ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-400'
+                  : 'border-white/10 hover:bg-white/5'
                   }`}
               >
                 {cat.name}
@@ -239,8 +239,8 @@ export default function PublicCoursesPage() {
               key={diff}
               onClick={() => setSelectedDifficulty(diff)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedDifficulty === diff
-                  ? 'bg-emerald-500 text-black'
-                  : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                ? 'bg-emerald-500 text-black'
+                : 'bg-white/5 text-gray-400 hover:bg-white/10'
                 }`}
             >
               {diff ? difficultyConfig[diff as keyof typeof difficultyConfig].label : 'All Levels'}
@@ -331,7 +331,7 @@ function CourseCardPublic({ course }: { course: CourseData }) {
 
   return (
     <Link href={`/courses/${course.id}`} className="group">
-      <div className="relative h-[420px] rounded-[2rem] overflow-hidden border border-white/10 bg-[#050505] transition-all duration-300 hover:border-emerald-500/40 hover:bg-white/5">
+      <div className="relative h-[420px] rounded-2xl overflow-hidden border border-white/10 bg-[#050505] transition-all duration-300 hover:border-emerald-500/40 hover:bg-white/5">
         {/* Thumbnail */}
         <div className="relative h-48 overflow-hidden">
           {course.thumbnailUrl ? (

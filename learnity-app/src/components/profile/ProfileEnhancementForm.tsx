@@ -2,20 +2,16 @@
 
 /**
  * Profile Enhancement Form Component
- * Comprehensive form for students to customize their profile
+ * Style: Ultra-Sleek Command Center, High Density, Bento Grid
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoadingButton } from '@/components/shared/LoadingButton';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
@@ -25,27 +21,19 @@ import {
   Heart,
   BookOpen,
   Clock,
-  Sparkles,
-  CheckCircle,
+  Check,
   Plus,
   X,
-  FileText,
+  User,
+  Zap,
+  Sparkles,
+  ArrowUpRight,
+  Fingerprint,
+  Layers
 } from 'lucide-react';
 
-// Validation schema
-const profileEnhancementSchema = z.object({
-  learningGoals: z.array(z.string()).optional(),
-  interests: z.array(z.string()).optional(),
-  studyPreferences: z.array(z.string()).optional(),
-  subjects: z.array(z.string()).optional(),
-  gradeLevel: z.string().optional(),
-  bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
-});
-
-type ProfileEnhancementData = z.infer<typeof profileEnhancementSchema>;
-
 interface ProfileEnhancementFormProps {
-  initialData?: Partial<ProfileEnhancementData>;
+  initialData?: any;
   onSuccess?: () => void;
 }
 
@@ -63,26 +51,23 @@ export function ProfileEnhancementForm({ initialData, onSuccess }: ProfileEnhanc
   const [subjects, setSubjects] = useState<string[]>(initialData?.subjects || []);
   const [bio, setBio] = useState<string>(initialData?.bio || '');
 
-  // Input states for adding new items
   const [newGoal, setNewGoal] = useState('');
   const [newInterest, setNewInterest] = useState('');
 
-  // Predefined options
   const subjectOptions = [
-    'Mathematics', 'Science', 'English', 'History', 'Geography',
-    'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Art',
-    'Music', 'Physical Education', 'Languages', 'Business', 'Psychology',
+    'Mathematics', 'Physics', 'Chemistry', 'Biology', 
+    'Computer Science', 'History', 'Geography', 'Literature',
+    'Economics', 'Psychology', 'Art History', 'Philosophy'
   ];
 
   const studyPreferenceOptions = [
-    'Visual Learning', 'Auditory Learning', 'Hands-on Practice',
-    'Group Study', 'Solo Study', 'Morning Study', 'Evening Study',
-    'Short Sessions', 'Long Sessions', 'Interactive Content',
+    'Visual', 'Auditory', 'Kinesthetic',
+    'Group Work', 'Solo', 'Morning', 'Night',
+    'Pomodoro', 'Deep Work'
   ];
 
   const fetchCompletionData = useCallback(async () => {
-    if (authLoading) return; // Don't fetch if auth is still loading
-
+    if (authLoading) return;
     try {
       const data = await api.get('/api/profile/enhance');
       setCompletion(data.completion);
@@ -91,299 +76,224 @@ export function ProfileEnhancementForm({ initialData, onSuccess }: ProfileEnhanc
     }
   }, [api, authLoading]);
 
-  // Fetch completion data on mount (after auth is ready)
   useEffect(() => {
-    if (!authLoading) {
-      fetchCompletionData();
-    }
+    if (!authLoading) fetchCompletionData();
   }, [fetchCompletionData, authLoading]);
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const data = await api.put('/api/profile/enhance', {
-        learningGoals,
-        interests,
-        studyPreferences,
-        subjects,
-        bio: bio.trim() || undefined,
+      await api.put('/api/profile/enhance', {
+        learningGoals, interests, studyPreferences, subjects, bio: bio.trim() || undefined,
       });
-
-      setCompletion(data.completion);
-
-      toast({
-        title: 'Profile Updated',
-        description: 'Your profile has been enhanced successfully!',
-      });
-
+      const updatedData = await api.get('/api/profile/enhance');
+      setCompletion(updatedData.completion);
+      toast({ title: 'System Synced', description: 'Profile vectors updated.' });
       onSuccess?.();
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to update profile',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
   };
 
-  const addLearningGoal = () => {
-    if (newGoal.trim() && !learningGoals.includes(newGoal.trim())) {
-      setLearningGoals([...learningGoals, newGoal.trim()]);
-      setNewGoal('');
+  const handleAddItem = (val: string, setter: any, list: string[], listSetter: any) => {
+    if (val.trim() && !list.includes(val.trim())) {
+      listSetter([...list, val.trim()]);
+      setter('');
     }
   };
 
-  const removeLearningGoal = (goal: string) => {
-    setLearningGoals(learningGoals.filter(g => g !== goal));
-  };
-
-  const addInterest = () => {
-    if (newInterest.trim() && !interests.includes(newInterest.trim())) {
-      setInterests([...interests, newInterest.trim()]);
-      setNewInterest('');
-    }
-  };
-
-  const removeInterest = (interest: string) => {
-    setInterests(interests.filter(i => i !== interest));
-  };
-
-  const toggleSubject = (subject: string) => {
-    if (subjects.includes(subject)) {
-      setSubjects(subjects.filter(s => s !== subject));
-    } else {
-      setSubjects([...subjects, subject]);
-    }
-  };
-
-  const toggleStudyPreference = (preference: string) => {
-    if (studyPreferences.includes(preference)) {
-      setStudyPreferences(studyPreferences.filter(p => p !== preference));
-    } else {
-      setStudyPreferences([...studyPreferences, preference]);
-    }
+  const toggleItem = (item: string, list: string[], listSetter: any) => {
+    listSetter(list.includes(item) ? list.filter(i => i !== item) : [...list, item]);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Completion Progress */}
-      {completion && (
-        <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-blue-600" />
-                  Profile Completion
-                </CardTitle>
-                <CardDescription>
-                  {completion.percentage}% complete
-                </CardDescription>
+    <div className="min-h-screen flex items-center justify-center font-sans selection:bg-black selection:text-white">
+      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-4">
+        
+        {/* --- LEFT: MAIN CONFIGURATION (8 COLS) --- */}
+        <div className="lg:col-span-8 space-y-6">
+          
+          {/* Header Block */}
+          <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2 py-0.5 bg-black text-[10px] text-white font-bold uppercase tracking-tighter rounded">v2.0 Beta</span>
+                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Core Interface</span>
               </div>
-              <div className="text-3xl font-bold text-blue-600">
-                {completion.percentage}%
+              <h1 className="text-4xl font-black tracking-tight text-gray-900 italic uppercase">Enhancement <span className="text-gray-300">Module</span></h1>
+            </div>
+            <div className="flex -space-x-2">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center">
+                  <User className="w-4 h-4 text-gray-400" />
+                </div>
+              ))}
+              <div className="w-10 h-10 rounded-full border-2 border-white bg-indigo-500 flex items-center justify-center text-white text-[10px] font-bold">+12</div>
+            </div>
+          </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            {/* 1. Bio Section - Bento Style */}
+            <section className="md:col-span-2 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm transition-all hover:shadow-md">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gray-50 rounded-xl border border-gray-100"><Fingerprint className="w-5 h-5 text-gray-900" /></div>
+                  <h3 className="font-bold text-sm uppercase tracking-widest">Academic Bio</h3>
+                </div>
+              </div>
+              <Textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                maxLength={500}
+                className="min-h-[120px] bg-[#fdfdfd] border-none focus-visible:ring-1 focus-visible:ring-black rounded-2xl p-2 text-sm italic text-gray-600 leading-relaxed shadow-inner"
+                placeholder="Initialize your story..."
+              />
+            </section>
+
+            {/* 2. Subjects Selection */}
+            <section className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-blue-50 rounded-xl border border-blue-100"><BookOpen className="w-5 h-5 text-blue-600" /></div>
+                <h3 className="font-bold text-sm uppercase tracking-widest">Focus Areas</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {subjectOptions.map(subject => {
+                  const active = subjects.includes(subject);
+                  return (
+                    <button
+                      key={subject}
+                      onClick={() => toggleItem(subject, subjects, setSubjects)}
+                      className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all duration-300 border ${
+                        active ? 'bg-black text-white border-black scale-105' : 'bg-transparent text-gray-400 border-gray-100 hover:border-gray-300'
+                      }`}
+                    >
+                      {subject}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* 3. Goals Section */}
+            <section className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-emerald-50 rounded-xl border border-emerald-100"><Target className="w-5 h-5 text-emerald-600" /></div>
+                <h3 className="font-bold text-sm uppercase tracking-widest">Objectives</h3>
+              </div>
+              <div className="space-y-4">
+                <div className="group flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-100 focus-within:border-black transition-all">
+                  <Input
+                    value={newGoal}
+                    onChange={(e) => setNewGoal(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddItem(newGoal, setNewGoal, learningGoals, setLearningGoals)}
+                    placeholder="New milestone..."
+                    className="border-none bg-transparent focus-visible:ring-0 text-xs"
+                  />
+                  <Button size="icon" onClick={() => handleAddItem(newGoal, setNewGoal, learningGoals, setLearningGoals)} className="h-8 w-8 bg-black hover:bg-emerald-600 rounded-lg shrink-0">
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="space-y-2 max-h-[140px] overflow-y-auto pr-2 custom-scrollbar">
+                  <AnimatePresence>
+                    {learningGoals.map(goal => (
+                      <motion.div initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} key={goal} className="flex items-center justify-between group p-3 bg-[#fdfdfd] border border-gray-50 rounded-xl">
+                        <span className="text-xs font-medium text-gray-600">{goal}</span>
+                        <X className="w-3 h-3 text-gray-300 cursor-pointer hover:text-red-500 transition-colors" onClick={() => setLearningGoals(learningGoals.filter(g => g !== goal))} />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+
+        {/* --- RIGHT: ANALYTICS & ACTION (4 COLS) --- */}
+        <div className="lg:col-span-4 space-y-6">
+          
+          {/* Progress Card */}
+          <Card className="bg-zinc-950 border-none p-8 rounded-2xl text-white relative overflow-hidden shadow-2xl">
+            <div className="absolute top-[-10%] right-[-10%] w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl" />
+            
+            <div className="relative z-10 flex flex-col h-full justify-between gap-12">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mb-1">Completion Stats</h4>
+                  <div className="text-6xl font-black italic tracking-tighter">{completion?.percentage || 0}%</div>
+                </div>
+                <div className="p-3 bg-white/5 border border-white/10 rounded-2xl">
+                  <Zap className="w-5 h-5 text-indigo-400 fill-indigo-400" />
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Clock className="w-4 h-4 text-zinc-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Study DNA</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {studyPreferenceOptions.map(pref => {
+                      const active = studyPreferences.includes(pref);
+                      return (
+                        <button
+                          key={pref}
+                          onClick={() => toggleItem(pref, studyPreferences, setStudyPreferences)}
+                          className={`text-[9px] font-black uppercase tracking-tighter py-2 px-3 rounded-lg border transition-all ${
+                            active ? 'bg-indigo-500 border-indigo-400 text-white' : 'bg-transparent border-zinc-800 text-zinc-500'
+                          }`}
+                        >
+                          {pref}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <LoadingButton
+                  onClick={handleSubmit}
+                  isLoading={loading}
+                  loadingText="Syncing..."
+                  className="w-full bg-white text-black hover:bg-indigo-400 hover:text-white h-14 rounded-2xl font-black uppercase italic tracking-widest shadow-lg shadow-black/20"
+                >
+                  Sync Profile <ArrowUpRight className="w-4 h-4 ml-2" />
+                </LoadingButton>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <Progress value={completion.percentage} className="h-3 mb-4" />
+          </Card>
 
-            {/* Rewards */}
-            {completion.rewards && completion.rewards.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-4">
-                {completion.rewards.map((reward: any) => (
-                  <Badge
-                    key={reward.id}
-                    variant={reward.unlocked ? 'default' : 'outline'}
-                    className={reward.unlocked ? 'bg-gradient-to-r from-yellow-400 to-orange-500' : ''}
-                  >
-                    <span className="mr-1">{reward.icon}</span>
-                    {reward.title}
-                  </Badge>
+          {/* Interests Mini-Bento */}
+          <section className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+            <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-rose-50 rounded-xl border border-rose-100"><Heart className="w-5 h-5 text-rose-500" /></div>
+                <h3 className="font-bold text-sm uppercase tracking-widest">Personal</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Input
+                value={newInterest}
+                onChange={(e) => setNewInterest(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAddItem(newInterest, setNewInterest, interests, setInterests)}
+                placeholder="Add hobby..."
+                className="w-full bg-gray-50 border-none rounded-xl text-xs mb-4"
+              />
+              <AnimatePresence>
+                {interests.map(interest => (
+                  <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} key={interest}>
+                    <Badge variant="outline" className="px-3 py-1 bg-white text-gray-500 border-gray-100 rounded-lg text-[10px] uppercase font-bold">
+                      {interest}
+                      <X className="w-2.5 h-2.5 ml-2 cursor-pointer" onClick={() => setInterests(interests.filter(i => i !== interest))} />
+                    </Badge>
+                  </motion.div>
                 ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+              </AnimatePresence>
+            </div>
+          </section>
 
-      {/* Learning Goals */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-green-600" />
-            Learning Goals
-          </CardTitle>
-          <CardDescription>
-            What do you want to achieve in your learning journey?
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Add a learning goal..."
-              value={newGoal}
-              onChange={(e) => setNewGoal(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addLearningGoal()}
-            />
-            <Button onClick={addLearningGoal} size="icon">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {learningGoals.map((goal) => (
-              <Badge key={goal} variant="secondary" className="gap-1">
-                {goal}
-                <button
-                  onClick={() => removeLearningGoal(goal)}
-                  className="ml-1 hover:text-red-600"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Subjects */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-blue-600" />
-            Subject Interests
-          </CardTitle>
-          <CardDescription>
-            Select the subjects you're interested in learning
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {subjectOptions.map((subject) => (
-              <Badge
-                key={subject}
-                variant={subjects.includes(subject) ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-slate-100"
-                onClick={() => toggleSubject(subject)}
-              >
-                {subjects.includes(subject) && <CheckCircle className="h-3 w-3 mr-1" />}
-                {subject}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Personal Interests */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-pink-600" />
-            Personal Interests
-          </CardTitle>
-          <CardDescription>
-            Share your hobbies and interests outside of academics
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Add an interest..."
-              value={newInterest}
-              onChange={(e) => setNewInterest(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addInterest()}
-            />
-            <Button onClick={addInterest} size="icon">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {interests.map((interest) => (
-              <Badge key={interest} variant="secondary" className="gap-1">
-                {interest}
-                <button
-                  onClick={() => removeInterest(interest)}
-                  className="ml-1 hover:text-red-600"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Study Preferences */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-purple-600" />
-            Study Preferences
-          </CardTitle>
-          <CardDescription>
-            How do you prefer to learn and study?
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {studyPreferenceOptions.map((preference) => (
-              <Badge
-                key={preference}
-                variant={studyPreferences.includes(preference) ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-purple-100"
-                onClick={() => toggleStudyPreference(preference)}
-              >
-                {studyPreferences.includes(preference) && <CheckCircle className="h-3 w-3 mr-1" />}
-                {preference}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Personal Bio */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-indigo-600" />
-            Personal Bio
-          </CardTitle>
-          <CardDescription>
-            Tell us about yourself (max 500 characters)
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Textarea
-            placeholder="Share a bit about yourself, your learning journey, goals, or anything you'd like others to know..."
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            maxLength={500}
-            rows={5}
-            className="resize-none"
-          />
-          <div className="flex justify-end">
-            <span className="text-xs text-gray-500">
-              {bio.length}/500 characters
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <LoadingButton
-          onClick={handleSubmit}
-          isLoading={loading}
-          loadingText="Saving Profile..."
-          size="lg"
-          className="bg-gradient-to-r from-blue-600 to-purple-600"
-        >
-          Save Profile
-        </LoadingButton>
+        </div>
       </div>
     </div>
   );

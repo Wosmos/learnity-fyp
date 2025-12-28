@@ -6,6 +6,7 @@
 'use client';
 
 import React from 'react';
+import { LucideIcon, BarChart3 } from 'lucide-react';
 import { HeroStatsClient } from '@/components/landing/HeroStatsClient';
 import { MetricCard } from '@/components/ui/stats-card';
 import { cn } from '@/lib/utils';
@@ -13,7 +14,7 @@ import { cn } from '@/lib/utils';
 export interface StatItem {
   value: string | number;
   label: string;
-  icon?: React.ReactNode;
+  icon?: LucideIcon; // Changed from React.ReactNode to LucideIcon
 }
 
 export interface StatsProps {
@@ -62,9 +63,7 @@ export function Stats({
             value={stat.value.toString()}
             trendValue=""
             trendLabel=""
-            icon={stat.icon ? () => stat.icon : undefined}
-            iconColor="text-blue-600"
-            bgColor="bg-slate-100"
+            icon={stat.icon || BarChart3} // Provide default icon if none specified
             className="border-0 shadow-sm"
           />
         ))}

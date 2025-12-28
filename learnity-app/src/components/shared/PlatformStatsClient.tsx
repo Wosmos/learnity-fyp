@@ -71,9 +71,6 @@ export function PlatformStatsClient({
           trendValue={stat.trendValue}
           trendLabel={stat.trendLabel}
           icon={stat.icon}
-          iconColor={stat.iconColor}
-          bgColor={stat.bgColor}
-          trendColor="text-green-600"
         />
       ))}
     </div>

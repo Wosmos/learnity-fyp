@@ -46,8 +46,10 @@ async function main() {
   }
 
   // 👤 Static Admin
-  const staticAdmin = await prisma.user.create({
-    data: {
+  const staticAdmin = await prisma.user.upsert({
+    where: { email: process.env.STATIC_ADMIN_EMAIL || "admin@learnity.com" },
+    update: {},
+    create: {
       firebaseUid: "static-admin-uid",
       email: process.env.STATIC_ADMIN_EMAIL || "admin@learnity.com",
       firstName: "System",
@@ -60,52 +62,57 @@ async function main() {
   });
 
   // 🎓 Students
-  const [alice, bob] = await Promise.all([
-    prisma.user.create({
-      data: {
-        firebaseUid: "student-alice-uid",
-        email: "alice@example.com",
-        firstName: "Alice",
-        lastName: "Johnson",
-        role: UserRole.STUDENT,
-        emailVerified: true,
-        isActive: true,
-        profilePicture: avatars[0],
-        studentProfile: {
-          create: {
-            gradeLevel: "10th Grade",
-            subjects: ["Mathematics", "Physics"],
-            learningGoals: ["Improve problem-solving", "Prepare for SATs"],
-            interests: ["Science", "Reading"],
-            profileCompletionPercentage: 90,
-          },
+  const alice = await prisma.user.upsert({
+    where: { email: "alice@example.com" },
+    update: {},
+    create: {
+      firebaseUid: "student-alice-uid",
+      email: "alice@example.com",
+      firstName: "Alice",
+      lastName: "Johnson",
+      role: UserRole.STUDENT,
+      emailVerified: true,
+      isActive: true,
+      profilePicture: avatars[0],
+      studentProfile: {
+        create: {
+          gradeLevel: "10th Grade",
+          subjects: ["Mathematics", "Physics"],
+          learningGoals: ["Improve problem-solving", "Prepare for SATs"],
+          interests: ["Science", "Reading"],
+          profileCompletionPercentage: 90,
         },
       },
-    }),
-    prisma.user.create({
-      data: {
-        firebaseUid: "student-bob-uid",
-        email: "bob@example.com",
-        firstName: "Bob",
-        lastName: "Smith",
-        role: UserRole.STUDENT,
-        emailVerified: true,
-        isActive: true,
-        profilePicture: avatars[1],
-        studentProfile: {
-          create: {
-            gradeLevel: "11th Grade",
-            subjects: ["English", "History"],
-            profileCompletionPercentage: 60,
-          },
+    },
+  });
+
+  const bob = await prisma.user.upsert({
+    where: { email: "bob@example.com" },
+    update: {},
+    create: {
+      firebaseUid: "student-bob-uid",
+      email: "bob@example.com",
+      firstName: "Bob",
+      lastName: "Smith",
+      role: UserRole.STUDENT,
+      emailVerified: true,
+      isActive: true,
+      profilePicture: avatars[1],
+      studentProfile: {
+        create: {
+          gradeLevel: "11th Grade",
+          subjects: ["English", "History"],
+          profileCompletionPercentage: 60,
         },
       },
-    }),
-  ]);
+    },
+  });
 
   // 👨‍🏫 Approved Teacher
-  const teacher = await prisma.user.create({
-    data: {
+  const teacher = await prisma.user.upsert({
+    where: { email: "sarah@learnity.com" },
+    update: {},
+    create: {
       firebaseUid: "teacher-sarah-uid",
       email: "sarah@learnity.com",
       firstName: "Dr. Sarah",
@@ -134,14 +141,23 @@ async function main() {
   });
 
   // 📂 Categories
-  const [mathCat, englishCat] = await Promise.all([
-    prisma.category.create({ data: { name: "Mathematics", slug: "math", description: "Math courses for all levels" } }),
-    prisma.category.create({ data: { name: "English", slug: "english", description: "Language & literature" } }),
-  ]);
+  const mathCat = await prisma.category.upsert({
+    where: { slug: "math" },
+    update: {},
+    create: { name: "Mathematics", slug: "math", description: "Math courses for all levels" },
+  });
+
+  const englishCat = await prisma.category.upsert({
+    where: { slug: "english" },
+    update: {},
+    create: { name: "English", slug: "english", description: "Language & literature" },
+  });
 
   // 📘 Courses
-  const mathCourse = await prisma.course.create({
-    data: {
+  const mathCourse = await prisma.course.upsert({
+    where: { slug: "mastering-algebra" },
+    update: {},
+    create: {
       title: "Mastering Algebra",
       slug: "mastering-algebra",
       description: "Build a strong foundation in algebra with real-world examples.",
@@ -156,8 +172,10 @@ async function main() {
     },
   });
 
-  const englishCourse = await prisma.course.create({
-    data: {
+  const englishCourse = await prisma.course.upsert({
+    where: { slug: "essay-writing" },
+    update: {},
+    create: {
       title: "Essay Writing Mastery",
       slug: "essay-writing",
       description: "Learn to write compelling essays for school and beyond.",

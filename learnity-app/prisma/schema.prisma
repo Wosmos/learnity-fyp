@@ -763,3 +763,102 @@ enum QuestStatus {
   COMPLETED
   EXPIRED
 }
+
+// ============================================
+// COMMUNICATION SYSTEM MODELS (100ms + GetStream)
+// ============================================
+
+// Course Communication Room - Links course to 100ms room and GetStream channel
+model CourseRoom {
+  id              String   @id @default(cuid())
+  courseId        String   @unique
+  
+  // 100ms Video Room
+  hmsRoomId       String?  @unique // 100ms room ID
+  hmsRoomName     String?  // Human-readable room name
+  
+  // GetStream Chat Channel
+  streamChannelId String?  @unique // GetStream channel ID (format: course_{courseId})
+  streamChannelType String @default("messaging") // "messaging" or "livestream"
+  
+  // Settings
+  chatEnabled     Boolean  @default(true)
+  videoEnabled    Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  liveSessions    LiveSession[]
+
+  @@index([courseId])
+  @@index([hmsRoomId])
+  @@index([streamChannelId])
+  @@map("course_rooms")
+}
+
+// Live Video Sessions - Scheduled or active video sessions
+model LiveSession {
+  id              String          @id @default(cuid())
+  courseRoomId    String
+  hostId          String          // Teacher user ID
+  
+  // Session Details
+  title           String
+  description     String?
+  scheduledAt     DateTime
+  duration        Int             @default(60) // Duration in minutes
+  
+  // Status
+  status          SessionStatus   @default(SCHEDULED)
+  startedAt       DateTime?
+  endedAt         DateTime?
+  
+  // 100ms Session
+  hmsSessionId    String?         // 100ms session ID when active
+  recordingUrl    String?         // Recording URL after session ends
+  
+  // Attendance
+  maxParticipants Int             @default(100)
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  courseRoom      CourseRoom      @relation(fields: [courseRoomId], references: [id], onDelete: Cascade)
+
+  @@index([courseRoomId])
+  @@index([hostId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("live_sessions")
+}
+
+enum SessionStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELLED
+}
+
+// Direct Messages - For private student-teacher conversations
+model DirectMessageChannel {
+  id              String   @id @default(cuid())
+  
+  // Participants (always 2 users)
+  user1Id         String
+  user2Id         String
+  
+  // GetStream Channel
+  streamChannelId String   @unique // GetStream channel ID
+  
+  // Metadata
+  lastMessageAt   DateTime?
+  createdAt       DateTime @default(now())
+
+  @@unique([user1Id, user2Id])
+  @@index([user1Id])
+  @@index([user2Id])
+  @@index([lastMessageAt])
+  @@map("direct_message_channels")
+}

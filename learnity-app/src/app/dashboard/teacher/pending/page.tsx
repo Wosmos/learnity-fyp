@@ -1,539 +1,396 @@
-/**
- * Pending Teacher Dashboard
- * Beautiful, engaging experience for teachers awaiting approval
- */
-
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import {
-  Clock, CheckCircle, AlertCircle, Camera, FileText,
-  Video, Award, BookOpen, TrendingUp, Eye, Mail,
-  Calendar, Star, MessageCircle, ArrowRight,
-  Edit, Play, ExternalLink
+  Clock, FileText, Video, Award, BookOpen, TrendingUp,
+  Mail, Calendar, Star, GraduationCap, Sparkles, 
+  ChevronRight, CheckCircle2, ShieldCheck, Lightbulb, Plus, Edit
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
-interface ApplicationStatus {
-  step: string;
-  status: 'completed' | 'current' | 'pending';
-  date?: string;
-  description: string;
-}
-
-interface ProfileSection {
+interface ProfileCompletionItem {
   id: string;
   title: string;
   description: string;
   completed: boolean;
-  icon: React.ElementType;
-  action: string;
   impact: string;
+  category: 'required' | 'recommended' | 'optional';
 }
 
-interface TeacherProfile {
-  submittedAt?: string;
-  profilePicture?: string;
-  videoIntroUrl?: string;
-  documents?: string[];
-  qualifications?: string[];
-  certifications?: string[];
-  linkedinUrl?: string;
-  teachingApproach?: string;
-  specialties?: string[];
-  subjects?: string[];
-  bio?: string;
-  availableDays?: string[];
+interface ApplicationStatusData {
+  applicationStatus: 'PENDING' | 'APPROVED' | 'REJECTED';
+  submittedAt: string;
+  reviewedAt: string | null;
+  rejectionReason: string | null;
+  profileCompletion: number;
+  completionItems: ProfileCompletionItem[];
+  canReapply: boolean;
+  reapplyDate: string | null;
+  improvementAreas: string[];
+  estimatedReviewTime: string;
+  profile: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    bio: string | null;
+    qualifications: string[];
+    subjects: string[];
+    experience: number;
+    documents: string[];
+    videoIntroUrl: string | null;
+    profilePicture: string | null;
+  };
 }
 
 export default function PendingTeacherDashboard() {
   const { user } = useAuthStore();
   const { toast } = useToast();
-  const [profileCompletion, setProfileCompletion] = useState(65);
-  const [teacherProfile, setTeacherProfile] = useState<TeacherProfile | null>(null);
-  const [applicationDate, setApplicationDate] = useState('');
-  const [expectedResponse, setExpectedResponse] = useState('');
+  const router = useRouter();
+  
+  const [loading, setLoading] = useState(true);
+  const [statusData, setStatusData] = useState<ApplicationStatusData | null>(null);
 
-  const applicationSteps: ApplicationStatus[] = [
-    {
-      step: 'Application Submitted',
-      status: 'completed',
-      date: applicationDate,
-      description: 'Your teacher application has been received'
-    },
-    {
-      step: 'Email Verified',
-      status: 'completed',
-      date: applicationDate,
-      description: 'Email address confirmed successfully'
-    },
-    {
-      step: 'Admin Review',
-      status: 'current',
-      description: 'Our team is reviewing your application (2-3 business days)'
-    },
-    {
-      step: 'Profile Approval',
-      status: 'pending',
-      description: 'Final approval and account activation'
-    },
-    {
-      step: 'Start Teaching',
-      status: 'pending',
-      description: 'Access full teaching features and find students'
-    }
-  ];
-
-  const profileSections: ProfileSection[] = [
-    {
-      id: 'photo',
-      title: 'Add Profile Photo',
-      description: 'Upload a professional photo to build trust with students',
-      completed: false,
-      icon: Camera,
-      action: 'Upload Photo',
-      impact: 'Increases student trust by 40%'
-    },
-    {
-      id: 'certificates',
-      title: 'Upload Certificates',
-      description: 'Add your teaching certificates and qualifications',
-      completed: false,
-      icon: FileText,
-      action: 'Upload Documents',
-      impact: 'Speeds up approval process'
-    },
-    {
-      id: 'video',
-      title: 'YouTube Introduction',
-      description: 'Add a YouTube video to introduce yourself to students',
-      completed: false,
-      icon: Video,
-      action: 'Add Video URL',
-      impact: 'Students love video previews'
-    },
-    {
-      id: 'bio',
-      title: 'Enhanced Bio',
-      description: 'Expand your teaching bio with more details',
-      completed: true,
-      icon: Edit,
-      action: 'Enhance Bio',
-      impact: 'Better student matching'
-    },
-    {
-      id: 'availability',
-      title: 'Detailed Schedule',
-      description: 'Set specific time slots and session preferences',
-      completed: false,
-      icon: Calendar,
-      action: 'Set Schedule',
-      impact: 'More booking opportunities'
-    }
-  ];
-
-  const learningResources = [
-    {
-      title: 'How to Create Great Lesson Plans',
-      description: 'Learn effective lesson planning strategies',
-      icon: BookOpen,
-      duration: '5 min read',
-      category: 'Teaching Tips'
-    },
-    {
-      title: 'Setting Your Hourly Rate Guide',
-      description: 'Price your services competitively',
-      icon: TrendingUp,
-      duration: '3 min read',
-      category: 'Pricing'
-    },
-    {
-      title: 'Recording Your First YouTube Intro',
-      description: 'Tips for creating engaging video introductions',
-      icon: Play,
-      duration: '7 min read',
-      category: 'Marketing'
-    },
-    {
-      title: 'Getting Your First 5-Star Review',
-      description: 'Best practices for student satisfaction',
-      icon: Star,
-      duration: '4 min read',
-      category: 'Success Tips'
-    }
-  ];
-
-  // Fetch teacher profile data
   useEffect(() => {
-    const fetchTeacherProfile = async () => {
+    const fetchApplicationStatus = async () => {
       if (!user) return;
 
       try {
-        const response = await fetch('/api/teacher/profile', {
-          headers: {
-            'Authorization': `Bearer ${await user.getIdToken()}`
-          }
+        setLoading(true);
+        const token = await user.getIdToken();
+        const response = await fetch('/api/teacher/application-status', {
+          headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (response.ok) {
           const data = await response.json();
-          setTeacherProfile(data.profile);
-
-          // Set real application date
-          if (data.profile?.submittedAt) {
-            const submitDate = new Date(data.profile.submittedAt);
-            setApplicationDate(submitDate.toLocaleDateString());
-
-            // Calculate expected response (3 business days)
-            const expectedDate = new Date(submitDate);
-            expectedDate.setDate(expectedDate.getDate() + 3);
-            setExpectedResponse(expectedDate.toLocaleDateString());
-          }
+          setStatusData(data.data);
+        } else {
+          toast({
+            title: 'Error',
+            description: 'Failed to load application status',
+            variant: 'destructive',
+          });
         }
       } catch (error) {
-        console.error('Failed to fetch teacher profile:', error);
-        // Use fallback dates
-        const today = new Date();
-        setApplicationDate(today.toLocaleDateString());
-        const expected = new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000);
-        setExpectedResponse(expected.toLocaleDateString());
+        console.error('Error fetching application status:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load application status',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchTeacherProfile();
-  }, [user]);
+    fetchApplicationStatus();
+  }, [user, toast]);
 
-  // Calculate profile completion based on real data
-  useEffect(() => {
-    if (!teacherProfile) return;
-
-    const completionFactors = [
-      !!teacherProfile.profilePicture,
-      !!teacherProfile.videoIntroUrl,
-      (teacherProfile.documents?.length || 0) > 0,
-      (teacherProfile.qualifications?.length || 0) > 0,
-      (teacherProfile.certifications?.length || 0) > 0,
-      !!teacherProfile.linkedinUrl,
-      !!teacherProfile.teachingApproach,
-      (teacherProfile.specialties?.length || 0) > 0
-    ];
-
-    const completed = completionFactors.filter(Boolean).length;
-    const total = completionFactors.length;
-    const completion = Math.round((completed / total) * 100);
-    setProfileCompletion(completion);
-
-    // Update profile sections based on real data
-    profileSections.forEach(section => {
-      switch (section.id) {
-        case 'photo':
-          section.completed = !!teacherProfile.profilePicture;
-          break;
-        case 'certificates':
-          section.completed = (teacherProfile.documents?.length || 0) > 0;
-          break;
-        case 'video':
-          section.completed = !!teacherProfile.videoIntroUrl;
-          break;
-        case 'bio':
-          section.completed = !!teacherProfile.teachingApproach;
-          break;
-        case 'availability':
-          section.completed = (teacherProfile.availableDays?.length || 0) > 0;
-          break;
-      }
-    });
-  }, [profileSections, teacherProfile]);
-
-  const handleSectionAction = () => {
-    toast({
-      title: "Feature Coming Soon",
-      description: "Profile enhancement features will be available soon!",
-    });
+  const handleEnhanceProfile = () => {
+    router.push('/dashboard/teacher/profile/enhance');
   };
 
-  const handlePreviewProfile = () => {
-    toast({
-      title: "Profile Preview",
-      description: "Profile preview feature coming soon!",
-    });
+  const handleContactSupport = () => {
+    window.location.href = 'mailto:support@learnity.com?subject=Teacher Application Inquiry';
   };
+
+  // Get icon for completion item
+  const getItemIcon = (id: string) => {
+    const icons: Record<string, React.ElementType> = {
+      bio: Edit,
+      video: Video,
+      documents: FileText,
+      qualifications: Award,
+      subjects: BookOpen,
+      availability: Calendar,
+      profilePicture: GraduationCap,
+      experience: TrendingUp,
+    };
+    return icons[id] || CheckCircle2;
+  };
+
+  // Get color for completion item
+  const getItemColor = (id: string) => {
+    const colors: Record<string, string> = {
+      bio: 'amber',
+      video: 'indigo',
+      documents: 'emerald',
+      qualifications: 'purple',
+      subjects: 'blue',
+      availability: 'rose',
+      profilePicture: 'cyan',
+      experience: 'orange',
+    };
+    return colors[id] || 'slate';
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
+        <div className="relative">
+          <div className="h-16 w-16 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin" />
+          <GraduationCap className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 text-indigo-600" />
+        </div>
+        <p className="text-slate-500 font-medium animate-pulse">Loading your application status...</p>
+      </div>
+    );
+  }
+
+  const firstName = statusData?.profile.firstName || user?.displayName?.split(' ')[0] || 'Teacher';
+  const profileCompletion = statusData?.profileCompletion || 0;
+  const estimatedReviewTime = statusData?.estimatedReviewTime || '2-3 business days';
+  const incompleteItems = statusData?.completionItems.filter(item => !item.completed) || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <div className="p-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
-              <Clock className="h-8 w-8 text-white" />
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-indigo-50 via-slate-50 to-white pb-20">
+      
+      {/* Top Progress Banner */}
+      <div className="w-full bg-white/60 backdrop-blur-md border-b border-slate-200 py-3 mb-8">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap justify-center items-center gap-4 text-sm font-medium text-slate-400 md:gap-8">
+            <div className="flex items-center gap-2 text-indigo-600">
+              <CheckCircle2 className="h-4 w-4" /> Application Sent
+            </div>
+            <div className="hidden md:block h-px w-6 md:w-12 bg-slate-200" />
+            <div className="flex items-center gap-2 text-indigo-600">
+              <Clock className="h-4 w-4 animate-pulse" /> Admin Review
+            </div>
+            <div className="hidden md:block h-px w-6 md:w-12 bg-slate-200" />
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4" /> Final Approval
             </div>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent mb-2">
-            Welcome to Learnity, {user?.displayName || 'Teacher'}! 👋
-          </h1>
-          <p className="text-xl text-gray-600 mb-4">
-            {teacherProfile ?
-              `${teacherProfile.subjects?.join(', ') || 'Subject'} Teacher Application Under Review` :
-              'Your teacher application is under review'
-            }
-          </p>
-          {teacherProfile?.bio && (
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              &ldquo;{teacherProfile.bio}&rdquo;
-            </p>
-          )}
-          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 px-4 py-2">
-            <Clock className="h-4 w-4 mr-2" />
-            Application Status: Under Review
-          </Badge>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="container mx-auto px-4 max-w-7xl">
+        {/* Hero Section */}
+        <header className="text-center mb-12 space-y-4">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="inline-flex p-3 rounded-2xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200 mb-2"
+          >
+            <Sparkles className="h-8 w-8" />
+          </motion.div>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
+            Almost There, <span className="text-indigo-600">{firstName}!</span>
+          </h1>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Your application is currently being reviewed by our team. Use this time to boost your visibility and prepare for your first students.
+          </p>
+        </header>
 
-          {/* Left Column - Application Status */}
-          <div className="lg:col-span-2 space-y-6">
-
-            {/* Application Progress */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Main Content: Status & Quests */}
+          <div className="lg:col-span-8 space-y-8">
+            
+            {/* Journey Tracker Card */}
+            <Card className="overflow-hidden border-none shadow-xl shadow-indigo-100/50 bg-white/80 backdrop-blur">
+              <div className="h-2 w-full bg-gradient-to-r from-indigo-500 to-purple-600" />
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  Application Progress
-                </CardTitle>
-                <CardDescription>
-                  Track your application status and next steps
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between text-sm text-gray-600 mb-2">
-                  <span>Submitted: {applicationDate}</span>
-                  <span>Expected Response: {expectedResponse}</span>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-2xl font-bold text-slate-800">Application Journey</CardTitle>
+                    <CardDescription className="text-slate-500 mt-2">
+                      Estimated response: {estimatedReviewTime}
+                    </CardDescription>
+                  </div>
+                  <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none px-3 py-1 animate-pulse">
+                    Under Review
+                  </Badge>
                 </div>
-
-                <div className="space-y-4">
-                  {applicationSteps.map((step, index) => (
-                    <div key={index} className="flex items-center gap-4">
-                      <div className={`
-                        w-8 h-8 rounded-full flex items-center justify-center
-                        ${step.status === 'completed' ? 'bg-green-500 text-white' :
-                          step.status === 'current' ? 'bg-slate-500 text-white animate-pulse' :
-                            'bg-gray-200 text-gray-500'}
-                      `}>
-                        {step.status === 'completed' ? (
-                          <CheckCircle className="h-4 w-4" />
-                        ) : step.status === 'current' ? (
-                          <Clock className="h-4 w-4" />
-                        ) : (
-                          <div className="w-2 h-2 bg-current rounded-full" />
-                        )}
+              </CardHeader>
+              <CardContent className="space-y-8 p-8">
+                <div className="relative space-y-8">
+                  <div className="absolute left-[19px] top-2 bottom-2 w-0.5 bg-slate-100" />
+                  
+                  {[
+                    { 
+                      title: "Application Received", 
+                      desc: statusData?.submittedAt 
+                        ? `Submitted on ${new Date(statusData.submittedAt).toLocaleDateString()}`
+                        : "Your profile is safely in our database.", 
+                      status: "completed", 
+                      icon: CheckCircle2 
+                    },
+                    { 
+                      title: "Review Board Evaluation", 
+                      desc: "Our experts are looking at your credentials.", 
+                      status: "current", 
+                      icon: Clock 
+                    },
+                    { 
+                      title: "Teacher Onboarding", 
+                      desc: "Get access to your student dashboard.", 
+                      status: "pending", 
+                      icon: Award 
+                    }
+                  ].map((step, i) => (
+                    <div key={i} className="flex gap-6 relative">
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center z-10 ring-4 ring-white transition-all
+                        ${step.status === 'completed' ? 'bg-emerald-500 text-white' : 
+                          step.status === 'current' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 
+                          'bg-slate-100 text-slate-400'}`}>
+                        <step.icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <h4 className={`font-medium ${step.status === 'current' ? 'text-blue-600' : 'text-gray-900'
-                            }`}>
-                            {step.step}
-                          </h4>
-                          {step.date && (
-                            <span className="text-sm text-gray-500">{step.date}</span>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-600">{step.description}</p>
+                        <h4 className={`font-bold ${step.status === 'pending' ? 'text-slate-400' : 'text-slate-900'}`}>
+                          {step.title}
+                        </h4>
+                        <p className="text-sm text-slate-500">{step.desc}</p>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-6 p-4 bg-slate-50 rounded-lg">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
-                    <div>
-                      <h4 className="font-medium text-blue-900">What happens next?</h4>
-                      <p className="text-sm text-blue-800 mt-1">
-                        Our team will review your application within 2-3 business days.
-                        You'll receive an email notification once the review is complete.
-                      </p>
-                    </div>
-                  </div>
+                <div className="mt-6 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 flex gap-4 items-center">
+                  <Lightbulb className="h-6 w-6 text-indigo-600 shrink-0" />
+                  <p className="text-sm text-indigo-900 font-medium">
+                    Pro tip: Teachers who upload a <span className="font-bold underline">video introduction</span> are 3x more likely to be approved faster!
+                  </p>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Profile Enhancement */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-green-500" />
-                      Complete Your Profile ({profileCompletion}%)
-                    </CardTitle>
-                    <CardDescription>
-                      Boost your profile while waiting for approval
-                    </CardDescription>
-                  </div>
-                  <Button variant="outline" onClick={handlePreviewProfile}>
-                    <Eye className="h-4 w-4 mr-2" />
-                    Preview
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Progress value={profileCompletion} className="h-3" />
-
-                <div className="space-y-3">
-                  {profileSections.map((section) => {
-                    const Icon = section.icon;
-                    return (
-                      <div key={section.id} className={`
-                        p-4 rounded-lg border transition-all
-                        ${section.completed ?
-                          'bg-green-50 border-green-200' :
-                          'bg-gray-50 border-gray-200 hover:border-blue-300'}
-                      `}>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className={`
-                              p-2 rounded-lg
-                              ${section.completed ? 'bg-green-100' : 'bg-slate-100'}
-                            `}>
-                              <Icon className={`h-4 w-4 ${section.completed ? 'text-green-600' : 'text-blue-600'
-                                }`} />
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-gray-900">{section.title}</h4>
-                              <p className="text-sm text-gray-600">{section.description}</p>
-                              <p className="text-xs text-green-600 mt-1">{section.impact}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {section.completed ? (
-                              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                                <CheckCircle className="h-3 w-3 mr-1" />
-                                Done
-                              </Badge>
-                            ) : (
-                              <Button
-                                size="sm"
-                                onClick={handleSectionAction}
-                                className="bg-slate-500 hover:bg-slate-600"
-                              >
-                                {section.action}
-                                <ArrowRight className="h-3 w-3 ml-1" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Column - Learning Resources & Stats */}
-          <div className="space-y-6">
-
-            {/* Quick Stats */}
-            <Card className="shadow-lg border-0 bg-gradient-to-br from-green-500 to-blue-500 text-white">
-              <CardContent className="p-6">
-                <div className="text-center space-y-4">
-                  <Award className="h-12 w-12 mx-auto opacity-80" />
-                  <div>
-                    <h3 className="text-2xl font-bold">You&apos;re Almost There!</h3>
-                    <p className="opacity-90">
-                      Teachers with complete profiles get 3x more students
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/20">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">{profileCompletion}%</div>
-                      <div className="text-sm opacity-80">Profile Complete</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">2-3</div>
-                      <div className="text-sm opacity-80">Days to Approval</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Learning Resources */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-blue-500" />
-                  Prepare for Success
-                </CardTitle>
-                <CardDescription>
-                  Learn while you wait for approval
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {learningResources.map((resource, index) => {
-                  const Icon = resource.icon;
+            {/* Profile Boosters Grid */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 px-2">
+                Profile Boosters ({incompleteItems.length} remaining)
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {incompleteItems.slice(0, 4).map((item) => {
+                  const Icon = getItemIcon(item.id);
                   return (
-                    <div key={index} className="p-3 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer">
-                      <div className="flex items-start gap-3">
-                        <div className="p-2 bg-slate-100 rounded-lg">
-                          <Icon className="h-4 w-4 text-blue-600" />
+                    <Card 
+                      key={item.id} 
+                      onClick={handleEnhanceProfile}
+                      className="group hover:ring-2 hover:ring-indigo-500 transition-all cursor-pointer border-none shadow-lg"
+                    >
+                      <CardContent className="p-4 flex gap-4 items-center">
+                        <div className={`h-12 w-12 rounded-2xl bg-${getItemColor(item.id)}-50 text-${getItemColor(item.id)}-600 flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                          <Icon className="h-6 w-6" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-medium text-gray-900 text-sm">{resource.title}</h4>
-                          <p className="text-xs text-gray-600 mt-1">{resource.description}</p>
-                          <div className="flex items-center justify-between mt-2">
-                            <Badge variant="outline" className="text-xs">
-                              {resource.category}
-                            </Badge>
-                            <span className="text-xs text-gray-500">{resource.duration}</span>
-                          </div>
+                          <h4 className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors">
+                            {item.title}
+                          </h4>
+                          <p className="text-[10px] font-black uppercase text-emerald-600 tracking-tight">
+                            {item.impact}
+                          </p>
                         </div>
-                        <ExternalLink className="h-4 w-4 text-gray-400" />
-                      </div>
-                    </div>
+                        <Button size="icon" variant="ghost" className="rounded-full">
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </CardContent>
+                    </Card>
                   );
                 })}
+              </div>
+            </div>
+          </div>
 
-                <Button variant="outline" className="w-full mt-4">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  View All Resources
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Contact Support */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageCircle className="h-5 w-5 text-green-500" />
-                  Need Help?
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-gray-600">
-                  Have questions about your application or need assistance?
-                </p>
+          {/* Sidebar: Stats & Resources */}
+          <aside className="lg:col-span-4 space-y-8">
+            
+            {/* Success Probability Card */}
+            <Card className="bg-slate-900 text-white border-none shadow-2xl overflow-hidden relative">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <TrendingUp className="h-24 w-24" />
+              </div>
+              <CardContent className="p-8 space-y-6 relative z-10">
                 <div className="space-y-2">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Mail className="h-4 w-4 mr-2" />
-                    Email Support
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Live Chat
-                  </Button>
+                  <h3 className="text-2xl font-bold">Profile Strength</h3>
+                  <p className="text-slate-400 text-sm">Improve your profile to rank higher once approved.</p>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex justify-between text-xs font-bold uppercase tracking-tighter">
+                    <span>Completion</span>
+                    <span className="text-indigo-400">{profileCompletion}%</span>
+                  </div>
+                  <Progress value={profileCompletion} className="h-2 bg-white/10" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur">
+                    <div className="text-2xl font-black text-indigo-400">
+                      {statusData?.profile.subjects.length || 0}
+                    </div>
+                    <div className="text-[10px] uppercase font-bold text-slate-500 tracking-tighter">Subjects</div>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur">
+                    <div className="text-2xl font-black text-amber-400">
+                      {statusData?.profile.experience || 0}yr
+                    </div>
+                    <div className="text-[10px] uppercase font-bold text-slate-500 tracking-tighter">Experience</div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          </div>
+
+            {/* Prepare for Success - Resource List */}
+            <div className="space-y-4">
+              <h4 className="text-sm font-bold text-slate-500 uppercase px-2 tracking-widest">Prepare for Success</h4>
+              <div className="space-y-3">
+                {[
+                  { title: 'Create Great Lesson Plans', duration: '5 min', icon: BookOpen },
+                  { title: 'Hourly Pricing Guide', duration: '3 min', icon: TrendingUp },
+                  { title: 'First Session Checklist', duration: '2 min', icon: CheckCircle2 }
+                ].map((res, i) => (
+                  <button
+                    key={i}
+                    className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-100 hover:border-indigo-500 hover:shadow-lg transition-all text-left group"
+                  >
+                    <div className="h-10 w-10 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                      <res.icon className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm font-bold text-slate-900">{res.title}</div>
+                      <div className="text-[10px] uppercase font-black text-slate-400">{res.duration} read</div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-slate-300" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Testimonial */}
+            <Card className="border-none shadow-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+              <CardHeader>
+                <div className="flex gap-1">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}
+                </div>
+                <CardTitle className="text-lg">Join the Elite</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-indigo-50 italic leading-relaxed">
+                  &ldquo;I spent my waiting time refining my bio and introduction video. The day I was approved, I got 3 student requests!&rdquo;
+                </p>
+                <div className="mt-4 flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-[10px]">JD</div>
+                  <span className="text-xs font-bold">James D., Physics Tutor</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Support Action */}
+            <Button 
+              variant="outline" 
+              className="w-full h-12 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 gap-2"
+              onClick={handleContactSupport}
+            >
+              <Mail className="h-4 w-4" /> Contact Support
+            </Button>
+            
+          </aside>
         </div>
       </div>
     </div>

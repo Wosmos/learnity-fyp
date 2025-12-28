@@ -105,7 +105,7 @@ export const teacherSidebarConfig: SidebarConfig = {
 export const studentSidebarConfig: SidebarConfig = {
   role: 'student',
   brandName: 'Learnity',
-  brandSubtitle: 'Student Portal',
+  brandSubtitle: 'Student Dashboard',
   brandIcon: GraduationCap,
   brandGradient: 'from-emerald-600 to-teal-600',
   navItems: studentNavItems,
