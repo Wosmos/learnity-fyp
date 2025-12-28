@@ -25,6 +25,7 @@ model User {
   socialProviders String[]  @default([]) // ["google.com", "microsoft.com"]
   isActive        Boolean   @default(true)
   lastLoginAt     DateTime?
+  lastLessonDate  DateTime? // For streak calculation - tracks last day a lesson was completed (not just login)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -46,7 +47,8 @@ model User {
   // Gamification Relations
   userProgress UserProgress? @relation("UserGamificationProgress")
   xpActivities XPActivity[]  @relation("UserXPActivities")
-  badges       Badge[]       @relation("UserBadges")
+  userBadges   UserBadge[]   @relation("UserBadges")
+  userQuests   UserQuest[]   @relation("UserQuests")
 
   // Indexes for optimal query performance
   @@index([firebaseUid])
@@ -596,18 +598,24 @@ model Certificate {
   @@map("certificates")
 }
 
-// Gamification - User Progress
+// ============================================
+// GAMIFICATION SYSTEM
+// ============================================
+
+// User Progress - Core gamification stats
 model UserProgress {
   id             String    @id @default(cuid())
   userId         String    @unique
   totalXP        Int       @default(0)
   currentLevel   Int       @default(1)
-  currentStreak  Int       @default(0)
-  longestStreak  Int       @default(0)
-  lastActivityAt DateTime?
+  currentStreak  Int       @default(0) // Days of consecutive lesson completion (resets if a day is missed)
+  longestStreak  Int       @default(0) // Best streak ever achieved
+  lastActivityAt DateTime? // Last time user completed ANY lesson (for streak calculation)
 
-  user User @relation("UserGamificationProgress", fields: [userId], references: [id])
+  user User @relation("UserGamificationProgress", fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([totalXP]) // For leaderboards
+  @@index([currentLevel])
   @@map("user_progress")
 }
 
@@ -620,7 +628,7 @@ model XPActivity {
   sourceId  String? // lessonId, quizId, or courseId
   createdAt DateTime @default(now())
 
-  user User @relation("UserXPActivities", fields: [userId], references: [id])
+  user User @relation("UserXPActivities", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([createdAt])
@@ -634,31 +642,126 @@ enum XPReason {
   COURSE_COMPLETE
   DAILY_LOGIN
   STREAK_BONUS
+  QUEST_COMPLETE
 }
 
-// Badges
-model Badge {
-  id         String    @id @default(cuid())
-  userId     String
-  type       BadgeType
-  unlockedAt DateTime  @default(now())
+// Badge Definitions - Metadata for all available badges
+model BadgeDefinition {
+  id          String   @id @default(cuid())
+  key         String   @unique // e.g., "first_course", "streak_7"
+  name        String // Display name
+  description String
+  icon        String // Icon identifier or URL
+  category    BadgeCategory
+  criteria    Json? // Flexible criteria definition
+  xpReward    Int      @default(0)
+  rarity      BadgeRarity @default(COMMON)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
 
-  user User @relation("UserBadges", fields: [userId], references: [id])
+  userBadges UserBadge[]
 
-  @@unique([userId, type])
+  @@index([category])
+  @@index([isActive])
+  @@map("badge_definitions")
+}
+
+enum BadgeCategory {
+  ACHIEVEMENT // Course completions, milestones
+  STREAK // Login streaks
+  MASTERY // Quiz performance
+  SOCIAL // Reviews, community
+  SPECIAL // Limited time, events
+}
+
+enum BadgeRarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+// User Badges - Tracks which badges users have earned
+model UserBadge {
+  id               String    @id @default(cuid())
+  userId           String
+  badgeDefinitionId String
+  earnedAt         DateTime  @default(now())
+  progress         Int?      @default(0) // For progressive badges
+
+  user            User            @relation("UserBadges", fields: [userId], references: [id], onDelete: Cascade)
+  badgeDefinition BadgeDefinition @relation(fields: [badgeDefinitionId], references: [id])
+
+  @@unique([userId, badgeDefinitionId])
   @@index([userId])
-  @@map("badges")
+  @@index([badgeDefinitionId])
+  @@index([earnedAt])
+  @@map("user_badges")
 }
 
-enum BadgeType {
-  FIRST_COURSE_COMPLETE
-  FIVE_COURSES_COMPLETE
-  TEN_COURSES_COMPLETE
-  STREAK_7_DAYS
-  STREAK_30_DAYS
-  STREAK_100_DAYS
-  QUIZ_MASTER
-  TOP_REVIEWER
+// Quest Definitions - Daily/Weekly challenges
+model Quest {
+  id          String      @id @default(cuid())
+  key         String      @unique // e.g., "daily_lesson", "weekly_5_quizzes"
+  title       String
+  description String
+  type        QuestType
+  frequency   QuestFrequency
+  targetValue Int // e.g., 1 lesson, 5 quizzes
+  xpReward    Int         @default(0)
+  badgeReward String? // Optional badge key to award
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  userQuests UserQuest[]
+
+  @@index([type])
+  @@index([frequency])
+  @@index([isActive])
+  @@map("quests")
+}
+
+enum QuestType {
+  LESSON_COMPLETION
+  QUIZ_COMPLETION
+  COURSE_ENROLLMENT
+  LOGIN_STREAK
+  REVIEW_SUBMISSION
+}
+
+enum QuestFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  ONE_TIME
+}
+
+// User Quest Progress
+model UserQuest {
+  id              String      @id @default(cuid())
+  userId          String
+  questId         String
+  currentProgress Int         @default(0)
+  status          QuestStatus @default(IN_PROGRESS)
+  startedAt       DateTime    @default(now())
+  completedAt     DateTime?
+  lastResetAt     DateTime? // For recurring quests
+
+  user  User  @relation("UserQuests", fields: [userId], references: [id], onDelete: Cascade)
+  quest Quest @relation(fields: [questId], references: [id])
+
+  @@unique([userId, questId])
+  @@index([userId])
+  @@index([questId])
+  @@index([status])
+  @@map("user_quests")
+}
+
+enum QuestStatus {
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
 }
 
 // ============================================
