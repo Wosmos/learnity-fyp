@@ -268,8 +268,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
           trendValue=""
           trendLabel=""
           icon={Eye}
-          iconColor="text-blue-500"
-          bgColor="bg-slate-100"
+
         />
 
         <MetricCard
@@ -278,9 +277,6 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
           trendValue=""
           trendLabel=""
           icon={Shield}
-          iconColor="text-green-500"
-          bgColor="bg-green-100"
-          textColor="text-green-600"
         />
 
         <MetricCard
@@ -289,9 +285,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
           trendValue=""
           trendLabel=""
           icon={AlertTriangle}
-          iconColor="text-red-500"
-          bgColor="bg-red-100"
-          textColor="text-red-600"
+          
         />
 
         <MetricCard
@@ -300,9 +294,6 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ className 
           trendValue=""
           trendLabel=""
           icon={Ban}
-          iconColor="text-orange-500"
-          bgColor="bg-orange-100"
-          textColor="text-orange-600"
         />
       </div>
 

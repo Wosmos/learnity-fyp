@@ -9,7 +9,7 @@
 - **MUST** use interfaces for all service contracts
 - **MUST** implement proper abstraction layers
 
-### 2. Next.js 15 Best Practices
+### 2. Next.js 16 Best Practices
 - **MUST** use App Router exclusively (no Pages Router)
 - **MUST** implement Server Components by default
 - **MUST** use Client Components only when necessary
@@ -21,6 +21,7 @@
 - **MUST** set helper functions at there dedecated file or folder
 - **MUST** avoid dublication as much as possible
 - **MUST** improve DRI and better optimization practices for speed and better code quality
+- **MUST** use bun instead of npm
 - **MUST** test each and every task we implemented
 - **MUST** always verify if we are using correct code structre for each tech stack using their official documentation
 - **MUST** follow the design pattern provided in /design folder

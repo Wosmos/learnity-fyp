@@ -1,0 +1,334 @@
+/* Base Typography - THIS IS WHAT WAS MISSING */
+.markdown-content {
+  color: rgb(30 41 59);
+  font-size: 1rem;
+  line-height: 1.75;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+/* Headings - Added proper sizing and boldness */
+.markdown-content h1 {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 800;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  scroll-margin-top: 5rem;
+}
+
+.markdown-content h2 {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  position: relative;
+  scroll-margin-top: 5rem;
+}
+
+.markdown-content h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 3rem;
+  height: 0.25rem;
+  background: linear-gradient(to right, rgb(37 99 235), rgb(147 51 234));
+  border-radius: 9999px;
+}
+
+.markdown-content h3 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  scroll-margin-top: 5rem;
+}
+
+.markdown-content h4 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  scroll-margin-top: 5rem;
+}
+
+.markdown-content h5 {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  scroll-margin-top: 5rem;
+}
+
+.markdown-content h6 {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  scroll-margin-top: 5rem;
+}
+
+/* Paragraphs */
+.markdown-content p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Links */
+.markdown-content a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: rgb(37 99 235);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.markdown-content a:hover {
+  color: rgb(29 78 216);
+  text-decoration: underline;
+}
+
+/* Code Blocks */
+.markdown-content pre {
+  position: relative;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background-color: rgb(15 23 42);
+  overflow-x: auto;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  color: rgb(241 245 249);
+  padding: 0;
+  font-size: 0.875rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  line-height: 1.5;
+  display: block;
+}
+
+/* Inline Code */
+.markdown-content :not(pre) > code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.875rem;
+  background-color: rgb(241 245 249);
+  padding: 0.25rem 0.375rem;
+  border-radius: 0.25rem;
+  color: rgb(37 99 235);
+}
+
+/* Lists */
+.markdown-content ul,
+.markdown-content ol {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.markdown-content ul > li,
+.markdown-content ol > li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.625;
+}
+
+.markdown-content li > ul,
+.markdown-content li > ol {
+  margin-top: 0.5rem;
+}
+
+/* Blockquotes */
+.markdown-content blockquote {
+  background-color: rgb(239 246 255);
+  border-left-width: 0;
+  border-radius: 0 0.5rem 0.5rem 0;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  padding-left: 2rem;
+  border-left: 4px solid rgb(37 99 235);
+}
+
+.markdown-content blockquote p {
+  margin-bottom: 0;
+  font-style: italic;
+  color: rgb(55 65 81);
+}
+
+/* Tables */
+.markdown-content table {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border-collapse: collapse;
+}
+
+.markdown-content thead {
+  background-color: rgb(15 23 42);
+  color: white;
+}
+
+.markdown-content thead th {
+  background-color: rgb(15 23 42);
+  color: white;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.markdown-content tbody td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgb(229 231 235);
+}
+
+.markdown-content tbody tr {
+  transition: background-color 0.2s;
+}
+
+.markdown-content tbody tr:hover {
+  background-color: rgb(248 250 252);
+}
+
+.markdown-content tbody tr:last-child {
+  border-bottom: none;
+}
+
+.markdown-content tbody tr:nth-child(even) {
+  background-color: rgb(248 250 252 / 0.5);
+}
+
+/* Horizontal Rule */
+.markdown-content hr {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  height: 1px;
+  background-color: rgb(229 231 235);
+  border: none;
+}
+
+/* Images */
+.markdown-content img {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1);
+}
+
+/* Task Lists */
+.markdown-content input[type="checkbox"] {
+  margin-right: 0.5rem;
+  border-radius: 0.25rem;
+  border-color: rgb(203 213 225);
+  color: rgb(37 99 235);
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.markdown-content input[type="checkbox"]:focus {
+  outline: 2px solid rgb(37 99 235);
+  outline-offset: 2px;
+}
+
+/* Syntax Highlighting Enhancements */
+.markdown-content .hljs {
+  background-color: rgb(15 23 42);
+}
+
+.markdown-content .hljs-comment {
+  color: rgb(148 163 184);
+  font-style: italic;
+}
+
+.markdown-content .hljs-keyword {
+  color: rgb(192 132 252);
+  font-weight: 600;
+}
+
+.markdown-content .hljs-string {
+  color: rgb(134 239 172);
+}
+
+.markdown-content .hljs-number {
+  color: rgb(251 146 60);
+}
+
+.markdown-content .hljs-function {
+  color: rgb(96 165 250);
+}
+
+.markdown-content .hljs-class {
+  color: rgb(250 204 21);
+}
+
+.markdown-content .hljs-title {
+  color: rgb(147 197 253);
+  font-weight: 600;
+}
+
+.markdown-content .hljs-params {
+  color: rgb(203 213 225);
+}
+
+.markdown-content .hljs-built_in {
+  color: rgb(103 232 249);
+}
+
+/* Responsive Tables */
+@media (max-width: 768px) {
+  .markdown-content table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .markdown-content h1 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+  
+  .markdown-content h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  
+  .markdown-content h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .markdown-content {
+    color: black;
+  }
+  
+  .markdown-content a {
+    color: rgb(30 64 175);
+    text-decoration: underline;
+  }
+  
+  .markdown-content pre {
+    border: 1px solid rgb(203 213 225);
+    background-color: rgb(248 250 252);
+    color: rgb(15 23 42);
+  }
+}

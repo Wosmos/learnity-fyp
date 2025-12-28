@@ -11,7 +11,6 @@ import Link from 'next/link';
 import { LoginForm } from "@/components/auth";
 import { useAuthService } from "@/hooks/useAuthService";
 import { useClientAuth } from "@/hooks/useClientAuth";
-import { UserRole } from "@/types/auth";
 import { AuthDebugInfo } from "@/components/debug/AuthDebugInfo";
 import { getDashboardRoute } from "@/lib/utils/auth-redirect.utils";
 import { Button } from '@/components/ui/button';
@@ -75,18 +74,13 @@ function LoginPageContent() {
         <div className="absolute top-8 right-8">
           <Link href="/">
             <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
+              <ArrowLeft className="h-4 w-4 mr-2 " />
+              <div className="hidden lg:block">Back to Home</div>
             </Button>
           </Link>
         </div>
 
-        <div className="w-full max-w-md space-y-8">
-          {/* Header for mobile primarily, or just extra context */}
-          <div className="text-center space-y-2 lg:text-left lg:hidden">
-            <h2 className="text-3xl font-bold text-slate-900">Welcome Back</h2>
-            <p className="text-slate-600">Sign in to access your account</p>
-          </div>
+        <div className="w-full max-w-md space-y-8 pt-4">
 
           <LoginForm
             onSubmit={login}

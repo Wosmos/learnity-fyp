@@ -36,7 +36,8 @@ import {
 import { UserRole } from '@/types/auth';
 import { cn } from '@/lib/utils';
 import { getDashboardRoute, getRoleBadgeColor, getRoleDisplayName } from './utils';
-import Footer from './Footer';
+import { Footer } from '../externals';
+
 
 export interface AppLayoutProps {
   children: React.ReactNode;
@@ -143,7 +144,7 @@ export function AppLayout({
     <div className={cn('min-h-screen bg-gray-50', className)}>
       {/* Header */}
       {showHeader && (
-        <header className="bg-white/65 backdrop-blur-xl shadow-sm border-b sticky top-0 z-50">
+        <header className="bg-slate-50/85 backdrop-blur-2xl shadow-sm border-b sticky top-0 z-50">
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               {/* Logo and Brand */}
@@ -160,19 +161,19 @@ export function AppLayout({
                   <nav className="hidden md:flex items-center space-x-1">
                     {isAuthenticated && showNavigation && (
                       <Link href={getDashboardRoute(claims?.role || UserRole.STUDENT)}>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="onyx" size="sm">
                           <Home className="h-4 w-4 mr-2" />
                           Dashboard
                         </Button>
                       </Link>
                     )}
                     <Link href="/teachers">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="onyx" size="sm">
                         Our Teachers
                       </Button>
                     </Link>
                     <Link href="/about">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="onyx" size="sm">
                         About Us
                       </Button>
                     </Link>
@@ -185,14 +186,14 @@ export function AppLayout({
                 {isAuthenticated ? (
                   <>
                     {/* Notifications */}
-                    <Button variant="ghost" size="sm" className="hidden sm:flex">
+                    <Button variant="onyx" size="sm" className="hidden sm:flex">
                       <Bell className="h-4 w-4" />
                     </Button>
 
                     {/* User Dropdown Menu */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="hidden sm:flex items-center space-x-3 h-auto py-2">
+                        <Button variant="onyx" className="hidden sm:flex items-center space-x-3 h-auto py-2">
                           <div className="text-right">
                             <p className="text-sm font-medium text-gray-900">
                               {user?.displayName || user?.email?.split('@')[0] || 'User'}
@@ -247,7 +248,7 @@ export function AppLayout({
 
                     {/* Mobile Menu Button */}
                     <Button
-                      variant="ghost"
+                      variant="onyx"
                       size="sm"
                       className="md:hidden"
                       onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -262,7 +263,7 @@ export function AppLayout({
                 ) : (
                   <div className="flex items-center space-x-2">
                     <Link href="/auth/login">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="nova" size="sm">
                         Sign in
                       </Button>
                     </Link>
@@ -313,13 +314,13 @@ export function AppLayout({
                         href={getDashboardRoute(claims?.role || UserRole.STUDENT)}
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <Button variant="ghost" className="w-full justify-start">
+                        <Button variant="onyx" className="w-full justify-start">
                           <Home className="h-4 w-4 mr-2" />
                           Dashboard
                         </Button>
                       </Link>
                       <Button
-                        variant="ghost"
+                        variant="onyx"
                         className="w-full justify-start"
                         onClick={() => {
                           router.push('/profile/enhance');
@@ -329,7 +330,7 @@ export function AppLayout({
                         <User className="h-4 w-4 mr-2" />
                         Profile
                       </Button>
-                      <Button variant="ghost" className="w-full justify-start">
+                      <Button variant="onyx" className="w-full justify-start">
                         <Bell className="h-4 w-4 mr-2" />
                         Notifications
                       </Button>
@@ -341,7 +342,7 @@ export function AppLayout({
                         href="/teachers"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <Button variant="ghost" className="w-full justify-start">
+                        <Button variant="onyx" className="w-full justify-start">
                           Our Teachers
                         </Button>
                       </Link>
@@ -349,7 +350,7 @@ export function AppLayout({
                         href="/about"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <Button variant="ghost" className="w-full justify-start">
+                        <Button variant="onyx" className="w-full justify-start">
                           About Us
                         </Button>
                       </Link>
@@ -384,8 +385,13 @@ export function AppLayout({
         {children}
       </main>
 
-      {/* Footer */}
-      <Footer />
+    {/* Footer */}
+      <Footer
+      status={{
+        text: 'All Systems Operational',
+        online: true,
+      }}
+    />
     </div>
   );
 }
@@ -442,5 +448,8 @@ export function AdminAuthenticatedLayout({ children, ...props }: AppLayoutProps)
  * Layout wrapper for public pages (no authentication required)
  */
 export function PublicLayout({ children, ...props }: AppLayoutProps) {
-  return <AppLayout {...props}>{children}</AppLayout>;
+  return <AppLayout {...props}>
+    {children}
+    
+  </AppLayout>;
 }

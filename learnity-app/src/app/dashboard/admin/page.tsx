@@ -155,9 +155,6 @@ export default function AdminDashboardPage() {
           trendValue={`+${stats?.userGrowthRate || 0}%`}
           trendLabel="this month"
           icon={Users}
-          iconColor="text-blue-600"
-          bgColor="bg-slate-100"
-          trendColor="text-green-600"
         />
 
         <MetricCard
@@ -166,9 +163,6 @@ export default function AdminDashboardPage() {
           trendValue={stats?.pendingTeachers?.toString() || '0'}
           trendLabel="pending approval"
           icon={GraduationCap}
-          iconColor="text-green-600"
-          bgColor="bg-green-100"
-          trendColor="text-orange-600"
         />
 
         <MetricCard
@@ -177,9 +171,6 @@ export default function AdminDashboardPage() {
           trendValue={stats?.recentSignups?.toString() || '0'}
           trendLabel="new this week"
           icon={BookOpen}
-          iconColor="text-purple-600"
-          bgColor="bg-purple-100"
-          trendColor="text-blue-600"
         />
 
         <MetricCard
@@ -188,9 +179,6 @@ export default function AdminDashboardPage() {
           trendValue={`+${stats?.revenueGrowth || 0}%`}
           trendLabel="vs last month"
           icon={DollarSign}
-          iconColor="text-green-600"
-          bgColor="bg-green-100"
-          trendColor="text-green-600"
         />
       </div>
 
@@ -254,8 +242,6 @@ export default function AdminDashboardPage() {
                   trendValue=""
                   trendLabel=""
                   icon={CheckCircle}
-                  iconColor="text-green-600"
-                  bgColor="bg-green-100"
                   className="border-0 shadow-none bg-gray-50"
                 />
                 <MetricCard
@@ -264,8 +250,6 @@ export default function AdminDashboardPage() {
                   trendValue=""
                   trendLabel=""
                   icon={Activity}
-                  iconColor="text-blue-600"
-                  bgColor="bg-slate-100"
                   className="border-0 shadow-none bg-gray-50"
                 />
               </div>
@@ -276,8 +260,6 @@ export default function AdminDashboardPage() {
                 trendValue=""
                 trendLabel=""
                 icon={Star}
-                iconColor="text-yellow-500"
-                bgColor="bg-yellow-100"
                 className="border-0 shadow-none bg-slate-50"
               />
             </div>
@@ -295,8 +277,6 @@ export default function AdminDashboardPage() {
             trendLabel="View and manage all users"
             trendValue=""
             icon={Users}
-            iconColor="text-blue-600"
-            bgColor="bg-slate-100"
             className="h-32"
           />
         </Link>
@@ -308,8 +288,6 @@ export default function AdminDashboardPage() {
             trendLabel="Review pending applications"
             trendValue=""
             icon={GraduationCap}
-            iconColor="text-green-600"
-            bgColor="bg-green-100"
             className="h-32"
           />
         </Link>
@@ -321,8 +299,6 @@ export default function AdminDashboardPage() {
             trendLabel="Monitor security events"
             trendValue=""
             icon={Shield}
-            iconColor="text-red-600"
-            bgColor="bg-red-100"
             className="h-32"
           />
         </Link>
