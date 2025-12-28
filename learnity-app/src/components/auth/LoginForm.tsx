@@ -40,11 +40,14 @@ import {
   Fingerprint,
   Wifi,
   WifiOff,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { useToast } from "@/hooks/use-toast";
 import { formatErrorForDisplay } from "@/lib/utils/error-messages";
 import MobileAuthLayout from "./MobileAuthLayout";
+import Link from "next/link";
 
 export interface LoginFormProps {
   onSubmit: (data: LoginData) => Promise<void>;
@@ -304,7 +307,17 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           Continue with Google
         </Button>
 
-        <Button
+        <Link href="/auth/register/teacher">
+          <Button
+            type="button"
+            variant="nova"
+            className="w-full"
+          >
+            Become a Teacher
+            <ChevronRight className="h-4 w-4 ml-2" />
+          </Button>
+        </Link>
+        {/* <Button
           type="button"
           variant="nova"
           className="w-full"
@@ -322,7 +335,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             </svg>
           )}
           Continue with Microsoft
-        </Button>
+        </Button> */}
       </div>
 
       {/* Divider */}
@@ -446,7 +459,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
           <Button
             type="submit"
-            className="w-full bg-slate-600 hover:bg-slate-700 text-white font-medium"
+            variant="nova"
+            className="w-full  text-white font-medium"
             disabled={isSubmitting || !!socialLoading}
           >
             {isSubmitting ? (

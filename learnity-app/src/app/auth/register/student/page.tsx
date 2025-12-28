@@ -55,10 +55,10 @@ export default function StudentRegisterPage() {
 
           {/* Navigation Header (Desktop) */}
           <div className="hidden lg:flex justify-end mb-8 absolute top-8 right-8 z-10">
-            <Link href="/">
+            <Link href="/auth/register/teacher">
               <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
                 <ChevronLeft className="h-4 w-4 mr-2" />
-                Back to Home
+                Become a Teacher
               </Button>
             </Link>
           </div>

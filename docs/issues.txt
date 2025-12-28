@@ -1,10 +1,18 @@
-redundunt code
-over enginiered logic in some place 
-under enginiered logic in some place
-usage of static data in pages 
-pages are turned client (not ideal in next js )
-SSR is not being properly Implemented
 navbar and sidebar are ourt of sync and over layed in admin accesss
-so much repeted logic in application 
-many redundunt component
-toast issue (showing error where it needs to wait for data ) 
+/api/auth/profile is being called again and again unnecessarly 
+on dashboard/student page course are constantly loading without needing it 
+student portal is so slow make it faster 
+All student pages muct be server side rendered 
+cahceing is not being implemented fix it 
+check if there are any already implemented solutions for the above problems in code base 
+if not then only implement the additional code for the above problems
+implement SSR PPR , ISR ,  SSG where necessary 
+make the portal faster form 10s to 1s at max initial load and 100ms to 200ms load time for other pages
+also chec if there are any other problems and diagnose the solution
+pages included :
+ /student/dashboard/page.tsx
+ /student/achievements/page.tsx
+ /student/courses/page.tsx
+ /student/profile/page.tsx
+ /student/progress/page.tsx
+ /student/public-courses/page.tsx
