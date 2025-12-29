@@ -1,12 +1,16 @@
 /**
  * API Route: Get User Profile
  * Fetches user profile data from Neon DB
+ * OPTIMIZED: Added cache headers to reduce repeated calls
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { ServiceFactory } from '@/lib/factories/service.factory';
 import { authenticateApiRequest } from '@/lib/utils/api-auth.utils';
 import { createSuccessResponse, createNotFoundErrorResponse, withErrorHandling } from '@/lib/utils/api-response.utils';
+
+// Cache profile data for 5 minutes on client side
+const CACHE_MAX_AGE = 300; // 5 minutes
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { databaseService } = ServiceFactory.getAuthServices();
@@ -69,7 +73,13 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     })
   };
 
-  return createSuccessResponse(profileData, 'Profile retrieved successfully');
+  // Create response with cache headers
+  const response = createSuccessResponse(profileData, 'Profile retrieved successfully');
+  
+  // Add cache headers - private cache for authenticated data
+  response.headers.set('Cache-Control', `private, max-age=${CACHE_MAX_AGE}, stale-while-revalidate=${CACHE_MAX_AGE * 2}`);
+  
+  return response;
 });
 
 export const PUT = withErrorHandling(async (request: NextRequest) => {

@@ -11,7 +11,6 @@ export {
 
 export {
   default as RoleSelection,
-  type RoleSelectionProps
 } from './RoleSelection';
 
 export {

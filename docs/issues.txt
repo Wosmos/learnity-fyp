@@ -16,3 +16,11 @@ pages included :
  /student/profile/page.tsx
  /student/progress/page.tsx
  /student/public-courses/page.tsx
+
+
+
+same issue is with teachers 
+all pages are taking like 10-15s per load which is a terible user experience i want you to fix it
+apply SSR PPR , ISR ,  SSG where necessary 
+do not break the present code base structure 
+try to optimise the pages i want you to reduc it to 10 to 15x, reduce the initial load time to 1s to 1.5s at max and 100ms to 200ms for other loadinngs or returning to pages use cahcing , ssr and better optimization make a comprehensive documentation and then impleent the chanegs make each page ssr side no page.tsx or layout.tsx shoudl remain client side also do not break the code base , do not helucinate at all 

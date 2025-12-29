@@ -1,6 +1,7 @@
 /**
  * Authentication Context Provider
  * Provides authentication state and methods to React components
+ * OPTIMIZED: Uses centralized profile store to prevent duplicate API calls
  */
 
 "use client";
@@ -10,6 +11,7 @@ import React, {
   useContext,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import {
   User as FirebaseUser,
@@ -18,6 +20,7 @@ import {
 } from "firebase/auth";
 import { auth } from "@/lib/config/firebase";
 import { useAuthStore } from "@/lib/stores/auth.store";
+import { useProfileStore } from "@/lib/stores/profile.store";
 // Note: roleManager is server-side only, we'll use API calls instead
 import {
   UserRole,
@@ -80,6 +83,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     hasRole,
     hasAnyRole,
   } = useAuthStore();
+
+  // Use centralized profile store
+  const { 
+    setProfile: setProfileStore, 
+    setLoading: setProfileLoading,
+    clearProfile,
+    isCacheValid 
+  } = useProfileStore();
+
+  // Prevent duplicate fetches
+  const fetchingRef = useRef(false);
 
   /**
    * Refresh user claims from Firebase and sync with store
@@ -209,19 +223,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
           const idToken = await firebaseUser.getIdToken();
 
-          // Parallel fetch: claims, profile, and sync (fire-and-forget)
-          const [claimsResponse, profileResponse] = await Promise.all([
+          // Prevent duplicate fetches
+          if (fetchingRef.current) return;
+          fetchingRef.current = true;
+
+          // Check if profile is already cached
+          const profileCached = isCacheValid();
+
+          // Parallel fetch: claims, profile (only if not cached), and sync (fire-and-forget)
+          const fetchPromises: Promise<any>[] = [
             fetch("/api/auth/claims", {
               headers: { Authorization: `Bearer ${idToken}` },
             }),
-            fetch("/api/auth/profile", {
-              headers: { Authorization: `Bearer ${idToken}` },
-            }),
-            // Fire-and-forget sync - don't wait for it
-            syncUserProfile(firebaseUser).catch(err => 
-              console.warn('Profile sync failed (non-critical):', err)
-            ),
-          ]);
+          ];
+
+          // Only fetch profile if not cached
+          if (!profileCached) {
+            setProfileLoading(true);
+            fetchPromises.push(
+              fetch("/api/auth/profile", {
+                headers: { Authorization: `Bearer ${idToken}` },
+              })
+            );
+          }
+
+          // Fire-and-forget sync - don't wait for it
+          syncUserProfile(firebaseUser).catch(err => 
+            console.warn('Profile sync failed (non-critical):', err)
+          );
+
+          const responses = await Promise.all(fetchPromises);
+          const claimsResponse = responses[0];
+          const profileResponse = profileCached ? null : responses[1];
 
           // Process claims
           if (claimsResponse.ok) {
@@ -235,11 +268,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }));
           }
 
-          // Process profile
-          if (profileResponse.ok) {
+          // Process profile - update both stores
+          if (profileResponse?.ok) {
             const userProfile = await profileResponse.json();
             setProfile(userProfile);
+            setProfileStore(userProfile); // Update centralized store
           }
+          setProfileLoading(false);
+          fetchingRef.current = false;
 
           updateLastActivity();
         } catch (error: any) {
@@ -255,11 +291,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(null);
           setClaims(null);
           setProfile(null);
+          clearProfile(); // Clear centralized profile store
           localStorage.removeItem('learnity_user_claims');
+          fetchingRef.current = false;
         }
       } else {
         // User signed out - clear cache
         clearAuth();
+        clearProfile(); // Clear centralized profile store
         localStorage.removeItem('learnity_user_claims');
       }
 

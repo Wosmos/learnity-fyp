@@ -49,6 +49,7 @@ const nextConfig: NextConfig = {
   // Headers for better caching
   async headers() {
     return [
+      // Cache public API routes
       {
         source: '/api/public/:path*',
         headers: [
@@ -58,6 +59,54 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // Cache authenticated API routes with private cache
+      {
+        source: '/api/auth/profile',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, max-age=300, stale-while-revalidate=600',
+          },
+        ],
+      },
+      {
+        source: '/api/auth/claims',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, max-age=300, stale-while-revalidate=600',
+          },
+        ],
+      },
+      // Cache enrollments and progress data
+      {
+        source: '/api/enrollments',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, max-age=60, stale-while-revalidate=120',
+          },
+        ],
+      },
+      {
+        source: '/api/student/progress',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, max-age=60, stale-while-revalidate=120',
+          },
+        ],
+      },
+      {
+        source: '/api/gamification/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, max-age=60, stale-while-revalidate=120',
+          },
+        ],
+      },
+      // Static assets - long cache
       {
         source: '/_next/static/:path*',
         headers: [
@@ -67,6 +116,7 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // Security headers
       {
         source: '/(.*)',
         headers: [

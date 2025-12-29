@@ -3,12 +3,14 @@
 /**
  * Student Dashboard
  * Enhanced dashboard with real profile data and modern UI
+ * OPTIMIZED: Uses centralized profile store to prevent duplicate API calls
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
+import { useProfileStore } from '@/lib/stores/profile.store';
 import {
   BookOpen,
   TrendingUp,
@@ -67,24 +69,15 @@ export default function StudentDashboard() {
   const { user, loading: authLoading } = useAuth();
   const api = useAuthenticatedApi();
   const router = useRouter();
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  
+  // Use centralized profile store - NO duplicate API calls
+  const profileData = useProfileStore((state) => state.profile);
+  const profileLoading = useProfileStore((state) => state.isLoading);
+  
   const [completion, setCompletion] = useState<CompletionData | null>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loadingProfile, setLoadingProfile] = useState(true);
   const [loadingCompletion, setLoadingCompletion] = useState(true);
   const [loadingStats, setLoadingStats] = useState(true);
-
-  // Fetch profile data
-  const fetchProfileData = useCallback(async () => {
-    try {
-      const response = await api.get('/api/auth/profile');
-      setProfileData(response.data);
-    } catch (error) {
-      console.error('[fetchProfileData] Failed to fetch profile:', error);
-    } finally {
-      setLoadingProfile(false);
-    }
-  }, [api]);
 
   // Fetch completion data
   const fetchCompletionData = useCallback(async () => {
@@ -146,11 +139,11 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      fetchProfileData();
+      // Profile is already fetched by AuthProvider - no need to fetch again
       fetchCompletionData();
       fetchDashboardStats();
     }
-  }, [user, authLoading, fetchProfileData, fetchCompletionData, fetchDashboardStats]);
+  }, [user, authLoading, fetchCompletionData, fetchDashboardStats]);
 
   const handleEnhanceProfile = () => {
     router.push('/dashboard/student/profile/enhance');
@@ -205,7 +198,7 @@ export default function StudentDashboard() {
     }
   ];
 
-  if (authLoading || loadingProfile) {
+  if (authLoading || profileLoading) {
     return (
       <DashboardSkeleton />
     );

@@ -3,9 +3,10 @@
 /**
  * Dashboard Navbar Component
  * Enhanced UI/UX with micro-animations, glassmorphism, and real user data.
+ * OPTIMIZED: Uses centralized profile store instead of making duplicate API calls
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import {
@@ -29,7 +30,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useClientAuth } from '@/hooks/useClientAuth';
-import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
+import { useProfileStore, getProfileInitials, getProfileFullName } from '@/lib/stores/profile.store';
 
 // --- Types ---
 
@@ -103,46 +104,22 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
   const { role, showStats, stats, showSearch = true } = config;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, loading: authLoading } = useClientAuth();
-  const api = useAuthenticatedApi();
+  
+  // Use centralized profile store - NO duplicate API calls
+  const profile = useProfileStore((state) => state.profile);
 
-  const [profileData, setProfileData] = useState<{
-    firstName: string;
-    lastName: string;
-    email: string;
-    profilePicture?: string | null;
-  } | null>(null);
-
-  // Fetch real user profile data
-  useEffect(() => {
-    if (!authLoading && user) {
-      const fetchProfile = async () => {
-        try {
-          const response = await api.get('/api/auth/profile');
-          if (response?.data) {
-            setProfileData({
-              firstName: response.data.firstName,
-              lastName: response.data.lastName,
-              email: response.data.email,
-              profilePicture: response.data.profilePicture,
-            });
-          }
-        } catch (error) {
-          console.error('Failed to fetch profile for navbar:', error);
-          // Fallback to Firebase user data
-          if (user) {
-            const names = user.displayName?.split(' ') || ['User'];
-            setProfileData({
-              firstName: names[0] || 'User',
-              lastName: names.slice(1).join(' ') || '',
-              email: user.email || '',
-              profilePicture: user.photoURL,
-            });
-          }
-        }
-      };
-      fetchProfile();
-    }
-  }, [authLoading, user, api]);
+  // Derive profile data from centralized store or fallback to Firebase user
+  const profileData = profile ? {
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    email: profile.email,
+    profilePicture: profile.profilePicture,
+  } : user ? {
+    firstName: user.displayName?.split(' ')[0] || 'User',
+    lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+    email: user.email || '',
+    profilePicture: user.photoURL,
+  } : null;
 
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() || 'U';

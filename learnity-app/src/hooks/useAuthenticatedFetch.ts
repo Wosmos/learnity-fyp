@@ -1,10 +1,14 @@
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useAuth } from './useAuth.unified';
 
 interface AuthenticatedFetchOptions extends RequestInit {
   skipAuth?: boolean;
 }
+
+// Simple in-memory cache for API responses
+const apiCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_DURATION = 60 * 1000; // 1 minute default cache
 
 export function useAuthenticatedFetch() {
   const { user, loading } = useAuth();
@@ -103,16 +107,50 @@ export function useAuthenticatedFetch() {
 
 /**
  * Convenience hook for making authenticated API calls with JSON responses
+ * OPTIMIZED: Added simple in-memory caching for GET requests
  */
 export function useAuthenticatedApi() {
   const authenticatedFetch = useAuthenticatedFetch();
+  const pendingRequests = useRef<Map<string, Promise<any>>>(new Map());
 
-  const get = useCallback(async (url: string) => {
-    const response = await authenticatedFetch(url, { method: 'GET' });
-    if (!response.ok) {
-      throw new Error(`GET ${url} failed: ${response.statusText}`);
+  const get = useCallback(async (url: string, options?: { skipCache?: boolean; cacheDuration?: number }) => {
+    const { skipCache = false, cacheDuration = CACHE_DURATION } = options || {};
+    
+    // Check cache first for GET requests
+    if (!skipCache) {
+      const cached = apiCache.get(url);
+      if (cached && Date.now() - cached.timestamp < cacheDuration) {
+        return cached.data;
+      }
     }
-    return response.json();
+    
+    // Deduplicate concurrent requests to the same URL
+    const pending = pendingRequests.current.get(url);
+    if (pending) {
+      return pending;
+    }
+    
+    const requestPromise = (async () => {
+      try {
+        const response = await authenticatedFetch(url, { method: 'GET' });
+        if (!response.ok) {
+          throw new Error(`GET ${url} failed: ${response.statusText}`);
+        }
+        const data = await response.json();
+        
+        // Cache the response
+        if (!skipCache) {
+          apiCache.set(url, { data, timestamp: Date.now() });
+        }
+        
+        return data;
+      } finally {
+        pendingRequests.current.delete(url);
+      }
+    })();
+    
+    pendingRequests.current.set(url, requestPromise);
+    return requestPromise;
   }, [authenticatedFetch]);
 
   const post = useCallback(async (url: string, data?: any) => {
@@ -123,6 +161,10 @@ export function useAuthenticatedApi() {
     if (!response.ok) {
       throw new Error(`POST ${url} failed: ${response.statusText}`);
     }
+    
+    // Invalidate related cache entries on POST
+    invalidateCache(url);
+    
     return response.json();
   }, [authenticatedFetch]);
 
@@ -134,6 +176,10 @@ export function useAuthenticatedApi() {
     if (!response.ok) {
       throw new Error(`PUT ${url} failed: ${response.statusText}`);
     }
+    
+    // Invalidate related cache entries on PUT
+    invalidateCache(url);
+    
     return response.json();
   }, [authenticatedFetch]);
 
@@ -142,6 +188,10 @@ export function useAuthenticatedApi() {
     if (!response.ok) {
       throw new Error(`DELETE ${url} failed: ${response.statusText}`);
     }
+    
+    // Invalidate related cache entries on DELETE
+    invalidateCache(url);
+    
     return response.json();
   }, [authenticatedFetch]);
 
@@ -151,5 +201,16 @@ export function useAuthenticatedApi() {
     put,
     delete: del,
     fetch: authenticatedFetch,
+    clearCache: () => apiCache.clear(),
   };
+}
+
+// Helper to invalidate cache entries that match a URL pattern
+function invalidateCache(url: string) {
+  const baseUrl = url.split('?')[0];
+  for (const key of apiCache.keys()) {
+    if (key.startsWith(baseUrl)) {
+      apiCache.delete(key);
+    }
+  }
 }

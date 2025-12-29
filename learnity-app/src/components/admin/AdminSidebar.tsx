@@ -191,7 +191,7 @@ export function AdminSidebar({ isOpen, onToggle, quickStats }: AdminSidebarProps
 
       {/* Sidebar */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-80 bg-white
+        fixed inset-y-0 left-0 z-40 w-80 bg-white
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         lg:shrink-0 shadow-xl border-r border-gray-200

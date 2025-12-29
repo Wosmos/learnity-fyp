@@ -35,7 +35,7 @@ const roleOptions: RoleOption[] = [
   }
 ];
 
-export const RoleSelection = ({ onRoleSelect }: { onRoleSelect: (role: UserRole) => void }) => {
+export const RoleSelection = ({ onRoleSelect, className }: { onRoleSelect: (role: UserRole) => void; className?: string }) => {
   const { selectedRole, setSelectedRole, setRegistrationStep } = useAuthStore();
 
   const handleRoleSelect = (role: UserRole) => {
@@ -45,7 +45,7 @@ export const RoleSelection = ({ onRoleSelect }: { onRoleSelect: (role: UserRole)
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-6 py-12">
+    <div className={cn("w-full max-w-2xl mx-auto px-6 py-12", className)}>
       {/* 1. Onyx Header Section */}
       <div className="text-center mb-12 space-y-4 animate-in fade-in slide-in-from-top-6 duration-1000">
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 border border-white/10 mb-4">
