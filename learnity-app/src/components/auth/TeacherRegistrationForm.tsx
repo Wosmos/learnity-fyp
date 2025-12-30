@@ -1966,7 +1966,28 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                       </ul>
                     </div>
 
-                    <div className="space-y-4">
+                    
+
+                    <div className="flex justify-center bg-black">
+                      <HCaptcha
+                        sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''}
+                        onVerify={(token) => {
+                          setHcaptchaToken(token);
+                          form.setValue('hcaptchaToken', token);
+                          form.clearErrors('hcaptchaToken');
+                        }}
+                        onExpire={() => {
+                          setHcaptchaToken('');
+                          form.setValue('hcaptchaToken', '');
+                        }}
+                      />
+                    </div>
+                    {form.formState.errors.hcaptchaToken && (
+                      <p className="text-sm text-red-600 text-center">
+                        {form.formState.errors.hcaptchaToken.message}
+                      </p>
+                    )}
+<div className="space-y-4">
                       <FormField
                         control={form.control}
                         name="agreeToTerms"
@@ -2021,27 +2042,6 @@ export const TeacherRegistrationForm: React.FC<TeacherRegistrationFormProps> = (
                         )}
                       />
                     </div>
-
-                    <div className="flex justify-center">
-                      <HCaptcha
-                        sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''}
-                        onVerify={(token) => {
-                          setHcaptchaToken(token);
-                          form.setValue('hcaptchaToken', token);
-                          form.clearErrors('hcaptchaToken');
-                        }}
-                        onExpire={() => {
-                          setHcaptchaToken('');
-                          form.setValue('hcaptchaToken', '');
-                        }}
-                      />
-                    </div>
-                    {form.formState.errors.hcaptchaToken && (
-                      <p className="text-sm text-red-600 text-center">
-                        {form.formState.errors.hcaptchaToken.message}
-                      </p>
-                    )}
-
                     <div className="bg-green-50 p-4 rounded-lg">
                       <h4 className="font-medium text-green-900 mb-2">Ready to Submit?</h4>
                       <p className="text-sm text-green-800 mb-4">
