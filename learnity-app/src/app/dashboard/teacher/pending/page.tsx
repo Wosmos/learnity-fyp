@@ -1,398 +1,194 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
+import { addBusinessDays, format } from 'date-fns';
 import {
-  Clock, FileText, Video, Award, BookOpen, TrendingUp,
-  Mail, Calendar, Star, GraduationCap, Sparkles, 
-  ChevronRight, CheckCircle2, ShieldCheck, Lightbulb, Plus, Edit
+  ShieldCheck, Clock, Mail, Info,
+  CheckCircle2, ArrowRight
 } from 'lucide-react';
-import { useAuthStore } from '@/lib/stores/auth.store';
-import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { CountdownCard } from '@/components/teachers/countdown-card';
+import { ProfileActionGrid } from '@/components/teachers/profile-action-grid';
 
-interface ProfileCompletionItem {
-  id: string;
-  title: string;
-  description: string;
-  completed: boolean;
-  impact: string;
-  category: 'required' | 'recommended' | 'optional';
-}
 
-interface ApplicationStatusData {
-  applicationStatus: 'PENDING' | 'APPROVED' | 'REJECTED';
-  submittedAt: string;
-  reviewedAt: string | null;
-  rejectionReason: string | null;
-  profileCompletion: number;
-  completionItems: ProfileCompletionItem[];
-  canReapply: boolean;
-  reapplyDate: string | null;
-  improvementAreas: string[];
-  estimatedReviewTime: string;
-  profile: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    bio: string | null;
-    qualifications: string[];
-    subjects: string[];
-    experience: number;
-    documents: string[];
-    videoIntroUrl: string | null;
-    profilePicture: string | null;
+// MOCK DATA FETCHING FUNCTION
+// In a real app, replace this with your DB call (e.g., Prisma or API fetch with server headers)
+async function getApplicationStatus() {
+  // Simulate network delay
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
+  // Return mock data matching your interface
+  return {
+    applicationStatus: 'PENDING',
+    submittedAt: new Date().toISOString(), // Simulating submitted just now
+    profileCompletion: 65,
+    completionItems: [
+      { id: 'video', title: 'Video Intro', description: 'Add a video', completed: false, impact: 'High', category: 'recommended' },
+      { id: 'bio', title: 'Biography', description: 'Edit bio', completed: true, impact: 'Medium', category: 'required' },
+      { id: 'cert', title: 'Certifications', description: 'Upload docs', completed: false, impact: 'High', category: 'required' },
+      { id: 'avail', title: 'Availability', description: 'Set hours', completed: false, impact: 'Medium', category: 'required' },
+    ],
+    profile: {
+      firstName: 'Alex',
+      email: 'alex@example.com',
+    }
   };
 }
 
-export default function PendingTeacherDashboard() {
-  const { user } = useAuthStore();
-  const { toast } = useToast();
-  const router = useRouter();
-  
-  const [loading, setLoading] = useState(true);
-  const [statusData, setStatusData] = useState<ApplicationStatusData | null>(null);
+export default async function PendingTeacherDashboard() {
+  const data = await getApplicationStatus();
 
-  useEffect(() => {
-    const fetchApplicationStatus = async () => {
-      if (!user) return;
-
-      try {
-        setLoading(true);
-        const token = await user.getIdToken();
-        const response = await fetch('/api/teacher/application-status', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setStatusData(data.data);
-        } else {
-          toast({
-            title: 'Error',
-            description: 'Failed to load application status',
-            variant: 'destructive',
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching application status:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load application status',
-          variant: 'destructive',
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchApplicationStatus();
-  }, [user, toast]);
-
-  const handleEnhanceProfile = () => {
-    router.push('/dashboard/teacher/profile/enhance');
-  };
-
-  const handleContactSupport = () => {
-    window.location.href = 'mailto:support@learnity.com?subject=Teacher Application Inquiry';
-  };
-
-  // Get icon for completion item
-  const getItemIcon = (id: string) => {
-    const icons: Record<string, React.ElementType> = {
-      bio: Edit,
-      video: Video,
-      documents: FileText,
-      qualifications: Award,
-      subjects: BookOpen,
-      availability: Calendar,
-      profilePicture: GraduationCap,
-      experience: TrendingUp,
-    };
-    return icons[id] || CheckCircle2;
-  };
-
-  // Get color for completion item
-  const getItemColor = (id: string) => {
-    const colors: Record<string, string> = {
-      bio: 'amber',
-      video: 'indigo',
-      documents: 'emerald',
-      qualifications: 'purple',
-      subjects: 'blue',
-      availability: 'rose',
-      profilePicture: 'cyan',
-      experience: 'orange',
-    };
-    return colors[id] || 'slate';
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
-        <div className="relative">
-          <div className="h-16 w-16 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin" />
-          <GraduationCap className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 text-indigo-600" />
-        </div>
-        <p className="text-slate-500 font-medium animate-pulse">Loading your application status...</p>
-      </div>
-    );
-  }
-
-  const firstName = statusData?.profile.firstName || user?.displayName?.split(' ')[0] || 'Teacher';
-  const profileCompletion = statusData?.profileCompletion || 0;
-  const estimatedReviewTime = statusData?.estimatedReviewTime || '2-3 business days';
-  const incompleteItems = statusData?.completionItems.filter(item => !item.completed) || [];
+  // Calculate Dates
+  const submittedDate = new Date(data.submittedAt);
+  const expectedDate = addBusinessDays(submittedDate, 3);
+  const formattedExpectedDate = format(expectedDate, 'EEEE, MMMM do');
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-indigo-50 via-slate-50 to-white pb-20">
-      
-      {/* Top Progress Banner */}
-      <div className="w-full bg-white/60 backdrop-blur-md border-b border-slate-200 py-3 mb-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-wrap justify-center items-center gap-4 text-sm font-medium text-slate-400 md:gap-8">
-            <div className="flex items-center gap-2 text-indigo-600">
-              <CheckCircle2 className="h-4 w-4" /> Application Sent
-            </div>
-            <div className="hidden md:block h-px w-6 md:w-12 bg-slate-200" />
-            <div className="flex items-center gap-2 text-indigo-600">
-              <Clock className="h-4 w-4 animate-pulse" /> Admin Review
-            </div>
-            <div className="hidden md:block h-px w-6 md:w-12 bg-slate-200" />
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4" /> Final Approval
-            </div>
+    <div className="min-h-screen bg-[#F9FAFB] text-slate-900 pb-20 selection:bg-slate-900 selection:text-white">
+
+      {/* Navbar Placeholder (Onyx Style) */}
+      <div className="border-b border-slate-200 bg-white sticky top-0 z-50">
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="font-bold text-xl tracking-tight flex items-center gap-2">
+            <div className="h-6 w-6 bg-slate-900 rounded-md" />
+            Learnity
           </div>
+          <div className="text-xs font-mono text-slate-400">APPLICATION ID: #TR-8823</div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 max-w-7xl">
-        {/* Hero Section */}
-        <header className="text-center mb-12 space-y-4">
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="inline-flex p-3 rounded-2xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200 mb-2"
-          >
-            <Sparkles className="h-8 w-8" />
-          </motion.div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Almost There, <span className="text-indigo-600">{firstName}!</span>
-          </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Your application is currently being reviewed by our team. Use this time to boost your visibility and prepare for your first students.
-          </p>
-        </header>
+      <main className="container mx-auto px-6 max-w-6xl mt-12">
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Main Content: Status & Quests */}
-          <div className="lg:col-span-8 space-y-8">
-            
-            {/* Journey Tracker Card */}
-            <Card className="overflow-hidden border-none shadow-xl shadow-indigo-100/50 bg-white/80 backdrop-blur">
-              <div className="h-2 w-full bg-gradient-to-r from-indigo-500 to-purple-600" />
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-2xl font-bold text-slate-800">Application Journey</CardTitle>
-                    <CardDescription className="text-slate-500 mt-2">
-                      Estimated response: {estimatedReviewTime}
-                    </CardDescription>
-                  </div>
-                  <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none px-3 py-1 animate-pulse">
-                    Under Review
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-8 p-8">
-                <div className="relative space-y-8">
-                  <div className="absolute left-[19px] top-2 bottom-2 w-0.5 bg-slate-100" />
-                  
-                  {[
-                    { 
-                      title: "Application Received", 
-                      desc: statusData?.submittedAt 
-                        ? `Submitted on ${new Date(statusData.submittedAt).toLocaleDateString()}`
-                        : "Your profile is safely in our database.", 
-                      status: "completed", 
-                      icon: CheckCircle2 
-                    },
-                    { 
-                      title: "Review Board Evaluation", 
-                      desc: "Our experts are looking at your credentials.", 
-                      status: "current", 
-                      icon: Clock 
-                    },
-                    { 
-                      title: "Teacher Onboarding", 
-                      desc: "Get access to your student dashboard.", 
-                      status: "pending", 
-                      icon: Award 
-                    }
-                  ].map((step, i) => (
-                    <div key={i} className="flex gap-6 relative">
-                      <div className={`h-10 w-10 rounded-full flex items-center justify-center z-10 ring-4 ring-white transition-all
-                        ${step.status === 'completed' ? 'bg-emerald-500 text-white' : 
-                          step.status === 'current' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 
-                          'bg-slate-100 text-slate-400'}`}>
-                        <step.icon className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className={`font-bold ${step.status === 'pending' ? 'text-slate-400' : 'text-slate-900'}`}>
-                          {step.title}
-                        </h4>
-                        <p className="text-sm text-slate-500">{step.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 flex gap-4 items-center">
-                  <Lightbulb className="h-6 w-6 text-indigo-600 shrink-0" />
-                  <p className="text-sm text-indigo-900 font-medium">
-                    Pro tip: Teachers who upload a <span className="font-bold underline">video introduction</span> are 3x more likely to be approved faster!
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Profile Boosters Grid */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 px-2">
-                Profile Boosters ({incompleteItems.length} remaining)
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {incompleteItems.slice(0, 4).map((item) => {
-                  const Icon = getItemIcon(item.id);
-                  return (
-                    <Card 
-                      key={item.id} 
-                      onClick={handleEnhanceProfile}
-                      className="group hover:ring-2 hover:ring-indigo-500 transition-all cursor-pointer border-none shadow-lg"
-                    >
-                      <CardContent className="p-4 flex gap-4 items-center">
-                        <div className={`h-12 w-12 rounded-2xl bg-${getItemColor(item.id)}-50 text-${getItemColor(item.id)}-600 flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                          <Icon className="h-6 w-6" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors">
-                            {item.title}
-                          </h4>
-                          <p className="text-[10px] font-black uppercase text-emerald-600 tracking-tight">
-                            {item.impact}
-                          </p>
-                        </div>
-                        <Button size="icon" variant="ghost" className="rounded-full">
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+          <div className="space-y-4">
+            <Badge variant="outline" className="rounded-full px-4 py-1 border-slate-300 text-slate-600 bg-white shadow-sm font-medium">
+              <span className="relative flex h-2 w-2 mr-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+              </span>
+              Under Review
+            </Badge>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
+              Good things take time, <br />
+              <span className="text-slate-400">{data.profile.firstName}.</span>
+            </h1>
           </div>
 
-          {/* Sidebar: Stats & Resources */}
-          <aside className="lg:col-span-4 space-y-8">
-            
-            {/* Success Probability Card */}
-            <Card className="bg-slate-900 text-white border-none shadow-2xl overflow-hidden relative">
-              <div className="absolute top-0 right-0 p-4 opacity-10">
-                <TrendingUp className="h-24 w-24" />
-              </div>
-              <CardContent className="p-8 space-y-6 relative z-10">
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-bold">Profile Strength</h3>
-                  <p className="text-slate-400 text-sm">Improve your profile to rank higher once approved.</p>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="flex justify-between text-xs font-bold uppercase tracking-tighter">
-                    <span>Completion</span>
-                    <span className="text-indigo-400">{profileCompletion}%</span>
-                  </div>
-                  <Progress value={profileCompletion} className="h-2 bg-white/10" />
-                </div>
+          <div className="flex gap-3">
+            <Button variant="outline" className="border-slate-200 hover:bg-slate-50 text-slate-600">
+              View Profile
+            </Button>
+            <Button className="bg-slate-900 hover:bg-slate-800 text-white shadow-lg shadow-slate-200">
+              Contact Support
+            </Button>
+          </div>
+        </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur">
-                    <div className="text-2xl font-black text-indigo-400">
-                      {statusData?.profile.subjects.length || 0}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+          {/* LEFT COLUMN: Main Status */}
+          <div className="lg:col-span-8 space-y-6">
+
+            {/* The "Onyx" Status Card */}
+            <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden relative group">
+              <div className="absolute top-0 left-0 w-1 h-full bg-slate-900" />
+              <CardContent className="p-8">
+                <div className="flex flex-col md:flex-row gap-8 items-start">
+
+                  {/* Countdown Visual */}
+                  <CountdownCard targetDate={expectedDate.toISOString()} />
+
+                  <div className="space-y-4 flex-1">
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        Estimated Decision
+                        <Info className="h-4 w-4 text-slate-400" />
+                      </h3>
+                      <p className="text-3xl font-light tracking-tight text-slate-900 mt-1">
+                        {formattedExpectedDate}
+                      </p>
+                      <p className="text-sm text-slate-500 mt-2 font-medium">
+                        (Approx. 3 Business Days)
+                      </p>
                     </div>
-                    <div className="text-[10px] uppercase font-bold text-slate-500 tracking-tighter">Subjects</div>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur">
-                    <div className="text-2xl font-black text-amber-400">
-                      {statusData?.profile.experience || 0}yr
+
+                    <div className="h-px w-full bg-slate-100" />
+
+                    <div className="flex gap-4 text-sm text-slate-600 leading-relaxed">
+                      <ShieldCheck className="h-5 w-5 shrink-0 text-slate-900" />
+                      <p>
+                        Our team is currently verifying your credentials. If we need more documents, we will email you at <span className="font-semibold text-slate-900">{data.profile.email}</span>.
+                      </p>
                     </div>
-                    <div className="text-[10px] uppercase font-bold text-slate-500 tracking-tighter">Experience</div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Prepare for Success - Resource List */}
+            {/* Action Grid (Client Component) */}
             <div className="space-y-4">
-              <h4 className="text-sm font-bold text-slate-500 uppercase px-2 tracking-widest">Prepare for Success</h4>
-              <div className="space-y-3">
-                {[
-                  { title: 'Create Great Lesson Plans', duration: '5 min', icon: BookOpen },
-                  { title: 'Hourly Pricing Guide', duration: '3 min', icon: TrendingUp },
-                  { title: 'First Session Checklist', duration: '2 min', icon: CheckCircle2 }
-                ].map((res, i) => (
-                  <button
-                    key={i}
-                    className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-100 hover:border-indigo-500 hover:shadow-lg transition-all text-left group"
-                  >
-                    <div className="h-10 w-10 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                      <res.icon className="h-5 w-5" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm font-bold text-slate-900">{res.title}</div>
-                      <div className="text-[10px] uppercase font-black text-slate-400">{res.duration} read</div>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-slate-300" />
-                  </button>
-                ))}
+              <div className="flex justify-between items-center px-1">
+                <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">
+                  Required Actions
+                </h3>
+                <span className="text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-500">
+                  {Math.round(data.profileCompletion)}% Complete
+                </span>
+              </div>
+              <ProfileActionGrid items={data.completionItems} />
+            </div>
+
+          </div>
+
+          {/* RIGHT COLUMN: Support & Info */}
+          <aside className="lg:col-span-4 space-y-6">
+
+            {/* Help Block */}
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
+              <div className="space-y-2">
+                <div className="h-10 w-10 rounded-lg bg-slate-50 flex items-center justify-center mb-4">
+                  <Mail className="h-5 w-5 text-slate-900" />
+                </div>
+                <h3 className="font-bold text-slate-900">Taking longer than expected?</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
+                  If you haven't heard back by {format(addBusinessDays(expectedDate, 1), 'MMMM do')}, please reach out to our priority admission team.
+                </p>
+              </div>
+
+              <a
+                href="mailto:learnity@gmail.com"
+                className="flex items-center justify-between w-full p-4 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 transition-all group"
+              >
+                <span className="text-sm font-semibold text-slate-700">learnity@gmail.com</span>
+                <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-slate-900 transition-colors" />
+              </a>
+            </div>
+
+            {/* Tip Card */}
+            <div className="bg-slate-900 text-white rounded-xl p-6 shadow-xl relative overflow-hidden">
+              {/* Decorative Circle */}
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-slate-800 rounded-full blur-2xl opacity-50" />
+
+              <div className="relative z-10 space-y-4">
+                <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-widest">
+                  <Clock className="h-3 w-3" />
+                  Pro Tip
+                </div>
+                <h3 className="font-bold text-lg leading-snug">
+                  Increase your approval speed
+                </h3>
+                <p className="text-slate-400 text-sm leading-relaxed">
+                  Teachers with a high-quality video introduction are processed 2x faster by our review board.
+                </p>
+                <Button variant="secondary" className="w-full bg-white text-slate-900 hover:bg-slate-100 font-semibold mt-2 h-10 text-xs uppercase tracking-wide">
+                  Upload Video
+                </Button>
               </div>
             </div>
 
-            {/* Testimonial */}
-            <Card className="border-none shadow-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
-              <CardHeader>
-                <div className="flex gap-1">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}
-                </div>
-                <CardTitle className="text-lg">Join the Elite</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-indigo-50 italic leading-relaxed">
-                  &ldquo;I spent my waiting time refining my bio and introduction video. The day I was approved, I got 3 student requests!&rdquo;
-                </p>
-                <div className="mt-4 flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-[10px]">JD</div>
-                  <span className="text-xs font-bold">James D., Physics Tutor</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Support Action */}
-            <Button 
-              variant="outline" 
-              className="w-full h-12 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 gap-2"
-              onClick={handleContactSupport}
-            >
-              <Mail className="h-4 w-4" /> Contact Support
-            </Button>
-            
           </aside>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

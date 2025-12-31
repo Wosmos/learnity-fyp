@@ -783,8 +783,29 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                       )}
                     />
                   </div>
+                
 
-                  {/* Legal Agreements */}
+                  {/* hCaptcha */}
+                  <div className="flex justify-center">
+                    <HCaptcha
+                      sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''}
+                      onVerify={(token) => {
+                        setHcaptchaToken(token);
+                        form.setValue('hcaptchaToken', token);
+                        form.clearErrors('hcaptchaToken');
+                      }}
+                      onExpire={() => {
+                        setHcaptchaToken('');
+                        form.setValue('hcaptchaToken', '');
+                      }}
+                    />
+                  </div>
+                  {form.formState.errors.hcaptchaToken && (
+                    <p className="text-sm text-red-600 text-center">
+                      {form.formState.errors.hcaptchaToken.message}
+                    </p>
+                  )}
+                    {/* Legal Agreements */}
                   <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
                     <h4 className="font-medium text-gray-900 flex items-center gap-2">
                       <Shield className="h-5 w-5" />
@@ -843,27 +864,6 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                       )}
                     />
                   </div>
-
-                  {/* hCaptcha */}
-                  <div className="flex justify-center">
-                    <HCaptcha
-                      sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''}
-                      onVerify={(token) => {
-                        setHcaptchaToken(token);
-                        form.setValue('hcaptchaToken', token);
-                        form.clearErrors('hcaptchaToken');
-                      }}
-                      onExpire={() => {
-                        setHcaptchaToken('');
-                        form.setValue('hcaptchaToken', '');
-                      }}
-                    />
-                  </div>
-                  {form.formState.errors.hcaptchaToken && (
-                    <p className="text-sm text-red-600 text-center">
-                      {form.formState.errors.hcaptchaToken.message}
-                    </p>
-                  )}
                 </div>
               )}
 
