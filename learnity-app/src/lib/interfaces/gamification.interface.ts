@@ -11,7 +11,14 @@
  * - 10.6: Unlock badges after achievements
  */
 
-import { Badge, BadgeType, XPReason, UserProgress } from '@prisma/client';
+import { XPReason, UserProgress, UserBadge } from '@prisma/client';
+
+// Badge type for the simplified badge object
+export interface Badge {
+  id: string;
+  type: string;
+  unlockedAt: Date;
+}
 
 // ============================================
 // GAMIFICATION DTOs AND TYPES
@@ -83,7 +90,7 @@ export interface StreakUpdateResult {
   streakIncremented: boolean;
   streakReset: boolean;
   bonusXPAwarded: number;
-  badgeAwarded?: Badge;
+  badgeAwarded?: UserBadge;
 }
 
 /**
@@ -158,11 +165,11 @@ export interface IGamificationService {
   /**
    * Check and award a badge if criteria is met
    * @param userId - The user ID
-   * @param badgeType - Type of badge to check
+   * @param badgeKey - Key of badge to check
    * @returns The awarded badge or null if not earned
    * Requirements: 10.6
    */
-  checkAndAwardBadge(userId: string, badgeType: BadgeType): Promise<Badge | null>;
+  checkAndAwardBadge(userId: string, badgeKey: string): Promise<UserBadge | null>;
 
   /**
    * Get student's gamification progress

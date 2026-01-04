@@ -11,7 +11,7 @@
  * - 10.6: Unlock "Course Completer" badge after first course completion
  */
 
-import { PrismaClient, Certificate, BadgeType, XPReason, EnrollmentStatus } from '@prisma/client';
+import { PrismaClient, Certificate, XPReason, EnrollmentStatus } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import PDFDocument from 'pdfkit';
 import {
@@ -267,26 +267,33 @@ export class CertificateService implements ICertificateService {
       });
 
       // Award badge if first completion
-      let badgeAwarded: BadgeType | null = null;
+      let badgeAwarded: string | null = null;
       if (isFirstCompletion) {
-        // Check if badge already exists (shouldn't, but be safe)
-        const existingBadge = await tx.badge.findUnique({
-          where: {
-            userId_type: {
-              userId: studentId,
-              type: BadgeType.FIRST_COURSE_COMPLETE,
-            },
-          },
+        // Find the badge definition
+        const badgeDef = await tx.badgeDefinition.findUnique({
+          where: { key: 'FIRST_COURSE_COMPLETE' },
         });
 
-        if (!existingBadge) {
-          await tx.badge.create({
-            data: {
-              userId: studentId,
-              type: BadgeType.FIRST_COURSE_COMPLETE,
+        if (badgeDef) {
+          // Check if badge already exists (shouldn't, but be safe)
+          const existingBadge = await tx.userBadge.findUnique({
+            where: {
+              userId_badgeDefinitionId: {
+                userId: studentId,
+                badgeDefinitionId: badgeDef.id,
+              },
             },
           });
-          badgeAwarded = BadgeType.FIRST_COURSE_COMPLETE;
+
+          if (!existingBadge) {
+            await tx.userBadge.create({
+              data: {
+                userId: studentId,
+                badgeDefinitionId: badgeDef.id,
+              },
+            });
+            badgeAwarded = 'FIRST_COURSE_COMPLETE';
+          }
         }
       }
 
@@ -294,40 +301,50 @@ export class CertificateService implements ICertificateService {
       const totalCertificates = existingCertificatesCount + 1;
       
       if (totalCertificates === 5) {
-        const existingBadge = await tx.badge.findUnique({
-          where: {
-            userId_type: {
-              userId: studentId,
-              type: BadgeType.FIVE_COURSES_COMPLETE,
-            },
-          },
+        const badgeDef = await tx.badgeDefinition.findUnique({
+          where: { key: 'FIVE_COURSES_COMPLETE' },
         });
-        if (!existingBadge) {
-          await tx.badge.create({
-            data: {
-              userId: studentId,
-              type: BadgeType.FIVE_COURSES_COMPLETE,
+        if (badgeDef) {
+          const existingBadge = await tx.userBadge.findUnique({
+            where: {
+              userId_badgeDefinitionId: {
+                userId: studentId,
+                badgeDefinitionId: badgeDef.id,
+              },
             },
           });
-          badgeAwarded = BadgeType.FIVE_COURSES_COMPLETE;
+          if (!existingBadge) {
+            await tx.userBadge.create({
+              data: {
+                userId: studentId,
+                badgeDefinitionId: badgeDef.id,
+              },
+            });
+            badgeAwarded = 'FIVE_COURSES_COMPLETE';
+          }
         }
       } else if (totalCertificates === 10) {
-        const existingBadge = await tx.badge.findUnique({
-          where: {
-            userId_type: {
-              userId: studentId,
-              type: BadgeType.TEN_COURSES_COMPLETE,
-            },
-          },
+        const badgeDef = await tx.badgeDefinition.findUnique({
+          where: { key: 'TEN_COURSES_COMPLETE' },
         });
-        if (!existingBadge) {
-          await tx.badge.create({
-            data: {
-              userId: studentId,
-              type: BadgeType.TEN_COURSES_COMPLETE,
+        if (badgeDef) {
+          const existingBadge = await tx.userBadge.findUnique({
+            where: {
+              userId_badgeDefinitionId: {
+                userId: studentId,
+                badgeDefinitionId: badgeDef.id,
+              },
             },
           });
-          badgeAwarded = BadgeType.TEN_COURSES_COMPLETE;
+          if (!existingBadge) {
+            await tx.userBadge.create({
+              data: {
+                userId: studentId,
+                badgeDefinitionId: badgeDef.id,
+              },
+            });
+            badgeAwarded = 'TEN_COURSES_COMPLETE';
+          }
         }
       }
 

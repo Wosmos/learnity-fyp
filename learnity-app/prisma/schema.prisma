@@ -25,7 +25,6 @@ model User {
   socialProviders String[]  @default([]) // ["google.com", "microsoft.com"]
   isActive        Boolean   @default(true)
   lastLoginAt     DateTime?
-  lastLessonDate  DateTime? // For streak calculation - tracks last day a lesson was completed (not just login)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 

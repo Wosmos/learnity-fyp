@@ -11,7 +11,7 @@
  * - 10.6: Unlock "Course Completer" badge after first course completion
  */
 
-import { Certificate, Course, User, BadgeType } from '@prisma/client';
+import { Certificate, Course, User } from '@prisma/client';
 
 // ============================================
 // CERTIFICATE DTOs AND TYPES
@@ -43,7 +43,7 @@ export interface CertificatePDFData {
 export interface GenerateCertificateResult {
   certificate: Certificate;
   xpAwarded: number;
-  badgeAwarded: BadgeType | null;
+  badgeAwarded: string | null;
   isFirstCompletion: boolean;
 }
 

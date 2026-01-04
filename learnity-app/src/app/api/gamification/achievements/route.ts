@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { BadgeType, EnrollmentStatus } from '@prisma/client';
+import { EnrollmentStatus } from '@prisma/client';
 import { authMiddleware } from '@/lib/middleware/auth.middleware';
 import {
   createSuccessResponse,
@@ -13,8 +13,28 @@ import {
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
 
+// Badge type keys
+type BadgeTypeKey = 
+  | 'FIRST_COURSE_COMPLETE'
+  | 'FIVE_COURSES_COMPLETE'
+  | 'TEN_COURSES_COMPLETE'
+  | 'STREAK_7_DAYS'
+  | 'STREAK_30_DAYS'
+  | 'STREAK_100_DAYS'
+  | 'QUIZ_MASTER'
+  | 'TOP_REVIEWER';
+
 // Achievement definitions with metadata
-const ACHIEVEMENT_DEFINITIONS = {
+const ACHIEVEMENT_DEFINITIONS: Record<BadgeTypeKey, {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: string;
+  xpReward: number;
+  rarity: string;
+  criteria: { type: string; target: number };
+}> = {
   // Learning Milestones
   FIRST_COURSE_COMPLETE: {
     id: 'FIRST_COURSE_COMPLETE',
@@ -102,7 +122,7 @@ const ACHIEVEMENT_DEFINITIONS = {
     rarity: 'uncommon',
     criteria: { type: 'reviews_written', target: 10 },
   },
-} as const;
+};
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -133,10 +153,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const userId = dbUser.id;
 
     // Get user's earned badges
-    const earnedBadges = await prisma.badge.findMany({
+    const earnedBadges = await prisma.userBadge.findMany({
       where: { userId },
+      include: { badgeDefinition: true },
     });
-    const earnedBadgeTypes = new Set(earnedBadges.map(b => b.type));
+    const earnedBadgeKeys = new Set(earnedBadges.map((b) => b.badgeDefinition.key));
 
     // Get user stats for progress calculation
     const [
@@ -158,9 +179,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Calculate progress for each achievement
     const achievements = Object.entries(ACHIEVEMENT_DEFINITIONS).map(([key, def]) => {
-      const badgeType = key as BadgeType;
-      const earnedBadge = earnedBadges.find(b => b.type === badgeType);
-      const unlocked = earnedBadgeTypes.has(badgeType);
+      const badgeKey = key as BadgeTypeKey;
+      const earnedBadge = earnedBadges.find((b) => b.badgeDefinition.key === badgeKey);
+      const unlocked = earnedBadgeKeys.has(badgeKey);
       
       // Calculate current progress
       let currentProgress = 0;
@@ -185,7 +206,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       return {
         ...def,
         unlocked,
-        unlockedAt: earnedBadge?.unlockedAt || null,
+        unlockedAt: earnedBadge?.earnedAt || null,
         progress: {
           current: Math.min(currentProgress, def.criteria.target),
           target: def.criteria.target,

@@ -17,6 +17,7 @@ interface SmartLinkProps extends Omit<LinkProps, 'href'> {
   prefetchStrategy?: 'hover' | 'intersection' | 'immediate' | 'none';
   prefetchDelay?: number;
   disabled?: boolean;
+  onMouseEnter?: React.MouseEventHandler<HTMLAnchorElement>;
 }
 
 /**
@@ -45,7 +46,11 @@ export const SmartLink = forwardRef<HTMLAnchorElement, SmartLinkProps>(
     // Get prefetch handlers based on strategy
     const prefetchHandlers = shouldPrefetch 
       ? createSmartLink(href, prefetchStrategy === 'intersection' ? 'intersection' : 'hover')
-      : {};
+      : null;
+    
+    const handleMouseEnter = prefetchHandlers && 'onMouseEnter' in prefetchHandlers 
+      ? prefetchHandlers.onMouseEnter 
+      : undefined;
 
     // Handle immediate prefetching
     if (shouldPrefetch && prefetchStrategy === 'immediate') {
@@ -59,7 +64,7 @@ export const SmartLink = forwardRef<HTMLAnchorElement, SmartLinkProps>(
             'cursor-not-allowed opacity-50',
             className
           )}
-          ref={ref as any}
+          ref={ref as React.Ref<HTMLSpanElement>}
         >
           {children}
         </span>
@@ -73,16 +78,16 @@ export const SmartLink = forwardRef<HTMLAnchorElement, SmartLinkProps>(
         className={className}
         {...props}
         {...(prefetchStrategy === 'hover' ? {
-          onMouseEnter: (e) => {
+          onMouseEnter: (e: React.MouseEvent<HTMLAnchorElement>) => {
             setTimeout(() => {
-              if (prefetchHandlers.onMouseEnter) {
-                prefetchHandlers.onMouseEnter();
+              if (handleMouseEnter) {
+                handleMouseEnter();
               }
             }, prefetchDelay);
             
             // Call original onMouseEnter if provided
             if (props.onMouseEnter) {
-              props.onMouseEnter(e as any);
+              props.onMouseEnter(e);
             }
           }
         } : {})}

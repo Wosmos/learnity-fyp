@@ -42,7 +42,7 @@ export const getCachedLandingStats = unstable_cache(
 
 // Teachers data caching
 export const getCachedTeachers = unstable_cache(
-  async (filters: any) => {
+  async (_filters?: Record<string, unknown>) => {
     // This would connect to your database
     // For now, return empty array
     return {
@@ -76,13 +76,26 @@ export const getCachedUserProfile = cache(async (userId: string) => {
 
 // Cache invalidation utilities
 export async function revalidateCache(tag: string) {
-  const { revalidateTag } = await import('next/cache');
-  revalidateTag(tag );
+  try {
+    // Dynamic import to avoid build issues
+    const nextCache = await import('next/cache');
+    if ('revalidateTag' in nextCache) {
+      (nextCache.revalidateTag as (tag: string) => void)(tag);
+    }
+  } catch (error) {
+    console.error('Failed to revalidate cache tag:', tag, error);
+  }
 }
 
-export async function revalidatePath(path: string) {
-  const { revalidatePath: nextRevalidatePath } = await import('next/cache');
-  nextRevalidatePath(path);
+export async function revalidatePath(path: string, type: 'page' | 'layout' = 'page') {
+  try {
+    const nextCache = await import('next/cache');
+    if ('revalidatePath' in nextCache) {
+      (nextCache.revalidatePath as (path: string, type: 'page' | 'layout') => void)(path, type);
+    }
+  } catch (error) {
+    console.error('Failed to revalidate path:', path, error);
+  }
 }
 
 // Cache warming utilities

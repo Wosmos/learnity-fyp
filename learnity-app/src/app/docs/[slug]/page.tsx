@@ -5,13 +5,13 @@ import { getDocBySlug, getAllDocSlugs } from "@/lib/docs";
 import { ArrowLeft, Calendar, Tag, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
 import "@/styles/markdown.css";
-import "prismjs/themes/prism-tomorrow.css";
 
 interface DocPageProps {
-  params: Promise<{
+  params: {
     slug: string;
-  }>;
+  };
 }
+
 
 // Generate static params for all docs
 export async function generateStaticParams() {
