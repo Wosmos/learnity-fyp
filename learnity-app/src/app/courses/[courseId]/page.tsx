@@ -749,7 +749,7 @@ export default function CoursePreviewPage() {
                         <span className="text-sm text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full">100% OFF</span>
                       </div>
                     ) : (
-                      <div className="text-4xl font-black text-zinc-900">${course.price?.toFixed(2)}</div>
+                      <div className="text-4xl font-black text-zinc-900">${course.price}</div>
                     )}
                   </div>
 
@@ -811,7 +811,7 @@ export default function CoursePreviewPage() {
           <div className="flex-1">
             <p className="text-xs text-zinc-500">Total Price</p>
             <p className="text-xl font-bold text-zinc-900">
-              {course.isFree ? 'Free' : `$${course.price?.toFixed(2)}`}
+              {course.isFree ? 'Free' : `$${course.price}`}
             </p>
           </div>
           <Button

@@ -18,21 +18,21 @@ export default function TeacherDashboardLayout({
   return (
     <TeacherRoute>
       <ClientTeacherProtection>
-      <div className="flex min-h-screen bg-slate-50">
-        {/* Teacher Sidebar Navigation */}
-        <TeacherSidebar />
-        
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col overflow-x-hidden">
-          {/* Top Navbar */}
-          <DashboardNavbar config={teacherNavbarConfig} />
-          
-          {/* Page Content */}
-          <main className="flex-1 ">
-            {children}
-          </main>
+        <div className="flex min-h-screen bg-slate-50">
+          {/* Teacher Sidebar Navigation */}
+          <TeacherSidebar />
+
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col overflow-x-hidden">
+            {/* Top Navbar */}
+            <DashboardNavbar config={teacherNavbarConfig} />
+
+            {/* Page Content */}
+            <main className="flex-1 pb-32 md:pb-0">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
       </ClientTeacherProtection>
     </TeacherRoute>
   );
