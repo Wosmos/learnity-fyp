@@ -378,87 +378,87 @@ export default function ProgressPage() {
 
         {/* Category Breakdown */}
         {categoryStats.length > 0 && (
-  <motion.section
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.5 }}
-  >
-    <Card className="border-slate-200/60 shadow-sm bg-white rounded-2xl overflow-hidden">
-      <CardHeader className="pb-2 pt-8 px-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="p-2.5 rounded-2xl bg-purple-600 text-white shadow-lg shadow-purple-100">
-              <Target className="h-4 w-4" />
-            </div>
-            <div>
-              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-900">
-                Category <span className="text-slate-400 font-light italic">Analysis</span>
-              </CardTitle>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Domain Mastery Distribution</p>
-            </div>
-          </div>
-        </div>
-      </CardHeader>
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Card className="border-slate-200/60 shadow-sm bg-white rounded-2xl overflow-hidden">
+              <CardHeader className="pb-2 pt-8 px-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 rounded-2xl bg-purple-600 text-white shadow-lg shadow-purple-100">
+                      <Target className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-900">
+                        Category <span className="text-slate-400 font-light italic">Analysis</span>
+                      </CardTitle>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Domain Mastery Distribution</p>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
 
-      <CardContent className="p-8 pt-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          {categoryStats.map((cat, i) => (
-            <motion.div
-              key={cat.name}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6 + i * 0.05 }}
-              className="group relative p-5 rounded-3xl bg-slate-50 border border-slate-100 hover:bg-white hover:border-purple-200 hover:shadow-xl hover:shadow-purple-500/5 transition-all duration-300"
-            >
-              {/* Header: Title & Count */}
-              <div className="flex items-start justify-between mb-6">
-                <div className="space-y-1">
-                  <h4 className="font-black text-slate-900 text-xs uppercase tracking-tight group-hover:text-purple-600 transition-colors">
-                    {cat.name}
-                  </h4>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase">
-                    {cat.enrolled} Active Protocols
-                  </p>
-                </div>
-                <div className="h-8 w-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
-                   <span className="text-[10px] font-black text-slate-900">{cat.completed}</span>
-                </div>
-              </div>
+              <CardContent className="p-8 pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                  {categoryStats.map((cat, i) => (
+                    <motion.div
+                      key={cat.name}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.6 + i * 0.05 }}
+                      className="group relative p-5 rounded-3xl bg-slate-50 border border-slate-100 hover:bg-white hover:border-purple-200 hover:shadow-xl hover:shadow-purple-500/5 transition-all duration-300"
+                    >
+                      {/* Header: Title & Count */}
+                      <div className="flex items-start justify-between mb-6">
+                        <div className="space-y-1">
+                          <h4 className="font-black text-slate-900 text-xs uppercase tracking-tight group-hover:text-purple-600 transition-colors">
+                            {cat.name}
+                          </h4>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase">
+                            {cat.enrolled} Active Protocols
+                          </p>
+                        </div>
+                        <div className="h-8 w-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+                          <span className="text-[10px] font-black text-slate-900">{cat.completed}</span>
+                        </div>
+                      </div>
 
-              {/* The "Power Bar" UI */}
-              <div className="space-y-3">
-                <div className="flex justify-between items-end">
-                   <span className="text-2xl font-black text-slate-900 tracking-tighter italic">
-                     {cat.averageProgress}%
-                   </span>
-                   <span className="text-[9px] font-black text-purple-600 uppercase tracking-widest mb-1">
-                     Avg Load
-                   </span>
-                </div>
-                
-                {/* Tactical Progress Rail */}
-                <div className="relative h-1.5 w-full bg-slate-200/50 rounded-full overflow-hidden shadow-inner">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${cat.averageProgress}%` }}
-                    transition={{ duration: 1.2, ease: "circOut" }}
-                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 to-indigo-500 rounded-full shadow-[0_0_8px_rgba(147,51,234,0.3)]"
-                  />
-                </div>
-              </div>
+                      {/* The "Power Bar" UI */}
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-end">
+                          <span className="text-2xl font-black text-slate-900 tracking-tighter italic">
+                            {cat.averageProgress}%
+                          </span>
+                          <span className="text-[9px] font-black text-purple-600 uppercase tracking-widest mb-1">
+                            Avg Load
+                          </span>
+                        </div>
 
-              {/* Bottom Decorative Element */}
-              <div className="mt-4 pt-3 border-t border-slate-200/50 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Telemetry Online</span>
-                <ChevronRight className="h-3 w-3 text-purple-400" />
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  </motion.section>
-)}
+                        {/* Tactical Progress Rail */}
+                        <div className="relative h-1.5 w-full bg-slate-200/50 rounded-full overflow-hidden shadow-inner">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${cat.averageProgress}%` }}
+                            transition={{ duration: 1.2, ease: "circOut" }}
+                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 to-indigo-500 rounded-full shadow-[0_0_8px_rgba(147,51,234,0.3)]"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Bottom Decorative Element */}
+                      <div className="mt-4 pt-3 border-t border-slate-200/50 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Telemetry Online</span>
+                        <ChevronRight className="h-3 w-3 text-purple-400" />
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.section>
+        )}
 
         {/* Course Progress List */}
         <section className="space-y-6">
@@ -590,7 +590,7 @@ export default function ProgressPage() {
                             onClick={() => handleContinueCourse(course.courseId)}
                             className="w-full bg-white hover:bg-indigo-50 text-slate-900 rounded-xl h-11 font-black text-[10px] uppercase tracking-[0.2em] transition-all group-hover:scale-[1.02]"
                           >
-                            Resume Terminal
+                            resume course
                           </Button>
                         </div>
                       )}

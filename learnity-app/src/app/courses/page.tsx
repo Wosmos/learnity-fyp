@@ -119,7 +119,6 @@ function CourseCatalogContent({
     try {
       setIsLoadingCategories(true);
       const response = await fetch('/api/categories');
-      console.log(response, 'this is response')
       if (!response.ok) throw new Error('Failed to fetch categories');
       const data = await response.json();
       setCategories(data);
@@ -146,13 +145,12 @@ function CourseCatalogContent({
       params.set('limit', limit.toString());
 
       const response = await fetch(`/api/courses?${params.toString()}`);
-      console.log(response, 'response')
+      const responseData = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Failed to fetch courses');
+        throw new Error(responseData.error?.message || 'Failed to fetch courses');
       }
 
-      const responseData = await response.json();
       const data: PaginatedResponse = responseData.data || responseData;
 
       setCourses(data.courses || []);

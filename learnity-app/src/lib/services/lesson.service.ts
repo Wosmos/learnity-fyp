@@ -455,12 +455,39 @@ export class LessonService implements ILessonService {
       }
     }
 
+    // Calculate average rating
+    const reviews = await this.prisma.review.findMany({
+      where: { courseId },
+      select: { rating: true },
+    });
+
+    const averageRating = reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      : 0;
+
+    // Pick a thumbnail if missing
+    let thumbnailUrl = course.thumbnailUrl;
+    if (!thumbnailUrl) {
+      // Find the first video lesson with a youtubeId
+      for (const section of course.sections) {
+        const firstVideo = section.lessons.find(l => l.type === 'VIDEO' && l.youtubeId);
+        if (firstVideo) {
+          thumbnailUrl = `https://img.youtube.com/vi/${firstVideo.youtubeId}/mqdefault.jpg`;
+          break;
+        }
+      }
+    }
+
     // Update course
     await this.prisma.course.update({
       where: { id: courseId },
       data: {
         totalDuration,
         lessonCount,
+        thumbnailUrl,
+        enrollmentCount: (course as any)._count?.enrollments || course.enrollmentCount,
+        reviewCount: (course as any)._count?.reviews || course.reviewCount,
+        averageRating: Math.round(averageRating * 10) / 10,
       },
     });
   }
