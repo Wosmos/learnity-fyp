@@ -18,6 +18,8 @@ export interface IProfileEnhancementService {
 }
 
 export interface StudentProfileUpdateData {
+  firstName?: string;
+  lastName?: string;
   learningGoals?: string[];
   interests?: string[];
   studyPreferences?: string[];
