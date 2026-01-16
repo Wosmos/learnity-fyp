@@ -138,17 +138,8 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
     >
       <div className="h-full px-4 md:px-6 mx-auto flex items-center justify-between gap-4 max-w-[1600px]">
 
-        {/* Left Side: Mobile Menu & Search */}
-        <div className="flex items-center gap-3 flex-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden -ml-2 text-slate-500"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
+        {/* Left Side: Mobile Menu Button Hidden (Navigation moved to bottom navbar) */}
+        <div className="flex items-center gap-3 flex-1 md:hidden" />
 
         {/* Center/Right: Gamification Stats (Student Context) */}
         {showStats && stats && (

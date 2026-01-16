@@ -47,6 +47,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { EnhanceHeader } from "@/components/profile/EnhanceHeader";
+import { ProfileSkeleton } from "@/components/profile/EnhanceSkeletons";
 
 interface ProfileData {
   id: string;
@@ -185,6 +186,7 @@ export default function ProfileEnhancePage() {
       </div>
     );
   }
+  console.log(profileData, 'this is  profileData');
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -199,29 +201,29 @@ export default function ProfileEnhancePage() {
           onBack={handleBack}
         />
       </header>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-6 0">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-6">
         {[
           {
-            label: "Learning Goals",
-            value: profileData?.studentProfile?.learningGoals?.length || 0,
-            suffix: "Active Protocols",
-            icon: Target,
+            label: "Academic Focus",
+            value: profileData?.studentProfile?.subjects?.length || 0,
+            suffix: "Subjects",
+            icon: BookOpen,
             color: "emerald",
             delay: 0.1,
           },
           {
-            label: "Interest Matrix",
-            value: profileData?.studentProfile?.interests?.length || 0,
-            suffix: "Data Points",
-            icon: Heart,
+            label: "Future Goals",
+            value: profileData?.studentProfile?.learningGoals?.length || 0,
+            suffix: "Milestones",
+            icon: Target,
             color: "indigo",
             delay: 0.2,
           },
           {
-            label: "Privacy Encryption",
-            value: profileData?.studentProfile?.profileVisibility || "Standard",
-            suffix: "Security Level",
-            icon: Shield,
+            label: "Profile Growth",
+            value: `${profileData?.studentProfile?.profileCompletionPercentage || 0}%`,
+            suffix: "Complete",
+            icon: Activity,
             color: "amber",
             delay: 0.3,
           },
@@ -232,71 +234,44 @@ export default function ProfileEnhancePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: item.delay }}
           >
-            <Card className="relative overflow-hidden border border-white/5 bg-gradient-to-br from-slate-900 to-slate-800 backdrop-blur-xl rounded-2xl group transition-all duration-500 hover:border-white/10 hover:bg-slate-950 py-1 px-2">
-              {/* 1. Static Content: Background Icon Decor */}
-              <item.icon
-                className={cn(
-                  "absolute -right-4 -top-4 h-24 w-24 opacity-[0.07] transition-transform duration-700 group-hover:scale-125 group-hover:rotate-12",
-                  item.color === "emerald"
-                    ? "text-emerald-500"
-                    : item.color === "indigo"
-                    ? "text-indigo-500"
-                    : "text-amber-500"
-                )}
-              />
-
+            <Card className="relative overflow-hidden border border-slate-200/50 bg-white shadow-sm rounded-2xl group transition-all duration-500 hover:shadow-md py-1 px-2">
               <CardContent className="p-6">
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between">
-                    {/* Icon with Outer Glow */}
                     <div
                       className={cn(
-                        "h-10 w-10 rounded-xl flex items-center justify-center border border-white/10 shadow-lg",
+                        "h-10 w-10 rounded-xl flex items-center justify-center border",
                         item.color === "emerald"
-                          ? "bg-emerald-500/10 text-emerald-400 shadow-emerald-500/10"
+                          ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                           : item.color === "indigo"
-                          ? "bg-indigo-500/10 text-indigo-400 shadow-indigo-500/10"
-                          : "bg-amber-500/10 text-amber-400 shadow-amber-500/10"
+                            ? "bg-indigo-50 text-indigo-600 border-indigo-100"
+                            : "bg-amber-50 text-amber-600 border-amber-100"
                       )}
                     >
                       <item.icon className="h-5 w-5" />
                     </div>
-
-                    {/* 2. Mini Static Graph (Sparkline) */}
-                    <div className="flex gap-1 items-end h-6 opacity-40">
-                      {[40, 70, 45, 90, 65].map((h, i) => (
-                        <div
-                          key={i}
-                          className="w-1 bg-slate-700 rounded-full"
-                          style={{ height: `${h}%` }}
-                        />
-                      ))}
-                    </div>
                   </div>
 
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
                       {item.label}
                     </p>
                     <div className="flex items-baseline gap-2">
-                      <p className="text-3xl font-black text-white tracking-tighter italic">
+                      <p className="text-3xl font-black text-slate-900 tracking-tighter">
                         {item.value}
                       </p>
-                      <span className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase">
                         {item.suffix}
                       </span>
                     </div>
                   </div>
-
-                  {/* 3. Status indicator line */}
-                  <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent mt-2" />
                 </div>
               </CardContent>
             </Card>
           </motion.div>
         ))}
       </div>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ">
         {/* Bento Grid Layout */}
         <div className="flex flex-col gap-6">
           {/* Profile Identity Card - Large */}
@@ -350,17 +325,17 @@ export default function ProfileEnhancePage() {
                   <div className="relative">
                     <div className="absolute -inset-4 bg-indigo-500/5 rounded-full blur-2xl" />
                     <Avatar className="h-36 w-36 rounded-3xl ring-4 ring-white shadow-xl relative z-10 transition-transform duration-700 group-hover:scale-[1.03]">
-                       <AvatarUpload
-                      currentAvatar={profileData?.profilePicture || ""}
-                      onUploadSuccess={() => fetchProfileData(false)}
-                      onDeleteSuccess={() => fetchProfileData(false)}
-                    />
+                      <AvatarUpload
+                        currentAvatar={profileData?.profilePicture || ""}
+                        onUploadSuccess={() => fetchProfileData(false)}
+                        onDeleteSuccess={() => fetchProfileData(false)}
+                      />
                       <AvatarFallback className="bg-slate-900 text-white font-black italic">
                         {getInitials()}
                       </AvatarFallback>
                     </Avatar>
-                     {" "}
-                   
+                    {" "}
+
                     <div className="absolute -top-1 -right-1 h-4 w-4 bg-emerald-500 border-2 border-white rounded-full z-20" />
                   </div>
 
@@ -383,9 +358,7 @@ export default function ProfileEnhancePage() {
                 {/* RIGHT SIDE: Smooth Vertical Tabs */}
                 <div className="w-full md:w-[240px] p-6 bg-slate-50/30 backdrop-blur-sm flex flex-col justify-center">
                   <div className="space-y-2">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 ml-2">
-                      Control Matrix
-                    </p>
+                    
 
                     {[
                       { id: "profile", icon: User, label: "Profile" },
@@ -491,7 +464,11 @@ export default function ProfileEnhancePage() {
                     {activeSection === "profile" && (
                       <div className="relative ">
                         <ProfileEnhancementForm
-                          initialData={profileData?.studentProfile || {}}
+                          initialData={{
+                            ...profileData?.studentProfile,
+                            firstName: profileData?.firstName,
+                            lastName: profileData?.lastName,
+                          }}
                           onSuccess={() => fetchProfileData(false)}
                         />
                       </div>
@@ -515,70 +492,3 @@ export default function ProfileEnhancePage() {
   );
 }
 
-// Skeleton Component
-function ProfileSkeleton() {
-  return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      {/* Header Skeleton */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Skeleton className="h-9 w-9 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-8 w-64" />
-                <Skeleton className="h-4 w-48" />
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Skeleton className="h-6 w-24 rounded-full" />
-              <Skeleton className="h-2 w-24" />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Skeleton */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-5 lg:row-span-2">
-            <Card className="h-full">
-              <CardContent className="p-6 space-y-6">
-                <Skeleton className="h-24 w-24 rounded-full mx-auto" />
-                <div className="text-center space-y-2">
-                  <Skeleton className="h-6 w-48 mx-auto" />
-                  <Skeleton className="h-4 w-32 mx-auto" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-16 w-full" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <div className="lg:col-span-7 lg:row-span-2">
-            <Card className="h-full">
-              <CardContent className="p-6 space-y-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="space-y-2">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-10 w-full" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="lg:col-span-4">
-              <Card>
-                <CardContent className="p-4">
-                  <Skeleton className="h-16 w-full" />
-                </CardContent>
-              </Card>
-            </div>
-          ))}
-        </div>
-      </main>
-    </div>
-  );
-}

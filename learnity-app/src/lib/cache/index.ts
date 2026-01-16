@@ -77,7 +77,7 @@ export const getCachedUserProfile = cache(async (userId: string) => {
 // Cache invalidation utilities
 export async function revalidateCache(tag: string) {
   const { revalidateTag } = await import('next/cache');
-  revalidateTag(tag );
+  (revalidateTag as any)(tag);
 }
 
 export async function revalidatePath(path: string) {

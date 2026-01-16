@@ -68,7 +68,7 @@ export function EnrolledCourseCard({ enrollment, onContinue }: EnrolledCourseCar
     >
       <div className="p-6 md:p-8">
         <div className="flex flex-col md:flex-row gap-8">
-          
+
           {/* Visual Thumbnail Block */}
           <div className={cn(
             "w-full md:w-36 h-36 rounded-2xl bg-linear-to-br flex items-center justify-center shrink-0 shadow-inner relative overflow-hidden",
@@ -76,20 +76,20 @@ export function EnrolledCourseCard({ enrollment, onContinue }: EnrolledCourseCar
           )}>
             {course.thumbnailUrl ? (
               <>
-                <Image 
-                  src={course.thumbnailUrl} 
-                  alt={course.title} 
-                  fill 
-                  className="object-cover opacity-40 group-hover:opacity-20 transition-opacity duration-500" 
+                <Image
+                  src={course.thumbnailUrl}
+                  alt={course.title}
+                  fill
+                  className="object-cover opacity-40 group-hover:opacity-20 transition-opacity duration-500"
                 />
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-all" />
               </>
             ) : (
               <div className="absolute inset-0 bg-white/5" />
             )}
-            
+
             <MonitorPlay className="relative h-12 w-12 text-white/40 group-hover:text-white group-hover:scale-110 transition-all duration-500 z-10" />
-            
+
             {isCompleted && (
               <div className="absolute top-2 right-2 bg-white/20 backdrop-blur-md p-1.5 rounded-lg z-20">
                 <Trophy className="h-4 w-4 text-white" />
@@ -156,17 +156,17 @@ export function EnrolledCourseCard({ enrollment, onContinue }: EnrolledCourseCar
                   </div>
                 </div>
 
-                <Button 
+                <Button
                   onClick={() => onContinue(course.id)}
                   className={cn(
                     "w-full sm:w-auto rounded-xl px-10 h-12 font-black text-[11px] uppercase tracking-widest transition-all",
-                    isCompleted 
-                      ? "bg-slate-100 text-slate-600 hover:bg-slate-200" 
+                    isCompleted
+                      ? "bg-slate-100 text-slate-600 hover:bg-slate-200"
                       : "bg-slate-900 hover:bg-indigo-600 text-white shadow-[0_10px_20px_-5px_rgba(0,0,0,0.2)] hover:shadow-indigo-200 active:scale-95"
                   )}
                 >
                   <span className="flex items-center gap-2">
-                    {isCompleted ? "Review Syllabus" : "Resume Terminal"}
+                    {isCompleted ? "Review Syllabus" : "resume course"}
                     {!isCompleted && <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />}
                   </span>
                 </Button>
