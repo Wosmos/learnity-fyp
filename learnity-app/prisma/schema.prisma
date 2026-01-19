@@ -49,6 +49,7 @@ model User {
   xpActivities XPActivity[]  @relation("UserXPActivities")
   userBadges   UserBadge[]   @relation("UserBadges")
   userQuests   UserQuest[]   @relation("UserQuests")
+  badges       Badge[]       @relation("UserBadges")
 
   // Indexes for optimal query performance
   @@index([firebaseUid])
@@ -762,6 +763,30 @@ enum QuestStatus {
   IN_PROGRESS
   COMPLETED
   EXPIRED
+}
+// Badges
+model Badge {
+  id         String    @id @default(cuid())
+  userId     String
+  type       BadgeType
+  unlockedAt DateTime  @default(now())
+
+  user User @relation("UserBadges", fields: [userId], references: [id])
+
+  @@unique([userId, type])
+  @@index([userId])
+  @@map("badges")
+}
+
+enum BadgeType {
+  FIRST_COURSE_COMPLETE
+  FIVE_COURSES_COMPLETE
+  TEN_COURSES_COMPLETE
+  STREAK_7_DAYS
+  STREAK_30_DAYS
+  STREAK_100_DAYS
+  QUIZ_MASTER
+  TOP_REVIEWER
 }
 
 // ============================================
