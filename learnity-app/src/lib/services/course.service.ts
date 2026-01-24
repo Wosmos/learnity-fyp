@@ -419,6 +419,18 @@ export class CourseService implements ICourseService {
           },
         },
         category: true,
+        sections: {
+          orderBy: { order: 'asc' },
+          take: 1,
+          include: {
+            lessons: {
+              where: { type: 'VIDEO', youtubeId: { not: null } },
+              orderBy: { order: 'asc' },
+              take: 1,
+              select: { youtubeId: true }
+            }
+          }
+        }
       },
       orderBy,
       skip: (page - 1) * limit,
@@ -427,8 +439,27 @@ export class CourseService implements ICourseService {
 
     const totalPages = Math.ceil(total / limit);
 
+    // Map courses to handle null thumbnails
+    const coursesWithThumbnails = courses.map(course => {
+      let thumbnailUrl = course.thumbnailUrl;
+      
+      if (!thumbnailUrl) {
+        // Try to get thumbnail from the first video lesson
+        const firstVideoLesson = (course as any).sections[0]?.lessons[0];
+        if (firstVideoLesson?.youtubeId) {
+          thumbnailUrl = `https://img.youtube.com/vi/${firstVideoLesson.youtubeId}/mqdefault.jpg`;
+        }
+      }
+
+      return {
+        ...course,
+        thumbnailUrl,
+        sections: undefined
+      };
+    });
+
     return {
-      courses: courses as CourseWithTeacher[],
+      courses: coursesWithThumbnails as any,
       total,
       page,
       limit,
@@ -491,6 +522,18 @@ export class CourseService implements ICourseService {
           },
         },
         category: true,
+        sections: {
+          orderBy: { order: 'asc' },
+          take: 1,
+          include: {
+            lessons: {
+              where: { type: 'VIDEO', youtubeId: { not: null } },
+              orderBy: { order: 'asc' },
+              take: 1,
+              select: { youtubeId: true }
+            }
+          }
+        }
       },
       orderBy,
       skip: (page - 1) * limit,
@@ -499,8 +542,27 @@ export class CourseService implements ICourseService {
 
     const totalPages = Math.ceil(total / limit);
 
+    // Map courses to handle null thumbnails
+    const coursesWithThumbnails = courses.map(course => {
+      let thumbnailUrl = course.thumbnailUrl;
+      
+      if (!thumbnailUrl) {
+        // Try to get thumbnail from the first video lesson
+        const firstVideoLesson = (course as any).sections[0]?.lessons[0];
+        if (firstVideoLesson?.youtubeId) {
+          thumbnailUrl = `https://img.youtube.com/vi/${firstVideoLesson.youtubeId}/mqdefault.jpg`;
+        }
+      }
+
+      return {
+        ...course,
+        thumbnailUrl,
+        sections: undefined
+      };
+    });
+
     return {
-      courses: courses as CourseWithTeacher[],
+      courses: coursesWithThumbnails as any,
       total,
       page,
       limit,
@@ -662,12 +724,26 @@ export class CourseService implements ICourseService {
       ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
       : 0;
 
+    // Pick a thumbnail if missing
+    let thumbnailUrl = course.thumbnailUrl;
+    if (!thumbnailUrl) {
+      // Find the first video lesson with a youtubeId
+      for (const section of course.sections) {
+        const firstVideo = section.lessons.find(l => l.type === 'VIDEO' && l.youtubeId);
+        if (firstVideo) {
+          thumbnailUrl = `https://img.youtube.com/vi/${firstVideo.youtubeId}/mqdefault.jpg`;
+          break;
+        }
+      }
+    }
+
     // Update course
     await this.prisma.course.update({
       where: { id: courseId },
       data: {
         totalDuration,
         lessonCount,
+        thumbnailUrl,
         enrollmentCount: course._count.enrollments,
         reviewCount: course._count.reviews,
         averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal

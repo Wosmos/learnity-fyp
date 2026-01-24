@@ -93,7 +93,18 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
         throw new Error('User not found');
       }
 
-      // Create student profile if it doesn't exist (migration for existing users)
+      // Update core user fields if provided
+      if (data.firstName || data.lastName) {
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            ...(data.firstName && { firstName: data.firstName }),
+            ...(data.lastName && { lastName: data.lastName }),
+          },
+        });
+      }
+
+      // Create student profile if it doesn't exist
       if (!user.studentProfile) {
         await this.prisma.studentProfile.create({
           data: {
@@ -107,18 +118,7 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
             profileCompletionPercentage: 20,
           },
         });
-        
-        // Fetch the user again with the newly created profile
-        const updatedUser = await this.prisma.user.findUnique({
-          where: { id: userId },
-          include: { studentProfile: true },
-        });
-        
-        if (!updatedUser?.studentProfile) {
-          throw new Error('Failed to create student profile');
-        }
-        
-        return; // Profile created with initial data, no need to update
+        return;
       }
 
       // Calculate new completion percentage

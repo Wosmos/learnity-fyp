@@ -25,32 +25,28 @@ interface SmartLinkProps extends Omit<LinkProps, 'href'> {
  * Automatically prefetches routes based on user interaction patterns
  */
 export const SmartLink = forwardRef<HTMLAnchorElement, SmartLinkProps>(
-  ({ 
-    href, 
-    children, 
-    className, 
+  ({
+    href,
+    children,
+    className,
     prefetchStrategy = 'hover',
     prefetchDelay = 100,
     disabled = false,
-    ...props 
+    ...props
   }, ref) => {
     const { createSmartLink } = useSmartPrefetch();
 
     // Don't prefetch if disabled or external link
-    const shouldPrefetch = !disabled && 
-                          !href.startsWith('http') && 
-                          !href.startsWith('mailto:') && 
-                          !href.startsWith('tel:') &&
-                          prefetchStrategy !== 'none';
+    const shouldPrefetch = !disabled &&
+      !href.startsWith('http') &&
+      !href.startsWith('mailto:') &&
+      !href.startsWith('tel:') &&
+      prefetchStrategy !== 'none';
 
     // Get prefetch handlers based on strategy
-    const prefetchHandlers = shouldPrefetch 
+    const prefetchHandlers = (shouldPrefetch
       ? createSmartLink(href, prefetchStrategy === 'intersection' ? 'intersection' : 'hover')
-      : null;
-    
-    const handleMouseEnter = prefetchHandlers && 'onMouseEnter' in prefetchHandlers 
-      ? prefetchHandlers.onMouseEnter 
-      : undefined;
+      : {}) as { onMouseEnter?: () => void; ref?: (node: HTMLElement | null) => void };
 
     // Handle immediate prefetching
     if (shouldPrefetch && prefetchStrategy === 'immediate') {
@@ -59,7 +55,7 @@ export const SmartLink = forwardRef<HTMLAnchorElement, SmartLinkProps>(
 
     if (disabled) {
       return (
-        <span 
+        <span
           className={cn(
             'cursor-not-allowed opacity-50',
             className
@@ -84,7 +80,7 @@ export const SmartLink = forwardRef<HTMLAnchorElement, SmartLinkProps>(
                 handleMouseEnter();
               }
             }, prefetchDelay);
-            
+
             // Call original onMouseEnter if provided
             if (props.onMouseEnter) {
               props.onMouseEnter(e);

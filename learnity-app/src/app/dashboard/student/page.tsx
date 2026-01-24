@@ -3,14 +3,12 @@
 /**
  * Student Dashboard
  * Enhanced dashboard with real profile data and modern UI
- * OPTIMIZED: Uses centralized profile store to prevent duplicate API calls
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
-import { useProfileStore } from '@/lib/stores/profile.store';
 import {
   BookOpen,
   TrendingUp,
@@ -69,15 +67,24 @@ export default function StudentDashboard() {
   const { user, loading: authLoading } = useAuth();
   const api = useAuthenticatedApi();
   const router = useRouter();
-  
-  // Use centralized profile store - NO duplicate API calls
-  const profileData = useProfileStore((state) => state.profile);
-  const profileLoading = useProfileStore((state) => state.isLoading);
-  
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [completion, setCompletion] = useState<CompletionData | null>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [loadingCompletion, setLoadingCompletion] = useState(true);
   const [loadingStats, setLoadingStats] = useState(true);
+
+  // Fetch profile data
+  const fetchProfileData = useCallback(async () => {
+    try {
+      const response = await api.get('/api/auth/profile');
+      setProfileData(response.data);
+    } catch (error) {
+      console.error('[fetchProfileData] Failed to fetch profile:', error);
+    } finally {
+      setLoadingProfile(false);
+    }
+  }, [api]);
 
   // Fetch completion data
   const fetchCompletionData = useCallback(async () => {
@@ -139,11 +146,11 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      // Profile is already fetched by AuthProvider - no need to fetch again
+      fetchProfileData();
       fetchCompletionData();
       fetchDashboardStats();
     }
-  }, [user, authLoading, fetchCompletionData, fetchDashboardStats]);
+  }, [user, authLoading, fetchProfileData, fetchCompletionData, fetchDashboardStats]);
 
   const handleEnhanceProfile = () => {
     router.push('/dashboard/student/profile/enhance');
@@ -198,7 +205,7 @@ export default function StudentDashboard() {
     }
   ];
 
-  if (authLoading || profileLoading) {
+  if (authLoading || loadingProfile) {
     return (
       <DashboardSkeleton />
     );
@@ -224,7 +231,7 @@ export default function StudentDashboard() {
 
         {/* 3. PERFORMANCE METRICS (Aligned Grid) */}
         <section>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6">
             {metricData.map((metric, index) => (
               <MetricCard
                 key={index}
@@ -242,7 +249,7 @@ export default function StudentDashboard() {
 
         {/* 4. IDENTITY HUB (Elite Profile Card) */}
         <section>
-          {profileData && <EliteProfileCard profileData={profileData} />}
+          {profileData && <EliteProfileCard   profileData={profileData} />}
         </section>
 
         {/* 5. DUAL-COLUMN OPERATIONAL GRID */}
@@ -250,7 +257,7 @@ export default function StudentDashboard() {
           
           {/* MAIN COLUMN (8 Units) */}
           <div className="xl:col-span-8 space-y-10">
-            <div className="flex items-center gap-2 px-1">
+            <div className="hidden md:flex items-center gap-2 px-1">
               <div className="h-4 w-1 bg-indigo-600 rounded-full" />
               <h2 className="text-sm font-black uppercase tracking-widest text-slate-400">Learning Operations</h2>
             </div>
@@ -259,7 +266,7 @@ export default function StudentDashboard() {
 
           {/* SIDEBAR COLUMN (4 Units) */}
           <aside className="xl:col-span-4 space-y-10 sticky top-24">
-            <div className="flex items-center gap-2 px-1">
+            <div className="hidden md:flex items-center gap-2 px-1">
               <div className="h-4 w-1 bg-purple-600 rounded-full" />
               <h2 className="text-sm font-black uppercase tracking-widest text-slate-400">Intelligence & Social</h2>
             </div>

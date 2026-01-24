@@ -3,15 +3,14 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Star, Users, Clock, BookOpen, ShieldCheck, Zap, Tag, Calendar } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatCount, formatDuration } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PLACEHOLDER_IMAGES } from "@/lib/constants/place-holder-images";
 
-const courseCardVariants = cva("group relative overflow-hidden", {
+export const courseCardVariants = cva("group relative overflow-hidden", {
   variants: {
     size: {
       grid: "flex flex-col",
@@ -68,6 +67,13 @@ export interface CourseCardProps extends VariantProps<typeof courseCardVariants>
     name: string;
   };
 }
+
+
+const getPlaceholder = (id: string) => {
+  const index = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % PLACEHOLDER_IMAGES.length;
+  return PLACEHOLDER_IMAGES[index];
+};
+
 export function CourseCard({
   id,
   title,
@@ -92,6 +98,7 @@ export function CourseCard({
 }: CourseCardProps) {
   const diff = difficultyStyles[difficulty] || difficultyStyles.BEGINNER;
   const courseHref = href ?? `/courses/${id}`;
+  const displayThumbnail = thumbnailUrl || getPlaceholder(id);
 
   return (
     <Link href={courseHref} className="block group/card">
@@ -106,38 +113,32 @@ export function CourseCard({
         {/* THUMBNAIL TERMINAL */}
         <div
           className={cn(
-            "relative rounded-[1.5rem] overflow-hidden bg-slate-900",
+            "relative rounded-[1.5rem] overflow-hidden bg-slate-100",
             size === "grid" ? "aspect-[16/10] w-full" : "w-full md:w-64 h-48 shrink-0"
           )}
         >
-          {thumbnailUrl ? (
-            <Image
-              src={thumbnailUrl}
-              alt={title}
-              fill
-              className="object-cover opacity-90 transition-all duration-700 group-hover/card:scale-110 group-hover/card:opacity-100"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-indigo-900 to-slate-950">
-              <Zap className="h-12 w-12 text-indigo-500/30" />
-            </div>
-          )}
+          <Image
+            src={displayThumbnail}
+            alt={title}
+            fill
+            className="object-cover transition-all duration-700 group-hover/card:scale-105"
+            unoptimized={displayThumbnail.includes('unsplash')}
+          />
 
-          {/* TOP HUD OVERLAY */}
+          {/* HUD OVERLAYS */}
           <div className="absolute top-3 left-3 flex gap-2">
-            <div className={cn("px-3 py-1 rounded-full border backdrop-blur-md text-[9px] font-black uppercase tracking-widest", diff.bg, diff.color)}>
+            <div className={cn("px-3 py-1 rounded-lg border backdrop-blur-md text-[9px] font-black uppercase tracking-widest", diff.bg, diff.color)}>
               {diff.label}
             </div>
           </div>
 
           <div className="absolute top-3 right-3">
-            <div className="px-3 py-1 bg-black/60 backdrop-blur-md border border-white/10 rounded-full text-[10px] font-black text-white uppercase tracking-tighter">
-              {isFree ? "Free Access" : `$${price}`}
+            <div className="px-3 py-1 bg-black/50 backdrop-blur-md border border-white/10 rounded-lg text-[10px] font-black text-white uppercase tracking-tight">
+              {isFree ? "FREE" : `$${price}`}
             </div>
           </div>
 
-          {/* BOTTOM GRADIENT MASK */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-60" />
         </div>
 
         {/* DATA READOUT */}
@@ -173,19 +174,27 @@ export function CourseCard({
             )}
           </div>
 
-          {/* INSTRUCTOR NODE */}
+          {/* INSTRUCTOR PROFILE */}
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="absolute -inset-1 bg-indigo-500/20 rounded-full blur opacity-0 group-hover/card:opacity-100 transition-opacity" />
+            <div className="relative h-9 w-9 shrink-0">
+              <div className="absolute inset-0 bg-indigo-500/10 rounded-full scale-110 animate-pulse group-hover/card:bg-indigo-500/20 transition-colors" />
               {teacherAvatarUrl ? (
-                <Image src={teacherAvatarUrl} alt={teacherName} width={24} height={24} className="relative rounded-full ring-2 ring-white" />
+                <Image
+                  src={teacherAvatarUrl}
+                  alt={teacherName}
+                  fill
+                  className="relative object-cover rounded-full border-2 border-white shadow-sm"
+                />
               ) : (
-                <div className="relative w-6 h-6 rounded-full bg-slate-900 flex items-center justify-center text-[10px] font-black text-white">
+                <div className="relative h-full w-full rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 border-2 border-white shadow-sm">
                   {teacherName.charAt(0)}
                 </div>
               )}
             </div>
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{teacherName}</span>
+            <div className="flex flex-col min-w-0">
+              <span className="text-[11px] font-extrabold text-slate-800 line-clamp-1 leading-none mb-0.5">{teacherName}</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Instructor</span>
+            </div>
           </div>
 
           {/* TELEMETRY BAR */}
@@ -223,48 +232,18 @@ export function CourseCard({
   );
 }
 
-// Helper functions
-
-function formatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  }
-
-  return `${minutes}m`;
-}
-
-
-
-function formatCount(count: number): string {
-
-  if (count >= 1000000) {
-    return `${(count / 1000000).toFixed(1)}M`;
-  }
-
-  if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K`;
-  }
-
-  return count.toString();
-
-}
-
-// Skeleton component for loading state
 export function CourseCardSkeleton({ size = "grid" }: { size?: "grid" | "list" }) {
   return (
     <Card
       className={cn(
         courseCardVariants({ size }),
-        "bg-white border-slate-100 rounded-[2rem] p-3"
+        "bg-white border-slate-100 rounded-[2rem] p-3 shadow-none"
       )}
     >
       {/* Thumbnail skeleton */}
       <div
         className={cn(
-          "relative rounded-[1.5rem] overflow-hidden bg-slate-200 animate-pulse",
+          "relative rounded-[1.5rem] overflow-hidden bg-slate-100 animate-pulse",
           size === "grid" ? "aspect-[16/10] w-full" : "w-full md:w-64 h-48 shrink-0"
         )}
       />
@@ -272,30 +251,33 @@ export function CourseCardSkeleton({ size = "grid" }: { size?: "grid" | "list" }
       {/* Content skeleton */}
       <div className={cn("flex flex-col gap-3 p-4", size === "list" && "flex-1 justify-center")}>
         <div className="space-y-2">
-          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-6 w-3/4 bg-slate-100" />
           {size === "list" && (
             <>
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-4 w-full bg-slate-100" />
+              <Skeleton className="h-4 w-2/3 bg-slate-100" />
             </>
           )}
         </div>
 
         {/* Instructor skeleton */}
         <div className="flex items-center gap-3">
-          <Skeleton className="w-6 h-6 rounded-full" />
-          <Skeleton className="h-3 w-24" />
+          <Skeleton className="w-8 h-8 rounded-full bg-slate-100" />
+          <div className="flex flex-col gap-1">
+            <Skeleton className="h-3 w-20 bg-slate-100" />
+            <Skeleton className="h-2 w-12 bg-slate-50" />
+          </div>
         </div>
 
         {/* Telemetry skeleton */}
         <div className="pt-4 mt-2 border-t border-slate-50 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Skeleton className="h-4 w-12" />
-            <Skeleton className="h-4 w-12" />
+            <Skeleton className="h-3 w-8 bg-slate-50" />
+            <Skeleton className="h-3 w-10 bg-slate-50" />
           </div>
           <div className="flex items-center gap-3">
-            <Skeleton className="h-4 w-16" />
-            <Skeleton className="h-4 w-12" />
+            <Skeleton className="h-3 w-12 bg-slate-50" />
+            <Skeleton className="h-3 w-8 bg-slate-50" />
           </div>
         </div>
       </div>

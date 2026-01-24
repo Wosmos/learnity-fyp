@@ -23,7 +23,7 @@ function SideBar() {
 
             {/* 2. OPERATIONAL COMMAND CENTER */}
             <section>
-                <Card className="border-none shadow-[0_20px_50px_rgba(0,0,0,0.1)] bg-[#0F172A] text-white overflow-hidden rounded-2xl">
+                <Card className="hidden md:block border-none shadow-[0_20px_50px_rgba(0,0,0,0.1)] bg-[#0F172A] text-white overflow-hidden rounded-2xl">
                     <CardContent className="p-3 space-y-2">
                         {[
                             { href: "/courses", label: "Browse Catalog", icon: BookOpen, sub: "Explore new domains", color: "text-blue-400" },

@@ -5,8 +5,8 @@ import { LoadingButton } from '@/components/shared/LoadingButton';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { useClientAuth } from '@/hooks/useClientAuth';
-import { 
-  Shield, Eye, EyeOff, Mail, Target, Heart, 
+import {
+  Shield, Eye, EyeOff, Mail, Target, Heart,
   TrendingUp, MessageSquare, Lock, Globe, Users, Info
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -26,7 +26,7 @@ export function PrivacySettingsForm({ onSuccess }: { onSuccess?: () => void }) {
   const { loading: authLoading } = useClientAuth();
   const api = useAuthenticatedApi();
   const [loading, setLoading] = useState(false);
-  
+
   const [settings, setSettings] = useState<PrivacySettings>({
     profileVisibility: 'PUBLIC',
     showEmail: false,
@@ -65,7 +65,7 @@ export function PrivacySettingsForm({ onSuccess }: { onSuccess?: () => void }) {
 
   return (
     <div className="max-w-full mx-auto p-12 space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      
+
       {/* Header with Diagnostic Feel */}
       <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-100 pb-8 gap-4">
         <div className="space-y-2">
@@ -83,13 +83,13 @@ export function PrivacySettingsForm({ onSuccess }: { onSuccess?: () => void }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        
+
         {/* LEFT: MASTER VISIBILITY */}
         <div className="lg:col-span-4 space-y-6">
           <SectionLabel icon={Eye} label="Global Scope" />
           <div className="bg-slate-50/80 rounded-[24px] p-6 border border-slate-100 shadow-inner">
-             <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-3 block px-1">Active Status</label>
-             <Select
+            <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-3 block px-1">Active Status</label>
+            <Select
               value={settings.profileVisibility}
               onValueChange={(v: any) => setSettings({ ...settings, profileVisibility: v })}
             >
@@ -110,7 +110,7 @@ export function PrivacySettingsForm({ onSuccess }: { onSuccess?: () => void }) {
             </Select>
 
             <div className="mt-6 p-4 rounded-xl bg-white border border-slate-100 shadow-sm transition-all duration-300">
-               <VisibilityHelper status={settings.profileVisibility} />
+              <VisibilityHelper status={settings.profileVisibility} />
             </div>
           </div>
         </div>
@@ -119,25 +119,25 @@ export function PrivacySettingsForm({ onSuccess }: { onSuccess?: () => void }) {
         <div className="lg:col-span-8 space-y-6">
           <SectionLabel icon={Target} label="Data Telemetry" />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <SettingsToggle 
-              icon={<Mail />} title="Contact Email" desc="Node-to-node visibility" 
-              isOn={settings.showEmail} onToggle={() => setSettings({...settings, showEmail: !settings.showEmail})} 
+            <SettingsToggle
+              icon={<Mail />} title="Contact Email" desc="Node-to-node visibility"
+              isOn={settings.showEmail} onToggle={() => setSettings({ ...settings, showEmail: !settings.showEmail })}
             />
-            <SettingsToggle 
-              icon={<MessageSquare />} title="Direct Comms" desc="Allow handshake requests" 
-              isOn={settings.allowMessages} onToggle={() => setSettings({...settings, allowMessages: !settings.allowMessages})} 
+            <SettingsToggle
+              icon={<MessageSquare />} title="Direct Comms" desc="Allow handshake requests"
+              isOn={settings.allowMessages} onToggle={() => setSettings({ ...settings, allowMessages: !settings.allowMessages })}
             />
-            <SettingsToggle 
-              icon={<TrendingUp />} title="Progress Log" desc="Broadcast academic growth" 
-              isOn={settings.showProgress} onToggle={() => setSettings({...settings, showProgress: !settings.showProgress})} 
+            <SettingsToggle
+              icon={<TrendingUp />} title="Progress Log" desc="Broadcast academic growth"
+              isOn={settings.showProgress} onToggle={() => setSettings({ ...settings, showProgress: !settings.showProgress })}
             />
-            <SettingsToggle 
-              icon={<Target />} title="Objectives" desc="Display active goals" 
-              isOn={settings.showLearningGoals} onToggle={() => setSettings({...settings, showLearningGoals: !settings.showLearningGoals})} 
+            <SettingsToggle
+              icon={<Target />} title="Objectives" desc="Display active goals"
+              isOn={settings.showLearningGoals} onToggle={() => setSettings({ ...settings, showLearningGoals: !settings.showLearningGoals })}
             />
-            <SettingsToggle 
-              icon={<Heart />} title="Interests" desc="Show personal data nodes" 
-              isOn={settings.showInterests} onToggle={() => setSettings({...settings, showInterests: !settings.showInterests})} 
+            <SettingsToggle
+              icon={<Heart />} title="Interests" desc="Show personal data nodes"
+              isOn={settings.showInterests} onToggle={() => setSettings({ ...settings, showInterests: !settings.showInterests })}
             />
           </div>
         </div>
@@ -193,12 +193,12 @@ function VisibilityHelper({ status }: { status: string }) {
 
 function SettingsToggle({ icon, title, desc, isOn, onToggle }: { icon: any, title: string, desc: string, isOn: boolean, onToggle: () => void }) {
   return (
-    <button 
+    <button
       onClick={onToggle}
       className={cn(
         "group relative flex items-center justify-between w-full p-4 rounded-[20px] border transition-all duration-300 text-left",
-        isOn 
-          ? "bg-white border-slate-200 shadow-md ring-1 ring-slate-100" 
+        isOn
+          ? "bg-white border-slate-200 shadow-md ring-1 ring-slate-100"
           : "bg-slate-50/40 border-slate-100 opacity-60 hover:opacity-100"
       )}
     >
@@ -210,10 +210,10 @@ function SettingsToggle({ icon, title, desc, isOn, onToggle }: { icon: any, titl
           {React.cloneElement(icon, { className: 'w-4 h-4' })}
         </div>
         <div>
-           <div className={cn("font-black text-[11px] uppercase tracking-wider", isOn ? "text-slate-900" : "text-slate-500")}>
-             {title}
-           </div>
-           <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{desc}</div>
+          <div className={cn("font-black text-[11px] uppercase tracking-wider", isOn ? "text-slate-900" : "text-slate-500")}>
+            {title}
+          </div>
+          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{desc}</div>
         </div>
       </div>
 

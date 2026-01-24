@@ -9,25 +9,87 @@ import {
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { Badge } from '../ui/badge';
+import { Badge } from '@/components/ui/badge';
 
 export function EliteProfileCard({ profileData }: { profileData: any }) {
   const initials = profileData?.name?.split(' ').map((n: any) => n[0]).join('') || 'ST';
-  console.log(profileData.profilePicture, 'profileData')
-  // Format the last login to a readable session time
   const lastLogin = profileData?.lastLoginAt 
     ? new Date(profileData.lastLoginAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
     : 'N/A';
 
   return (
-    <section className="relative mb-10 group">
-      {/* Decorative Glow Mesh */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-2xl opacity-50 group-hover:opacity-100 transition duration-1000" />
+    <section className="relative mb-6 lg:mb-10 group lg:px-0">
       
-      <div className="relative bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-2xl shadow-slate-200/50">
-        <div className="flex flex-col lg:flex-row min-h-[380px]">
+      {/* ================= MOBILE VIEW (Minimal Card) ================= */}
+      <div className="block lg:hidden">
+        <div className="relative bg-white rounded-xl border border-slate-100 shadow-xl shadow-slate-200/40 p-6 overflow-hidden">
+            {/* Background Decoration */}
+            <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-transparent"></div>
+            
+            <div className="relative flex flex-col items-center">
+                {/* Header Status */}
+                <div className="w-full flex justify-between items-start mb-6">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 rounded-full border border-emerald-100/50">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Online</span>
+                    </div>
+                    <Badge variant="outline" className="border-slate-200 text-[9px] font-bold text-slate-400 uppercase tracking-widest bg-white">
+                        {profileData?.role || 'STUDENT'}
+                    </Badge>
+                </div>
+
+                {/* Avatar & Identity */}
+                <div className="relative mb-4">
+                    <Avatar className="h-24 w-24 ring-4 ring-white shadow-xl">
+                        <AvatarImage src={profileData?.profilePicture} className="object-cover" />
+                        <AvatarFallback className="bg-slate-900 text-white font-bold">{initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -bottom-1 -right-1 bg-indigo-600 border-[3px] border-white h-7 w-7 rounded-full flex items-center justify-center shadow-md">
+                        <ShieldCheck className="h-3 w-3 text-white" />
+                    </div>
+                </div>
+
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight text-center">{profileData?.name}</h2>
+                <p className="text-xs font-medium text-slate-400 text-center mb-6">{profileData?.email}</p>
+
+                {/* Quick Stats Grid */}
+                <div className="w-full grid grid-cols-2 gap-3 mb-6">
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Login</p>
+                        <p className="text-xs font-bold text-slate-900">{lastLogin}</p>
+                    </div>
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Auth</p>
+                        <p className="text-xs font-bold text-slate-900 uppercase truncate px-1">
+                            {profileData?.firebase?.sign_in_provider || 'Google'}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Saturation Bar */}
+                <div className="w-full space-y-2">
+                    <div className="flex justify-between items-end">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Profile Saturation</span>
+                        <span className="text-sm font-black text-indigo-600">{profileData?.profileComplete ? '100%' : '65%'}</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: profileData?.profileComplete ? '100%' : '65%' }}
+                            className="h-full bg-indigo-600 rounded-full"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      {/* ================= DESKTOP VIEW (Original Design) ================= */}
+      <div className="hidden lg:block relative bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-2xl shadow-slate-200/50">
+          <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 blur-2xl opacity-50 group-hover:opacity-100 transition duration-1000 pointer-events-none" />
+          
+          <div className="relative flex flex-col lg:flex-row min-h-[380px]">
           
           {/* LEFT: Identity Hub */}
           <div className="lg:w-[380px] bg-slate-50/80 border-r border-slate-100 p-10 flex flex-col items-center justify-between">
@@ -69,22 +131,6 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
           <div className="flex-1 p-10 flex flex-col justify-between">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               
-              {/* Permissions & Security */}
-              {/* <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Terminal className="h-4 w-4 text-indigo-600" />
-                  <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.25em]">Access Permissions</h4>
-                </div>
-                <div className="grid grid-cols-1 gap-2">
-                  {profileData?.permissions?.map((perm: string, i: number) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-xl group/item hover:bg-white hover:shadow-md transition-all">
-                      <span className="text-[11px] font-bold text-slate-600 uppercase tracking-tight">{perm.replace(':', ' ')}</span>
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 opacity-40 group-hover/item:opacity-100" />
-                    </div>
-                  ))}
-                </div>
-              </div> */}
-
               {/* Real-time Metadata */}
               <div className="space-y-6">
                 <div className="flex items-center gap-2">

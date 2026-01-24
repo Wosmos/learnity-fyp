@@ -3,10 +3,9 @@
 /**
  * Dashboard Navbar Component
  * Enhanced UI/UX with micro-animations, glassmorphism, and real user data.
- * OPTIMIZED: Uses centralized profile store instead of making duplicate API calls
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import {
@@ -30,7 +29,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useClientAuth } from '@/hooks/useClientAuth';
-import { useProfileStore, getProfileInitials, getProfileFullName } from '@/lib/stores/profile.store';
+import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 
 // --- Types ---
 
@@ -104,22 +103,46 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
   const { role, showStats, stats, showSearch = true } = config;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, loading: authLoading } = useClientAuth();
-  
-  // Use centralized profile store - NO duplicate API calls
-  const profile = useProfileStore((state) => state.profile);
+  const api = useAuthenticatedApi();
 
-  // Derive profile data from centralized store or fallback to Firebase user
-  const profileData = profile ? {
-    firstName: profile.firstName,
-    lastName: profile.lastName,
-    email: profile.email,
-    profilePicture: profile.profilePicture,
-  } : user ? {
-    firstName: user.displayName?.split(' ')[0] || 'User',
-    lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
-    email: user.email || '',
-    profilePicture: user.photoURL,
-  } : null;
+  const [profileData, setProfileData] = useState<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    profilePicture?: string | null;
+  } | null>(null);
+
+  // Fetch real user profile data
+  useEffect(() => {
+    if (!authLoading && user) {
+      const fetchProfile = async () => {
+        try {
+          const response = await api.get('/api/auth/profile');
+          if (response?.data) {
+            setProfileData({
+              firstName: response.data.firstName,
+              lastName: response.data.lastName,
+              email: response.data.email,
+              profilePicture: response.data.profilePicture,
+            });
+          }
+        } catch (error) {
+          console.error('Failed to fetch profile for navbar:', error);
+          // Fallback to Firebase user data
+          if (user) {
+            const names = user.displayName?.split(' ') || ['User'];
+            setProfileData({
+              firstName: names[0] || 'User',
+              lastName: names.slice(1).join(' ') || '',
+              email: user.email || '',
+              profilePicture: user.photoURL,
+            });
+          }
+        }
+      };
+      fetchProfile();
+    }
+  }, [authLoading, user, api]);
 
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() || 'U';
@@ -138,17 +161,8 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
     >
       <div className="h-full px-4 md:px-6 mx-auto flex items-center justify-between gap-4 max-w-[1600px]">
 
-        {/* Left Side: Mobile Menu & Search */}
-        <div className="flex items-center gap-3 flex-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden -ml-2 text-slate-500"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
+        {/* Left Side: Mobile Menu Button Hidden (Navigation moved to bottom navbar) */}
+        <div className="flex items-center gap-3 flex-1 md:hidden" />
 
         {/* Center/Right: Gamification Stats (Student Context) */}
         {showStats && stats && (

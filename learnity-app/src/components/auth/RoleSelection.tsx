@@ -35,7 +35,12 @@ const roleOptions: RoleOption[] = [
   }
 ];
 
-export const RoleSelection = ({ onRoleSelect, className }: { onRoleSelect: (role: UserRole) => void; className?: string }) => {
+export interface RoleSelectionProps {
+  onRoleSelect: (role: UserRole) => void;
+  className?: string;
+}
+
+export const RoleSelection = ({ onRoleSelect, className }: RoleSelectionProps) => {
   const { selectedRole, setSelectedRole, setRegistrationStep } = useAuthStore();
 
   const handleRoleSelect = (role: UserRole) => {
@@ -64,7 +69,7 @@ export const RoleSelection = ({ onRoleSelect, className }: { onRoleSelect: (role
         {roleOptions.map((option, index) => {
           const Icon = option.icon;
           const isSelected = selectedRole === option.role;
-          
+
           return (
             <div
               key={option.role}
@@ -77,10 +82,10 @@ export const RoleSelection = ({ onRoleSelect, className }: { onRoleSelect: (role
             >
               {/* Slaty Noise Overlay (Visible on Hover) */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-              
+
               {/* Ghost Background Icon */}
-              <Icon 
-                className="absolute -bottom-10 -right-10 w-48 h-48 text-white opacity-0 group-hover:opacity-[0.04] transition-all duration-1000 rotate-12 group-hover:rotate-0" 
+              <Icon
+                className="absolute -bottom-10 -right-10 w-48 h-48 text-white opacity-0 group-hover:opacity-[0.04] transition-all duration-1000 rotate-12 group-hover:rotate-0"
                 strokeWidth={0.5}
               />
 
@@ -88,8 +93,8 @@ export const RoleSelection = ({ onRoleSelect, className }: { onRoleSelect: (role
                 {/* Icon Container - Morphic Style */}
                 <div className={cn(
                   "h-16 w-16 shrink-0 rounded-2xl flex items-center justify-center border transition-all duration-500",
-                  isSelected 
-                    ? "bg-white text-black border-white" 
+                  isSelected
+                    ? "bg-white text-black border-white"
                     : "bg-white/5 border-white/10 text-slate-400 group-hover:border-white/40 group-hover:text-white"
                 )}>
                   <Icon className="h-8 w-8" strokeWidth={isSelected ? 2 : 1.5} />
@@ -99,23 +104,23 @@ export const RoleSelection = ({ onRoleSelect, className }: { onRoleSelect: (role
                 <div className="flex-1 space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className={cn(
-                        "text-2xl font-black uppercase italic tracking-tighter transition-colors",
-                        isSelected ? "text-white" : "text-slate-300 group-hover:text-white"
+                      "text-2xl font-black uppercase italic tracking-tighter transition-colors",
+                      isSelected ? "text-white" : "text-slate-300 group-hover:text-white"
                     )}>
                       {option.title}
                     </h3>
                     <div className={cn(
-                        "p-2 rounded-full border transition-all duration-500",
-                        isSelected ? "border-white/40 bg-white/10" : "border-transparent opacity-0 group-hover:opacity-100"
+                      "p-2 rounded-full border transition-all duration-500",
+                      isSelected ? "border-white/40 bg-white/10" : "border-transparent opacity-0 group-hover:opacity-100"
                     )}>
-                        <ArrowUpRight className="h-4 w-4 text-white" />
+                      <ArrowUpRight className="h-4 w-4 text-white" />
                     </div>
                   </div>
-                  
+
                   <p className="text-slate-500 text-[13px] font-medium leading-relaxed italic max-w-sm group-hover:text-slate-400 transition-colors">
                     {option.description}
                   </p>
-                  
+
                   {/* Features Metadata */}
                   <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
                     {option.features.map((feature) => (

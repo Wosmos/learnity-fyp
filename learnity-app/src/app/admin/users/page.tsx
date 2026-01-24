@@ -1,82 +1,80 @@
 'use client';
 
 /**
- * Admin User Management Page
- * Modern data table interface with detailed user management
+ * Admin Teacher Management Page
+ * Modern data table interface for managing teacher applications
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { DataTable } from '@/components/admin/users/data-table';
-import { createColumns, User } from '@/components/admin/users/columns';
-import { UserDetailDialog } from '@/components/admin/users/user-detail-dialog';
+import { createTeacherColumns, Teacher } from '@/components/admin/teachers/columns';
+import { TeacherDetailDialog } from '@/components/admin/teachers/teacher-detail-dialog';
 
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { useToast } from '@/hooks/use-toast';
 import {
-  Users,
-  Download,
-  UserPlus,
   GraduationCap,
-  BookOpen,
-  Shield,
+  Download,
   Clock,
+  Star,
+  Award,
+  Users,
   CheckCircle,
   XCircle,
-  TrendingUp,
 } from 'lucide-react';
 
-interface UserStats {
-  totalUsers: number;
-  activeUsers: number;
-  newUsersThisMonth: number;
-  pendingVerifications: number;
-  studentCount: number;
-  teacherCount: number;
-  adminCount: number;
+
+
+interface TeacherStats {
+  totalTeachers: number;
+  pendingApplications: number;
+  approvedTeachers: number;
+  rejectedApplications: number;
+  averageRating: number;
+  totalSessions: number;
 }
 
-export default function UserManagementPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const [stats, setStats] = useState<UserStats>({
-    totalUsers: 0,
-    activeUsers: 0,
-    newUsersThisMonth: 0,
-    pendingVerifications: 0,
-    studentCount: 0,
-    teacherCount: 0,
-    adminCount: 0
+export default function TeacherManagementPage() {
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([]);
+  const [stats, setStats] = useState<TeacherStats>({
+    totalTeachers: 0,
+    pendingApplications: 0,
+    approvedTeachers: 0,
+    rejectedApplications: 0,
+    averageRating: 0,
+    totalSessions: 0
   });
   const [loading, setLoading] = useState(true);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState('pending');
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   
   const api = useAuthenticatedApi();
   const { toast } = useToast();
 
-  const fetchUsers = useCallback(async () => {
+  const fetchTeachers = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/admin/users');
-      const userData = response?.users || [];
-      setUsers(userData);
-      setFilteredUsers(userData);
+      const response = await api.get('/api/admin/teachers');
+      const teacherData = response?.teachers || [];
+      setTeachers(teacherData);
+      setFilteredTeachers(teacherData);
+      setStats(response?.stats || stats);
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      console.error('Failed to fetch teachers:', error);
       
       // Only show error toast after initial load
       if (!isInitialLoad) {
         toast({
           title: "Error",
-          description: "Failed to load users. Please try again.",
+          description: "Failed to load teachers. Please try again.",
           variant: "destructive"
         });
       }
@@ -84,127 +82,137 @@ export default function UserManagementPage() {
       setLoading(false);
       setIsInitialLoad(false);
     }
-  }, [api, toast, isInitialLoad]);
-
-  const fetchStats = useCallback(async () => {
-    try {
-      const response = await api.get('/api/admin/users/stats');
-      setStats((prev) => response.stats || prev);
-    } catch (error) {
-      console.error('Failed to fetch user stats:', error);
-    }
-  }, [api]);
+  }, [api, toast, isInitialLoad, stats]);
 
   useEffect(() => {
-    fetchUsers();
-    fetchStats();
-  }, [fetchUsers, fetchStats]);
+    fetchTeachers();
+  }, []);
 
-  // Filter users based on active tab
+  // Filter teachers based on active tab
   useEffect(() => {
-    let filtered = users;
+    let filtered = teachers;
     
     switch (activeTab) {
-      case 'students':
-        filtered = users.filter(user => user.role === 'STUDENT');
-        break;
-      case 'teachers':
-        filtered = users.filter(user => user.role === 'TEACHER');
-        break;
-      case 'admins':
-        filtered = users.filter(user => user.role === 'ADMIN');
-        break;
       case 'pending':
-        filtered = users.filter(user => !user.emailVerified);
+        filtered = teachers.filter(teacher => teacher.role === 'PENDING_TEACHER');
+        break;
+      case 'approved':
+        filtered = teachers.filter(teacher => teacher.role === 'TEACHER');
+        break;
+      case 'rejected':
+        filtered = teachers.filter(teacher => teacher.role === 'REJECTED_TEACHER');
         break;
       default:
-        filtered = users;
+        filtered = teachers;
     }
     
-    setFilteredUsers(filtered);
-  }, [users, activeTab]);
+    setFilteredTeachers(filtered);
+  }, [teachers, activeTab]);
 
-  const handleViewDetails = (user: User) => {
-    setSelectedUser(user);
+  const handleViewDetails = (teacher: Teacher) => {
+    setSelectedTeacher(teacher);
     setDialogOpen(true);
   };
 
-  const handleUserAction = async (userId: string, action: string) => {
+  const handleTeacherAction = async (teacherId: string, action: string) => {
     try {
-      // Handle teacher approval/rejection through teacher API
-      if (action === 'approve-teacher' || action === 'reject-teacher') {
-        const teacherAction = action === 'approve-teacher' ? 'approve' : 'reject';
-        await api.put('/api/admin/teachers', { teacherId: userId, action: teacherAction });
-        
-        // Update user role in local state
-        setUsers(prev => prev.map(user => 
-          user.id === userId 
-            ? { 
-                ...user, 
-                role: teacherAction === 'approve' ? 'TEACHER' : 'REJECTED_TEACHER'
-              }
-            : user
-        ));
-        
-        toast({
-          title: "Success",
-          description: `Teacher application ${teacherAction}d successfully.`,
-        });
-        return;
+      await api.put('/api/admin/teachers', { teacherId, action });
+      
+      // Update local state
+      setTeachers(prev => prev.map(teacher => 
+        teacher.id === teacherId 
+          ? { 
+              ...teacher, 
+              applicationStatus: action === 'approve' ? 'approved' : 'rejected',
+              role: action === 'approve' ? 'TEACHER' : 'REJECTED_TEACHER',
+              reviewedAt: new Date().toISOString()
+            }
+          : teacher
+      ));
+
+      // Update stats
+      if (action === 'approve') {
+        setStats(prev => ({
+          ...prev,
+          pendingApplications: prev.pendingApplications - 1,
+          approvedTeachers: prev.approvedTeachers + 1
+        }));
+      } else if (action === 'reject') {
+        setStats(prev => ({
+          ...prev,
+          pendingApplications: prev.pendingApplications - 1,
+          rejectedApplications: prev.rejectedApplications + 1
+        }));
       }
 
-      // Handle regular user actions
-      await api.put('/api/admin/users', { userId, action });
-      
-      if (action === 'delete') {
-        setUsers(prev => prev.filter(user => user.id !== userId));
-        toast({
-          title: "Success",
-          description: "User deleted successfully.",
-        });
-      } else if (action === 'activate' || action === 'deactivate') {
-        setUsers(prev => prev.map(user => 
-          user.id === userId 
-            ? { ...user, isActive: action === 'activate' }
-            : user
-        ));
-        toast({
-          title: "Success",
-          description: `User ${action}d successfully.`,
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: `Action ${action} completed successfully.`,
-        });
-      }
+      toast({
+        title: "Success",
+        description: `Teacher application ${action}d successfully.`,
+      });
     } catch (error) {
-      console.error(`Failed to ${action} user:`, error);
+      console.error(`Failed to ${action} teacher:`, error);
       toast({
         title: "Error",
-        description: `Failed to ${action} user. Please try again.`,
+        description: `Failed to ${action} teacher application. Please try again.`,
         variant: "destructive"
       });
     }
   };
 
-  const columns = createColumns({
+  const columns = createTeacherColumns({
     onViewDetails: handleViewDetails,
-    onUserAction: handleUserAction,
+    onTeacherAction: handleTeacherAction,
   });
 
+  const tabConfig = [
+    {
+      value: 'pending',
+      label: 'Pending',
+      icon: Clock,
+      count: stats.pendingApplications,
+      emptyTitle: 'No pending applications',
+      emptyDescription: 'All teacher applications have been reviewed.'
+    },
+    {
+      value: 'approved',
+      label: 'Approved',
+      icon: CheckCircle,
+      count: stats.approvedTeachers,
+      emptyTitle: 'No approved teachers',
+      emptyDescription: 'No approved teachers match the current filters.'
+    },
+    {
+      value: 'rejected',
+      label: 'Rejected',
+      icon: XCircle,
+      count: stats.rejectedApplications,
+      emptyTitle: 'No rejected applications',
+      emptyDescription: 'You have not rejected any teacher applications yet.'
+    },
+    {
+      value: 'all',
+      label: 'All',
+      icon: Users,
+      count: stats.totalTeachers,
+      emptyTitle: 'No teachers found',
+      emptyDescription: 'No teacher applications have been submitted yet.'
+    }
+  ];
+
   return (
-    <AdminLayout>
+    <AdminLayout
+     
+    >
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+        <Card className="bg-gradient-to-br from-yellow-50 to-orange-100 border-yellow-200">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold text-blue-700">{stats.totalUsers.toLocaleString()}</p>
-                <p className="text-sm text-blue-600">Total Users</p>
+                <p className="text-2xl font-bold text-yellow-700">{stats.pendingApplications}</p>
+                <p className="text-sm text-yellow-600">Pending Applications</p>
               </div>
-              <Users className="h-8 w-8 text-blue-500" />
+              <Clock className="h-8 w-8 text-yellow-500" />
             </div>
           </CardContent>
         </Card>
@@ -213,10 +221,22 @@ export default function UserManagementPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold text-green-700">{stats.activeUsers.toLocaleString()}</p>
-                <p className="text-sm text-green-600">Active Users</p>
+                <p className="text-2xl font-bold text-green-700">{stats.approvedTeachers}</p>
+                <p className="text-sm text-green-600">Approved Teachers</p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-2xl font-bold text-blue-700">{stats.averageRating.toFixed(1)}</p>
+                <p className="text-sm text-blue-600">Average Rating</p>
+              </div>
+              <Star className="h-8 w-8 text-blue-500" />
             </div>
           </CardContent>
         </Card>
@@ -225,22 +245,10 @@ export default function UserManagementPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold text-purple-700">{stats.newUsersThisMonth}</p>
-                <p className="text-sm text-purple-600">New This Month</p>
+                <p className="text-2xl font-bold text-purple-700">{stats.totalSessions}</p>
+                <p className="text-sm text-purple-600">Total Sessions</p>
               </div>
-              <TrendingUp className="h-8 w-8 text-purple-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-orange-700">{stats.pendingVerifications}</p>
-                <p className="text-sm text-orange-600">Pending Verification</p>
-              </div>
-              <Clock className="h-8 w-8 text-orange-500" />
+              <Award className="h-8 w-8 text-purple-500" />
             </div>
           </CardContent>
         </Card>
@@ -251,9 +259,9 @@ export default function UserManagementPage() {
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div>
-              <CardTitle className="text-2xl font-bold text-gray-900">User Directory</CardTitle>
+              <CardTitle className="text-2xl font-bold text-gray-900">Teacher Applications</CardTitle>
               <CardDescription className="text-gray-600">
-                Manage all platform users with advanced filtering and actions
+                Review and manage teacher applications with advanced filtering and approval tools
               </CardDescription>
             </div>
           </div>
@@ -261,69 +269,50 @@ export default function UserManagementPage() {
         
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-6">
-              <TabsTrigger value="all" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                All Users
-                <Badge variant="secondary" className="ml-1">
-                  {stats.totalUsers}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="students" className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                Students
-                <Badge variant="secondary" className="ml-1">
-                  {stats.studentCount}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="teachers" className="flex items-center gap-2">
-                <GraduationCap className="h-4 w-4" />
-                Teachers
-                <Badge variant="secondary" className="ml-1">
-                  {stats.teacherCount}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="admins" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Admins
-                <Badge variant="secondary" className="ml-1">
-                  {stats.adminCount}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="pending" className="flex items-center gap-2">
-                <XCircle className="h-4 w-4" />
-                Pending
-                <Badge variant="secondary" className="ml-1">
-                  {stats.pendingVerifications}
-                </Badge>
-              </TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4 mb-6">
+              {tabConfig.map(({ value, label, icon: Icon, count }) => (
+                <TabsTrigger key={value} value={value} className="flex items-center gap-2">
+                  <Icon className="h-4 w-4" />
+                  {label}
+                  <Badge variant="secondary" className="ml-1">
+                    {count}
+                  </Badge>
+                </TabsTrigger>
+              ))}
             </TabsList>
 
-            <TabsContent value={activeTab} className="space-y-4">
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-4"></div>
-                  <p className="text-gray-500">Loading users...</p>
-                </div>
-              ) : (
-                <DataTable
-                  columns={columns}
-                  data={filteredUsers}
-                  searchKey="email"
-                  searchPlaceholder="Search by name, email, or ID..."
-                />
-              )}
-            </TabsContent>
+            {tabConfig.map(({ value, emptyTitle, emptyDescription, icon: Icon }) => (
+              <TabsContent key={value} value={value} className="space-y-4">
+                {loading ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4" />
+                    <p className="text-gray-500">Loading teachers...</p>
+                  </div>
+                ) : filteredTeachers.length > 0 ? (
+                  <DataTable
+                    columns={columns}
+                    data={filteredTeachers}
+                    searchKey="email"
+                    searchPlaceholder="Search by name, email, or expertise..."
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 py-12 text-center">
+                    <Icon className="h-10 w-10 text-gray-300 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">{emptyTitle}</h3>
+                    <p className="text-gray-500 max-w-md">{emptyDescription}</p>
+                  </div>
+                )}
+              </TabsContent>
+            ))}
           </Tabs>
         </CardContent>
       </Card>
 
-      {/* User Detail Dialog */}
-      <UserDetailDialog
-        user={selectedUser}
+      <TeacherDetailDialog
+        teacher={selectedTeacher}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        onUserAction={handleUserAction}
+        onTeacherAction={handleTeacherAction}
       />
     </AdminLayout>
   );
