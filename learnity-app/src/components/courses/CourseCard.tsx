@@ -4,7 +4,16 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Star, Users, Clock, BookOpen, ShieldCheck, Zap, Tag, Calendar } from "lucide-react";
+import {
+  Star,
+  Users,
+  Clock,
+  BookOpen,
+  ShieldCheck,
+  Zap,
+  Tag,
+  Calendar,
+} from "lucide-react";
 import { cn, formatCount, formatDuration } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,14 +31,30 @@ export const courseCardVariants = cva("group relative overflow-hidden", {
   },
 });
 
-const difficultyStyles: Record<string, { label: string; color: string; bg: string }> = {
-  BEGINNER: { label: "INITIATE", color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
-  INTERMEDIATE: { label: "OPERATIVE", color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
-  ADVANCED: { label: "ELITE", color: "text-rose-400", bg: "bg-rose-500/10 border-rose-500/20" },
+const difficultyStyles: Record<
+  string,
+  { label: string; color: string; bg: string }
+> = {
+  BEGINNER: {
+    label: "INITIATE",
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/10 border-emerald-500/20",
+  },
+  INTERMEDIATE: {
+    label: "OPERATIVE",
+    color: "text-blue-400",
+    bg: "bg-blue-500/10 border-blue-500/20",
+  },
+  ADVANCED: {
+    label: "ELITE",
+    color: "text-rose-400",
+    bg: "bg-rose-500/10 border-rose-500/20",
+  },
 };
 
-export interface CourseCardProps extends VariantProps<typeof courseCardVariants> {
-
+export interface CourseCardProps extends VariantProps<
+  typeof courseCardVariants
+> {
   id: string;
 
   title: string;
@@ -68,9 +93,10 @@ export interface CourseCardProps extends VariantProps<typeof courseCardVariants>
   };
 }
 
-
 const getPlaceholder = (id: string) => {
-  const index = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % PLACEHOLDER_IMAGES.length;
+  const index =
+    id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) %
+    PLACEHOLDER_IMAGES.length;
   return PLACEHOLDER_IMAGES[index];
 };
 
@@ -107,14 +133,16 @@ export function CourseCard({
           courseCardVariants({ size }),
           "bg-white border-slate-100 rounded-[2rem] p-3 transition-all duration-500",
           "hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] hover:border-indigo-200",
-          className
+          className,
         )}
       >
         {/* THUMBNAIL TERMINAL */}
         <div
           className={cn(
             "relative rounded-[1.5rem] overflow-hidden bg-slate-100",
-            size === "grid" ? "aspect-[16/10] w-full" : "w-full md:w-64 h-48 shrink-0"
+            size === "grid"
+              ? "aspect-[16/10] w-full"
+              : "w-full md:w-64 h-48 shrink-0",
           )}
         >
           <Image
@@ -122,12 +150,18 @@ export function CourseCard({
             alt={title}
             fill
             className="object-cover transition-all duration-700 group-hover/card:scale-105"
-            unoptimized={displayThumbnail.includes('unsplash')}
+            unoptimized={displayThumbnail.includes("unsplash")}
           />
 
           {/* HUD OVERLAYS */}
           <div className="absolute top-3 left-3 flex gap-2">
-            <div className={cn("px-3 py-1 rounded-lg border backdrop-blur-md text-[9px] font-black uppercase tracking-widest", diff.bg, diff.color)}>
+            <div
+              className={cn(
+                "px-3 py-1 rounded-lg border backdrop-blur-md text-[9px] font-black uppercase tracking-widest",
+                diff.bg,
+                diff.color,
+              )}
+            >
               {diff.label}
             </div>
           </div>
@@ -142,7 +176,12 @@ export function CourseCard({
         </div>
 
         {/* DATA READOUT */}
-        <div className={cn("flex flex-col gap-3 p-4", size === "list" && "flex-1 justify-center")}>
+        <div
+          className={cn(
+            "flex flex-col gap-3 p-4",
+            size === "list" && "flex-1 justify-center",
+          )}
+        >
           <div className="space-y-2">
             {category && (
               <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-1">
@@ -156,10 +195,12 @@ export function CourseCard({
             </h3>
 
             {description && (
-              <p className={cn(
-                "text-sm font-medium text-slate-500 leading-relaxed",
-                size === "list" ? "line-clamp-2" : "line-clamp-2"
-              )}>
+              <p
+                className={cn(
+                  "text-sm font-medium text-slate-500 leading-relaxed",
+                  size === "list" ? "line-clamp-2" : "line-clamp-2",
+                )}
+              >
                 {description}
               </p>
             )}
@@ -167,8 +208,10 @@ export function CourseCard({
             {(updatedAt || createdAt) && (
               <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-medium pt-1">
                 <Calendar className="h-3 w-3" />
-                <span>
-                  {updatedAt ? `Updated ${new Date(updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}` : `Added ${new Date(createdAt!).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`}
+                <span suppressHydrationWarning>
+                  {updatedAt
+                    ? `Updated ${new Date(updatedAt).toLocaleDateString()}`
+                    : `Added ${new Date(createdAt!).toLocaleDateString()}`}
                 </span>
               </div>
             )}
@@ -187,13 +230,17 @@ export function CourseCard({
                 />
               ) : (
                 <div className="relative h-full w-full rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 border-2 border-white shadow-sm">
-                  {teacherName.charAt(0)}
+                  {teacherName?.[0]?.toUpperCase() || "T"}
                 </div>
               )}
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-[11px] font-extrabold text-slate-800 line-clamp-1 leading-none mb-0.5">{teacherName}</span>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Instructor</span>
+              <span className="text-[11px] font-extrabold text-slate-800 line-clamp-1 leading-none mb-0.5">
+                {teacherName || "Instructor"}
+              </span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                Instructor
+              </span>
             </div>
           </div>
 
@@ -202,12 +249,16 @@ export function CourseCard({
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1">
                 <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                <span className="text-xs font-black text-slate-900 italic">{Number(rating).toFixed(1)}</span>
+                <span className="text-xs font-black text-slate-900 italic">
+                  {Number(rating).toFixed(1)}
+                </span>
               </div>
 
               <div className="flex items-center gap-1.5 text-slate-400">
                 <Users className="h-3.5 w-3.5" />
-                <span className="text-[10px] font-bold uppercase tracking-tighter">{formatCount(enrollmentCount)}</span>
+                <span className="text-[10px] font-bold uppercase tracking-tighter">
+                  {formatCount(enrollmentCount)}
+                </span>
               </div>
             </div>
 
@@ -232,24 +283,35 @@ export function CourseCard({
   );
 }
 
-export function CourseCardSkeleton({ size = "grid" }: { size?: "grid" | "list" }) {
+export function CourseCardSkeleton({
+  size = "grid",
+}: {
+  size?: "grid" | "list";
+}) {
   return (
     <Card
       className={cn(
         courseCardVariants({ size }),
-        "bg-white border-slate-100 rounded-[2rem] p-3 shadow-none"
+        "bg-white border-slate-100 rounded-[2rem] p-3 shadow-none",
       )}
     >
       {/* Thumbnail skeleton */}
       <div
         className={cn(
           "relative rounded-[1.5rem] overflow-hidden bg-slate-100 animate-pulse",
-          size === "grid" ? "aspect-[16/10] w-full" : "w-full md:w-64 h-48 shrink-0"
+          size === "grid"
+            ? "aspect-[16/10] w-full"
+            : "w-full md:w-64 h-48 shrink-0",
         )}
       />
 
       {/* Content skeleton */}
-      <div className={cn("flex flex-col gap-3 p-4", size === "list" && "flex-1 justify-center")}>
+      <div
+        className={cn(
+          "flex flex-col gap-3 p-4",
+          size === "list" && "flex-1 justify-center",
+        )}
+      >
         <div className="space-y-2">
           <Skeleton className="h-6 w-3/4 bg-slate-100" />
           {size === "list" && (

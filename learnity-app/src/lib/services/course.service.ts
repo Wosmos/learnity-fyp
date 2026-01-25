@@ -1,7 +1,7 @@
 /**
  * Course Service Implementation
  * Handles all course management operations
- * 
+ *
  * Requirements covered:
  * - 1.1: Course creation with title, description, category
  * - 1.4: Tag management (max 5 tags)
@@ -10,24 +10,24 @@
  * - 3.1-3.5: Course discovery and browsing
  */
 
-import { PrismaClient, Course, CourseStatus, Difficulty } from '@prisma/client';
-import { 
-  ICourseService, 
-  CourseWithDetails, 
+import { PrismaClient, Course, CourseStatus, Difficulty } from "@prisma/client";
+import {
+  ICourseService,
+  CourseWithDetails,
   CourseWithTeacher,
   PaginatedCourses,
   PublishValidationResult,
   CourseError,
   CourseErrorCode,
-} from '@/lib/interfaces/course.interface';
-import { 
-  CreateCourseData, 
-  UpdateCourseData, 
+} from "@/lib/interfaces/course.interface";
+import {
+  CreateCourseData,
+  UpdateCourseData,
   CourseFiltersData,
   CreateCourseSchema,
   UpdateCourseSchema,
-} from '@/lib/validators/course';
-import { prisma as defaultPrisma } from '@/lib/prisma';
+} from "@/lib/validators/course";
+import { prisma as defaultPrisma } from "@/lib/prisma";
 
 /**
  * CourseService - Implements course management business logic
@@ -44,7 +44,10 @@ export class CourseService implements ICourseService {
    * Create a new course
    * Requirements: 1.1, 1.10
    */
-  async createCourse(teacherId: string, data: CreateCourseData): Promise<Course> {
+  async createCourse(
+    teacherId: string,
+    data: CreateCourseData,
+  ): Promise<Course> {
     // Validate input with Zod schema
     const validatedData = CreateCourseSchema.parse(data);
 
@@ -55,9 +58,9 @@ export class CourseService implements ICourseService {
 
     if (!category) {
       throw new CourseError(
-        'Category not found',
+        "Category not found",
         CourseErrorCode.CATEGORY_NOT_FOUND,
-        404
+        404,
       );
     }
 
@@ -90,17 +93,17 @@ export class CourseService implements ICourseService {
    * Requirements: 2.4
    */
   async updateCourse(
-    courseId: string, 
-    teacherId: string, 
-    data: UpdateCourseData
+    courseId: string,
+    teacherId: string,
+    data: UpdateCourseData,
   ): Promise<Course> {
     // Validate ownership
     const isOwner = await this.isOwner(courseId, teacherId);
     if (!isOwner) {
       throw new CourseError(
-        'You do not have permission to update this course',
+        "You do not have permission to update this course",
         CourseErrorCode.NOT_COURSE_OWNER,
-        403
+        403,
       );
     }
 
@@ -115,36 +118,45 @@ export class CourseService implements ICourseService {
 
       if (!category) {
         throw new CourseError(
-          'Category not found',
+          "Category not found",
           CourseErrorCode.CATEGORY_NOT_FOUND,
-          404
+          404,
         );
       }
     }
 
     // Build update data, handling null values properly
     const updateData: Record<string, unknown> = {};
-    
+
     if (validatedData.title !== undefined) {
       updateData.title = validatedData.title;
       // Regenerate slug if title changes
       updateData.slug = await this.generateSlug(validatedData.title);
     }
-    if (validatedData.description !== undefined) updateData.description = validatedData.description;
-    if (validatedData.categoryId !== undefined) updateData.categoryId = validatedData.categoryId;
-    if (validatedData.difficulty !== undefined) updateData.difficulty = validatedData.difficulty;
+    if (validatedData.description !== undefined)
+      updateData.description = validatedData.description;
+    if (validatedData.categoryId !== undefined)
+      updateData.categoryId = validatedData.categoryId;
+    if (validatedData.difficulty !== undefined)
+      updateData.difficulty = validatedData.difficulty;
     if (validatedData.tags !== undefined) updateData.tags = validatedData.tags;
-    if (validatedData.thumbnailUrl !== undefined) updateData.thumbnailUrl = validatedData.thumbnailUrl;
-    if (validatedData.isFree !== undefined) updateData.isFree = validatedData.isFree;
-    if (validatedData.price !== undefined) updateData.price = validatedData.price;
+    if (validatedData.thumbnailUrl !== undefined)
+      updateData.thumbnailUrl = validatedData.thumbnailUrl;
+    if (validatedData.isFree !== undefined)
+      updateData.isFree = validatedData.isFree;
+    if (validatedData.price !== undefined)
+      updateData.price = validatedData.price;
     if (validatedData.requireSequentialProgress !== undefined) {
-      updateData.requireSequentialProgress = validatedData.requireSequentialProgress;
+      updateData.requireSequentialProgress =
+        validatedData.requireSequentialProgress;
     }
     if (validatedData.whatsappGroupLink !== undefined) {
       updateData.whatsappGroupLink = validatedData.whatsappGroupLink;
     }
-    if (validatedData.contactEmail !== undefined) updateData.contactEmail = validatedData.contactEmail;
-    if (validatedData.contactWhatsapp !== undefined) updateData.contactWhatsapp = validatedData.contactWhatsapp;
+    if (validatedData.contactEmail !== undefined)
+      updateData.contactEmail = validatedData.contactEmail;
+    if (validatedData.contactWhatsapp !== undefined)
+      updateData.contactWhatsapp = validatedData.contactWhatsapp;
 
     const course = await this.prisma.course.update({
       where: { id: courseId },
@@ -163,9 +175,9 @@ export class CourseService implements ICourseService {
     const isOwner = await this.isOwner(courseId, teacherId);
     if (!isOwner) {
       throw new CourseError(
-        'You do not have permission to publish this course',
+        "You do not have permission to publish this course",
         CourseErrorCode.NOT_COURSE_OWNER,
-        403
+        403,
       );
     }
 
@@ -173,9 +185,9 @@ export class CourseService implements ICourseService {
     const validation = await this.validateForPublish(courseId);
     if (!validation.isValid) {
       throw new CourseError(
-        validation.errors.join(', '),
+        validation.errors.join(", "),
         CourseErrorCode.CANNOT_PUBLISH_EMPTY,
-        400
+        400,
       );
     }
 
@@ -203,9 +215,9 @@ export class CourseService implements ICourseService {
     const isOwner = await this.isOwner(courseId, teacherId);
     if (!isOwner) {
       throw new CourseError(
-        'You do not have permission to unpublish this course',
+        "You do not have permission to unpublish this course",
         CourseErrorCode.NOT_COURSE_OWNER,
-        403
+        403,
       );
     }
 
@@ -228,9 +240,9 @@ export class CourseService implements ICourseService {
     const isOwner = await this.isOwner(courseId, teacherId);
     if (!isOwner) {
       throw new CourseError(
-        'You do not have permission to delete this course',
+        "You do not have permission to delete this course",
         CourseErrorCode.NOT_COURSE_OWNER,
-        403
+        403,
       );
     }
 
@@ -246,18 +258,18 @@ export class CourseService implements ICourseService {
 
     if (!course) {
       throw new CourseError(
-        'Course not found',
+        "Course not found",
         CourseErrorCode.COURSE_NOT_FOUND,
-        404
+        404,
       );
     }
 
     // Only allow deletion of DRAFT courses or courses with no enrollments
     if (course.status !== CourseStatus.DRAFT && course._count.enrollments > 0) {
       throw new CourseError(
-        'Cannot delete a published course with enrolled students. Please unpublish instead.',
+        "Cannot delete a published course with enrolled students. Please unpublish instead.",
         CourseErrorCode.CANNOT_DELETE_WITH_ENROLLMENTS,
-        400
+        400,
       );
     }
 
@@ -285,19 +297,10 @@ export class CourseService implements ICourseService {
         },
         category: true,
         sections: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
           include: {
             lessons: {
-              orderBy: { order: 'asc' },
-              include: {
-                quiz: {
-                  include: {
-                    questions: {
-                      orderBy: { order: 'asc' },
-                    },
-                  },
-                },
-              },
+              orderBy: { order: "asc" },
             },
           },
         },
@@ -324,15 +327,15 @@ export class CourseService implements ICourseService {
         },
         category: true,
         sections: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
           include: {
             lessons: {
-              orderBy: { order: 'asc' },
+              orderBy: { order: "asc" },
               include: {
                 quiz: {
                   include: {
                     questions: {
-                      orderBy: { order: 'asc' },
+                      orderBy: { order: "asc" },
                     },
                   },
                 },
@@ -364,7 +367,7 @@ export class CourseService implements ICourseService {
         },
         category: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     return courses as CourseWithTeacher[];
@@ -374,8 +377,11 @@ export class CourseService implements ICourseService {
    * Get published courses with filtering and pagination
    * Requirements: 3.1, 3.2, 3.4
    */
-  async getPublishedCourses(filters: CourseFiltersData): Promise<PaginatedCourses> {
-    const { categoryId, difficulty, minRating, isFree, sortBy, page, limit } = filters;
+  async getPublishedCourses(
+    filters: CourseFiltersData,
+  ): Promise<PaginatedCourses> {
+    const { categoryId, difficulty, minRating, isFree, sortBy, page, limit } =
+      filters;
 
     // Build where clause
     const where: Record<string, unknown> = {
@@ -390,17 +396,17 @@ export class CourseService implements ICourseService {
     // Build orderBy clause
     let orderBy: Record<string, string> = {};
     switch (sortBy) {
-      case 'popular':
-        orderBy = { enrollmentCount: 'desc' };
+      case "popular":
+        orderBy = { enrollmentCount: "desc" };
         break;
-      case 'rating':
-        orderBy = { averageRating: 'desc' };
+      case "rating":
+        orderBy = { averageRating: "desc" };
         break;
-      case 'newest':
-        orderBy = { publishedAt: 'desc' };
+      case "newest":
+        orderBy = { publishedAt: "desc" };
         break;
       default:
-        orderBy = { enrollmentCount: 'desc' };
+        orderBy = { enrollmentCount: "desc" };
     }
 
     // Get total count
@@ -418,19 +424,9 @@ export class CourseService implements ICourseService {
             profilePicture: true,
           },
         },
-        category: true,
-        sections: {
-          orderBy: { order: 'asc' },
-          take: 1,
-          include: {
-            lessons: {
-              where: { type: 'VIDEO', youtubeId: { not: null } },
-              orderBy: { order: 'asc' },
-              take: 1,
-              select: { youtubeId: true }
-            }
-          }
-        }
+        category: {
+          select: { id: true, name: true, slug: true }
+        },
       },
       orderBy,
       skip: (page - 1) * limit,
@@ -439,27 +435,8 @@ export class CourseService implements ICourseService {
 
     const totalPages = Math.ceil(total / limit);
 
-    // Map courses to handle null thumbnails
-    const coursesWithThumbnails = courses.map(course => {
-      let thumbnailUrl = course.thumbnailUrl;
-      
-      if (!thumbnailUrl) {
-        // Try to get thumbnail from the first video lesson
-        const firstVideoLesson = (course as any).sections[0]?.lessons[0];
-        if (firstVideoLesson?.youtubeId) {
-          thumbnailUrl = `https://img.youtube.com/vi/${firstVideoLesson.youtubeId}/mqdefault.jpg`;
-        }
-      }
-
-      return {
-        ...course,
-        thumbnailUrl,
-        sections: undefined
-      };
-    });
-
     return {
-      courses: coursesWithThumbnails as any,
+      courses: courses as any,
       total,
       page,
       limit,
@@ -472,15 +449,19 @@ export class CourseService implements ICourseService {
    * Search courses by title, description, and tags
    * Requirements: 3.3
    */
-  async searchCourses(query: string, filters: CourseFiltersData): Promise<PaginatedCourses> {
-    const { categoryId, difficulty, minRating, isFree, sortBy, page, limit } = filters;
+  async searchCourses(
+    query: string,
+    filters: CourseFiltersData,
+  ): Promise<PaginatedCourses> {
+    const { categoryId, difficulty, minRating, isFree, sortBy, page, limit } =
+      filters;
 
     // Build where clause with search
     const where: Record<string, unknown> = {
       status: CourseStatus.PUBLISHED,
       OR: [
-        { title: { contains: query, mode: 'insensitive' } },
-        { description: { contains: query, mode: 'insensitive' } },
+        { title: { contains: query, mode: "insensitive" } },
+        { description: { contains: query, mode: "insensitive" } },
         { tags: { has: query } },
       ],
     };
@@ -493,17 +474,17 @@ export class CourseService implements ICourseService {
     // Build orderBy clause
     let orderBy: Record<string, string> = {};
     switch (sortBy) {
-      case 'popular':
-        orderBy = { enrollmentCount: 'desc' };
+      case "popular":
+        orderBy = { enrollmentCount: "desc" };
         break;
-      case 'rating':
-        orderBy = { averageRating: 'desc' };
+      case "rating":
+        orderBy = { averageRating: "desc" };
         break;
-      case 'newest':
-        orderBy = { publishedAt: 'desc' };
+      case "newest":
+        orderBy = { publishedAt: "desc" };
         break;
       default:
-        orderBy = { enrollmentCount: 'desc' };
+        orderBy = { enrollmentCount: "desc" };
     }
 
     // Get total count
@@ -521,19 +502,9 @@ export class CourseService implements ICourseService {
             profilePicture: true,
           },
         },
-        category: true,
-        sections: {
-          orderBy: { order: 'asc' },
-          take: 1,
-          include: {
-            lessons: {
-              where: { type: 'VIDEO', youtubeId: { not: null } },
-              orderBy: { order: 'asc' },
-              take: 1,
-              select: { youtubeId: true }
-            }
-          }
-        }
+        category: {
+          select: { id: true, name: true, slug: true }
+        },
       },
       orderBy,
       skip: (page - 1) * limit,
@@ -542,27 +513,8 @@ export class CourseService implements ICourseService {
 
     const totalPages = Math.ceil(total / limit);
 
-    // Map courses to handle null thumbnails
-    const coursesWithThumbnails = courses.map(course => {
-      let thumbnailUrl = course.thumbnailUrl;
-      
-      if (!thumbnailUrl) {
-        // Try to get thumbnail from the first video lesson
-        const firstVideoLesson = (course as any).sections[0]?.lessons[0];
-        if (firstVideoLesson?.youtubeId) {
-          thumbnailUrl = `https://img.youtube.com/vi/${firstVideoLesson.youtubeId}/mqdefault.jpg`;
-        }
-      }
-
-      return {
-        ...course,
-        thumbnailUrl,
-        sections: undefined
-      };
-    });
-
     return {
-      courses: coursesWithThumbnails as any,
+      courses: courses as any,
       total,
       page,
       limit,
@@ -589,7 +541,7 @@ export class CourseService implements ICourseService {
     if (!course) {
       return {
         isValid: false,
-        errors: ['Course not found'],
+        errors: ["Course not found"],
         sectionCount: 0,
         lessonCount: 0,
       };
@@ -599,24 +551,24 @@ export class CourseService implements ICourseService {
     const sectionCount = course.sections.length;
     const lessonCount = course.sections.reduce(
       (total, section) => total + section.lessons.length,
-      0
+      0,
     );
 
     // Requirement 2.1: At least one section with one lesson
     if (sectionCount === 0) {
-      errors.push('Course must have at least one section');
+      errors.push("Course must have at least one section");
     }
 
     if (lessonCount === 0) {
-      errors.push('Course must have at least one lesson');
+      errors.push("Course must have at least one lesson");
     }
 
     // Check if any section has lessons
     const sectionsWithLessons = course.sections.filter(
-      (section) => section.lessons.length > 0
+      (section) => section.lessons.length > 0,
     );
     if (sectionCount > 0 && sectionsWithLessons.length === 0) {
-      errors.push('At least one section must contain a lesson');
+      errors.push("At least one section must contain a lesson");
     }
 
     return {
@@ -638,9 +590,9 @@ export class CourseService implements ICourseService {
 
     if (!course) {
       throw new CourseError(
-        'Course not found',
+        "Course not found",
         CourseErrorCode.COURSE_NOT_FOUND,
-        404
+        404,
       );
     }
 
@@ -655,9 +607,9 @@ export class CourseService implements ICourseService {
     let baseSlug = title
       .toLowerCase()
       .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
     // Check if slug exists
     let slug = baseSlug;
@@ -720,16 +672,19 @@ export class CourseService implements ICourseService {
       select: { rating: true },
     });
 
-    const averageRating = reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-      : 0;
+    const averageRating =
+      reviews.length > 0
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+        : 0;
 
     // Pick a thumbnail if missing
     let thumbnailUrl = course.thumbnailUrl;
     if (!thumbnailUrl) {
       // Find the first video lesson with a youtubeId
       for (const section of course.sections) {
-        const firstVideo = section.lessons.find(l => l.type === 'VIDEO' && l.youtubeId);
+        const firstVideo = section.lessons.find(
+          (l) => l.type === "VIDEO" && l.youtubeId,
+        );
         if (firstVideo) {
           thumbnailUrl = `https://img.youtube.com/vi/${firstVideo.youtubeId}/mqdefault.jpg`;
           break;

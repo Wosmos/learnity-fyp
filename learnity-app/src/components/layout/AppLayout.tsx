@@ -132,8 +132,9 @@ export function AppLayout({
   }
 
   const navLinks = [
-    { label: 'Our Teachers', href: '/teachers' },
     { label: 'About Us', href: '/about' },
+    { label: 'Our Teachers', href: '/teachers' },
+    { label: 'Courses', href: '/courses' },
   ];
 
   const dashboardRoute = getDashboardRoute(claims?.role || UserRole.STUDENT);

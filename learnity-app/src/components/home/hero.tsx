@@ -37,7 +37,7 @@ function hero() {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-          <Link href="/auth/register/student">
+          <Link href="/teachers">
             <Button
               size="lg"
               variant="cta"

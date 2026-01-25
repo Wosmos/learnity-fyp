@@ -65,7 +65,7 @@ export default async function Home() {
               description="Connect with 500+ verified expert tutors for personalized 1-on-1 lessons. Join study groups and accelerate your learning journey."
               primaryAction={{
                 label: 'Find your tutor',
-                href: '/auth/register/student',
+                href: '/teachers',
                 variant: 'cta',
               }}
               stats={

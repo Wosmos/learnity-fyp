@@ -76,8 +76,8 @@ export const SmartLink = forwardRef<HTMLAnchorElement, SmartLinkProps>(
         {...(prefetchStrategy === 'hover' ? {
           onMouseEnter: (e: React.MouseEvent<HTMLAnchorElement>) => {
             setTimeout(() => {
-              if (handleMouseEnter) {
-                handleMouseEnter();
+              if (prefetchHandlers.onMouseEnter) {
+                prefetchHandlers.onMouseEnter();
               }
             }, prefetchDelay);
 

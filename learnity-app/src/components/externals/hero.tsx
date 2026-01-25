@@ -63,7 +63,7 @@ export function Hero({
 
   return (
     <section className={cn(
-      'relative min-h-[70vh] flex items-center justify-center pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden',
+      'relative min-h-[70vh] flex items-center justify-center pt-16 pb-10 overflow-hidden',
       className
     )}>
       {/* 1. Enhanced Background: Added Mesh Gradients for depth */}

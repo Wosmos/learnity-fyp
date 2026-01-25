@@ -13,7 +13,7 @@ export function TeacherProfileHeader({ teacher }: TeacherProfileHeaderProps) {
   const router = useRouter();
 
   return (
-    <nav className="bg-white/80 backdrop-blur-xl border-b border-slate-100 sticky top-0 z-50 shadow-sm">
+    <nav className="bg-white/80 backdrop-blur-xl border-b border-slate-100 sticky top-0 z-40 shadow-sm">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <button

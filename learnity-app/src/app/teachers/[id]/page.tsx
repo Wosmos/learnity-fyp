@@ -97,6 +97,8 @@ async function getTeacher(id: string) {
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
   const teacher = await getTeacher(id);
+  console.log(teacher, 'teacher data on server ');
+  
 
   if (!teacher) {
     return {

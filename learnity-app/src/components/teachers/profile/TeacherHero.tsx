@@ -19,7 +19,7 @@ export function TeacherHero({ teacher, gradient, initials }: TeacherHeroProps) {
   return (
     <div className="relative group">
       {/* Banner */}
-      <div className="relative h-[300px] lg:h-[400px] w-full overflow-hidden">
+      <div className="relative min-h-[calc(60vh-100px)] w-full overflow-hidden">
         {teacher.bannerImage ? (
           <img
             src={teacher.bannerImage}

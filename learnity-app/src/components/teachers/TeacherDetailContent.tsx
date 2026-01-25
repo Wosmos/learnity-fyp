@@ -12,6 +12,9 @@ import { TeacherAbout } from "./profile/TeacherAbout";
 import { TeacherEducation } from "./profile/TeacherEducation";
 import { TeacherMaterials } from "./profile/TeacherMaterials";
 import { TeacherReviews } from "./profile/TeacherReviews";
+import { TeacherCourses } from "./profile/TeacherCourses";
+import { TeacherActualReviews } from "./profile/TeacherActualReviews";
+import { SimilarTeachers } from "./profile/SimilarTeachers";
 import { TeacherSidebar } from "./profile/TeacherSidebar";
 import { TeacherData, Testimonial } from "./profile/types";
 
@@ -40,7 +43,7 @@ export function TeacherDetailContent({
   const gradient =
     gradients[
       Math.abs(
-        teacher.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
+        teacher.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0),
       ) % gradients.length
     ];
 
@@ -61,6 +64,7 @@ export function TeacherDetailContent({
     async function fetchTeacherData() {
       try {
         const response = await fetch(`/api/teachers/${teacher.id}`);
+        console.log(response, 'teachers data on client');
         const data = await response.json();
         if (data.success) {
           setTeacher(data.teacher);
@@ -100,6 +104,19 @@ export function TeacherDetailContent({
 
             <TeacherMaterials teacher={teacher} />
 
+            {/* Teacher's Courses */}
+            <TeacherCourses 
+              teacherId={teacher.id} 
+              teacherName={teacher.name}
+            />
+
+            {/* Actual Student Reviews */}
+            <TeacherActualReviews 
+              teacherId={teacher.id} 
+              teacherName={teacher.name}
+            />
+
+            {/* Original Testimonials (if available) */}
             <TeacherReviews
               teacher={teacher}
               testimonials={testimonials}
@@ -110,6 +127,13 @@ export function TeacherDetailContent({
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
             <TeacherSidebar teacher={teacher} />
+
+            {/* Similar Teachers */}
+            <SimilarTeachers 
+              teacherId={teacher.id}
+              subjects={teacher.subjects}
+              teacherName={teacher.name}
+            />
           </div>
         </div>
       </div>
