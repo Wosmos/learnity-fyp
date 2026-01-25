@@ -1,7 +1,7 @@
 /**
  * Progress Service Implementation
  * Handles all progress tracking operations
- * 
+ *
  * Requirements covered:
  * - 5.3: Track video watch progress and mark lesson complete when 90% watched
  * - 5.4: Award 10 XP points when lesson is completed
@@ -16,7 +16,12 @@
  * - 7.7: Show time spent on course
  */
 
-import { PrismaClient, LessonProgress, EnrollmentStatus, XPReason } from '@prisma/client';
+import {
+  PrismaClient,
+  LessonProgress,
+  EnrollmentStatus,
+  XPReason,
+} from '@prisma/client';
 import {
   IProgressService,
   CourseProgress,
@@ -49,7 +54,6 @@ export class ProgressService implements IProgressService {
   constructor(prismaClient?: PrismaClient) {
     this.prisma = prismaClient || defaultPrisma;
   }
-
 
   /**
    * Update video watch progress
@@ -111,7 +115,10 @@ export class ProgressService implements IProgressService {
 
     // Check if section is unlocked (if sequential progress is required)
     if (lesson.section.course.requireSequentialProgress) {
-      const isUnlocked = await this.isSectionUnlocked(studentId, lesson.sectionId);
+      const isUnlocked = await this.isSectionUnlocked(
+        studentId,
+        lesson.sectionId
+      );
       if (!isUnlocked) {
         throw new ProgressError(
           'This section is locked. Complete the previous section first.',
@@ -144,7 +151,8 @@ export class ProgressService implements IProgressService {
     }
 
     // Calculate if should auto-complete (90% threshold)
-    const shouldAutoComplete = lesson.duration > 0 && 
+    const shouldAutoComplete =
+      lesson.duration > 0 &&
       watchedSeconds >= lesson.duration * COMPLETION_THRESHOLD;
 
     // Update or create progress
@@ -152,7 +160,10 @@ export class ProgressService implements IProgressService {
       lessonProgress = await this.prisma.lessonProgress.update({
         where: { id: lessonProgress.id },
         data: {
-          watchedSeconds: Math.max(lessonProgress.watchedSeconds, watchedSeconds),
+          watchedSeconds: Math.max(
+            lessonProgress.watchedSeconds,
+            watchedSeconds
+          ),
           lastPosition: lastPosition ?? watchedSeconds,
           completed: shouldAutoComplete,
           completedAt: shouldAutoComplete ? new Date() : null,
@@ -196,7 +207,10 @@ export class ProgressService implements IProgressService {
    * Mark a lesson as complete
    * Requirements: 5.4, 5.5, 7.5
    */
-  async markLessonComplete(studentId: string, lessonId: string): Promise<MarkCompleteResult> {
+  async markLessonComplete(
+    studentId: string,
+    lessonId: string
+  ): Promise<MarkCompleteResult> {
     // Get lesson with section and course info
     const lesson = await this.prisma.lesson.findUnique({
       where: { id: lessonId },
@@ -238,7 +252,10 @@ export class ProgressService implements IProgressService {
 
     // Check if section is unlocked
     if (lesson.section.course.requireSequentialProgress) {
-      const isUnlocked = await this.isSectionUnlocked(studentId, lesson.sectionId);
+      const isUnlocked = await this.isSectionUnlocked(
+        studentId,
+        lesson.sectionId
+      );
       if (!isUnlocked) {
         throw new ProgressError(
           'This section is locked. Complete the previous section first.',
@@ -266,7 +283,10 @@ export class ProgressService implements IProgressService {
           data: {
             completed: true,
             completedAt: new Date(),
-            watchedSeconds: Math.max(lessonProgress.watchedSeconds, lesson.duration),
+            watchedSeconds: Math.max(
+              lessonProgress.watchedSeconds,
+              lesson.duration
+            ),
           },
         });
       }
@@ -293,10 +313,16 @@ export class ProgressService implements IProgressService {
     const newStreak = await this.updateStreak(studentId);
 
     // Update enrollment progress
-    const enrollmentProgress = await this.updateEnrollmentProgress(studentId, courseId);
+    const enrollmentProgress = await this.updateEnrollmentProgress(
+      studentId,
+      courseId
+    );
 
     // Check if course is completed
-    const courseCompleted = await this.checkCourseCompletion(studentId, courseId);
+    const courseCompleted = await this.checkCourseCompletion(
+      studentId,
+      courseId
+    );
 
     // Update enrollment last accessed
     await this.prisma.enrollment.update({
@@ -316,7 +342,10 @@ export class ProgressService implements IProgressService {
   /**
    * Get lesson progress for a student
    */
-  async getLessonProgress(studentId: string, lessonId: string): Promise<LessonProgress | null> {
+  async getLessonProgress(
+    studentId: string,
+    lessonId: string
+  ): Promise<LessonProgress | null> {
     return this.prisma.lessonProgress.findUnique({
       where: {
         studentId_lessonId: { studentId, lessonId },
@@ -324,12 +353,14 @@ export class ProgressService implements IProgressService {
     });
   }
 
-
   /**
    * Get overall course progress for a student
    * Requirements: 7.1
    */
-  async getCourseProgress(studentId: string, courseId: string): Promise<CourseProgress> {
+  async getCourseProgress(
+    studentId: string,
+    courseId: string
+  ): Promise<CourseProgress> {
     // Get course with all sections and lessons
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
@@ -422,9 +453,10 @@ export class ProgressService implements IProgressService {
       }
 
       const sectionTotalLessons = section.lessons.length;
-      const sectionProgressPercentage = sectionTotalLessons > 0
-        ? Math.round((sectionCompletedLessons / sectionTotalLessons) * 100)
-        : 0;
+      const sectionProgressPercentage =
+        sectionTotalLessons > 0
+          ? Math.round((sectionCompletedLessons / sectionTotalLessons) * 100)
+          : 0;
 
       // Determine if section is unlocked
       const isUnlocked = course.requireSequentialProgress
@@ -443,13 +475,15 @@ export class ProgressService implements IProgressService {
       });
 
       // Update for next section - unlocked if this section is 80% complete
-      previousSectionComplete = sectionProgressPercentage >= SECTION_UNLOCK_THRESHOLD * 100;
+      previousSectionComplete =
+        sectionProgressPercentage >= SECTION_UNLOCK_THRESHOLD * 100;
     }
 
     // Calculate overall progress percentage
-    const progressPercentage = totalLessons > 0
-      ? Math.round((completedLessons / totalLessons) * 100)
-      : 0;
+    const progressPercentage =
+      totalLessons > 0
+        ? Math.round((completedLessons / totalLessons) * 100)
+        : 0;
 
     return {
       courseId,
@@ -469,7 +503,10 @@ export class ProgressService implements IProgressService {
    * Get section progress percentage
    * Requirements: 7.3
    */
-  async getSectionProgress(studentId: string, sectionId: string): Promise<number> {
+  async getSectionProgress(
+    studentId: string,
+    sectionId: string
+  ): Promise<number> {
     // Get section with lessons
     const section = await this.prisma.section.findUnique({
       where: { id: sectionId },
@@ -509,7 +546,10 @@ export class ProgressService implements IProgressService {
    * Check if a section is unlocked for a student
    * Requirements: 5.8
    */
-  async isSectionUnlocked(studentId: string, sectionId: string): Promise<boolean> {
+  async isSectionUnlocked(
+    studentId: string,
+    sectionId: string
+  ): Promise<boolean> {
     // Get section with course info
     const section = await this.prisma.section.findUnique({
       where: { id: sectionId },
@@ -555,7 +595,10 @@ export class ProgressService implements IProgressService {
     }
 
     // Check if previous section is at least 80% complete
-    const previousProgress = await this.getSectionProgress(studentId, previousSection.id);
+    const previousProgress = await this.getSectionProgress(
+      studentId,
+      previousSection.id
+    );
     return previousProgress >= SECTION_UNLOCK_THRESHOLD * 100;
   }
 
@@ -563,7 +606,10 @@ export class ProgressService implements IProgressService {
    * Get the next lesson recommendation
    * Requirements: 5.7
    */
-  async getNextLesson(studentId: string, courseId: string): Promise<NextLessonRecommendation> {
+  async getNextLesson(
+    studentId: string,
+    courseId: string
+  ): Promise<NextLessonRecommendation> {
     // Get course progress
     const progress = await this.getCourseProgress(studentId, courseId);
 
@@ -658,7 +704,6 @@ export class ProgressService implements IProgressService {
     return result._sum.watchedSeconds ?? 0;
   }
 
-
   // ============================================
   // PRIVATE HELPER METHODS
   // ============================================
@@ -667,7 +712,10 @@ export class ProgressService implements IProgressService {
    * Award XP for completing a lesson
    * @private
    */
-  private async awardLessonXP(studentId: string, lessonId: string): Promise<number> {
+  private async awardLessonXP(
+    studentId: string,
+    lessonId: string
+  ): Promise<number> {
     // Get or create user progress
     let userProgress = await this.prisma.userProgress.findUnique({
       where: { userId: studentId },
@@ -713,7 +761,10 @@ export class ProgressService implements IProgressService {
    * Update enrollment progress percentage
    * @private
    */
-  private async updateEnrollmentProgress(studentId: string, courseId: string): Promise<number> {
+  private async updateEnrollmentProgress(
+    studentId: string,
+    courseId: string
+  ): Promise<number> {
     // Get course with all lessons
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
@@ -808,10 +859,10 @@ export class ProgressService implements IProgressService {
     // Check if last activity was yesterday (streak continues)
     const lastActivityDate = new Date(lastActivity);
     lastActivityDate.setHours(0, 0, 0, 0);
-    
+
     const today = new Date(now);
     today.setHours(0, 0, 0, 0);
-    
+
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
@@ -845,7 +896,10 @@ export class ProgressService implements IProgressService {
    * Check if course is completed (all lessons done, all quizzes passed)
    * @private
    */
-  private async checkCourseCompletion(studentId: string, courseId: string): Promise<boolean> {
+  private async checkCourseCompletion(
+    studentId: string,
+    courseId: string
+  ): Promise<boolean> {
     // Get course with all lessons and quizzes
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
@@ -869,9 +923,7 @@ export class ProgressService implements IProgressService {
     // Get all lesson IDs and quiz IDs
     const allLessons = course.sections.flatMap(s => s.lessons);
     const allLessonIds = allLessons.map(l => l.id);
-    const allQuizIds = allLessons
-      .filter(l => l.quiz)
-      .map(l => l.quiz!.id);
+    const allQuizIds = allLessons.filter(l => l.quiz).map(l => l.quiz!.id);
 
     // Check if all lessons are completed
     const completedLessonsCount = await this.prisma.lessonProgress.count({

@@ -8,7 +8,10 @@
 
 import { StudentRoute } from '@/components/auth/ProtectedRoute';
 import { StudentSidebar } from '@/components/layout/StudentSidebar';
-import { DashboardNavbar, studentNavbarConfig } from '@/components/layout/DashboardNavbar';
+import {
+  DashboardNavbar,
+  studentNavbarConfig,
+} from '@/components/layout/DashboardNavbar';
 
 interface StudentLayoutClientProps {
   children: React.ReactNode;
@@ -17,19 +20,17 @@ interface StudentLayoutClientProps {
 export function StudentLayoutClient({ children }: StudentLayoutClientProps) {
   return (
     <StudentRoute>
-      <div className="flex min-h-screen bg-slate-50">
+      <div className='flex min-h-screen bg-slate-50'>
         {/* Student Sidebar Navigation */}
         <StudentSidebar />
-        
+
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col overflow-x-hidden">
+        <div className='flex-1 flex flex-col overflow-x-hidden'>
           {/* Top Navbar with Stats */}
           <DashboardNavbar config={studentNavbarConfig} />
-          
+
           {/* Page Content */}
-          <main className="flex-1">
-            {children}
-          </main>
+          <main className='flex-1'>{children}</main>
         </div>
       </div>
     </StudentRoute>

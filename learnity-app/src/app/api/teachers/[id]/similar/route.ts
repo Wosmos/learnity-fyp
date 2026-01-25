@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/config/database";
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/config/database';
 
 function calculateIsTopRated(
   rating: number,
@@ -21,8 +21,8 @@ export async function GET(
 ) {
   const { id } = await context.params;
   const { searchParams } = new URL(request.url);
-  const subjectsParam = searchParams.get("subjects");
-  
+  const subjectsParam = searchParams.get('subjects');
+
   if (!subjectsParam) {
     return NextResponse.json({
       success: true,
@@ -30,17 +30,20 @@ export async function GET(
     });
   }
 
-  const subjects = subjectsParam.split(",").map(s => s.trim()).filter(Boolean);
+  const subjects = subjectsParam
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
 
   try {
     // Find teachers who teach similar subjects (excluding current teacher)
     const teachers = await prisma.user.findMany({
       where: {
         id: { not: id },
-        role: "TEACHER",
+        role: 'TEACHER',
         isActive: true,
         teacherProfile: {
-          applicationStatus: "APPROVED",
+          applicationStatus: 'APPROVED',
           subjects: {
             hasSome: subjects, // PostgreSQL array overlap operator
           },
@@ -54,23 +57,26 @@ export async function GET(
 
     // Calculate similarity score and sort by relevance
     const teachersWithScore = teachers
-      .map((teacher) => {
+      .map(teacher => {
         if (!teacher.teacherProfile) return null;
 
         const profile = teacher.teacherProfile;
         const teacherSubjects = profile.subjects || [];
-        
+
         // Calculate similarity score based on subject overlap
-        const commonSubjects = subjects.filter(subject => 
-          teacherSubjects.some(ts => 
-            ts.toLowerCase().includes(subject.toLowerCase()) ||
-            subject.toLowerCase().includes(ts.toLowerCase())
+        const commonSubjects = subjects.filter(subject =>
+          teacherSubjects.some(
+            ts =>
+              ts.toLowerCase().includes(subject.toLowerCase()) ||
+              subject.toLowerCase().includes(ts.toLowerCase())
           )
         );
-        
-        const similarityScore = commonSubjects.length / Math.max(subjects.length, teacherSubjects.length);
-        const rating = parseFloat(profile.rating?.toString() || "0");
-        
+
+        const similarityScore =
+          commonSubjects.length /
+          Math.max(subjects.length, teacherSubjects.length);
+        const rating = parseFloat(profile.rating?.toString() || '0');
+
         // Boost score for highly rated teachers
         const finalScore = similarityScore + (rating / 5) * 0.2;
 
@@ -86,14 +92,18 @@ export async function GET(
         if (b.score !== a.score) {
           return b.score - a.score;
         }
-        const ratingA = parseFloat(a.teacher.teacherProfile!.rating?.toString() || "0");
-        const ratingB = parseFloat(b.teacher.teacherProfile!.rating?.toString() || "0");
+        const ratingA = parseFloat(
+          a.teacher.teacherProfile!.rating?.toString() || '0'
+        );
+        const ratingB = parseFloat(
+          b.teacher.teacherProfile!.rating?.toString() || '0'
+        );
         return ratingB - ratingA;
       });
 
     const formattedTeachers = teachersWithScore.map(({ teacher }) => {
       const profile = teacher.teacherProfile!;
-      const rating = parseFloat(profile.rating?.toString() || "0");
+      const rating = parseFloat(profile.rating?.toString() || '0');
       const isTopRated = calculateIsTopRated(
         rating,
         profile.reviewCount,
@@ -129,9 +139,9 @@ export async function GET(
       teachers: formattedTeachers,
     });
   } catch (error) {
-    console.error("Error fetching similar teachers:", error);
+    console.error('Error fetching similar teachers:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch similar teachers" },
+      { success: false, error: 'Failed to fetch similar teachers' },
       { status: 500 }
     );
   }

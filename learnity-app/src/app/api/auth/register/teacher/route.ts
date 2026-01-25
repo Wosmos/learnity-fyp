@@ -10,10 +10,10 @@ import { UserRole, ApplicationStatus } from '@/types/auth';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validate request data
     const validatedData = teacherRegistrationSchema.parse(body);
-    
+
     // Create teacher application
     const teacherApplication = {
       email: validatedData.email,
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       applicationStatus: ApplicationStatus.PENDING,
       emailVerified: false,
       isActive: true,
-      submittedAt: new Date()
+      submittedAt: new Date(),
     };
 
     // Note: In a real implementation, you would:
@@ -36,12 +36,12 @@ export async function POST(request: NextRequest) {
     // 2. Create the teacher application in your database
     // 3. Set custom claims in Firebase (PENDING_TEACHER role)
     // 4. Handle document uploads
-    
+
     console.log('Teacher application data:', teacherApplication);
-    
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Teacher application submitted successfully' 
+
+    return NextResponse.json({
+      success: true,
+      message: 'Teacher application submitted successfully',
     });
   } catch (error: any) {
     console.error('Teacher registration failed:', error);

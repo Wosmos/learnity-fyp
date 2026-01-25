@@ -20,4 +20,3 @@ export const ROLE_DISPLAY_NAMES: Record<UserRole, string> = {
   [UserRole.PENDING_TEACHER]: 'Pending Teacher',
   [UserRole.REJECTED_TEACHER]: 'Rejected Teacher',
 } as const;
-

@@ -1,8 +1,8 @@
-import { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { prisma } from "@/lib/prisma";
-import { courseService } from "@/lib/services/course.service";
-import CourseCatalogClient from "./CourseCatalogClient";
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { prisma } from '@/lib/prisma';
+import { courseService } from '@/lib/services/course.service';
+import CourseCatalogClient from './CourseCatalogClient';
 
 /**
  * Shared logic for categories and courses data fetching
@@ -10,7 +10,7 @@ import CourseCatalogClient from "./CourseCatalogClient";
 
 async function getCategories() {
   return await prisma.category.findMany({
-    orderBy: { name: "asc" },
+    orderBy: { name: 'asc' },
     select: { id: true, name: true, slug: true, description: true },
   });
 }
@@ -19,28 +19,28 @@ async function getCoursesData(searchParams: {
   [key: string]: string | string[] | undefined;
 }) {
   const search =
-    typeof searchParams.search === "string" ? searchParams.search : undefined;
+    typeof searchParams.search === 'string' ? searchParams.search : undefined;
   const page =
-    typeof searchParams.page === "string" ? parseInt(searchParams.page, 10) : 1;
+    typeof searchParams.page === 'string' ? parseInt(searchParams.page, 10) : 1;
   const limit = 12;
 
   const filters = {
     categoryId:
-      typeof searchParams.categoryId === "string"
+      typeof searchParams.categoryId === 'string'
         ? searchParams.categoryId
         : undefined,
     difficulty:
-      typeof searchParams.difficulty === "string"
+      typeof searchParams.difficulty === 'string'
         ? (searchParams.difficulty as any)
         : undefined,
     minRating:
-      typeof searchParams.minRating === "string"
+      typeof searchParams.minRating === 'string'
         ? parseFloat(searchParams.minRating)
         : undefined,
     sortBy:
-      typeof searchParams.sortBy === "string"
+      typeof searchParams.sortBy === 'string'
         ? (searchParams.sortBy as any)
-        : "popular",
+        : 'popular',
     page,
     limit,
   };
@@ -56,7 +56,7 @@ async function getCoursesData(searchParams: {
       averageRating: c.averageRating ? Number(c.averageRating) : 0,
       teacher: {
         ...c.teacher,
-        name: `${c.teacher.firstName || ""} ${c.teacher.lastName || ""}`.trim(),
+        name: `${c.teacher.firstName || ''} ${c.teacher.lastName || ''}`.trim(),
         avatarUrl: c.teacher.profilePicture,
       },
       createdAt: c.createdAt.toISOString(),
@@ -127,12 +127,12 @@ async function CatalogContent({
 
 function CatalogGridSkeleton() {
   return (
-    <div className="max-w-[1600px] mx-auto px-6 lg:px-10 py-10">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+    <div className='max-w-[1600px] mx-auto px-6 lg:px-10 py-10'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8'>
         {Array.from({ length: 8 }).map((_, i) => (
           <Skeleton
             key={i}
-            className="aspect-[4/5] rounded-[2.5rem] bg-slate-50 border border-slate-100"
+            className='aspect-[4/5] rounded-[2.5rem] bg-slate-50 border border-slate-100'
           />
         ))}
       </div>

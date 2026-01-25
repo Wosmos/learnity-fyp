@@ -1,27 +1,32 @@
 # Authentication Flow Test Guide
 
 ## Problem Fixed
+
 The issue was that when users signed in with Google or email login, Firebase would create the user but no corresponding profile was created in the Neon DB. This caused a disconnect between Firebase Auth and your application's user data.
 
 ## Solution Implemented
 
 ### 1. **Automatic Profile Sync**
+
 - Added a `sync-profile` API endpoint that automatically creates or updates user profiles in Neon DB
 - The `AuthProvider` now calls this endpoint whenever a user authenticates
 - Works for both social login (Google/Microsoft) and email/password login
 
 ### 2. **Enhanced User Model**
+
 - Added `authProvider` field to track how users signed up ("email" or "social")
 - Added `socialProviders` array to track which social providers they've used
 - Updated Prisma schema and ran migration
 
 ### 3. **Profile Fetching**
+
 - Added a `profile` API endpoint to fetch user profile data
 - The `AuthProvider` now fetches and stores the complete user profile
 
 ## How It Works Now
 
 ### For Social Login (Google/Microsoft):
+
 1. User clicks "Sign in with Google"
 2. Firebase handles OAuth flow and creates Firebase user
 3. `AuthProvider` detects auth state change
@@ -31,6 +36,7 @@ The issue was that when users signed in with Google or email login, Firebase wou
 7. User is fully authenticated with both Firebase and Neon DB data
 
 ### For Email/Password Login:
+
 1. User enters email/password
 2. Firebase authenticates user
 3. Same sync process as above ensures Neon DB profile exists
@@ -39,6 +45,7 @@ The issue was that when users signed in with Google or email login, Firebase wou
 ## Testing the Fix
 
 ### Test Social Login:
+
 1. Go to `/auth/login`
 2. Click "Sign in with Google"
 3. Complete Google OAuth
@@ -46,22 +53,24 @@ The issue was that when users signed in with Google or email login, Firebase wou
 5. Check database - user should exist in `users` table with `authProvider: "social"`
 
 ### Test Email Login:
+
 1. Register a new user via `/auth/register`
 2. Verify email and login
 3. Profile should be synced automatically
 4. Check database - user should exist with `authProvider: "email"`
 
 ### Verify Database Integration:
+
 ```sql
 -- Check if users are being created
-SELECT id, email, "firstName", "lastName", role, "authProvider", "socialProviders", "emailVerified" 
-FROM users 
+SELECT id, email, "firstName", "lastName", role, "authProvider", "socialProviders", "emailVerified"
+FROM users
 ORDER BY "createdAt" DESC;
 
 -- Check audit logs for sync events
-SELECT action, "firebaseUid", success, metadata 
-FROM audit_logs 
-WHERE action LIKE '%profile%' 
+SELECT action, "firebaseUid", success, metadata
+FROM audit_logs
+WHERE action LIKE '%profile%'
 ORDER BY "createdAt" DESC;
 ```
 

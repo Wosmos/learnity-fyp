@@ -5,26 +5,31 @@ This document outlines the consolidated utilities created to eliminate code dupl
 ## 🎯 **Problems Solved**
 
 ### 1. Device Fingerprinting Duplication ✅
+
 - **Before**: 5 duplicate implementations across API routes
 - **After**: Single utility in `device-fingerprint.ts`
 - **Eliminated**: ~50 lines of duplicated code
 
 ### 2. API Authentication Patterns ✅
+
 - **Before**: Repeated auth header validation in every route
 - **After**: Centralized `api-auth.utils.ts`
 - **Benefits**: Consistent auth, role-based access, permission checking
 
 ### 3. Service Instantiation ✅
+
 - **Before**: Manual service creation in every route
 - **After**: Service Factory with DI pattern
 - **Benefits**: Singleton pattern, lazy loading, better testing
 
 ### 4. API Response Standardization ✅
+
 - **Before**: Inconsistent response formats
 - **After**: Standardized response utilities
 - **Benefits**: Consistent API contracts, better error handling
 
 ### 5. Form Component Patterns ✅
+
 - **Before**: Repeated password fields, captcha, loading buttons
 - **After**: Reusable form components
 - **Benefits**: DRY principle, consistent UX
@@ -51,13 +56,17 @@ src/components/auth/common/
 ## 🔧 **Usage Examples**
 
 ### Device Fingerprinting
+
 ```typescript
-import { generateDeviceFingerprint, extractDeviceInfo } from '@/lib/utils/device-fingerprint';
+import {
+  generateDeviceFingerprint,
+  extractDeviceInfo,
+} from '@/lib/utils/device-fingerprint';
 
 // Enhanced fingerprinting (recommended)
-const fingerprint = generateDeviceFingerprint(request, { 
-  hashLength: 24, 
-  enhancedEntropy: true 
+const fingerprint = generateDeviceFingerprint(request, {
+  hashLength: 24,
+  enhancedEntropy: true,
 });
 
 // Legacy support
@@ -68,6 +77,7 @@ const deviceInfo = extractDeviceInfo(request);
 ```
 
 ### API Authentication
+
 ```typescript
 import { authenticateApiRequest } from '@/lib/utils/api-auth.utils';
 
@@ -80,11 +90,12 @@ if (!authResult.success) {
 // Role-based authentication
 const authResult = await authenticateApiRequest(request, {
   requiredRoles: ['ADMIN', 'TEACHER'],
-  requiredPermissions: ['manage:users']
+  requiredPermissions: ['manage:users'],
 });
 ```
 
 ### Service Factory
+
 ```typescript
 import { ServiceFactory } from '@/lib/factories/service.factory';
 
@@ -93,19 +104,17 @@ const databaseService = ServiceFactory.getDatabaseService();
 const authService = ServiceFactory.getFirebaseAuthService();
 
 // Get common auth services
-const { 
-  firebaseAuthService, 
-  databaseService, 
-  hcaptchaService 
-} = ServiceFactory.getAuthServices();
+const { firebaseAuthService, databaseService, hcaptchaService } =
+  ServiceFactory.getAuthServices();
 ```
 
 ### API Responses
+
 ```typescript
-import { 
-  createSuccessResponse, 
-  createErrorResponse, 
-  withErrorHandling 
+import {
+  createSuccessResponse,
+  createErrorResponse,
+  withErrorHandling,
 } from '@/lib/utils/api-response.utils';
 
 // Success response
@@ -121,6 +130,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 ```
 
 ### Form Components
+
 ```typescript
 import { FormPasswordField, FormHCaptcha, FormLoadingButton } from '@/components/auth/common';
 
@@ -149,17 +159,20 @@ import { FormPasswordField, FormHCaptcha, FormLoadingButton } from '@/components
 ## 🔄 **Migration Guide**
 
 ### For API Routes
+
 1. Replace manual service instantiation with `ServiceFactory`
 2. Replace auth validation with `authenticateApiRequest`
 3. Replace manual responses with response utilities
 4. Wrap handlers with `withErrorHandling`
 
 ### For Components
+
 1. Replace password input patterns with `FormPasswordField`
 2. Replace captcha implementations with `FormHCaptcha`
 3. Replace loading buttons with `FormLoadingButton`
 
 ### For Device Fingerprinting
+
 1. Import from centralized utility
 2. Use enhanced fingerprinting for better security
 3. Remove duplicate implementations

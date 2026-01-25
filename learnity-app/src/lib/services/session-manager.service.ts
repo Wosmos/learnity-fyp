@@ -5,8 +5,8 @@
  * Enhanced with custom access/refresh token pairs for improved security
  */
 
-import { PrismaClient } from '@prisma/client';
 import { createHash, randomBytes, createHmac } from 'crypto';
+import { PrismaClient } from '@prisma/client';
 import { sign, verify, JwtPayload } from 'jsonwebtoken';
 import { adminAuth } from '@/lib/config/firebase-admin';
 import {
@@ -27,7 +27,7 @@ import {
   DeviceTypeStats,
   TokenPair,
   AccessTokenPayload,
-  RefreshTokenPayload
+  RefreshTokenPayload,
 } from '@/lib/interfaces/session.interface';
 import { UserRole, Permission } from '@/types/auth';
 import { securityService } from './security.service';
@@ -39,17 +39,16 @@ export class SessionManagerService implements ISessionManagerService {
   private readonly activeSessions = new Map<string, UserSession>();
   private readonly refreshTokens = new Map<string, RefreshTokenPayload>();
   private cleanupInterval?: NodeJS.Timeout;
-  
+
   // JWT secrets - in production, these should come from environment variables
-  private readonly ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'access-token-secret-key';
-  private readonly REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'refresh-token-secret-key';
+  private readonly ACCESS_TOKEN_SECRET =
+    process.env.ACCESS_TOKEN_SECRET || 'access-token-secret-key';
+  private readonly REFRESH_TOKEN_SECRET =
+    process.env.REFRESH_TOKEN_SECRET || 'refresh-token-secret-key';
   private readonly ACCESS_TOKEN_EXPIRY = '15m'; // 15 minutes
   private readonly REFRESH_TOKEN_EXPIRY = '7d'; // 7 days
 
-  constructor(
-    prisma?: PrismaClient,
-    config?: Partial<SessionConfig>
-  ) {
+  constructor(prisma?: PrismaClient, config?: Partial<SessionConfig>) {
     this.prisma = prisma || new PrismaClient();
     this.config = {
       maxSessionsPerUser: 5,
@@ -58,7 +57,7 @@ export class SessionManagerService implements ISessionManagerService {
       blacklistCleanupInterval: 60 * 60 * 1000, // 1 hour
       enableDeviceTracking: true,
       enableSessionAnalytics: true,
-      ...config
+      ...config,
     };
 
     this.initializeCleanupScheduler();
@@ -71,8 +70,10 @@ export class SessionManagerService implements ISessionManagerService {
     try {
       const sessionId = this.generateSessionId();
       const now = new Date();
-      const accessTokenExpiresAt = new Date(now.getTime() + (15 * 60 * 1000)); // 15 minutes
-      const refreshTokenExpiresAt = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 days
+      const accessTokenExpiresAt = new Date(now.getTime() + 15 * 60 * 1000); // 15 minutes
+      const refreshTokenExpiresAt = new Date(
+        now.getTime() + 7 * 24 * 60 * 60 * 1000
+      ); // 7 days
 
       // Create access token payload
       const accessTokenPayload: AccessTokenPayload = {
@@ -84,7 +85,7 @@ export class SessionManagerService implements ISessionManagerService {
         ipAddress: sessionData.ipAddress,
         tokenType: 'access',
         iat: Math.floor(now.getTime() / 1000),
-        exp: Math.floor(accessTokenExpiresAt.getTime() / 1000)
+        exp: Math.floor(accessTokenExpiresAt.getTime() / 1000),
       };
 
       // Create refresh token payload
@@ -94,21 +95,25 @@ export class SessionManagerService implements ISessionManagerService {
         deviceFingerprint: sessionData.deviceInfo.fingerprint,
         tokenType: 'refresh',
         iat: Math.floor(now.getTime() / 1000),
-        exp: Math.floor(refreshTokenExpiresAt.getTime() / 1000)
+        exp: Math.floor(refreshTokenExpiresAt.getTime() / 1000),
       };
 
       // Generate tokens
       const accessToken = sign(accessTokenPayload, this.ACCESS_TOKEN_SECRET, {
         expiresIn: this.ACCESS_TOKEN_EXPIRY,
         issuer: 'learnity-auth',
-        audience: 'learnity-app'
+        audience: 'learnity-app',
       });
 
-      const refreshToken = sign(refreshTokenPayload, this.REFRESH_TOKEN_SECRET, {
-        expiresIn: this.REFRESH_TOKEN_EXPIRY,
-        issuer: 'learnity-auth',
-        audience: 'learnity-app'
-      });
+      const refreshToken = sign(
+        refreshTokenPayload,
+        this.REFRESH_TOKEN_SECRET,
+        {
+          expiresIn: this.REFRESH_TOKEN_EXPIRY,
+          issuer: 'learnity-auth',
+          audience: 'learnity-app',
+        }
+      );
 
       // Store refresh token for validation
       this.refreshTokens.set(this.hashToken(refreshToken), refreshTokenPayload);
@@ -127,7 +132,7 @@ export class SessionManagerService implements ISessionManagerService {
         accessToken,
         refreshToken,
         accessTokenExpiresAt,
-        refreshTokenExpiresAt
+        refreshTokenExpiresAt,
       };
     } catch (error) {
       throw this.createSessionError(
@@ -141,7 +146,9 @@ export class SessionManagerService implements ISessionManagerService {
   /**
    * Validate access token
    */
-  async validateAccessToken(accessToken: string): Promise<TokenValidationResult> {
+  async validateAccessToken(
+    accessToken: string
+  ): Promise<TokenValidationResult> {
     try {
       // Check if token is blacklisted first
       const isBlacklisted = await this.isTokenBlacklisted(accessToken);
@@ -150,14 +157,14 @@ export class SessionManagerService implements ISessionManagerService {
           isValid: false,
           isExpired: false,
           isBlacklisted: true,
-          error: 'Access token is blacklisted'
+          error: 'Access token is blacklisted',
         };
       }
 
       // Verify JWT token
       const decoded = verify(accessToken, this.ACCESS_TOKEN_SECRET, {
         issuer: 'learnity-auth',
-        audience: 'learnity-app'
+        audience: 'learnity-app',
       }) as AccessTokenPayload;
 
       const now = new Date();
@@ -171,7 +178,7 @@ export class SessionManagerService implements ISessionManagerService {
           isValid: false,
           isExpired: false,
           isBlacklisted: false,
-          error: 'Invalid token type'
+          error: 'Invalid token type',
         };
       }
 
@@ -184,21 +191,21 @@ export class SessionManagerService implements ISessionManagerService {
         deviceFingerprint: decoded.deviceFingerprint,
         ipAddress: decoded.ipAddress,
         issuedAt,
-        expiresAt
+        expiresAt,
       };
 
       return {
         isValid: !isExpired,
         isExpired,
         isBlacklisted: false,
-        payload
+        payload,
       };
     } catch (error) {
       return {
         isValid: false,
         isExpired: false,
         isBlacklisted: false,
-        error: (error as Error).message
+        error: (error as Error).message,
       };
     }
   }
@@ -206,7 +213,9 @@ export class SessionManagerService implements ISessionManagerService {
   /**
    * Validate refresh token
    */
-  async validateRefreshToken(refreshToken: string): Promise<TokenValidationResult> {
+  async validateRefreshToken(
+    refreshToken: string
+  ): Promise<TokenValidationResult> {
     try {
       // Check if token is blacklisted first
       const isBlacklisted = await this.isTokenBlacklisted(refreshToken);
@@ -215,14 +224,14 @@ export class SessionManagerService implements ISessionManagerService {
           isValid: false,
           isExpired: false,
           isBlacklisted: true,
-          error: 'Refresh token is blacklisted'
+          error: 'Refresh token is blacklisted',
         };
       }
 
       // Verify JWT token
       const decoded = verify(refreshToken, this.REFRESH_TOKEN_SECRET, {
         issuer: 'learnity-auth',
-        audience: 'learnity-app'
+        audience: 'learnity-app',
       }) as RefreshTokenPayload;
 
       const now = new Date();
@@ -236,7 +245,7 @@ export class SessionManagerService implements ISessionManagerService {
           isValid: false,
           isExpired: false,
           isBlacklisted: false,
-          error: 'Invalid token type'
+          error: 'Invalid token type',
         };
       }
 
@@ -248,21 +257,21 @@ export class SessionManagerService implements ISessionManagerService {
           isValid: false,
           isExpired: false,
           isBlacklisted: false,
-          error: 'Refresh token not found'
+          error: 'Refresh token not found',
         };
       }
 
       return {
         isValid: !isExpired,
         isExpired,
-        isBlacklisted: false
+        isBlacklisted: false,
       };
     } catch (error) {
       return {
         isValid: false,
         isExpired: false,
         isBlacklisted: false,
-        error: (error as Error).message
+        error: (error as Error).message,
       };
     }
   }
@@ -279,7 +288,8 @@ export class SessionManagerService implements ISessionManagerService {
       }
 
       // Extract refresh token payload
-      const refreshPayload = await this.extractRefreshTokenPayload(refreshToken);
+      const refreshPayload =
+        await this.extractRefreshTokenPayload(refreshToken);
       if (!refreshPayload) {
         throw new Error('Failed to extract refresh token payload');
       }
@@ -305,9 +315,9 @@ export class SessionManagerService implements ISessionManagerService {
             role: (customClaims.role as UserRole) || UserRole.STUDENT,
             permissions: (customClaims.permissions as Permission[]) || [],
             profileComplete: customClaims.profileComplete || false,
-            emailVerified: customClaims.emailVerified || false
+            emailVerified: customClaims.emailVerified || false,
           },
-          loginMethod: session.loginMethod
+          loginMethod: session.loginMethod,
         });
 
         // Blacklist old refresh token
@@ -329,22 +339,28 @@ export class SessionManagerService implements ISessionManagerService {
   /**
    * Blacklist both access and refresh tokens
    */
-  async blacklistTokenPair(accessToken: string, refreshToken: string, reason?: string): Promise<void> {
+  async blacklistTokenPair(
+    accessToken: string,
+    refreshToken: string,
+    reason?: string
+  ): Promise<void> {
     await Promise.all([
       this.blacklistToken(accessToken, reason),
-      this.blacklistToken(refreshToken, reason)
+      this.blacklistToken(refreshToken, reason),
     ]);
   }
 
   /**
    * Extract access token payload
    */
-  async extractAccessTokenPayload(accessToken: string): Promise<AccessTokenPayload | null> {
+  async extractAccessTokenPayload(
+    accessToken: string
+  ): Promise<AccessTokenPayload | null> {
     try {
       const decoded = verify(accessToken, this.ACCESS_TOKEN_SECRET, {
         issuer: 'learnity-auth',
         audience: 'learnity-app',
-        ignoreExpiration: true // Allow extraction even if expired
+        ignoreExpiration: true, // Allow extraction even if expired
       }) as AccessTokenPayload;
 
       return decoded.tokenType === 'access' ? decoded : null;
@@ -356,12 +372,14 @@ export class SessionManagerService implements ISessionManagerService {
   /**
    * Extract refresh token payload
    */
-  async extractRefreshTokenPayload(refreshToken: string): Promise<RefreshTokenPayload | null> {
+  async extractRefreshTokenPayload(
+    refreshToken: string
+  ): Promise<RefreshTokenPayload | null> {
     try {
       const decoded = verify(refreshToken, this.REFRESH_TOKEN_SECRET, {
         issuer: 'learnity-auth',
         audience: 'learnity-app',
-        ignoreExpiration: true // Allow extraction even if expired
+        ignoreExpiration: true, // Allow extraction even if expired
       }) as RefreshTokenPayload;
 
       return decoded.tokenType === 'refresh' ? decoded : null;
@@ -376,9 +394,9 @@ export class SessionManagerService implements ISessionManagerService {
   public async blacklistToken(token: string, reason?: string): Promise<void> {
     try {
       const tokenHash = this.hashToken(token);
-      
+
       // Try to extract payload to get expiration
-      let expiresAt = new Date(Date.now() + (7 * 24 * 60 * 60 * 1000)); // Default 7 days
+      let expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Default 7 days
       let firebaseUid = 'unknown';
       let sessionId = '';
 
@@ -404,7 +422,7 @@ export class SessionManagerService implements ISessionManagerService {
         blacklistedAt: new Date(),
         expiresAt,
         reason,
-        sessionId
+        sessionId,
       };
 
       // Store in memory for fast lookup
@@ -423,7 +441,10 @@ export class SessionManagerService implements ISessionManagerService {
         riskLevel: 'MEDIUM',
         blocked: true,
         reason: reason || 'Token blacklisted',
-        metadata: { sessionId, tokenType: accessPayload ? 'access' : 'refresh' }
+        metadata: {
+          sessionId,
+          tokenType: accessPayload ? 'access' : 'refresh',
+        },
       });
     } catch (error) {
       console.error('Failed to blacklist token:', error);
@@ -436,7 +457,7 @@ export class SessionManagerService implements ISessionManagerService {
   private async isTokenBlacklisted(token: string): Promise<boolean> {
     const tokenHash = this.hashToken(token);
     const blacklistedToken = this.blacklistedTokens.get(tokenHash);
-    
+
     if (!blacklistedToken) {
       return false;
     }
@@ -462,7 +483,7 @@ export class SessionManagerService implements ISessionManagerService {
           isValid: false,
           isExpired: false,
           isBlacklisted: true,
-          error: 'Token is blacklisted'
+          error: 'Token is blacklisted',
         };
       }
 
@@ -485,21 +506,21 @@ export class SessionManagerService implements ISessionManagerService {
         issuedAt,
         expiresAt,
         email: decodedToken.email,
-        emailVerified: decodedToken.email_verified
+        emailVerified: decodedToken.email_verified,
       };
 
       return {
         isValid: !isExpired,
         isExpired,
         isBlacklisted: false,
-        payload
+        payload,
       };
     } catch (error) {
       return {
         isValid: false,
         isExpired: false,
         isBlacklisted: false,
-        error: (error as Error).message
+        error: (error as Error).message,
       };
     }
   }
@@ -507,7 +528,9 @@ export class SessionManagerService implements ISessionManagerService {
   /**
    * Extract Firebase token payload without validation
    */
-  async extractFirebaseTokenPayload(idToken: string): Promise<SessionPayload | null> {
+  async extractFirebaseTokenPayload(
+    idToken: string
+  ): Promise<SessionPayload | null> {
     try {
       const decodedToken = await adminAuth.verifyIdToken(idToken, true); // checkRevoked = true
       const expiresAt = new Date(decodedToken.exp * 1000);
@@ -523,7 +546,7 @@ export class SessionManagerService implements ISessionManagerService {
         issuedAt,
         expiresAt,
         email: decodedToken.email,
-        emailVerified: decodedToken.email_verified
+        emailVerified: decodedToken.email_verified,
       };
     } catch {
       return null;
@@ -533,7 +556,10 @@ export class SessionManagerService implements ISessionManagerService {
   /**
    * Blacklist a Firebase ID token
    */
-  async blacklistFirebaseToken(idToken: string, reason?: string): Promise<void> {
+  async blacklistFirebaseToken(
+    idToken: string,
+    reason?: string
+  ): Promise<void> {
     try {
       const payload = await this.extractFirebaseTokenPayload(idToken);
       if (!payload) {
@@ -547,7 +573,7 @@ export class SessionManagerService implements ISessionManagerService {
         blacklistedAt: new Date(),
         expiresAt: payload.expiresAt,
         reason,
-        sessionId: payload.sessionId
+        sessionId: payload.sessionId,
       };
 
       // Store in memory for fast lookup
@@ -570,7 +596,7 @@ export class SessionManagerService implements ISessionManagerService {
         riskLevel: 'MEDIUM',
         blocked: true,
         reason: reason || 'Firebase token blacklisted',
-        metadata: { sessionId: payload.sessionId }
+        metadata: { sessionId: payload.sessionId },
       });
     } catch (error) {
       console.error('Failed to blacklist Firebase token:', error);
@@ -580,11 +606,14 @@ export class SessionManagerService implements ISessionManagerService {
   /**
    * Blacklist all tokens for a user
    */
-  async blacklistAllUserTokens(firebaseUid: string, reason?: string): Promise<void> {
+  async blacklistAllUserTokens(
+    firebaseUid: string,
+    reason?: string
+  ): Promise<void> {
     try {
       // Get all user sessions
       const sessions = await this.getUserSessions(firebaseUid);
-      
+
       // Terminate all sessions
       await Promise.all(
         sessions.map(session => this.terminateSession(session.id, reason))
@@ -614,7 +643,7 @@ export class SessionManagerService implements ISessionManagerService {
   async isFirebaseTokenBlacklisted(idToken: string): Promise<boolean> {
     const tokenHash = this.hashToken(idToken);
     const blacklistedToken = this.blacklistedTokens.get(tokenHash);
-    
+
     if (!blacklistedToken) {
       return false;
     }
@@ -635,7 +664,10 @@ export class SessionManagerService implements ISessionManagerService {
     const now = new Date();
     let cleanedCount = 0;
 
-    for (const [tokenHash, blacklistedToken] of this.blacklistedTokens.entries()) {
+    for (const [
+      tokenHash,
+      blacklistedToken,
+    ] of this.blacklistedTokens.entries()) {
       if (blacklistedToken.expiresAt <= now) {
         this.blacklistedTokens.delete(tokenHash);
         cleanedCount++;
@@ -651,13 +683,15 @@ export class SessionManagerService implements ISessionManagerService {
   async createSession(sessionData: CreateSessionData): Promise<UserSession> {
     try {
       // Check session limits
-      const existingSessions = await this.getUserSessions(sessionData.firebaseUid);
+      const existingSessions = await this.getUserSessions(
+        sessionData.firebaseUid
+      );
       const activeSessions = existingSessions.filter(s => s.isActive);
-      
+
       if (activeSessions.length >= this.config.maxSessionsPerUser) {
         // Terminate oldest session
-        const oldestSession = activeSessions.sort((a, b) => 
-          a.lastActivityAt.getTime() - b.lastActivityAt.getTime()
+        const oldestSession = activeSessions.sort(
+          (a, b) => a.lastActivityAt.getTime() - b.lastActivityAt.getTime()
         )[0];
         await this.terminateSession(oldestSession.id, 'Session limit exceeded');
       }
@@ -669,7 +703,7 @@ export class SessionManagerService implements ISessionManagerService {
 
       const sessionId = this.generateSessionId();
       const now = new Date();
-      const expiresAt = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 days default
+      const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days default
 
       const session: UserSession = {
         id: sessionId,
@@ -683,7 +717,7 @@ export class SessionManagerService implements ISessionManagerService {
         lastActivityAt: now,
         expiresAt,
         isActive: true,
-        activityCount: 1
+        activityCount: 1,
       };
 
       // Store in memory for fast access
@@ -699,7 +733,7 @@ export class SessionManagerService implements ISessionManagerService {
         ipAddress: sessionData.ipAddress,
         userAgent: sessionData.userAgent,
         deviceFingerprint: sessionData.deviceInfo.fingerprint,
-        success: true
+        success: true,
       });
 
       return session;
@@ -717,7 +751,7 @@ export class SessionManagerService implements ISessionManagerService {
    */
   async getSession(sessionId: string): Promise<UserSession | null> {
     const session = this.activeSessions.get(sessionId);
-    
+
     if (!session) {
       return null;
     }
@@ -736,7 +770,7 @@ export class SessionManagerService implements ISessionManagerService {
    */
   async getUserSessions(firebaseUid: string): Promise<UserSession[]> {
     const userSessions: UserSession[] = [];
-    
+
     for (const session of this.activeSessions.values()) {
       if (session.firebaseUid === firebaseUid) {
         // Check if session is still valid
@@ -755,9 +789,12 @@ export class SessionManagerService implements ISessionManagerService {
   /**
    * Update session activity
    */
-  async updateSessionActivity(sessionId: string, activity: SessionActivity): Promise<void> {
+  async updateSessionActivity(
+    sessionId: string,
+    activity: SessionActivity
+  ): Promise<void> {
     const session = this.activeSessions.get(sessionId);
-    
+
     if (!session || !session.isActive) {
       return;
     }
@@ -777,7 +814,7 @@ export class SessionManagerService implements ISessionManagerService {
    */
   async terminateSession(sessionId: string, reason?: string): Promise<void> {
     const session = this.activeSessions.get(sessionId);
-    
+
     if (!session) {
       return;
     }
@@ -800,16 +837,19 @@ export class SessionManagerService implements ISessionManagerService {
       ipAddress: session.ipAddress,
       userAgent: session.userAgent,
       deviceFingerprint: session.deviceFingerprint,
-      success: true
+      success: true,
     });
   }
 
   /**
    * Terminate all sessions for a user
    */
-  async terminateAllUserSessions(firebaseUid: string, reason?: string): Promise<number> {
+  async terminateAllUserSessions(
+    firebaseUid: string,
+    reason?: string
+  ): Promise<number> {
     const sessions = await this.getUserSessions(firebaseUid);
-    
+
     await Promise.all(
       sessions.map(session => this.terminateSession(session.id, reason))
     );
@@ -824,7 +864,7 @@ export class SessionManagerService implements ISessionManagerService {
     // This is a simplified implementation
     // In a real application, you might want to store this in the database
     const now = new Date();
-    
+
     const trackedDevice: TrackedDevice = {
       id: this.generateDeviceId(),
       firebaseUid: '', // Will be set by caller
@@ -835,7 +875,7 @@ export class SessionManagerService implements ISessionManagerService {
       sessionCount: 1,
       isCurrentDevice: true,
       isTrusted: false,
-      riskLevel: DeviceRiskLevel.LOW
+      riskLevel: DeviceRiskLevel.LOW,
     };
 
     return trackedDevice;
@@ -852,16 +892,21 @@ export class SessionManagerService implements ISessionManagerService {
   /**
    * Check if device is new for user
    */
-  async isNewDevice(firebaseUid: string, deviceFingerprint: string): Promise<boolean> {
+  async isNewDevice(
+    firebaseUid: string,
+    deviceFingerprint: string
+  ): Promise<boolean> {
     const deviceHistory = await this.getDeviceHistory(firebaseUid);
-    return !deviceHistory.some(device => device.deviceFingerprint === deviceFingerprint);
+    return !deviceHistory.some(
+      device => device.deviceFingerprint === deviceFingerprint
+    );
   }
 
   /**
    * Get session statistics
    */
   async getSessionStats(firebaseUid?: string): Promise<SessionStats> {
-    const sessions = firebaseUid 
+    const sessions = firebaseUid
       ? await this.getUserSessions(firebaseUid)
       : Array.from(this.activeSessions.values());
 
@@ -872,12 +917,14 @@ export class SessionManagerService implements ISessionManagerService {
     // Calculate average session duration
     const completedSessions = sessions.filter(s => s.terminatedAt);
     const totalDuration = completedSessions.reduce((sum, session) => {
-      const duration = (session.terminatedAt!.getTime() - session.createdAt.getTime());
+      const duration =
+        session.terminatedAt!.getTime() - session.createdAt.getTime();
       return sum + duration;
     }, 0);
-    const averageSessionDuration = completedSessions.length > 0 
-      ? totalDuration / completedSessions.length 
-      : 0;
+    const averageSessionDuration =
+      completedSessions.length > 0
+        ? totalDuration / completedSessions.length
+        : 0;
 
     // Get unique devices
     const uniqueDevices = new Set(sessions.map(s => s.deviceFingerprint)).size;
@@ -885,8 +932,11 @@ export class SessionManagerService implements ISessionManagerService {
     // Device type stats (simplified)
     const deviceTypes = new Map<string, number>();
     sessions.forEach(session => {
-      const deviceType = session.deviceInfo.isMobile ? 'Mobile' : 
-                        session.deviceInfo.isTablet ? 'Tablet' : 'Desktop';
+      const deviceType = session.deviceInfo.isMobile
+        ? 'Mobile'
+        : session.deviceInfo.isTablet
+          ? 'Tablet'
+          : 'Desktop';
       deviceTypes.set(deviceType, (deviceTypes.get(deviceType) || 0) + 1);
     });
 
@@ -894,7 +944,7 @@ export class SessionManagerService implements ISessionManagerService {
       .map(([deviceType, count]) => ({
         deviceType,
         count,
-        percentage: (count / sessions.length) * 100
+        percentage: (count / sessions.length) * 100,
       }))
       .sort((a, b) => b.count - a.count);
 
@@ -907,7 +957,7 @@ export class SessionManagerService implements ISessionManagerService {
       uniqueDevices,
       suspiciousActivities: 0, // Would be calculated from security events
       topDeviceTypes,
-      topLocations: [] // Would be calculated from IP geolocation
+      topLocations: [], // Would be calculated from IP geolocation
     };
   }
 
@@ -921,9 +971,12 @@ export class SessionManagerService implements ISessionManagerService {
   /**
    * Get sessions by time range
    */
-  async getSessionsByTimeRange(startDate: Date, endDate: Date): Promise<UserSession[]> {
-    return Array.from(this.activeSessions.values()).filter(session => 
-      session.createdAt >= startDate && session.createdAt <= endDate
+  async getSessionsByTimeRange(
+    startDate: Date,
+    endDate: Date
+  ): Promise<UserSession[]> {
+    return Array.from(this.activeSessions.values()).filter(
+      session => session.createdAt >= startDate && session.createdAt <= endDate
     );
   }
 
@@ -941,7 +994,11 @@ export class SessionManagerService implements ISessionManagerService {
     return randomBytes(16).toString('hex');
   }
 
-  private createSessionError(code: SessionErrorCode, message: string, details?: Record<string, unknown>): SessionError {
+  private createSessionError(
+    code: SessionErrorCode,
+    message: string,
+    details?: Record<string, unknown>
+  ): SessionError {
     return { code, message, details };
   }
 

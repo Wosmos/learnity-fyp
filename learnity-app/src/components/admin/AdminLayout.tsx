@@ -8,8 +8,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
-import { AdminSidebar } from './AdminSidebar';
 import { AdminAuthenticatedLayout } from '@/components/layout/AppLayout';
+import { AdminSidebar } from './AdminSidebar';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -29,7 +29,7 @@ interface QuickStats {
 
 export class AdminStatsService {
   private static instance: AdminStatsService;
-  
+
   public static getInstance(): AdminStatsService {
     if (!AdminStatsService.instance) {
       AdminStatsService.instance = new AdminStatsService();
@@ -37,22 +37,27 @@ export class AdminStatsService {
     return AdminStatsService.instance;
   }
 
-  public async fetchQuickStats(api: { post: (url: string, data: Record<string, string>) => Promise<Record<string, number>> }): Promise<QuickStats> {
+  public async fetchQuickStats(api: {
+    post: (
+      url: string,
+      data: Record<string, string>
+    ) => Promise<Record<string, number>>;
+  }): Promise<QuickStats> {
     try {
       const endDate = new Date();
       const startDate = new Date();
       startDate.setHours(startDate.getHours() - 24);
-      
+
       const summary = await api.post('/api/admin/security/summary', {
         startDate: startDate.toISOString(),
-        endDate: endDate.toISOString()
+        endDate: endDate.toISOString(),
       });
-      
+
       return {
         activeUsers: summary.uniqueUsers || 0,
         todaysLogins: summary.successfulLogins || 0,
         securityEvents: summary.securityEvents || 0,
-        systemStatus: 'Healthy'
+        systemStatus: 'Healthy',
       };
     } catch (error) {
       console.error('Failed to fetch admin stats:', error);
@@ -60,19 +65,19 @@ export class AdminStatsService {
         activeUsers: 0,
         todaysLogins: 0,
         securityEvents: 0,
-        systemStatus: 'Unknown'
+        systemStatus: 'Unknown',
       };
     }
   }
 }
 
-export function AdminLayout({ 
-  children, 
-  title, 
-  description, 
-  showBackButton = false, 
+export function AdminLayout({
+  children,
+  title,
+  description,
+  showBackButton = false,
   backHref = '/admin',
-  actions 
+  actions,
 }: AdminLayoutProps) {
   const api = useAuthenticatedApi();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -80,7 +85,7 @@ export function AdminLayout({
     activeUsers: 0,
     todaysLogins: 0,
     securityEvents: 0,
-    systemStatus: 'Loading...'
+    systemStatus: 'Loading...',
   });
 
   const statsService = AdminStatsService.getInstance();
@@ -91,7 +96,7 @@ export function AdminLayout({
       const stats = await statsService.fetchQuickStats(api);
       setQuickStats(stats);
     };
-    
+
     fetchStats();
     // Refresh every 30 seconds
     const interval = setInterval(fetchStats, 30000);
@@ -100,7 +105,7 @@ export function AdminLayout({
 
   return (
     <AdminAuthenticatedLayout>
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className='min-h-screen bg-gray-50 flex'>
         {/* Sidebar */}
         <AdminSidebar
           isOpen={sidebarOpen}
@@ -109,15 +114,12 @@ export function AdminLayout({
         />
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 lg:ml-80">
+        <div className='flex-1 flex flex-col min-w-0 lg:ml-80'>
           {/* Top Header */}
-        
 
           {/* Main Content */}
-          <main className="flex-1 overflow-auto">
-            <div className="p-2">
-              {children}
-            </div>
+          <main className='flex-1 overflow-auto'>
+            <div className='p-2'>{children}</div>
           </main>
         </div>
       </div>

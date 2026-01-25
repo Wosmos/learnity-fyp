@@ -1,10 +1,10 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import { PublicLayout } from "@/components/layout/AppLayout";
-import { getDocBySlug, getAllDocSlugs } from "@/lib/docs";
-import { ArrowLeft, Calendar, Tag, BookOpen } from "lucide-react";
-import type { Metadata } from "next";
-import "@/styles/markdown.css";
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft, Calendar, Tag, BookOpen } from 'lucide-react';
+import type { Metadata } from 'next';
+import { PublicLayout } from '@/components/layout/AppLayout';
+import { getDocBySlug, getAllDocSlugs } from '@/lib/docs';
+import '@/styles/markdown.css';
 
 interface DocPageProps {
   params: {
@@ -12,11 +12,10 @@ interface DocPageProps {
   };
 }
 
-
 // Generate static params for all docs
 export async function generateStaticParams() {
   const slugs = getAllDocSlugs();
-  return slugs.map((slug) => ({
+  return slugs.map(slug => ({
     slug,
   }));
 }
@@ -30,7 +29,7 @@ export async function generateMetadata({
 
   if (!doc) {
     return {
-      title: "Documentation Not Found",
+      title: 'Documentation Not Found',
     };
   }
 
@@ -50,47 +49,47 @@ export default async function DocPage({ params }: DocPageProps) {
 
   return (
     <PublicLayout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+      <div className='min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30'>
         {/* Header */}
-        <div className="bg-white border-b border-slate-200">
-          <div className="container mx-auto px-4 py-8">
-            <div className="max-w-4xl mx-auto">
+        <div className='bg-white border-b border-slate-200'>
+          <div className='container mx-auto px-4 py-8'>
+            <div className='max-w-4xl mx-auto'>
               {/* Back Button */}
               <Link
-                href="/docs"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors mb-6 group"
+                href='/docs'
+                className='inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors mb-6 group'
               >
-                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                <ArrowLeft className='w-4 h-4 group-hover:-translate-x-1 transition-transform' />
                 Back to Documentation
               </Link>
 
               {/* Category Badge */}
               {doc.metadata.category && (
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-full mb-4">
-                  <BookOpen className="w-3 h-3 text-blue-600" />
-                  <span className="text-xs font-semibold text-blue-600">
+                <div className='inline-flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-full mb-4'>
+                  <BookOpen className='w-3 h-3 text-blue-600' />
+                  <span className='text-xs font-semibold text-blue-600'>
                     {doc.metadata.category}
                   </span>
                 </div>
               )}
 
               {/* Title */}
-              <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
+              <h1 className='text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight'>
                 {doc.metadata.title}
               </h1>
 
               {/* Description */}
               {doc.metadata.description && (
-                <p className="text-lg text-slate-600 mb-6">
+                <p className='text-lg text-slate-600 mb-6'>
                   {doc.metadata.description}
                 </p>
               )}
 
               {/* Metadata */}
-              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+              <div className='flex flex-wrap items-center gap-4 text-sm text-slate-500'>
                 {doc.metadata.date && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
+                  <div className='flex items-center gap-2'>
+                    <Calendar className='w-4 h-4' />
                     <span>
                       {new Date(doc.metadata.date).toLocaleDateString()}
                     </span>
@@ -98,13 +97,13 @@ export default async function DocPage({ params }: DocPageProps) {
                 )}
 
                 {doc.metadata.tags && doc.metadata.tags.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <Tag className="w-4 h-4" />
-                    <div className="flex gap-2">
-                      {doc.metadata.tags.map((tag) => (
+                  <div className='flex items-center gap-2'>
+                    <Tag className='w-4 h-4' />
+                    <div className='flex gap-2'>
+                      {doc.metadata.tags.map(tag => (
                         <span
                           key={tag}
-                          className="px-2 py-1 bg-slate-100 rounded-md text-xs font-medium"
+                          className='px-2 py-1 bg-slate-100 rounded-md text-xs font-medium'
                         >
                           {tag}
                         </span>
@@ -118,9 +117,9 @@ export default async function DocPage({ params }: DocPageProps) {
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-4xl mx-auto">
-            <article className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12">
+        <div className='container mx-auto px-4 py-16'>
+          <div className='max-w-4xl mx-auto'>
+            <article className='bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12'>
               <div
                 className="markdown-content prose prose-slate max-w-none
                   prose-headings:font-black prose-headings:tracking-tight
@@ -147,12 +146,12 @@ export default async function DocPage({ params }: DocPageProps) {
             </article>
 
             {/* Navigation */}
-            <div className="mt-8 flex justify-center">
+            <div className='mt-8 flex justify-center'>
               <Link
-                href="/docs"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-full font-semibold hover:bg-slate-800 transition-colors"
+                href='/docs'
+                className='inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-full font-semibold hover:bg-slate-800 transition-colors'
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className='w-4 h-4' />
                 View All Documentation
               </Link>
             </div>
@@ -164,4 +163,4 @@ export default async function DocPage({ params }: DocPageProps) {
 }
 
 // Enable static generation
-export const dynamic = "force-static";
+export const dynamic = 'force-static';

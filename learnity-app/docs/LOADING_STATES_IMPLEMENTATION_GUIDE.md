@@ -1,14 +1,17 @@
 # Loading States Implementation Guide
 
 ## Overview
+
 This guide provides comprehensive solutions for implementing loading states across all button actions in the Learnity app to improve UX.
 
 ## Problem
+
 Users clicking buttons see no visual feedback, leading to confusion about whether their action was registered.
 
 ## Solutions Implemented
 
 ### 1. Global Loading Indicator
+
 **Location:** `src/components/shared/GlobalLoadingIndicator.tsx`
 
 A top-of-page loading bar that automatically shows during navigation transitions.
@@ -16,11 +19,13 @@ A top-of-page loading bar that automatically shows during navigation transitions
 **Already integrated in:** `src/app/layout.tsx`
 
 ### 2. AsyncButton Component
+
 **Location:** `src/components/ui/async-button.tsx`
 
 A button component with built-in async handling and automatic loading states.
 
 **Usage:**
+
 ```tsx
 import { AsyncButton } from '@/components/ui/async-button';
 
@@ -45,11 +50,13 @@ import { AsyncButton } from '@/components/ui/async-button';
 ```
 
 ### 3. LoadingButton Component
+
 **Location:** `src/components/shared/LoadingButton.tsx`
 
 Simplified button for quick implementations.
 
 **Usage:**
+
 ```tsx
 import { LoadingButton } from '@/components/shared/LoadingButton';
 
@@ -67,18 +74,20 @@ const handleSubmit = async () => {
 <LoadingButton
   onClick={handleSubmit}
   isLoading={isLoading}
-  loadingText="Submitting..."
+  loadingText='Submitting...'
 >
   Submit Form
-</LoadingButton>
+</LoadingButton>;
 ```
 
 ### 4. useAsyncAction Hook
+
 **Location:** `src/hooks/useAsyncAction.ts`
 
 Custom hook for managing async operations with loading states and error handling.
 
 **Usage:**
+
 ```tsx
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 
@@ -91,18 +100,19 @@ const { execute, isLoading } = useAsyncAction(
     errorMessage: 'Failed to delete item',
     onSuccess: () => {
       router.push('/items');
-    }
+    },
   }
 );
 
 <Button onClick={execute} disabled={isLoading}>
   {isLoading ? 'Deleting...' : 'Delete Item'}
-</Button>
+</Button>;
 ```
 
 ## Implementation Patterns
 
 ### Pattern 1: Form Submissions
+
 ```tsx
 'use client';
 
@@ -115,7 +125,7 @@ export function MyForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       await submitForm();
       toast({ title: 'Success!' });
@@ -130,9 +140,9 @@ export function MyForm() {
     <form onSubmit={handleSubmit}>
       {/* form fields */}
       <LoadingButton
-        type="submit"
+        type='submit'
         isLoading={isSubmitting}
-        loadingText="Submitting..."
+        loadingText='Submitting...'
       >
         Submit
       </LoadingButton>
@@ -142,6 +152,7 @@ export function MyForm() {
 ```
 
 ### Pattern 2: Delete/Action Buttons
+
 ```tsx
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { AsyncButton } from '@/components/ui/async-button';
@@ -153,16 +164,16 @@ export function DeleteButton({ itemId }: { itemId: string }) {
     },
     {
       successMessage: 'Item deleted',
-      onSuccess: () => router.refresh()
+      onSuccess: () => router.refresh(),
     }
   );
 
   return (
     <AsyncButton
-      variant="destructive"
+      variant='destructive'
       onClick={execute}
       isLoading={isLoading}
-      loadingText="Deleting..."
+      loadingText='Deleting...'
     >
       Delete
     </AsyncButton>
@@ -171,6 +182,7 @@ export function DeleteButton({ itemId }: { itemId: string }) {
 ```
 
 ### Pattern 3: Navigation Buttons
+
 ```tsx
 import { useRouter } from 'next/navigation';
 import { AsyncButton } from '@/components/ui/async-button';
@@ -185,7 +197,7 @@ export function NavigationButton() {
         await saveProgress();
         router.push('/next-page');
       }}
-      loadingText="Loading..."
+      loadingText='Loading...'
     >
       Continue
     </AsyncButton>
@@ -194,8 +206,11 @@ export function NavigationButton() {
 ```
 
 ### Pattern 4: Social Login Buttons
+
 ```tsx
-const [socialLoading, setSocialLoading] = useState<'google' | 'microsoft' | null>(null);
+const [socialLoading, setSocialLoading] = useState<
+  'google' | 'microsoft' | null
+>(null);
 
 const handleSocialLogin = async (provider: 'google' | 'microsoft') => {
   setSocialLoading(provider);
@@ -210,15 +225,16 @@ const handleSocialLogin = async (provider: 'google' | 'microsoft') => {
   onClick={() => handleSocialLogin('google')}
   isLoading={socialLoading === 'google'}
   disabled={!!socialLoading}
-  loadingText="Connecting..."
+  loadingText='Connecting...'
 >
   Continue with Google
-</LoadingButton>
+</LoadingButton>;
 ```
 
 ## Migration Checklist
 
 ### High Priority Components (User-facing actions)
+
 - [x] ✅ Global loading indicator added to layout
 - [ ] Auth components (LoginForm, RegistrationFlow, etc.)
 - [ ] Course enrollment buttons
@@ -229,6 +245,7 @@ const handleSocialLogin = async (provider: 'google' | 'microsoft') => {
 - [ ] Payment/checkout buttons
 
 ### Medium Priority
+
 - [ ] Navigation buttons
 - [ ] Filter/search buttons
 - [ ] Load more buttons
@@ -236,6 +253,7 @@ const handleSocialLogin = async (provider: 'google' | 'microsoft') => {
 - [ ] Admin actions
 
 ### Low Priority
+
 - [ ] Toggle buttons (already have visual state)
 - [ ] Icon-only buttons (consider tooltips)
 - [ ] Dropdown menu items
@@ -243,6 +261,7 @@ const handleSocialLogin = async (provider: 'google' | 'microsoft') => {
 ## Best Practices
 
 ### 1. Always Show Loading State
+
 ```tsx
 // ❌ Bad - No loading feedback
 <Button onClick={handleClick}>Submit</Button>
@@ -254,6 +273,7 @@ const handleSocialLogin = async (provider: 'google' | 'microsoft') => {
 ```
 
 ### 2. Disable During Loading
+
 ```tsx
 // ✅ Automatically handled by LoadingButton/AsyncButton
 <LoadingButton isLoading={isLoading} disabled={isLoading}>
@@ -262,6 +282,7 @@ const handleSocialLogin = async (provider: 'google' | 'microsoft') => {
 ```
 
 ### 3. Provide Context in Loading Text
+
 ```tsx
 // ❌ Generic
 <LoadingButton loadingText="Loading...">Submit</LoadingButton>
@@ -273,6 +294,7 @@ const handleSocialLogin = async (provider: 'google' | 'microsoft') => {
 ```
 
 ### 4. Handle Multiple Async Actions
+
 ```tsx
 const [action, setAction] = useState<'save' | 'publish' | null>(null);
 
@@ -294,26 +316,26 @@ const [action, setAction] = useState<'save' | 'publish' | null>(null);
 ```
 
 ### 5. Optimistic UI Updates
+
 ```tsx
-const { execute, isLoading } = useAsyncAction(
-  async () => {
-    // Optimistically update UI
-    setLiked(true);
-    
-    try {
-      await likePost(postId);
-    } catch (error) {
-      // Revert on error
-      setLiked(false);
-      throw error;
-    }
+const { execute, isLoading } = useAsyncAction(async () => {
+  // Optimistically update UI
+  setLiked(true);
+
+  try {
+    await likePost(postId);
+  } catch (error) {
+    // Revert on error
+    setLiked(false);
+    throw error;
   }
-);
+});
 ```
 
 ## Testing Checklist
 
 For each button action, verify:
+
 - [ ] Loading state shows immediately on click
 - [ ] Button is disabled during loading
 - [ ] Loading text/spinner is visible
@@ -326,15 +348,13 @@ For each button action, verify:
 ## Performance Considerations
 
 1. **Debouncing**: For search/filter buttons, use debouncing
+
 ```tsx
 import { useDebouncedCallback } from 'use-debounce';
 
-const debouncedSearch = useDebouncedCallback(
-  async (query: string) => {
-    await searchItems(query);
-  },
-  300
-);
+const debouncedSearch = useDebouncedCallback(async (query: string) => {
+  await searchItems(query);
+}, 300);
 ```
 
 2. **Optimistic Updates**: For like/favorite actions, update UI immediately
@@ -343,6 +363,7 @@ const debouncedSearch = useDebouncedCallback(
 ## Common Pitfalls
 
 ### 1. Forgetting to Reset Loading State
+
 ```tsx
 // ❌ Bad - Loading state never resets on error
 const handleClick = async () => {
@@ -362,6 +383,7 @@ const handleClick = async () => {
 ```
 
 ### 2. Not Disabling Other Actions
+
 ```tsx
 // ❌ Bad - User can click other buttons during loading
 <Button onClick={handleSave} disabled={isSaving}>Save</Button>
@@ -373,6 +395,7 @@ const handleClick = async () => {
 ```
 
 ### 3. Missing Error Handling
+
 ```tsx
 // ❌ Bad - No error feedback
 const handleClick = async () => {
@@ -385,10 +408,10 @@ const handleClick = async () => {
     await doSomething();
     toast({ title: 'Success!' });
   } catch (error) {
-    toast({ 
-      title: 'Error', 
+    toast({
+      title: 'Error',
       description: error.message,
-      variant: 'destructive' 
+      variant: 'destructive',
     });
   }
 };

@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Star, StarHalf } from "lucide-react";
-import { cn } from "@/lib/utils";
+import * as React from 'react';
+import { Star, StarHalf } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export interface StarRatingProps {
   value: number; // 0-5, supports decimals for half stars
   onChange?: (value: number) => void;
   max?: number;
-  size?: "sm" | "md" | "lg";
+  size?: 'sm' | 'md' | 'lg';
   readonly?: boolean;
   showValue?: boolean;
   showCount?: boolean;
@@ -19,15 +19,15 @@ export interface StarRatingProps {
 }
 
 const sizeClasses = {
-  sm: "h-3.5 w-3.5",
-  md: "h-5 w-5",
-  lg: "h-6 w-6",
+  sm: 'h-3.5 w-3.5',
+  md: 'h-5 w-5',
+  lg: 'h-6 w-6',
 };
 
 const gapClasses = {
-  sm: "gap-0.5",
-  md: "gap-1",
-  lg: "gap-1.5",
+  sm: 'gap-0.5',
+  md: 'gap-1',
+  lg: 'gap-1.5',
 };
 
 /**
@@ -39,7 +39,7 @@ export function StarRating({
   value,
   onChange,
   max = 5,
-  size = "md",
+  size = 'md',
   readonly = false,
   showValue = false,
   showCount = false,
@@ -103,40 +103,40 @@ export function StarRating({
   const renderStar = (index: number) => {
     const starValue = index + 1;
     const fillPercentage = Math.min(1, Math.max(0, displayValue - index));
-    
+
     const isFull = fillPercentage >= 1;
     const isHalf = fillPercentage >= 0.5 && fillPercentage < 1;
     const isEmpty = fillPercentage < 0.5;
 
     const starContent = (
-      <span className="relative inline-flex">
+      <span className='relative inline-flex'>
         {/* Empty star (background) */}
         <Star
           className={cn(
             sizeClasses[size],
-            "text-muted-foreground/30",
-            isInteractive && "transition-colors"
+            'text-muted-foreground/30',
+            isInteractive && 'transition-colors'
           )}
         />
-        
+
         {/* Filled star (overlay) */}
         {isFull && (
           <Star
             className={cn(
               sizeClasses[size],
-              "absolute inset-0 fill-yellow-400 text-yellow-400",
-              isInteractive && "transition-colors"
+              'absolute inset-0 fill-yellow-400 text-yellow-400',
+              isInteractive && 'transition-colors'
             )}
           />
         )}
-        
+
         {/* Half star */}
         {isHalf && (
           <StarHalf
             className={cn(
               sizeClasses[size],
-              "absolute inset-0 fill-yellow-400 text-yellow-400",
-              isInteractive && "transition-colors"
+              'absolute inset-0 fill-yellow-400 text-yellow-400',
+              isInteractive && 'transition-colors'
             )}
           />
         )}
@@ -147,13 +147,13 @@ export function StarRating({
       return (
         <button
           key={index}
-          type="button"
+          type='button'
           className={cn(
-            "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm",
-            "cursor-pointer hover:scale-110 transition-transform"
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm',
+            'cursor-pointer hover:scale-110 transition-transform'
           )}
-          onMouseMove={(e) => handleMouseMove(e, index)}
-          onClick={(e) => handleClick(e, index)}
+          onMouseMove={e => handleMouseMove(e, index)}
+          onClick={e => handleClick(e, index)}
           aria-label={`Rate ${starValue} out of ${max} stars`}
         >
           {starContent}
@@ -166,26 +166,24 @@ export function StarRating({
 
   return (
     <div
-      className={cn("inline-flex items-center", gapClasses[size], className)}
+      className={cn('inline-flex items-center', gapClasses[size], className)}
       onMouseLeave={handleMouseLeave}
-      role={isInteractive ? "radiogroup" : "img"}
+      role={isInteractive ? 'radiogroup' : 'img'}
       aria-label={`Rating: ${value} out of ${max} stars`}
     >
       {/* Stars */}
-      <div className={cn("flex items-center", gapClasses[size])}>
+      <div className={cn('flex items-center', gapClasses[size])}>
         {Array.from({ length: max }, (_, i) => renderStar(i))}
       </div>
 
       {/* Value Display */}
       {showValue && (
-        <span className="text-sm font-medium ml-1">
-          {value.toFixed(1)}
-        </span>
+        <span className='text-sm font-medium ml-1'>{value.toFixed(1)}</span>
       )}
 
       {/* Review Count */}
       {showCount && (
-        <span className="text-sm text-muted-foreground ml-1">
+        <span className='text-sm text-muted-foreground ml-1'>
           ({count.toLocaleString()})
         </span>
       )}
@@ -212,24 +210,22 @@ export function RatingInput({
   className?: string;
 }) {
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn('space-y-2', className)}>
       {label && (
-        <label className="text-sm font-medium">
+        <label className='text-sm font-medium'>
           {label}
-          {required && <span className="text-destructive ml-1">*</span>}
+          {required && <span className='text-destructive ml-1'>*</span>}
         </label>
       )}
       <StarRating
         value={value}
         onChange={onChange}
-        size="lg"
+        size='lg'
         showValue
         allowHalf={false}
         allowClear
       />
-      {error && (
-        <p className="text-sm text-destructive">{error}</p>
-      )}
+      {error && <p className='text-sm text-destructive'>{error}</p>}
     </div>
   );
 }
@@ -240,27 +236,34 @@ export function RatingInput({
 export function RatingDisplay({
   rating,
   reviewCount,
-  size = "sm",
+  size = 'sm',
   className,
 }: {
   rating: number;
   reviewCount?: number;
-  size?: "sm" | "md";
+  size?: 'sm' | 'md';
   className?: string;
 }) {
   return (
-    <div className={cn("flex items-center gap-1", className)}>
+    <div className={cn('flex items-center gap-1', className)}>
       <Star
         className={cn(
-          "fill-yellow-400 text-yellow-400",
-          size === "sm" ? "h-4 w-4" : "h-5 w-5"
+          'fill-yellow-400 text-yellow-400',
+          size === 'sm' ? 'h-4 w-4' : 'h-5 w-5'
         )}
       />
-      <span className={cn("font-medium", size === "sm" ? "text-sm" : "text-base")}>
+      <span
+        className={cn('font-medium', size === 'sm' ? 'text-sm' : 'text-base')}
+      >
         {rating.toFixed(1)}
       </span>
       {reviewCount !== undefined && (
-        <span className={cn("text-muted-foreground", size === "sm" ? "text-sm" : "text-base")}>
+        <span
+          className={cn(
+            'text-muted-foreground',
+            size === 'sm' ? 'text-sm' : 'text-base'
+          )}
+        >
           ({reviewCount.toLocaleString()})
         </span>
       )}

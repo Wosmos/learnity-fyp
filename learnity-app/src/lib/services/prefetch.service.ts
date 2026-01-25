@@ -5,17 +5,17 @@
  */
 
 import { cache } from 'react';
-import { 
-  prefetchCoursesData, 
-  prefetchTeachersData, 
+import {
+  prefetchCoursesData,
+  prefetchTeachersData,
   getPlatformStats,
-  getDetailedStats 
+  getDetailedStats,
 } from '@/lib/data/stats';
 
 export interface PrefetchStrategy {
-  immediate: string[];  // Data to prefetch immediately
-  onHover: string[];    // Data to prefetch on hover
-  onIdle: string[];     // Data to prefetch when browser is idle
+  immediate: string[]; // Data to prefetch immediately
+  onHover: string[]; // Data to prefetch on hover
+  onIdle: string[]; // Data to prefetch when browser is idle
 }
 
 /**
@@ -25,12 +25,14 @@ export interface PrefetchStrategy {
 export const prefetchHomePageData = cache(async () => {
   try {
     // Prefetch all critical data in parallel
-    const [stats, detailedStats, coursesData, teachersData] = await Promise.all([
-      getPlatformStats(),
-      getDetailedStats(),
-      prefetchCoursesData(),
-      prefetchTeachersData(),
-    ]);
+    const [stats, detailedStats, coursesData, teachersData] = await Promise.all(
+      [
+        getPlatformStats(),
+        getDetailedStats(),
+        prefetchCoursesData(),
+        prefetchTeachersData(),
+      ]
+    );
 
     return {
       stats,
@@ -82,7 +84,7 @@ export function getPrefetchStrategy(currentPage: string): PrefetchStrategy {
 export const prefetchCoursesPage = cache(async () => {
   try {
     const data = await prefetchCoursesData();
-    
+
     // Additional course-specific data
     const [popularCourses, recentCourses] = await Promise.all([
       // Most popular courses by enrollment
@@ -98,7 +100,7 @@ export const prefetchCoursesPage = cache(async () => {
           take: 8,
         })
       ),
-      
+
       // Recently published courses
       import('@/lib/config/database').then(({ prisma }) =>
         prisma.course.findMany({
@@ -131,61 +133,62 @@ export const prefetchCoursesPage = cache(async () => {
 export const prefetchTeachersPage = cache(async () => {
   try {
     const data = await prefetchTeachersData();
-    
+
     // Additional teacher-specific data
-    const [topRatedTeachers, newTeachers, teachersBySubject] = await Promise.all([
-      // Top-rated teachers
-      import('@/lib/config/database').then(({ prisma }) =>
-        prisma.user.findMany({
-          where: {
-            role: 'TEACHER',
-            isActive: true,
-            teacherProfile: {
-              applicationStatus: 'APPROVED',
-              rating: { gte: 4.5 },
-            },
-          },
-          include: {
-            teacherProfile: true,
-            _count: {
-              select: {
-                teacherCourses: { where: { status: 'PUBLISHED' } },
+    const [topRatedTeachers, newTeachers, teachersBySubject] =
+      await Promise.all([
+        // Top-rated teachers
+        import('@/lib/config/database').then(({ prisma }) =>
+          prisma.user.findMany({
+            where: {
+              role: 'TEACHER',
+              isActive: true,
+              teacherProfile: {
+                applicationStatus: 'APPROVED',
+                rating: { gte: 4.5 },
               },
             },
-          },
-          orderBy: { teacherProfile: { rating: 'desc' } },
-          take: 12,
-        })
-      ),
-      
-      // Recently joined teachers
-      import('@/lib/config/database').then(({ prisma }) =>
-        prisma.user.findMany({
-          where: {
-            role: 'TEACHER',
-            isActive: true,
-            teacherProfile: { applicationStatus: 'APPROVED' },
-          },
-          include: { teacherProfile: true },
-          orderBy: { createdAt: 'desc' },
-          take: 6,
-        })
-      ),
-      
-      // Teachers grouped by popular subjects
-      import('@/lib/config/database').then(({ prisma }) =>
-        prisma.teacherProfile.groupBy({
-          by: ['subjects'],
-          where: {
-            applicationStatus: 'APPROVED',
-            user: { isActive: true },
-          },
-          _count: { subjects: true },
-          orderBy: { _count: { subjects: 'desc' } },
-          take: 10,
-        })
-      ),
-    ]);
+            include: {
+              teacherProfile: true,
+              _count: {
+                select: {
+                  teacherCourses: { where: { status: 'PUBLISHED' } },
+                },
+              },
+            },
+            orderBy: { teacherProfile: { rating: 'desc' } },
+            take: 12,
+          })
+        ),
+
+        // Recently joined teachers
+        import('@/lib/config/database').then(({ prisma }) =>
+          prisma.user.findMany({
+            where: {
+              role: 'TEACHER',
+              isActive: true,
+              teacherProfile: { applicationStatus: 'APPROVED' },
+            },
+            include: { teacherProfile: true },
+            orderBy: { createdAt: 'desc' },
+            take: 6,
+          })
+        ),
+
+        // Teachers grouped by popular subjects
+        import('@/lib/config/database').then(({ prisma }) =>
+          prisma.teacherProfile.groupBy({
+            by: ['subjects'],
+            where: {
+              applicationStatus: 'APPROVED',
+              user: { isActive: true },
+            },
+            _count: { subjects: true },
+            orderBy: { _count: { subjects: 'desc' } },
+            take: 10,
+          })
+        ),
+      ]);
 
     return {
       ...data,
@@ -222,8 +225,8 @@ export const clientPrefetch = {
   onIntersection: (callback: () => void) => {
     if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
       const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
+        entries => {
+          entries.forEach(entry => {
             if (entry.isIntersecting) {
               callback();
               observer.disconnect();

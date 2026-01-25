@@ -1,7 +1,7 @@
 /**
  * Gamification Service Interface
  * Defines the contract for gamification operations (XP, streaks, badges)
- * 
+ *
  * Requirements covered:
  * - 5.4: Award 10 XP points when lesson is completed
  * - 6.7: Award 20 XP bonus points when quiz is passed
@@ -41,17 +41,17 @@ export const XP_AMOUNTS = {
  * Level thresholds - XP required for each level
  */
 export const LEVEL_THRESHOLDS = [
-  0,      // Level 1
-  100,    // Level 2
-  250,    // Level 3
-  500,    // Level 4
-  1000,   // Level 5
-  2000,   // Level 6
-  3500,   // Level 7
-  5500,   // Level 8
-  8000,   // Level 9
-  11000,  // Level 10
-  15000,  // Level 11+
+  0, // Level 1
+  100, // Level 2
+  250, // Level 3
+  500, // Level 4
+  1000, // Level 5
+  2000, // Level 6
+  3500, // Level 7
+  5500, // Level 8
+  8000, // Level 9
+  11000, // Level 10
+  15000, // Level 11+
 ] as const;
 
 /**
@@ -169,7 +169,10 @@ export interface IGamificationService {
    * @returns The awarded badge or null if not earned
    * Requirements: 10.6
    */
-  checkAndAwardBadge(userId: string, badgeKey: string): Promise<UserBadge | null>;
+  checkAndAwardBadge(
+    userId: string,
+    badgeKey: string
+  ): Promise<UserBadge | null>;
 
   /**
    * Get student's gamification progress

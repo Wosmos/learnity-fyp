@@ -75,22 +75,22 @@ export function Footer({
 }: FooterProps) {
   return (
     <footer className={cn('bg-gray-50 border-t border-gray-200', className)}>
-      <div className="container mx-auto px-4 py-12">
+      <div className='container mx-auto px-4 py-12'>
         {/* Links Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-8 mb-8'>
           {sections.map((section, index) => (
             <div key={index}>
-              <h3 className="font-semibold text-gray-900 mb-4 text-sm">
+              <h3 className='font-semibold text-gray-900 mb-4 text-sm'>
                 {section.title}
               </h3>
-              <div className="space-y-3">
+              <div className='space-y-3'>
                 {section.links.map((link, linkIndex) => (
                   <Link
                     key={linkIndex}
                     href={link.href}
                     target={link.external ? '_blank' : undefined}
                     rel={link.external ? 'noopener noreferrer' : undefined}
-                    className="block text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                    className='block text-sm text-gray-600 hover:text-blue-600 transition-colors'
                   >
                     {link.label}
                   </Link>
@@ -101,31 +101,33 @@ export function Footer({
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-gray-200">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className='pt-8 border-t border-gray-200'>
+          <div className='flex flex-col md:flex-row items-center justify-between gap-4'>
             {/* Brand */}
             {showBrand && (
-              <div className="flex items-center space-x-3">
-                <div className="p-1.5 bg-slate-600 rounded-lg">
-                  <GraduationCap className="h-5 w-5 text-white" />
+              <div className='flex items-center space-x-3'>
+                <div className='p-1.5 bg-slate-600 rounded-lg flex items-center justify-center'>
+                  <img src='/logo.svg' alt='Learnity' className='h-5 w-5' />
                 </div>
-                <span className="font-bold text-gray-900">Learnity</span>
+                <span className='font-bold text-gray-900'>Learnity</span>
               </div>
             )}
 
             {/* Copyright */}
-            <div className="text-sm text-gray-600 text-center md:text-left">
+            <div className='text-sm text-gray-600 text-center md:text-left'>
               {copyright}
             </div>
 
             {/* Status */}
             {status && (
-              <div className="flex items-center space-x-2">
-                <div className={cn(
-                  'w-2 h-2 rounded-full',
-                  status.online !== false ? 'bg-green-500' : 'bg-gray-400'
-                )}></div>
-                <span className="text-sm text-gray-600">{status.text}</span>
+              <div className='flex items-center space-x-2'>
+                <div
+                  className={cn(
+                    'w-2 h-2 rounded-full',
+                    status.online !== false ? 'bg-green-500' : 'bg-gray-400'
+                  )}
+                ></div>
+                <span className='text-sm text-gray-600'>{status.text}</span>
               </div>
             )}
           </div>
@@ -134,4 +136,3 @@ export function Footer({
     </footer>
   );
 }
-

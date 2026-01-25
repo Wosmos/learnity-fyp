@@ -7,7 +7,7 @@ import { generateDeviceFingerprintLegacy } from '@/lib/utils/device-fingerprint'
 /**
  * Email Verification Status Sync API Endpoint
  * POST /api/auth/verify-email
- * 
+ *
  * This endpoint is called after Firebase Auth email verification
  * to sync the verification status to Neon DB
  */
@@ -26,30 +26,32 @@ export async function POST(request: NextRequest) {
           success: false,
           error: {
             code: 'MISSING_TOKEN',
-            message: 'ID token is required'
-          }
+            message: 'ID token is required',
+          },
         },
         { status: 400 }
       );
     }
 
     // Get client information for audit logging
-    const clientIP = request.headers.get('x-forwarded-for') || 
-                    request.headers.get('x-real-ip') || 
-                    'unknown';
+    const clientIP =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
     // Verify and decode the ID token
-    const decodedToken = await firebaseAuthService.validateAndDecodeToken(idToken);
-    
+    const decodedToken =
+      await firebaseAuthService.validateAndDecodeToken(idToken);
+
     if (!decodedToken) {
       return NextResponse.json(
         {
           success: false,
           error: {
             code: 'INVALID_TOKEN',
-            message: 'Invalid or expired token'
-          }
+            message: 'Invalid or expired token',
+          },
         },
         { status: 401 }
       );
@@ -61,15 +63,15 @@ export async function POST(request: NextRequest) {
     // Sync email verification status to Neon DB
     try {
       const userProfile = await databaseService.getUserProfile(firebaseUid);
-      
+
       if (!userProfile) {
         return NextResponse.json(
           {
             success: false,
             error: {
               code: 'USER_NOT_FOUND',
-              message: 'User profile not found'
-            }
+              message: 'User profile not found',
+            },
           },
           { status: 404 }
         );
@@ -77,14 +79,15 @@ export async function POST(request: NextRequest) {
 
       // Update email verification status in Neon DB
       await databaseService.updateUserProfile(firebaseUid, {
-        emailVerified
+        emailVerified,
       });
 
       // Update Firebase custom claims to reflect verification status
-      const currentClaims = await firebaseAuthService.getCustomClaims(firebaseUid);
+      const currentClaims =
+        await firebaseAuthService.getCustomClaims(firebaseUid);
       await firebaseAuthService.setCustomClaims(firebaseUid, {
         ...currentClaims,
-        emailVerified
+        emailVerified,
       });
 
       // Log email verification event
@@ -98,20 +101,19 @@ export async function POST(request: NextRequest) {
         metadata: {
           email: decodedToken.email,
           emailVerified,
-          previousStatus: userProfile.emailVerified
-        }
+          previousStatus: userProfile.emailVerified,
+        },
       });
 
       return NextResponse.json({
         success: true,
         data: {
           emailVerified,
-          message: emailVerified 
+          message: emailVerified
             ? 'Email verification confirmed and synced to profile'
-            : 'Email verification status checked'
-        }
+            : 'Email verification status checked',
+        },
       });
-
     } catch (dbError: any) {
       console.error('Failed to sync email verification to Neon DB:', dbError);
 
@@ -126,8 +128,8 @@ export async function POST(request: NextRequest) {
         errorMessage: dbError.message,
         metadata: {
           email: decodedToken.email,
-          emailVerified
-        }
+          emailVerified,
+        },
       });
 
       return NextResponse.json(
@@ -135,20 +137,20 @@ export async function POST(request: NextRequest) {
           success: false,
           error: {
             code: 'DATABASE_SYNC_ERROR',
-            message: 'Failed to sync email verification status'
-          }
+            message: 'Failed to sync email verification status',
+          },
         },
         { status: 500 }
       );
     }
-
   } catch (error: any) {
     console.error('Email verification sync error:', error);
 
     // Log unexpected error
-    const clientIP = request.headers.get('x-forwarded-for') || 
-                    request.headers.get('x-real-ip') || 
-                    'unknown';
+    const clientIP =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
     try {
@@ -160,8 +162,8 @@ export async function POST(request: NextRequest) {
         success: false,
         errorMessage: error.message,
         metadata: {
-          errorStack: error.stack
-        }
+          errorStack: error.stack,
+        },
       });
     } catch (logError) {
       console.error('Failed to log audit event:', logError);
@@ -172,8 +174,9 @@ export async function POST(request: NextRequest) {
         success: false,
         error: {
           code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred during email verification sync'
-        }
+          message:
+            'An unexpected error occurred during email verification sync',
+        },
       },
       { status: 500 }
     );
@@ -202,30 +205,32 @@ export async function PUT(request: NextRequest) {
           success: false,
           error: {
             code: 'MISSING_TOKEN',
-            message: 'ID token is required'
-          }
+            message: 'ID token is required',
+          },
         },
         { status: 400 }
       );
     }
 
     // Get client information for audit logging
-    const clientIP = request.headers.get('x-forwarded-for') || 
-                    request.headers.get('x-real-ip') || 
-                    'unknown';
+    const clientIP =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
     // Verify and decode the ID token
-    const decodedToken = await firebaseAuthService.validateAndDecodeToken(idToken);
-    
+    const decodedToken =
+      await firebaseAuthService.validateAndDecodeToken(idToken);
+
     if (!decodedToken) {
       return NextResponse.json(
         {
           success: false,
           error: {
             code: 'INVALID_TOKEN',
-            message: 'Invalid or expired token'
-          }
+            message: 'Invalid or expired token',
+          },
         },
         { status: 401 }
       );
@@ -233,15 +238,15 @@ export async function PUT(request: NextRequest) {
 
     // Get current user from Firebase Auth
     const currentUser = await firebaseAuthService.getCurrentUser();
-    
+
     if (!currentUser || currentUser.uid !== decodedToken.uid) {
       return NextResponse.json(
         {
           success: false,
           error: {
             code: 'USER_NOT_AUTHENTICATED',
-            message: 'User not authenticated'
-          }
+            message: 'User not authenticated',
+          },
         },
         { status: 401 }
       );
@@ -249,14 +254,12 @@ export async function PUT(request: NextRequest) {
 
     // Check if email is already verified
     if (currentUser.emailVerified) {
-      return NextResponse.json(
-        {
-          success: true,
-          data: {
-            message: 'Email is already verified'
-          }
-        }
-      );
+      return NextResponse.json({
+        success: true,
+        data: {
+          message: 'Email is already verified',
+        },
+      });
     }
 
     // Send email verification
@@ -272,17 +275,16 @@ export async function PUT(request: NextRequest) {
         userAgent,
         success: true,
         metadata: {
-          email: currentUser.email
-        }
+          email: currentUser.email,
+        },
       });
 
       return NextResponse.json({
         success: true,
         data: {
-          message: 'Verification email sent successfully'
-        }
+          message: 'Verification email sent successfully',
+        },
       });
-
     } catch (sendError: any) {
       console.error('Failed to send verification email:', sendError);
 
@@ -296,8 +298,8 @@ export async function PUT(request: NextRequest) {
         success: false,
         errorMessage: sendError.message,
         metadata: {
-          email: currentUser.email
-        }
+          email: currentUser.email,
+        },
       });
 
       return NextResponse.json(
@@ -305,13 +307,12 @@ export async function PUT(request: NextRequest) {
           success: false,
           error: {
             code: 'EMAIL_SEND_FAILED',
-            message: 'Failed to send verification email'
-          }
+            message: 'Failed to send verification email',
+          },
         },
         { status: 500 }
       );
     }
-
   } catch (error: any) {
     console.error('Email verification resend error:', error);
 
@@ -320,8 +321,8 @@ export async function PUT(request: NextRequest) {
         success: false,
         error: {
           code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred'
-        }
+          message: 'An unexpected error occurred',
+        },
       },
       { status: 500 }
     );
@@ -349,7 +350,7 @@ async function logAuditEvent(
 ) {
   try {
     const prisma = (databaseService as any).prisma;
-    
+
     await prisma.auditLog.create({
       data: {
         firebaseUid: event.firebaseUid,
@@ -360,11 +361,13 @@ async function logAuditEvent(
         success: event.success,
         errorMessage: event.errorMessage,
         metadata: event.metadata || {},
-        deviceFingerprint: generateDeviceFingerprintLegacy(event.userAgent, event.ipAddress)
-      }
+        deviceFingerprint: generateDeviceFingerprintLegacy(
+          event.userAgent,
+          event.ipAddress
+        ),
+      },
     });
   } catch (error) {
     console.error('Failed to log audit event:', error);
   }
 }
-

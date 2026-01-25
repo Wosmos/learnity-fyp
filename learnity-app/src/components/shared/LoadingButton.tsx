@@ -7,8 +7,8 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface LoadingButtonProps extends React.ComponentProps<typeof Button> {
@@ -32,7 +32,7 @@ export function LoadingButton({
     >
       {isLoading ? (
         <>
-          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          <Loader2 className='h-4 w-4 mr-2 animate-spin' />
           {loadingText || children}
         </>
       ) : (

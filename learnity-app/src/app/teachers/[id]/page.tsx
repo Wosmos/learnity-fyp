@@ -3,10 +3,10 @@
  * Dynamic page showing complete teacher profile
  */
 
-import { notFound } from "next/navigation";
-import { PublicLayout } from "@/components/layout/AppLayout";
-import { TeacherDetailContent } from "@/components/teachers/TeacherDetailContent";
-import { prisma } from "@/lib/config/database";
+import { notFound } from 'next/navigation';
+import { PublicLayout } from '@/components/layout/AppLayout';
+import { TeacherDetailContent } from '@/components/teachers/TeacherDetailContent';
+import { prisma } from '@/lib/config/database';
 
 interface PageProps {
   params: Promise<{
@@ -19,7 +19,7 @@ async function getTeacher(id: string) {
     const teacher = await prisma.user.findUnique({
       where: {
         id,
-        role: "TEACHER",
+        role: 'TEACHER',
         isActive: true,
       },
       include: {
@@ -30,7 +30,7 @@ async function getTeacher(id: string) {
     if (
       !teacher ||
       !teacher.teacherProfile ||
-      teacher.teacherProfile.applicationStatus !== "APPROVED"
+      teacher.teacherProfile.applicationStatus !== 'APPROVED'
     ) {
       return null;
     }
@@ -45,27 +45,27 @@ async function getTeacher(id: string) {
         teacher.profilePicture || teacher.teacherProfile.profilePicture,
       subjects: teacher.teacherProfile.subjects,
       experience: teacher.teacherProfile.experience,
-      bio: teacher.teacherProfile.bio || "",
+      bio: teacher.teacherProfile.bio || '',
       hourlyRate: teacher.teacherProfile.hourlyRate?.toString() || null,
       qualifications: teacher.teacherProfile.qualifications,
       isTopRated: teacher.teacherProfile.rating.toNumber() >= 4.5,
-      rating: teacher.teacherProfile.rating?.toString() || "0",
+      rating: teacher.teacherProfile.rating?.toString() || '0',
       reviewCount: teacher.teacherProfile.reviewCount,
-      responseTime: teacher.teacherProfile.responseTime || "N/A",
+      responseTime: teacher.teacherProfile.responseTime || 'N/A',
       availability:
-        teacher.teacherProfile.availability || "Contact for availability",
+        teacher.teacherProfile.availability || 'Contact for availability',
       languages: teacher.teacherProfile.languages,
       lessonsCompleted: teacher.teacherProfile.lessonsCompleted,
       activeStudents: teacher.teacherProfile.activeStudents,
-      teachingStyle: teacher.teacherProfile.teachingStyle || "Interactive",
+      teachingStyle: teacher.teacherProfile.teachingStyle || 'Interactive',
       specialties: teacher.teacherProfile.specialties,
       certifications: teacher.teacherProfile.certifications,
       education: teacher.teacherProfile.education,
       availableDays: teacher.teacherProfile.availableDays,
       preferredTimes: teacher.teacherProfile.preferredTimes,
-      headline: teacher.teacherProfile.headline || "",
+      headline: teacher.teacherProfile.headline || '',
       achievements: teacher.teacherProfile.achievements,
-      teachingApproach: teacher.teacherProfile.teachingApproach || "",
+      teachingApproach: teacher.teacherProfile.teachingApproach || '',
       videoIntroUrl: teacher.teacherProfile.videoIntroUrl || null,
       bannerImage: teacher.teacherProfile.bannerImage || null,
       city: teacher.teacherProfile.city || null,
@@ -89,7 +89,7 @@ async function getTeacher(id: string) {
       whyChooseMe: teacher.teacherProfile.whyChooseMe,
     };
   } catch (error) {
-    console.error("Error fetching teacher:", error);
+    console.error('Error fetching teacher:', error);
     return null;
   }
 }
@@ -98,16 +98,15 @@ export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
   const teacher = await getTeacher(id);
   console.log(teacher, 'teacher data on server ');
-  
 
   if (!teacher) {
     return {
-      title: "Teacher Not Found | Learnity",
+      title: 'Teacher Not Found | Learnity',
     };
   }
 
   return {
-    title: `${teacher.name} - ${teacher.subjects.join(", ")} Tutor | Learnity`,
+    title: `${teacher.name} - ${teacher.subjects.join(', ')} Tutor | Learnity`,
     description: teacher.bio,
   };
 }

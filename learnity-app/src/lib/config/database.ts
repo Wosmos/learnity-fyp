@@ -6,14 +6,19 @@ declare global {
 }
 
 // Create a singleton Prisma client
-const prisma = globalThis.prisma || new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL
-    }
-  }
-});
+const prisma =
+  globalThis.prisma ||
+  new PrismaClient({
+    log:
+      process.env.NODE_ENV === 'development'
+        ? ['query', 'error', 'warn']
+        : ['error'],
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
+  });
 
 // In development, store the client on the global object to prevent multiple instances
 if (process.env.NODE_ENV === 'development') {

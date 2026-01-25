@@ -12,9 +12,15 @@ type AuthenticatedAdmin = {
  * GET: Fetch platform statistics and metrics
  */
 
-async function handleGetStats(request: NextRequest, user: AuthenticatedAdmin): Promise<NextResponse> {
+async function handleGetStats(
+  request: NextRequest,
+  user: AuthenticatedAdmin
+): Promise<NextResponse> {
   try {
-    console.debug('[AdminStats] request received', { url: request.url, admin: user.firebaseUid });
+    console.debug('[AdminStats] request received', {
+      url: request.url,
+      admin: user.firebaseUid,
+    });
     // Get current date ranges
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -28,61 +34,62 @@ async function handleGetStats(request: NextRequest, user: AuthenticatedAdmin): P
       approvedTeachers,
       totalStudents,
       newUsersThisMonth,
-      newUsersLastMonth
+      newUsersLastMonth,
     ] = await Promise.all([
       // Total users
       prisma.user.count(),
-      
+
       // Pending teachers
       prisma.user.count({
-        where: { role: UserRole.PENDING_TEACHER }
+        where: { role: UserRole.PENDING_TEACHER },
       }),
-      
+
       // Approved teachers
       prisma.user.count({
-        where: { role: UserRole.TEACHER }
+        where: { role: UserRole.TEACHER },
       }),
-      
+
       // Total students
       prisma.user.count({
-        where: { role: UserRole.STUDENT }
+        where: { role: UserRole.STUDENT },
       }),
-      
+
       // New users this month
       prisma.user.count({
         where: {
           createdAt: {
-            gte: startOfMonth
-          }
-        }
+            gte: startOfMonth,
+          },
+        },
       }),
-      
+
       // New users last month
       prisma.user.count({
         where: {
           createdAt: {
             gte: startOfLastMonth,
-            lte: endOfLastMonth
-          }
-        }
-      })
+            lte: endOfLastMonth,
+          },
+        },
+      }),
     ]);
 
     // Calculate growth metrics
-    const userGrowthRate = newUsersLastMonth > 0 
-      ? ((newUsersThisMonth - newUsersLastMonth) / newUsersLastMonth) * 100 
-      : 0;
+    const userGrowthRate =
+      newUsersLastMonth > 0
+        ? ((newUsersThisMonth - newUsersLastMonth) / newUsersLastMonth) * 100
+        : 0;
 
     // Fetch session statistics (if sessions table exists)
     let activeSessions = 0;
     let sessionCompletionRate = 0;
-    
+
     try {
       // These would be actual queries if session tables exist
       activeSessions = Math.floor(Math.random() * 100); // Placeholder
       const totalSessions = Math.floor(Math.random() * 1000) + 500; // Placeholder
       sessionCompletionRate = 94.2; // Placeholder
-      
+
       // Use totalSessions for future calculations when needed
       console.log(`Total sessions: ${totalSessions}`);
     } catch {
@@ -102,9 +109,9 @@ async function handleGetStats(request: NextRequest, user: AuthenticatedAdmin): P
     const recentSignups = await prisma.user.count({
       where: {
         createdAt: {
-          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
-        }
-      }
+          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Last 7 days
+        },
+      },
     });
 
     // Teacher retention rate (placeholder calculation)
@@ -136,7 +143,7 @@ async function handleGetStats(request: NextRequest, user: AuthenticatedAdmin): P
       // Platform health
       systemStatus: 'operational',
       uptime: '99.9%',
-      responseTime: '120ms'
+      responseTime: '120ms',
     };
 
     // Platform metrics for dashboard
@@ -145,35 +152,35 @@ async function handleGetStats(request: NextRequest, user: AuthenticatedAdmin): P
         label: 'New Signups',
         value: recentSignups.toString(),
         change: `+${Math.round(userGrowthRate)}%`,
-        trend: userGrowthRate > 0 ? 'up' : userGrowthRate < 0 ? 'down' : 'stable'
+        trend:
+          userGrowthRate > 0 ? 'up' : userGrowthRate < 0 ? 'down' : 'stable',
       },
       {
         label: 'Session Completion',
         value: `${sessionCompletionRate}%`,
         change: '+2.1%',
-        trend: 'up'
+        trend: 'up',
       },
       {
         label: 'Teacher Retention',
         value: `${teacherRetentionRate}%`,
         change: '-1.2%',
-        trend: 'down'
+        trend: 'down',
       },
       {
         label: 'Revenue Growth',
         value: `${revenueGrowth}%`,
         change: '+3.2%',
-        trend: 'up'
-      }
+        trend: 'up',
+      },
     ];
 
     return NextResponse.json({
       success: true,
       stats,
       platformMetrics,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Admin stats fetch error:', error);
     return NextResponse.json(

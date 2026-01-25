@@ -1,7 +1,7 @@
 /**
  * QuizService Unit Tests
  * Tests for quiz management operations
- * 
+ *
  * Requirements covered:
  * - 6.1: Create multiple-choice quizzes with 2-4 options per question
  * - 6.2: Support explanations for correct answers
@@ -31,8 +31,8 @@ jest.mock('@/lib/env-validation', () => ({
   },
 }));
 
-import { QuizService } from '../quiz.service';
 import { QuizError, QuizErrorCode } from '@/lib/interfaces/quiz.interface';
+import { QuizService } from '../quiz.service';
 
 // Mock PrismaClient
 const mockPrisma = {
@@ -99,7 +99,9 @@ describe('QuizService', () => {
     });
 
     it('should throw error when quiz already exists for lesson', async () => {
-      mockPrisma.lesson.findUnique.mockResolvedValue({ id: 'clxxxxxxxxxxxxxxxxxxxxxxxxx' });
+      mockPrisma.lesson.findUnique.mockResolvedValue({
+        id: 'clxxxxxxxxxxxxxxxxxxxxxxxxx',
+      });
       mockPrisma.quiz.findUnique.mockResolvedValue({ id: 'existing-quiz' });
 
       await expect(

@@ -3,14 +3,14 @@
  * Handles synchronization between Firebase Auth and Neon DB
  */
 
-import { 
-  ISyncService, 
-  FirebaseUser, 
-  SyncReport, 
-  SyncError 
+import { UserRole } from '@prisma/client';
+import {
+  ISyncService,
+  FirebaseUser,
+  SyncReport,
+  SyncError,
 } from '../interfaces/database-sync.interface';
 import { DatabaseService } from './database.service';
-import { UserRole } from '@prisma/client';
 
 export class FirebaseSyncService implements ISyncService {
   private databaseService: DatabaseService;
@@ -24,17 +24,21 @@ export class FirebaseSyncService implements ISyncService {
    */
   async syncFirebaseUserToNeonDB(firebaseUser: FirebaseUser): Promise<void> {
     try {
-      const existingUser = await this.databaseService.getUserProfile(firebaseUser.uid);
-      
+      const existingUser = await this.databaseService.getUserProfile(
+        firebaseUser.uid
+      );
+
       if (existingUser) {
         // Update existing user
         await this.databaseService.updateUserProfile(firebaseUser.uid, {
           emailVerified: firebaseUser.emailVerified,
-          lastLoginAt: new Date()
+          lastLoginAt: new Date(),
         });
       } else {
         // This should not happen in normal flow as users are created during registration
-        console.warn(`Firebase user ${firebaseUser.uid} not found in Neon DB during sync`);
+        console.warn(
+          `Firebase user ${firebaseUser.uid} not found in Neon DB during sync`
+        );
       }
     } catch (error) {
       console.error('Error syncing Firebase user to Neon DB:', error);
@@ -49,7 +53,7 @@ export class FirebaseSyncService implements ISyncService {
   async syncNeonDBToFirebaseClaims(firebaseUid: string): Promise<void> {
     try {
       const user = await this.databaseService.getUserProfile(firebaseUid);
-      
+
       if (!user) {
         throw new Error(`User not found in Neon DB: ${firebaseUid}`);
       }
@@ -59,27 +63,27 @@ export class FirebaseSyncService implements ISyncService {
         role: user.role,
         emailVerified: user.emailVerified,
         profileComplete: this.calculateProfileCompleteness(user),
-        permissions: this.getPermissionsForRole(user.role)
+        permissions: this.getPermissionsForRole(user.role),
       };
 
       // TODO: Implement Firebase Admin SDK custom claims update
       // await admin.auth().setCustomUserClaims(firebaseUid, customClaims);
-      
+
       console.log(`Custom claims prepared for ${firebaseUid}:`, customClaims);
     } catch (error) {
       console.error('Error syncing Neon DB to Firebase claims:', error);
       throw error;
     }
-  }  /**
+  } /**
 
    * Handle email verification sync between Firebase and Neon DB
    */
   async handleEmailVerificationSync(firebaseUid: string): Promise<void> {
     try {
       await this.databaseService.updateUserProfile(firebaseUid, {
-        emailVerified: true
+        emailVerified: true,
       });
-      
+
       // Update Firebase custom claims to reflect verification
       await this.syncNeonDBToFirebaseClaims(firebaseUid);
     } catch (error) {
@@ -96,7 +100,7 @@ export class FirebaseSyncService implements ISyncService {
       totalUsers: 0,
       syncedUsers: 0,
       failedSyncs: 0,
-      errors: []
+      errors: [],
     };
 
     try {
@@ -107,7 +111,7 @@ export class FirebaseSyncService implements ISyncService {
       // For now, we'll check Neon DB users
       // This is a placeholder implementation
       console.log('Consistency check completed:', report);
-      
+
       return report;
     } catch (error) {
       console.error('Error during consistency check:', error);
@@ -122,15 +126,15 @@ export class FirebaseSyncService implements ISyncService {
     if (user.role === UserRole.STUDENT && user.studentProfile) {
       return user.studentProfile.profileCompletionPercentage >= 80;
     }
-    
+
     if (user.role === UserRole.TEACHER && user.teacherProfile) {
       return user.teacherProfile.applicationStatus === 'APPROVED';
     }
-    
+
     if (user.role === UserRole.ADMIN) {
       return true;
     }
-    
+
     return false;
   }
 
@@ -144,32 +148,29 @@ export class FirebaseSyncService implements ISyncService {
           'view:student_dashboard',
           'join:study_groups',
           'book:tutoring',
-          'enhance:profile'
+          'enhance:profile',
         ];
-      
+
       case UserRole.TEACHER:
         return [
           'view:teacher_dashboard',
           'manage:sessions',
           'upload:content',
-          'view:student_progress'
+          'view:student_progress',
         ];
-      
+
       case UserRole.PENDING_TEACHER:
-        return [
-          'view:application_status',
-          'update:application'
-        ];
-      
+        return ['view:application_status', 'update:application'];
+
       case UserRole.ADMIN:
         return [
           'view:admin_panel',
           'manage:users',
           'approve:teachers',
           'view:audit_logs',
-          'manage:platform'
+          'manage:platform',
         ];
-      
+
       default:
         return [];
     }

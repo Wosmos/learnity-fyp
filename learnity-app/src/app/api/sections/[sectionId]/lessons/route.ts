@@ -2,12 +2,13 @@
  * Lesson API Routes for Section
  * POST /api/sections/[sectionId]/lessons - Create new lesson
  * GET /api/sections/[sectionId]/lessons - Get all lessons for a section
- * 
+ *
  * Requirements covered:
  * - 1.7: Adding YouTube video links as lessons with title and duration
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 import { lessonService } from '@/lib/services/lesson.service';
 import { sectionService } from '@/lib/services/section.service';
 import { CreateLessonSchema } from '@/lib/validators/lesson';
@@ -21,7 +22,6 @@ import {
   createValidationErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { ZodError } from 'zod';
 
 interface RouteParams {
   params: Promise<{ sectionId: string }>;
@@ -120,7 +120,10 @@ export async function POST(
     }
 
     // Validate ownership through section
-    const isOwner = await sectionService.validateOwnership(sectionId, dbUser.id);
+    const isOwner = await sectionService.validateOwnership(
+      sectionId,
+      dbUser.id
+    );
     if (!isOwner) {
       return createErrorResponse(
         'FORBIDDEN',
@@ -134,7 +137,7 @@ export async function POST(
     const body = await request.json();
 
     // Get next order if not provided
-    const order = body.order ?? await lessonService.getNextOrder(sectionId);
+    const order = body.order ?? (await lessonService.getNextOrder(sectionId));
 
     // Validate input
     const validatedData = CreateLessonSchema.parse({

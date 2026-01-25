@@ -1,12 +1,13 @@
 /**
  * Lesson Reorder API Route
  * PUT /api/sections/[sectionId]/lessons/reorder - Reorder lessons
- * 
+ *
  * Requirements covered:
  * - 1.9: Reordering lessons via drag-and-drop
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 import { lessonService } from '@/lib/services/lesson.service';
 import { sectionService } from '@/lib/services/section.service';
 import { ReorderLessonsSchema } from '@/lib/validators/lesson';
@@ -20,7 +21,6 @@ import {
   createValidationErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { ZodError } from 'zod';
 
 interface RouteParams {
   params: Promise<{ sectionId: string }>;
@@ -74,7 +74,10 @@ export async function PUT(
     }
 
     // Validate ownership through section
-    const isOwner = await sectionService.validateOwnership(sectionId, dbUser.id);
+    const isOwner = await sectionService.validateOwnership(
+      sectionId,
+      dbUser.id
+    );
     if (!isOwner) {
       return createErrorResponse(
         'FORBIDDEN',

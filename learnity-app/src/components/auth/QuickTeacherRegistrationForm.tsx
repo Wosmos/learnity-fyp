@@ -9,53 +9,121 @@ import React, { useState, useCallback } from 'react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  BookOpen,
+  Eye,
+  EyeOff,
+  ArrowLeft,
+  ArrowRight,
+  Loader2,
+  User,
+  GraduationCap,
+  Clock,
+  Shield,
+  CheckCircle,
+  Youtube,
+} from 'lucide-react';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Progress } from '@/components/ui/progress';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { quickTeacherRegistrationSchema, type QuickTeacherRegistrationData } from '@/lib/validators/quick-teacher-registration';
-import { useAuthStore } from '@/lib/stores/auth.store';
 import {
-  BookOpen, Eye, EyeOff, ArrowLeft, ArrowRight, Loader2, User,
-  GraduationCap, Clock, Shield, CheckCircle, Youtube
-} from 'lucide-react';
-import HCaptcha from '@hcaptcha/react-hcaptcha';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  quickTeacherRegistrationSchema,
+  type QuickTeacherRegistrationData,
+} from '@/lib/validators/quick-teacher-registration';
+import { useAuthStore } from '@/lib/stores/auth.store';
 import { useToast } from '@/hooks/use-toast';
 
 // Simplified constants
 const SUBJECTS = [
-  'Mathematics', 'Science', 'English', 'History', 'Physics',
-  'Chemistry', 'Biology', 'Computer Science', 'Art', 'Music',
-  'Foreign Languages', 'Economics', 'Psychology', 'Business',
-  'Programming', 'Web Development', 'Data Science'
+  'Mathematics',
+  'Science',
+  'English',
+  'History',
+  'Physics',
+  'Chemistry',
+  'Biology',
+  'Computer Science',
+  'Art',
+  'Music',
+  'Foreign Languages',
+  'Economics',
+  'Psychology',
+  'Business',
+  'Programming',
+  'Web Development',
+  'Data Science',
 ];
 
 const AGE_GROUPS = [
-  'Elementary (6-10)', 'Middle School (11-13)', 'High School (14-18)',
-  'College/University (18-22)', 'Adult Learners (23+)'
+  'Elementary (6-10)',
+  'Middle School (11-13)',
+  'High School (14-18)',
+  'College/University (18-22)',
+  'Adult Learners (23+)',
 ];
 
 const COUNTRIES = [
-  'United States', 'Brazil', "Pakistan", "Sri Lanka", "Saudi Arabia"
+  'United States',
+  'Brazil',
+  'Pakistan',
+  'Sri Lanka',
+  'Saudi Arabia',
 ];
 
 const TIMEZONES = [
-  'UTC-08:00 (Pacific)', 'UTC-07:00 (Mountain)', 'UTC-06:00 (Central)',
-  'UTC-05:00 (Eastern)', 'UTC+00:00 (London)', 'UTC+01:00 (Central Europe)',
-  'UTC+05:30 (India)', 'UTC+08:00 (China)', 'UTC+09:00 (Japan)'
+  'UTC-08:00 (Pacific)',
+  'UTC-07:00 (Mountain)',
+  'UTC-06:00 (Central)',
+  'UTC-05:00 (Eastern)',
+  'UTC+00:00 (London)',
+  'UTC+01:00 (Central Europe)',
+  'UTC+05:30 (India)',
+  'UTC+08:00 (China)',
+  'UTC+09:00 (Japan)',
 ];
 
 const DAYS_OF_WEEK = [
-  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
 ];
 
 const TIME_SLOTS = [
-  'Morning (6-12 PM)', 'Afternoon (12-6 PM)', 'Evening (6-10 PM)', 'Night (10 PM-2 AM)'
+  'Morning (6-12 PM)',
+  'Afternoon (12-6 PM)',
+  'Evening (6-10 PM)',
+  'Night (10 PM-2 AM)',
 ];
 
 export interface QuickTeacherRegistrationFormProps {
@@ -65,12 +133,9 @@ export interface QuickTeacherRegistrationFormProps {
   variant?: 'card' | 'simple';
 }
 
-export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationFormProps> = ({
-  onSubmit,
-  onBack,
-  className = '',
-  variant = 'card'
-}) => {
+export const QuickTeacherRegistrationForm: React.FC<
+  QuickTeacherRegistrationFormProps
+> = ({ onSubmit, onBack, className = '', variant = 'card' }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -101,28 +166,45 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
       youtubeIntroUrl: '',
       agreeToTerms: false,
       agreeToBackgroundCheck: false,
-      hcaptchaToken: ''
+      hcaptchaToken: '',
     },
-    mode: 'onChange'
+    mode: 'onChange',
   });
 
   const steps = [
     { id: 1, title: 'Basic Info', icon: User, description: 'Personal details' },
-    { id: 2, title: 'Teaching Profile', icon: GraduationCap, description: 'Your expertise' },
-    { id: 3, title: 'Availability', icon: Clock, description: 'Schedule & verification' }
+    {
+      id: 2,
+      title: 'Teaching Profile',
+      icon: GraduationCap,
+      description: 'Your expertise',
+    },
+    {
+      id: 3,
+      title: 'Availability',
+      icon: Clock,
+      description: 'Schedule & verification',
+    },
   ];
 
   const currentStepData = steps.find(step => step.id === currentStep);
   const progress = (currentStep / steps.length) * 100;
 
   // Generic array field toggle handler
-  const handleArrayFieldToggle = (fieldName: keyof QuickTeacherRegistrationData, value: string, checked: boolean) => {
+  const handleArrayFieldToggle = (
+    fieldName: keyof QuickTeacherRegistrationData,
+    value: string,
+    checked: boolean
+  ) => {
     const currentValues = (form.getValues(fieldName) as string[]) || [];
     const newValues = checked
       ? [...currentValues, value]
       : currentValues.filter(v => v !== value);
 
-    form.setValue(fieldName, newValues as QuickTeacherRegistrationData[typeof fieldName]);
+    form.setValue(
+      fieldName,
+      newValues as QuickTeacherRegistrationData[typeof fieldName]
+    );
     form.trigger(fieldName);
   };
 
@@ -131,11 +213,29 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
     switch (currentStep) {
       case 1:
-        return await form.trigger(['firstName', 'lastName', 'email', 'password', 'confirmPassword', 'country']);
+        return await form.trigger([
+          'firstName',
+          'lastName',
+          'email',
+          'password',
+          'confirmPassword',
+          'country',
+        ]);
       case 2:
-        return await form.trigger(['experience', 'subjects', 'ageGroups', 'bio']);
+        return await form.trigger([
+          'experience',
+          'subjects',
+          'ageGroups',
+          'bio',
+        ]);
       case 3:
-        return await form.trigger(['availableDays', 'timezone', 'preferredTimes', 'agreeToTerms', 'agreeToBackgroundCheck']);
+        return await form.trigger([
+          'availableDays',
+          'timezone',
+          'preferredTimes',
+          'agreeToTerms',
+          'agreeToBackgroundCheck',
+        ]);
       default:
         return true;
     }
@@ -158,12 +258,12 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
     if (!hcaptchaToken) {
       form.setError('hcaptchaToken', {
         type: 'manual',
-        message: 'Please complete the captcha verification'
+        message: 'Please complete the captcha verification',
       });
       toast({
-        title: "Verification Required",
-        description: "Please complete the captcha verification to continue.",
-        variant: "destructive",
+        title: 'Verification Required',
+        description: 'Please complete the captcha verification to continue.',
+        variant: 'destructive',
       });
       return;
     }
@@ -172,37 +272,40 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
     try {
       toast({
-        title: "Submitting Application",
-        description: "Creating your teacher profile...",
+        title: 'Submitting Application',
+        description: 'Creating your teacher profile...',
       });
 
       const enhancedData = {
         ...data,
-        hcaptchaToken
+        hcaptchaToken,
       };
 
       await onSubmit(enhancedData);
 
       toast({
-        title: "Application Submitted! 🎉",
-        description: "Welcome to Learnity! Redirecting to your dashboard...",
+        title: 'Application Submitted! 🎉',
+        description: 'Welcome to Learnity! Redirecting to your dashboard...',
       });
 
       // Redirect to dashboard after successful registration
       window.location.href = '/dashboard';
     } catch (error: unknown) {
       console.error('Registration failed:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Registration failed. Please try again.';
 
       form.setError('root', {
         type: 'manual',
-        message: errorMessage
+        message: errorMessage,
       });
 
       toast({
-        title: "Registration Failed",
+        title: 'Registration Failed',
         description: errorMessage,
-        variant: "destructive",
+        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
@@ -215,94 +318,114 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
   };
 
   const isSimple = variant === 'simple';
-  const cardClasses = isSimple ? "shadow-none border-0" : "shadow-xl border-0 bg-white/95 backdrop-blur";
+  const cardClasses = isSimple
+    ? 'shadow-none border-0'
+    : 'shadow-xl border-0 bg-white/95 backdrop-blur';
 
   return (
     <div>
-      <div >
-        <CardHeader className={isSimple ? "space-y-6 px-0" : "space-y-6 pb-8"}>
+      <div>
+        <CardHeader className={isSimple ? 'space-y-6 px-0' : 'space-y-6 pb-8'}>
           {isSimple ? (
             /* Simple Header */
-            <div className="space-y-4">
-              
-              <div className="space-y-1 flex items-center justify-between ">
-
-                <h1 className="text-2xl font-bold tracking-tight">Become a Teacher</h1>
+            <div className='space-y-4'>
+              <div className='space-y-1 flex items-center justify-between '>
+                <h1 className='text-2xl font-bold tracking-tight'>
+                  Become a Teacher
+                </h1>
                 {/* <p className="text-muted-foreground">{currentStepData?.description}</p> */}
-                <span className="text-sm text-muted-foreground">Step {currentStep} of {steps.length}</span>
+                <span className='text-sm text-muted-foreground'>
+                  Step {currentStep} of {steps.length}
+                </span>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs text-muted-foreground">
+              <div className='space-y-2'>
+                <div className='flex justify-between text-xs text-muted-foreground'>
                   <span>Progress</span>
                   <span>{Math.round(progress)}%</span>
                 </div>
-                <Progress value={progress} className="h-2" />
+                <Progress value={progress} className='h-2' />
               </div>
             </div>
           ) : (
             /* Original Header */
             <>
-              <div className="flex items-center justify-between">
+              <div className='flex items-center justify-between'>
                 <Button
-                  variant="ghost"
-                  size="sm"
+                  variant='ghost'
+                  size='sm'
                   onClick={handleBack}
-                  className="text-gray-600 hover:text-gray-800"
+                  className='text-gray-600 hover:text-gray-800'
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  <ArrowLeft className='h-4 w-4 mr-2' />
                   Back
                 </Button>
-                <div className="text-sm text-gray-500">
+                <div className='text-sm text-gray-500'>
                   Step {currentStep} of {steps.length}
                 </div>
               </div>
 
-              <div className="text-center space-y-2">
-                <div className="flex items-center justify-center mb-4">
-                  <div className="p-3 bg-gradient-to-r from-green-500 to-blue-500 rounded-full">
-                    <BookOpen className="h-8 w-8 text-white" />
+              <div className='text-center space-y-2'>
+                <div className='flex items-center justify-center mb-4'>
+                  <div className='p-3 bg-gradient-to-r from-green-500 to-blue-500 rounded-full'>
+                    <BookOpen className='h-8 w-8 text-white' />
                   </div>
                 </div>
-                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                <CardTitle className='text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent'>
                   Become a Teacher
                 </CardTitle>
-                <CardDescription className="text-lg text-gray-600">
+                <CardDescription className='text-lg text-gray-600'>
                   {currentStepData?.description} • Quick & Easy Setup
                 </CardDescription>
               </div>
 
-              <div className="space-y-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Progress</span>
-                  <span className="font-medium text-green-600">{Math.round(progress)}%</span>
+              <div className='space-y-4'>
+                <div className='flex justify-between text-sm'>
+                  <span className='text-gray-600'>Progress</span>
+                  <span className='font-medium text-green-600'>
+                    {Math.round(progress)}%
+                  </span>
                 </div>
-                <Progress value={progress} className="h-3" />
+                <Progress value={progress} className='h-3' />
 
-                <div className="flex justify-between">
-                  {steps.map((step) => {
+                <div className='flex justify-between'>
+                  {steps.map(step => {
                     const Icon = step.icon;
                     const isCompleted = currentStep > step.id;
                     const isCurrent = currentStep === step.id;
 
                     return (
-                      <div key={step.id} className="flex flex-col items-center space-y-2">
-                        <div className={`
+                      <div
+                        key={step.id}
+                        className='flex flex-col items-center space-y-2'
+                      >
+                        <div
+                          className={`
                           w-10 h-10 rounded-full flex items-center justify-center transition-all
-                          ${isCompleted ? 'bg-green-500 text-white' :
-                            isCurrent ? 'bg-slate-500 text-white' :
-                              'bg-gray-200 text-gray-500'}
-                        `}>
+                          ${
+                            isCompleted
+                              ? 'bg-green-500 text-white'
+                              : isCurrent
+                                ? 'bg-slate-500 text-white'
+                                : 'bg-gray-200 text-gray-500'
+                          }
+                        `}
+                        >
                           {isCompleted ? (
-                            <CheckCircle className="h-5 w-5" />
+                            <CheckCircle className='h-5 w-5' />
                           ) : (
-                            <Icon className="h-5 w-5" />
+                            <Icon className='h-5 w-5' />
                           )}
                         </div>
-                        <span className={`text-xs font-medium ${isCurrent ? 'text-blue-600' :
-                          isCompleted ? 'text-green-600' :
-                            'text-gray-500'
-                          }`}>
+                        <span
+                          className={`text-xs font-medium ${
+                            isCurrent
+                              ? 'text-blue-600'
+                              : isCompleted
+                                ? 'text-green-600'
+                                : 'text-gray-500'
+                          }`}
+                        >
                           {step.title}
                         </span>
                       </div>
@@ -314,30 +437,36 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
           )}
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className='space-y-6'>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className='space-y-6'
+            >
               {/* Step 1: Basic Information */}
               {currentStep === 1 && (
-                <div className="space-y-6 animate-in slide-in-from-right-5 duration-300">
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Let's get to know you</h3>
-                    <p className="text-gray-600">Basic information to create your account</p>
+                <div className='space-y-6 animate-in slide-in-from-right-5 duration-300'>
+                  <div className='text-center mb-6'>
+                    <h3 className='text-xl font-semibold text-gray-900 mb-2'>
+                      Let's get to know you
+                    </h3>
+                    <p className='text-gray-600'>
+                      Basic information to create your account
+                    </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     <FormField
                       control={form.control}
-                      name="firstName"
+                      name='firstName'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>First Name *</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="John"
+                              placeholder='John'
                               {...field}
-                              className="h-12 transition-colors focus:border-green-500"
+                              className='h-12 transition-colors focus:border-green-500'
                             />
                           </FormControl>
                           <FormMessage />
@@ -347,15 +476,15 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
                     <FormField
                       control={form.control}
-                      name="lastName"
+                      name='lastName'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Last Name *</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Doe"
+                              placeholder='Doe'
                               {...field}
-                              className="h-12 transition-colors focus:border-green-500"
+                              className='h-12 transition-colors focus:border-green-500'
                             />
                           </FormControl>
                           <FormMessage />
@@ -366,16 +495,16 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
                   <FormField
                     control={form.control}
-                    name="email"
+                    name='email'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Email Address *</FormLabel>
                         <FormControl>
                           <Input
-                            type="email"
-                            placeholder="john.doe@example.com"
+                            type='email'
+                            placeholder='john.doe@example.com'
                             {...field}
-                            className="h-12 transition-colors focus:border-green-500"
+                            className='h-12 transition-colors focus:border-green-500'
                           />
                         </FormControl>
                         <FormDescription>
@@ -386,32 +515,32 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                     )}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     <FormField
                       control={form.control}
-                      name="password"
+                      name='password'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Password *</FormLabel>
                           <FormControl>
-                            <div className="relative">
+                            <div className='relative'>
                               <Input
                                 type={showPassword ? 'text' : 'password'}
-                                placeholder="Create a strong password"
+                                placeholder='Create a strong password'
                                 {...field}
-                                className="h-12 pr-10 transition-colors focus:border-green-500"
+                                className='h-12 pr-10 transition-colors focus:border-green-500'
                               />
                               <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                type='button'
+                                variant='ghost'
+                                size='sm'
+                                className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
                                 onClick={() => setShowPassword(!showPassword)}
                               >
                                 {showPassword ? (
-                                  <EyeOff className="h-4 w-4 text-gray-400" />
+                                  <EyeOff className='h-4 w-4 text-gray-400' />
                                 ) : (
-                                  <Eye className="h-4 w-4 text-gray-400" />
+                                  <Eye className='h-4 w-4 text-gray-400' />
                                 )}
                               </Button>
                             </div>
@@ -423,29 +552,31 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
                     <FormField
                       control={form.control}
-                      name="confirmPassword"
+                      name='confirmPassword'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Confirm Password *</FormLabel>
                           <FormControl>
-                            <div className="relative">
+                            <div className='relative'>
                               <Input
                                 type={showConfirmPassword ? 'text' : 'password'}
-                                placeholder="Confirm your password"
+                                placeholder='Confirm your password'
                                 {...field}
-                                className="h-12 pr-10 transition-colors focus:border-green-500"
+                                className='h-12 pr-10 transition-colors focus:border-green-500'
                               />
                               <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                type='button'
+                                variant='ghost'
+                                size='sm'
+                                className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
+                                onClick={() =>
+                                  setShowConfirmPassword(!showConfirmPassword)
+                                }
                               >
                                 {showConfirmPassword ? (
-                                  <EyeOff className="h-4 w-4 text-gray-400" />
+                                  <EyeOff className='h-4 w-4 text-gray-400' />
                                 ) : (
-                                  <Eye className="h-4 w-4 text-gray-400" />
+                                  <Eye className='h-4 w-4 text-gray-400' />
                                 )}
                               </Button>
                             </div>
@@ -456,21 +587,24 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     <FormField
                       control={form.control}
-                      name="country"
+                      name='country'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Country *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
                             <FormControl>
-                              <SelectTrigger className="h-12">
-                                <SelectValue placeholder="Select your country" />
+                              <SelectTrigger className='h-12'>
+                                <SelectValue placeholder='Select your country' />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {COUNTRIES.map((country) => (
+                              {COUNTRIES.map(country => (
                                 <SelectItem key={country} value={country}>
                                   {country}
                                 </SelectItem>
@@ -484,16 +618,16 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
                     <FormField
                       control={form.control}
-                      name="phone"
+                      name='phone'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Phone Number</FormLabel>
                           <FormControl>
                             <Input
-                              type="tel"
-                              placeholder="+1234567890"
+                              type='tel'
+                              placeholder='+1234567890'
                               {...field}
-                              className="h-12 transition-colors focus:border-green-500"
+                              className='h-12 transition-colors focus:border-green-500'
                             />
                           </FormControl>
                           <FormDescription>
@@ -509,31 +643,38 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
               {/* Step 2: Teaching Profile */}
               {currentStep === 2 && (
-                <div className="space-y-6 animate-in slide-in-from-right-5 duration-300">
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Tell us about your teaching</h3>
-                    <p className="text-gray-600">Help students understand your expertise</p>
+                <div className='space-y-6 animate-in slide-in-from-right-5 duration-300'>
+                  <div className='text-center mb-6'>
+                    <h3 className='text-xl font-semibold text-gray-900 mb-2'>
+                      Tell us about your teaching
+                    </h3>
+                    <p className='text-gray-600'>
+                      Help students understand your expertise
+                    </p>
                   </div>
 
                   <FormField
                     control={form.control}
-                    name="experience"
+                    name='experience'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Years of Teaching Experience *</FormLabel>
                         <FormControl>
                           <Input
-                            type="number"
-                            min="0"
-                            max="50"
-                            placeholder="5"
+                            type='number'
+                            min='0'
+                            max='50'
+                            placeholder='5'
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                            className="h-12 transition-colors focus:border-green-500"
+                            onChange={e =>
+                              field.onChange(parseInt(e.target.value) || 0)
+                            }
+                            className='h-12 transition-colors focus:border-green-500'
                           />
                         </FormControl>
                         <FormDescription>
-                          Include all teaching, tutoring, and training experience
+                          Include all teaching, tutoring, and training
+                          experience
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -542,27 +683,40 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
                   <FormField
                     control={form.control}
-                    name="subjects"
+                    name='subjects'
                     render={() => (
                       <FormItem>
                         <FormLabel>Subjects You Teach * (Max 5)</FormLabel>
                         <FormDescription>
                           Select your main teaching subjects
                         </FormDescription>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2 max-h-48 overflow-y-auto">
-                          {SUBJECTS.map((subject) => (
-                            <div key={subject} className="flex items-center space-x-2">
+                        <div className='grid grid-cols-2 md:grid-cols-3 gap-3 mt-2 max-h-48 overflow-y-auto'>
+                          {SUBJECTS.map(subject => (
+                            <div
+                              key={subject}
+                              className='flex items-center space-x-2'
+                            >
                               <Checkbox
                                 id={subject}
-                                checked={form.watch('subjects')?.includes(subject) || false}
-                                onCheckedChange={(checked) =>
-                                  handleArrayFieldToggle('subjects', subject, checked as boolean)
+                                checked={
+                                  form.watch('subjects')?.includes(subject) ||
+                                  false
                                 }
-                                disabled={form.watch('subjects')?.length >= 5 && !form.watch('subjects')?.includes(subject)}
+                                onCheckedChange={checked =>
+                                  handleArrayFieldToggle(
+                                    'subjects',
+                                    subject,
+                                    checked as boolean
+                                  )
+                                }
+                                disabled={
+                                  form.watch('subjects')?.length >= 5 &&
+                                  !form.watch('subjects')?.includes(subject)
+                                }
                               />
                               <Label
                                 htmlFor={subject}
-                                className="text-sm font-normal cursor-pointer"
+                                className='text-sm font-normal cursor-pointer'
                               >
                                 {subject}
                               </Label>
@@ -576,27 +730,40 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
                   <FormField
                     control={form.control}
-                    name="ageGroups"
+                    name='ageGroups'
                     render={() => (
                       <FormItem>
                         <FormLabel>Age Groups You Teach * (Max 3)</FormLabel>
                         <FormDescription>
                           Select the age groups you're comfortable teaching
                         </FormDescription>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-                          {AGE_GROUPS.map((ageGroup) => (
-                            <div key={ageGroup} className="flex items-center space-x-2">
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-3 mt-2'>
+                          {AGE_GROUPS.map(ageGroup => (
+                            <div
+                              key={ageGroup}
+                              className='flex items-center space-x-2'
+                            >
                               <Checkbox
                                 id={ageGroup}
-                                checked={form.watch('ageGroups')?.includes(ageGroup) || false}
-                                onCheckedChange={(checked) =>
-                                  handleArrayFieldToggle('ageGroups', ageGroup, checked as boolean)
+                                checked={
+                                  form.watch('ageGroups')?.includes(ageGroup) ||
+                                  false
                                 }
-                                disabled={form.watch('ageGroups')?.length >= 3 && !form.watch('ageGroups')?.includes(ageGroup)}
+                                onCheckedChange={checked =>
+                                  handleArrayFieldToggle(
+                                    'ageGroups',
+                                    ageGroup,
+                                    checked as boolean
+                                  )
+                                }
+                                disabled={
+                                  form.watch('ageGroups')?.length >= 3 &&
+                                  !form.watch('ageGroups')?.includes(ageGroup)
+                                }
                               />
                               <Label
                                 htmlFor={ageGroup}
-                                className="text-sm font-normal cursor-pointer"
+                                className='text-sm font-normal cursor-pointer'
                               >
                                 {ageGroup}
                               </Label>
@@ -610,41 +777,48 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
                   <FormField
                     control={form.control}
-                    name="bio"
+                    name='bio'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Teaching Bio * (50-500 characters)</FormLabel>
+                        <FormLabel>
+                          Teaching Bio * (50-500 characters)
+                        </FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Tell students about your teaching style, experience, and what makes you a great teacher..."
-                            className="min-h-[120px] transition-colors focus:border-green-500"
+                            placeholder='Tell students about your teaching style, experience, and what makes you a great teacher...'
+                            className='min-h-[120px] transition-colors focus:border-green-500'
                             {...field}
                           />
                         </FormControl>
                         <FormDescription>
-                          {field.value?.length || 0}/500 characters • This will be visible to students
+                          {field.value?.length || 0}/500 characters • This will
+                          be visible to students
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     <FormField
                       control={form.control}
-                      name="hourlyRate"
+                      name='hourlyRate'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Hourly Rate (USD)</FormLabel>
                           <FormControl>
                             <Input
-                              type="number"
-                              min="5"
-                              max="500"
-                              placeholder="25"
+                              type='number'
+                              min='5'
+                              max='500'
+                              placeholder='25'
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
-                              className="h-12 transition-colors focus:border-green-500"
+                              onChange={e =>
+                                field.onChange(
+                                  parseFloat(e.target.value) || undefined
+                                )
+                              }
+                              className='h-12 transition-colors focus:border-green-500'
                             />
                           </FormControl>
                           <FormDescription>
@@ -657,18 +831,18 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
                     <FormField
                       control={form.control}
-                      name="youtubeIntroUrl"
+                      name='youtubeIntroUrl'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>YouTube Introduction Video</FormLabel>
                           <FormControl>
-                            <div className="relative">
+                            <div className='relative'>
                               <Input
-                                placeholder="https://youtube.com/watch?v=..."
+                                placeholder='https://youtube.com/watch?v=...'
                                 {...field}
-                                className="h-12 pl-10 transition-colors focus:border-green-500"
+                                className='h-12 pl-10 transition-colors focus:border-green-500'
                               />
-                              <Youtube className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-red-500" />
+                              <Youtube className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-red-500' />
                             </div>
                           </FormControl>
                           <FormDescription>
@@ -684,34 +858,48 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
               {/* Step 3: Availability & Verification */}
               {currentStep === 3 && (
-                <div className="space-y-6 animate-in slide-in-from-right-5 duration-300">
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">When are you available?</h3>
-                    <p className="text-gray-600">Set your schedule and complete verification</p>
+                <div className='space-y-6 animate-in slide-in-from-right-5 duration-300'>
+                  <div className='text-center mb-6'>
+                    <h3 className='text-xl font-semibold text-gray-900 mb-2'>
+                      When are you available?
+                    </h3>
+                    <p className='text-gray-600'>
+                      Set your schedule and complete verification
+                    </p>
                   </div>
 
                   <FormField
                     control={form.control}
-                    name="availableDays"
+                    name='availableDays'
                     render={() => (
                       <FormItem>
                         <FormLabel>Available Days *</FormLabel>
                         <FormDescription>
                           Select the days you're available to teach
                         </FormDescription>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
-                          {DAYS_OF_WEEK.map((day) => (
-                            <div key={day} className="flex items-center space-x-2">
+                        <div className='grid grid-cols-2 md:grid-cols-4 gap-3 mt-2'>
+                          {DAYS_OF_WEEK.map(day => (
+                            <div
+                              key={day}
+                              className='flex items-center space-x-2'
+                            >
                               <Checkbox
                                 id={day}
-                                checked={form.watch('availableDays')?.includes(day) || false}
-                                onCheckedChange={(checked) =>
-                                  handleArrayFieldToggle('availableDays', day, checked as boolean)
+                                checked={
+                                  form.watch('availableDays')?.includes(day) ||
+                                  false
+                                }
+                                onCheckedChange={checked =>
+                                  handleArrayFieldToggle(
+                                    'availableDays',
+                                    day,
+                                    checked as boolean
+                                  )
                                 }
                               />
                               <Label
                                 htmlFor={day}
-                                className="text-sm font-normal cursor-pointer"
+                                className='text-sm font-normal cursor-pointer'
                               >
                                 {day}
                               </Label>
@@ -723,21 +911,24 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                     )}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     <FormField
                       control={form.control}
-                      name="timezone"
+                      name='timezone'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Timezone *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
                             <FormControl>
-                              <SelectTrigger className="h-12">
-                                <SelectValue placeholder="Select your timezone" />
+                              <SelectTrigger className='h-12'>
+                                <SelectValue placeholder='Select your timezone' />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {TIMEZONES.map((timezone) => (
+                              {TIMEZONES.map(timezone => (
                                 <SelectItem key={timezone} value={timezone}>
                                   {timezone}
                                 </SelectItem>
@@ -751,27 +942,43 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
                     <FormField
                       control={form.control}
-                      name="preferredTimes"
+                      name='preferredTimes'
                       render={() => (
                         <FormItem>
                           <FormLabel>Preferred Time Slots * (Max 4)</FormLabel>
                           <FormDescription>
                             Select your preferred teaching times
                           </FormDescription>
-                          <div className="space-y-2 mt-2">
-                            {TIME_SLOTS.map((timeSlot) => (
-                              <div key={timeSlot} className="flex items-center space-x-2">
+                          <div className='space-y-2 mt-2'>
+                            {TIME_SLOTS.map(timeSlot => (
+                              <div
+                                key={timeSlot}
+                                className='flex items-center space-x-2'
+                              >
                                 <Checkbox
                                   id={timeSlot}
-                                  checked={form.watch('preferredTimes')?.includes(timeSlot) || false}
-                                  onCheckedChange={(checked) =>
-                                    handleArrayFieldToggle('preferredTimes', timeSlot, checked as boolean)
+                                  checked={
+                                    form
+                                      .watch('preferredTimes')
+                                      ?.includes(timeSlot) || false
                                   }
-                                  disabled={form.watch('preferredTimes')?.length >= 4 && !form.watch('preferredTimes')?.includes(timeSlot)}
+                                  onCheckedChange={checked =>
+                                    handleArrayFieldToggle(
+                                      'preferredTimes',
+                                      timeSlot,
+                                      checked as boolean
+                                    )
+                                  }
+                                  disabled={
+                                    form.watch('preferredTimes')?.length >= 4 &&
+                                    !form
+                                      .watch('preferredTimes')
+                                      ?.includes(timeSlot)
+                                  }
                                 />
                                 <Label
                                   htmlFor={timeSlot}
-                                  className="text-sm font-normal cursor-pointer"
+                                  className='text-sm font-normal cursor-pointer'
                                 >
                                   {timeSlot}
                                 </Label>
@@ -783,13 +990,12 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                       )}
                     />
                   </div>
-                
 
                   {/* hCaptcha */}
-                  <div className="flex justify-center">
+                  <div className='flex justify-center'>
                     <HCaptcha
                       sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''}
-                      onVerify={(token) => {
+                      onVerify={token => {
                         setHcaptchaToken(token);
                         form.setValue('hcaptchaToken', token);
                         form.clearErrors('hcaptchaToken');
@@ -801,36 +1007,42 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
                     />
                   </div>
                   {form.formState.errors.hcaptchaToken && (
-                    <p className="text-sm text-red-600 text-center">
+                    <p className='text-sm text-red-600 text-center'>
                       {form.formState.errors.hcaptchaToken.message}
                     </p>
                   )}
-                    {/* Legal Agreements */}
-                  <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                      <Shield className="h-5 w-5" />
+                  {/* Legal Agreements */}
+                  <div className='space-y-4 p-4 bg-gray-50 rounded-lg'>
+                    <h4 className='font-medium text-gray-900 flex items-center gap-2'>
+                      <Shield className='h-5 w-5' />
                       Verification & Agreement
                     </h4>
 
                     <FormField
                       control={form.control}
-                      name="agreeToTerms"
+                      name='agreeToTerms'
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
                           <FormControl>
                             <Checkbox
                               checked={field.value}
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel className="text-sm font-normal">
+                          <div className='space-y-1 leading-none'>
+                            <FormLabel className='text-sm font-normal'>
                               I agree to the{' '}
-                              <button type="button" className="text-green-600 hover:text-green-700 underline">
+                              <button
+                                type='button'
+                                className='text-green-600 hover:text-green-700 underline'
+                              >
                                 Terms of Service
                               </button>{' '}
                               and{' '}
-                              <button type="button" className="text-green-600 hover:text-green-700 underline">
+                              <button
+                                type='button'
+                                className='text-green-600 hover:text-green-700 underline'
+                              >
                                 Privacy Policy
                               </button>
                             </FormLabel>
@@ -842,20 +1054,20 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
 
                     <FormField
                       control={form.control}
-                      name="agreeToBackgroundCheck"
+                      name='agreeToBackgroundCheck'
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
                           <FormControl>
                             <Checkbox
                               checked={field.value}
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel className="text-sm font-normal">
+                          <div className='space-y-1 leading-none'>
+                            <FormLabel className='text-sm font-normal'>
                               I consent to background verification checks
                             </FormLabel>
-                            <FormDescription className="text-xs">
+                            <FormDescription className='text-xs'>
                               This helps maintain platform safety and trust
                             </FormDescription>
                             <FormMessage />
@@ -868,41 +1080,41 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
               )}
 
               {/* Navigation */}
-              <div className="flex justify-between pt-6 border-t">
+              <div className='flex justify-between pt-6 border-t'>
                 <Button
-                  type="button"
-                  variant="outline"
+                  type='button'
+                  variant='outline'
                   onClick={handlePrevious}
                   disabled={currentStep === 1}
-                  className="flex items-center gap-2"
+                  className='flex items-center gap-2'
                 >
-                  <ArrowLeft className="h-4 w-4" />
+                  <ArrowLeft className='h-4 w-4' />
                   Previous
                 </Button>
 
                 {currentStep < steps.length ? (
                   <Button
-                    type="button"
+                    type='button'
                     onClick={handleNext}
-                    className="flex items-center gap-2 bg-zinc-600 hover:bg-zinc-700"
+                    className='flex items-center gap-2 bg-zinc-600 hover:bg-zinc-700'
                   >
                     Next
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className='h-4 w-4' />
                   </Button>
                 ) : (
                   <Button
-                    type="submit"
+                    type='submit'
                     disabled={isSubmitting || !form.formState.isValid}
-                    className="flex items-center gap-2 bg-zinc-600 hover:bg-zinc-700"
+                    className='flex items-center gap-2 bg-zinc-600 hover:bg-zinc-700'
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className='h-4 w-4 animate-spin' />
                         Creating Account...
                       </>
                     ) : (
                       <>
-                        <CheckCircle className="h-4 w-4" />
+                        <CheckCircle className='h-4 w-4' />
                         Create Teacher Account
                       </>
                     )}
@@ -911,7 +1123,7 @@ export const QuickTeacherRegistrationForm: React.FC<QuickTeacherRegistrationForm
               </div>
 
               {form.formState.errors.root && (
-                <div className="text-sm text-red-600 text-center bg-red-50 p-3 rounded-md">
+                <div className='text-sm text-red-600 text-center bg-red-50 p-3 rounded-md'>
                   {form.formState.errors.root.message}
                 </div>
               )}

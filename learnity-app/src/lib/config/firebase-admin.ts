@@ -13,12 +13,14 @@ const firebaseAdminConfig = {
 const requiredAdminEnvVars = [
   'FIREBASE_ADMIN_PROJECT_ID',
   'FIREBASE_ADMIN_CLIENT_EMAIL',
-  'FIREBASE_ADMIN_PRIVATE_KEY'
+  'FIREBASE_ADMIN_PRIVATE_KEY',
 ];
 
 for (const envVar of requiredAdminEnvVars) {
   if (!process.env[envVar]) {
-    throw new Error(`Missing required Firebase Admin environment variable: ${envVar}`);
+    throw new Error(
+      `Missing required Firebase Admin environment variable: ${envVar}`
+    );
   }
 }
 

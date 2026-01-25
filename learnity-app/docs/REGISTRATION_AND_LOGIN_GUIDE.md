@@ -20,12 +20,14 @@ Your registration **DID WORK**! Here's what happened:
 ## How to Complete Registration
 
 ### Step 1: Verify Your Email
+
 1. Check your email inbox: **m.wasifmalik17@gmail.com**
 2. Look for email from Firebase/Learnity
 3. Click the verification link
 4. Your email will be verified
 
 ### Step 2: Login
+
 1. Go to: **http://localhost:3000/auth/login**
 2. Enter your credentials:
    - Email: m.wasifmalik17@gmail.com
@@ -37,17 +39,20 @@ Your registration **DID WORK**! Here's what happened:
 ## User Roles & Access
 
 ### 1. Student (What You Created)
+
 - **Role**: STUDENT
 - **Access**: Student dashboard, study groups, tutoring
 - **Registration**: Available at `/auth/register`
 
 ### 2. Teacher
+
 - **Role**: TEACHER (starts as PENDING_TEACHER)
 - **Access**: Teacher dashboard, manage sessions
 - **Registration**: Available at `/auth/register` → Select "Teacher"
 - **Note**: Requires admin approval after email verification
 
 ### 3. Admin
+
 - **Role**: ADMIN
 - **Access**: Full platform management, user approval
 - **Registration**: Not available in UI (security)
@@ -95,6 +100,7 @@ Your registration **DID WORK**! Here's what happened:
 ### Option 3: Add to .env.local (For Secret Key)
 
 Add this to your `.env.local`:
+
 ```env
 ADMIN_SETUP_SECRET=your-secure-secret-key-here
 ```
@@ -104,16 +110,19 @@ ADMIN_SETUP_SECRET=your-secure-secret-key-here
 ## Current App Pages
 
 ### Public Pages
+
 - `/` - Home page
 - `/auth/login` - Login page
 - `/auth/register` - Registration page
 - `/auth/forgot-password` - Password reset
 
 ### Development Pages
+
 - `/debug-env` - Check environment variables
 - `/admin-setup` - Promote user to admin (dev only)
 
 ### Protected Pages (After Login)
+
 - Student dashboard (not built yet)
 - Teacher dashboard (not built yet)
 - Admin panel (not built yet)
@@ -123,11 +132,13 @@ ADMIN_SETUP_SECRET=your-secure-secret-key-here
 ## Why No Redirect After Login?
 
 Currently, there's **no dashboard built yet**. After login:
+
 - User is authenticated
 - Session is stored
 - But there's no redirect because dashboard pages don't exist
 
 ### To Test Login Works:
+
 1. Login at `/auth/login`
 2. Open browser console (F12)
 3. Check `localStorage` - you should see auth data
@@ -138,12 +149,15 @@ Currently, there's **no dashboard built yet**. After login:
 ## Next Steps for Development
 
 ### 1. Build Dashboards
+
 - Student dashboard at `/dashboard/student`
 - Teacher dashboard at `/dashboard/teacher`
 - Admin panel at `/dashboard/admin`
 
 ### 2. Add Post-Login Redirect
+
 In `LoginForm` or `AuthProvider`, add:
+
 ```typescript
 // After successful login
 if (userRole === 'STUDENT') {
@@ -156,12 +170,15 @@ if (userRole === 'STUDENT') {
 ```
 
 ### 3. Add Toast Notifications
+
 Install and configure a toast library like:
+
 - `sonner`
 - `react-hot-toast`
 - `@radix-ui/react-toast`
 
 ### 4. Setup Firebase Admin SDK
+
 For server-side operations (setting custom claims, etc.)
 
 ---
@@ -169,16 +186,19 @@ For server-side operations (setting custom claims, etc.)
 ## Troubleshooting
 
 ### "Nothing happened after registration"
+
 - ✅ Check if you're on the Email Verification Pending page
 - ✅ Check your email for verification link
 - ✅ Check browser console for errors
 
 ### "Can't login"
+
 - ❌ Did you verify your email?
 - ❌ Is your password correct?
 - ❌ Check browser console for errors
 
 ### "How do I access admin features?"
+
 - You need to manually set admin role in Firebase Console
 - Then logout and login again
 - Admin dashboard needs to be built first

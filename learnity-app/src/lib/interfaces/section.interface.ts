@@ -5,7 +5,11 @@
  */
 
 import { Section, Lesson } from '@prisma/client';
-import { CreateSectionData, UpdateSectionData, ReorderSectionsData } from '@/lib/validators/section';
+import {
+  CreateSectionData,
+  UpdateSectionData,
+  ReorderSectionsData,
+} from '@/lib/validators/section';
 
 // ============================================
 // SECTION DTOs AND TYPES
@@ -122,14 +126,14 @@ export enum SectionErrorCode {
   // Validation errors
   INVALID_TITLE = 'INVALID_TITLE',
   INVALID_ORDER = 'INVALID_ORDER',
-  
+
   // Business logic errors
   SECTION_NOT_FOUND = 'SECTION_NOT_FOUND',
   COURSE_NOT_FOUND = 'COURSE_NOT_FOUND',
   NOT_COURSE_OWNER = 'NOT_COURSE_OWNER',
   SECTION_HAS_LESSONS = 'SECTION_HAS_LESSONS',
   INVALID_SECTION_IDS = 'INVALID_SECTION_IDS',
-  
+
   // Authorization errors
   UNAUTHORIZED = 'UNAUTHORIZED',
   FORBIDDEN = 'FORBIDDEN',

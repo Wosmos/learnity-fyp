@@ -5,7 +5,11 @@
  */
 
 import { Lesson, Quiz, LessonType } from '@prisma/client';
-import { CreateLessonData, UpdateLessonData, ReorderLessonsData } from '@/lib/validators/lesson';
+import {
+  CreateLessonData,
+  UpdateLessonData,
+  ReorderLessonsData,
+} from '@/lib/validators/lesson';
 import { YouTubeMetadata } from '@/lib/utils/youtube';
 
 // ============================================
@@ -155,7 +159,7 @@ export enum LessonErrorCode {
   INVALID_ORDER = 'INVALID_ORDER',
   INVALID_YOUTUBE_URL = 'INVALID_YOUTUBE_URL',
   YOUTUBE_URL_REQUIRED = 'YOUTUBE_URL_REQUIRED',
-  
+
   // Business logic errors
   LESSON_NOT_FOUND = 'LESSON_NOT_FOUND',
   SECTION_NOT_FOUND = 'SECTION_NOT_FOUND',
@@ -163,7 +167,7 @@ export enum LessonErrorCode {
   NOT_COURSE_OWNER = 'NOT_COURSE_OWNER',
   INVALID_LESSON_IDS = 'INVALID_LESSON_IDS',
   CANNOT_FETCH_METADATA = 'CANNOT_FETCH_METADATA',
-  
+
   // Authorization errors
   UNAUTHORIZED = 'UNAUTHORIZED',
   FORBIDDEN = 'FORBIDDEN',

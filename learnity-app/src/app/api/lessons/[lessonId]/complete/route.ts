@@ -1,7 +1,7 @@
 /**
  * Lesson Complete API Route
  * POST /api/lessons/[lessonId]/complete - Mark lesson as complete
- * 
+ *
  * Requirements covered:
  * - 5.4: Award 10 XP points when lesson is completed
  * - 5.5: Allow manual lesson completion
@@ -72,7 +72,10 @@ export async function POST(
     }
 
     // Mark lesson as complete
-    const result = await progressService.markLessonComplete(dbUser.id, lessonId);
+    const result = await progressService.markLessonComplete(
+      dbUser.id,
+      lessonId
+    );
 
     return createSuccessResponse(
       {

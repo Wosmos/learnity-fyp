@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/config/database";
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/config/database';
 
 export async function GET(
   request: NextRequest,
@@ -11,7 +11,7 @@ export async function GET(
     const courses = await prisma.course.findMany({
       where: {
         teacherId: id,
-        status: "PUBLISHED",
+        status: 'PUBLISHED',
       },
       include: {
         category: {
@@ -22,13 +22,13 @@ export async function GET(
         },
       },
       orderBy: [
-        { averageRating: "desc" },
-        { enrollmentCount: "desc" },
-        { createdAt: "desc" },
+        { averageRating: 'desc' },
+        { enrollmentCount: 'desc' },
+        { createdAt: 'desc' },
       ],
     });
 
-    const formattedCourses = courses.map((course) => ({
+    const formattedCourses = courses.map(course => ({
       id: course.id,
       title: course.title,
       slug: course.slug,
@@ -52,9 +52,9 @@ export async function GET(
       courses: formattedCourses,
     });
   } catch (error) {
-    console.error("Error fetching teacher courses:", error);
+    console.error('Error fetching teacher courses:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch courses" },
+      { success: false, error: 'Failed to fetch courses' },
       { status: 500 }
     );
   }

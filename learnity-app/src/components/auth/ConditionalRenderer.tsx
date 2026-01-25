@@ -32,12 +32,12 @@ export interface ConditionalProps extends ConditionalRendererProps {
 /**
  * Component that renders children based on multiple permissions
  */
-export function RequireMultiplePermissions({ 
-  permissions, 
+export function RequireMultiplePermissions({
+  permissions,
   requireAll = false,
-  children, 
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: MultiPermissionProps) {
   const { loading: authLoading, claims } = useAuth();
 
@@ -49,7 +49,7 @@ export function RequireMultiplePermissions({
     return <>{fallback}</>;
   }
 
-  const hasAccess = requireAll 
+  const hasAccess = requireAll
     ? permissions.every(permission => claims.permissions.includes(permission))
     : permissions.some(permission => claims.permissions.includes(permission));
 
@@ -63,12 +63,12 @@ export function RequireMultiplePermissions({
 /**
  * Component that renders children based on multiple roles
  */
-export function RequireMultipleRoles({ 
-  roles, 
+export function RequireMultipleRoles({
+  roles,
   requireAll = false,
-  children, 
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: MultiRoleProps) {
   const { loading: authLoading, claims } = useAuth();
 
@@ -80,7 +80,7 @@ export function RequireMultipleRoles({
     return <>{fallback}</>;
   }
 
-  const hasAccess = requireAll 
+  const hasAccess = requireAll
     ? roles.every(role => claims.role === role) // This doesn't make logical sense but kept for API consistency
     : roles.includes(claims.role);
 
@@ -94,11 +94,11 @@ export function RequireMultipleRoles({
 /**
  * Component that renders children based on a custom condition
  */
-export function ConditionalRender({ 
-  condition, 
-  children, 
+export function ConditionalRender({
+  condition,
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: ConditionalProps) {
   const { loading: authLoading } = useAuth();
 
@@ -131,7 +131,7 @@ export function RoleSwitch({
   adminContent,
   pendingTeacherContent,
   defaultContent = null,
-  loading = null
+  loading = null,
 }: RoleSwitchProps) {
   const { loading: authLoading, claims } = useAuth();
 
@@ -169,7 +169,7 @@ export interface PermissionSwitchProps {
 export function PermissionSwitch({
   permissionMap,
   defaultContent = null,
-  loading = null
+  loading = null,
 }: PermissionSwitchProps) {
   const { loading: authLoading, claims } = useAuth();
 
@@ -194,10 +194,10 @@ export function PermissionSwitch({
 /**
  * Component that renders children only if profile is complete
  */
-export function RequireCompleteProfile({ 
-  children, 
+export function RequireCompleteProfile({
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: ConditionalRendererProps) {
   const { loading: authLoading, claims } = useAuth();
 
@@ -215,10 +215,10 @@ export function RequireCompleteProfile({
 /**
  * Component that renders children only if email is verified
  */
-export function RequireEmailVerification({ 
-  children, 
+export function RequireEmailVerification({
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: ConditionalRendererProps) {
   const { loading: authLoading, claims } = useAuth();
 
@@ -249,7 +249,7 @@ export function PermissionStyled({
   permission,
   authorizedClassName = '',
   unauthorizedClassName = 'opacity-50 cursor-not-allowed',
-  loading = null
+  loading = null,
 }: PermissionStyledProps) {
   const { loading: authLoading } = useAuth();
   const hasPermission = usePermission(permission);
@@ -260,11 +260,7 @@ export function PermissionStyled({
 
   const className = hasPermission ? authorizedClassName : unauthorizedClassName;
 
-  return (
-    <div className={className}>
-      {children}
-    </div>
-  );
+  return <div className={className}>{children}</div>;
 }
 
 /**
@@ -283,7 +279,7 @@ export function RoleStyled({
   role,
   authorizedClassName = '',
   unauthorizedClassName = 'opacity-50 cursor-not-allowed',
-  loading = null
+  loading = null,
 }: RoleStyledProps) {
   const { loading: authLoading } = useAuth();
   const hasRole = useRole(role);
@@ -294,11 +290,7 @@ export function RoleStyled({
 
   const className = hasRole ? authorizedClassName : unauthorizedClassName;
 
-  return (
-    <div className={className}>
-      {children}
-    </div>
-  );
+  return <div className={className}>{children}</div>;
 }
 
 /**
@@ -320,7 +312,7 @@ export function ComplexConditionalRender({
   conditions,
   children,
   fallback = null,
-  loading = null
+  loading = null,
 }: ComplexConditionProps) {
   const { loading: authLoading, claims } = useAuth();
 
@@ -335,9 +327,13 @@ export function ComplexConditionalRender({
   // Check permissions
   if (conditions.permissions && conditions.permissions.length > 0) {
     const hasPermissions = conditions.requireAllPermissions
-      ? conditions.permissions.every(permission => claims.permissions.includes(permission))
-      : conditions.permissions.some(permission => claims.permissions.includes(permission));
-    
+      ? conditions.permissions.every(permission =>
+          claims.permissions.includes(permission)
+        )
+      : conditions.permissions.some(permission =>
+          claims.permissions.includes(permission)
+        );
+
     if (!hasPermissions) {
       return <>{fallback}</>;
     }
@@ -348,19 +344,25 @@ export function ComplexConditionalRender({
     const hasRoles = conditions.requireAllRoles
       ? conditions.roles.every(role => claims.role === role) // Doesn't make logical sense but kept for consistency
       : conditions.roles.includes(claims.role);
-    
+
     if (!hasRoles) {
       return <>{fallback}</>;
     }
   }
 
   // Check profile completion
-  if (conditions.profileComplete !== undefined && claims.profileComplete !== conditions.profileComplete) {
+  if (
+    conditions.profileComplete !== undefined &&
+    claims.profileComplete !== conditions.profileComplete
+  ) {
     return <>{fallback}</>;
   }
 
   // Check email verification
-  if (conditions.emailVerified !== undefined && claims.emailVerified !== conditions.emailVerified) {
+  if (
+    conditions.emailVerified !== undefined &&
+    claims.emailVerified !== conditions.emailVerified
+  ) {
     return <>{fallback}</>;
   }
 
@@ -380,9 +382,11 @@ export interface PermissionLoaderProps {
   loadingComponent?: React.ReactNode;
 }
 
-export function PermissionLoader({ 
-  children, 
-  loadingComponent = <div className="animate-pulse">Loading permissions...</div> 
+export function PermissionLoader({
+  children,
+  loadingComponent = (
+    <div className='animate-pulse'>Loading permissions...</div>
+  ),
 }: PermissionLoaderProps) {
   const { loading } = useAuth();
 
@@ -404,7 +408,7 @@ export interface UserExperienceProps extends ConditionalRendererProps {
 export function UserExperienceSwitch({
   firstTimeContent,
   returningUserContent,
-  loading = null
+  loading = null,
 }: UserExperienceProps) {
   const { loading: authLoading, claims } = useAuth();
 

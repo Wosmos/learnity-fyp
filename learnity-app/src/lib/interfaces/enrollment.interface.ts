@@ -1,7 +1,7 @@
 /**
  * Enrollment Service Interface
  * Defines the contract for enrollment management operations
- * 
+ *
  * Requirements covered:
  * - 4.1: Course enrollment
  * - 4.2: Enrollment record creation with initial state
@@ -12,10 +12,10 @@
  * - 11.3: Communication link visibility for enrolled students
  */
 
-import { 
-  Enrollment, 
-  Course, 
-  User, 
+import {
+  Enrollment,
+  Course,
+  User,
   Category,
   EnrollmentStatus,
 } from '@prisma/client';
@@ -125,7 +125,10 @@ export interface IEnrollmentService {
    * @param courseId - The course ID
    * @returns The enrollment or null if not found
    */
-  getEnrollment(studentId: string, courseId: string): Promise<Enrollment | null>;
+  getEnrollment(
+    studentId: string,
+    courseId: string
+  ): Promise<Enrollment | null>;
 
   /**
    * Get all enrollments for a student
@@ -135,7 +138,7 @@ export interface IEnrollmentService {
    * Requirements: 4.4
    */
   getStudentEnrollments(
-    studentId: string, 
+    studentId: string,
     filters?: EnrollmentFiltersData
   ): Promise<PaginatedEnrollments<EnrollmentWithCourse>>;
 
@@ -147,7 +150,7 @@ export interface IEnrollmentService {
    * Requirements: 9.1
    */
   getCourseEnrollments(
-    courseId: string, 
+    courseId: string,
     filters?: EnrollmentFiltersData
   ): Promise<PaginatedEnrollments<EnrollmentWithStudent>>;
 
@@ -167,7 +170,11 @@ export interface IEnrollmentService {
    * @param progress - The new progress percentage (0-100)
    * @returns The updated enrollment
    */
-  updateProgress(studentId: string, courseId: string, progress: number): Promise<Enrollment>;
+  updateProgress(
+    studentId: string,
+    courseId: string,
+    progress: number
+  ): Promise<Enrollment>;
 
   /**
    * Mark enrollment as completed
@@ -207,7 +214,7 @@ export enum EnrollmentErrorCode {
   NOT_ENROLLED = 'NOT_ENROLLED',
   ENROLLMENT_NOT_FOUND = 'ENROLLMENT_NOT_FOUND',
   INVALID_PROGRESS = 'INVALID_PROGRESS',
-  
+
   // Authorization errors
   UNAUTHORIZED = 'UNAUTHORIZED',
   FORBIDDEN = 'FORBIDDEN',

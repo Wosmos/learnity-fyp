@@ -1,15 +1,15 @@
+import { PrismaClient } from '@prisma/client';
 import { adminAuth } from '@/lib/config/firebase-admin';
 import { tokenManager } from '@/lib/services/token-manager.service';
 import { IRoleManager } from '@/lib/interfaces/auth';
-import { 
-  CustomClaims, 
-  UserRole, 
-  Permission, 
-  AuthError, 
+import {
+  CustomClaims,
+  UserRole,
+  Permission,
+  AuthError,
   AuthErrorCode,
-  EventType
+  EventType,
 } from '@/types/auth';
-import { PrismaClient } from '@prisma/client';
 
 export class RoleManagerService implements IRoleManager {
   private readonly prisma: PrismaClient;
@@ -23,28 +23,26 @@ export class RoleManagerService implements IRoleManager {
       Permission.VIEW_STUDENT_DASHBOARD,
       Permission.JOIN_STUDY_GROUPS,
       Permission.BOOK_TUTORING,
-      Permission.ENHANCE_PROFILE
+      Permission.ENHANCE_PROFILE,
     ],
     [UserRole.TEACHER]: [
       Permission.VIEW_TEACHER_DASHBOARD,
       Permission.MANAGE_SESSIONS,
       Permission.UPLOAD_CONTENT,
-      Permission.VIEW_STUDENT_PROGRESS
+      Permission.VIEW_STUDENT_PROGRESS,
     ],
     [UserRole.PENDING_TEACHER]: [
       Permission.VIEW_APPLICATION_STATUS,
-      Permission.UPDATE_APPLICATION
+      Permission.UPDATE_APPLICATION,
     ],
-    [UserRole.REJECTED_TEACHER]: [
-      Permission.VIEW_APPLICATION_STATUS
-    ],
+    [UserRole.REJECTED_TEACHER]: [Permission.VIEW_APPLICATION_STATUS],
     [UserRole.ADMIN]: [
       Permission.VIEW_ADMIN_PANEL,
       Permission.MANAGE_USERS,
       Permission.APPROVE_TEACHERS,
       Permission.VIEW_AUDIT_LOGS,
-      Permission.MANAGE_PLATFORM
-    ]
+      Permission.MANAGE_PLATFORM,
+    ],
   };
 
   private readonly PROTECTED_ROUTES: Record<string, Permission[]> = {
@@ -61,13 +59,16 @@ export class RoleManagerService implements IRoleManager {
     '/student/tutoring': [Permission.BOOK_TUTORING],
     '/profile/enhance': [Permission.ENHANCE_PROFILE],
     '/application/status': [Permission.VIEW_APPLICATION_STATUS],
-    '/application/update': [Permission.UPDATE_APPLICATION]
+    '/application/update': [Permission.UPDATE_APPLICATION],
   };
 
   /**
    * Check if user has a specific permission
    */
-  async hasPermission(firebaseUid: string, permission: Permission): Promise<boolean> {
+  async hasPermission(
+    firebaseUid: string,
+    permission: Permission
+  ): Promise<boolean> {
     try {
       const claims = await this.getCustomClaims(firebaseUid);
       return claims.permissions.includes(permission);
@@ -106,14 +107,17 @@ export class RoleManagerService implements IRoleManager {
   /**
    * Set custom claims for a user
    */
-  async setCustomClaims(firebaseUid: string, claims: CustomClaims): Promise<void> {
+  async setCustomClaims(
+    firebaseUid: string,
+    claims: CustomClaims
+  ): Promise<void> {
     try {
       // Validate role and permissions
       const validatedClaims = this.validateClaims(claims);
-      
+
       // Set claims in Firebase Auth
       await adminAuth.setCustomUserClaims(firebaseUid, validatedClaims);
-      
+
       // Invalidate token cache to force refresh
       tokenManager.invalidateUserToken(firebaseUid);
     } catch (error: any) {
@@ -128,14 +132,14 @@ export class RoleManagerService implements IRoleManager {
     try {
       const user = await adminAuth.getUser(firebaseUid);
       const claims = user.customClaims as CustomClaims;
-      
+
       if (!claims || !claims.role) {
         // Return default claims for new users
         return {
           role: UserRole.STUDENT,
           permissions: this.ROLE_PERMISSIONS[UserRole.STUDENT],
           profileComplete: false,
-          emailVerified: user.emailVerified
+          emailVerified: user.emailVerified,
         };
       }
 
@@ -148,19 +152,22 @@ export class RoleManagerService implements IRoleManager {
   /**
    * Validate route access for a user
    */
-  async validateRouteAccess(firebaseUid: string, route: string): Promise<boolean> {
+  async validateRouteAccess(
+    firebaseUid: string,
+    route: string
+  ): Promise<boolean> {
     try {
       const requiredPermissions = this.getRoutePermissions(route);
-      
+
       if (requiredPermissions.length === 0) {
         // Route doesn't require specific permissions
         return true;
       }
 
       const userPermissions = await this.getUserPermissions(firebaseUid);
-      
+
       // Check if user has at least one required permission
-      return requiredPermissions.some(permission => 
+      return requiredPermissions.some(permission =>
         userPermissions.includes(permission)
       );
     } catch (error) {
@@ -172,7 +179,9 @@ export class RoleManagerService implements IRoleManager {
   /**
    * Create a role requirement function
    */
-  requireRole(requiredRole: UserRole): (firebaseUid: string) => Promise<boolean> {
+  requireRole(
+    requiredRole: UserRole
+  ): (firebaseUid: string) => Promise<boolean> {
     return async (firebaseUid: string): Promise<boolean> => {
       return this.hasRole(firebaseUid, requiredRole);
     };
@@ -181,15 +190,20 @@ export class RoleManagerService implements IRoleManager {
   /**
    * Update user role and refresh permissions
    */
-  async updateUserRole(firebaseUid: string, newRole: UserRole, reason?: string, adminUid?: string): Promise<void> {
+  async updateUserRole(
+    firebaseUid: string,
+    newRole: UserRole,
+    reason?: string,
+    adminUid?: string
+  ): Promise<void> {
     try {
       const currentClaims = await this.getCustomClaims(firebaseUid);
       const oldRole = currentClaims.role;
-      
+
       const updatedClaims: CustomClaims = {
         ...currentClaims,
         role: newRole,
-        permissions: this.ROLE_PERMISSIONS[newRole]
+        permissions: this.ROLE_PERMISSIONS[newRole],
       };
 
       await this.setCustomClaims(firebaseUid, updatedClaims);
@@ -201,9 +215,8 @@ export class RoleManagerService implements IRoleManager {
         oldRole,
         newRole,
         reason: reason || 'Role update requested',
-        success: true
+        success: true,
       });
-
     } catch (error: any) {
       // Log failed role change attempt
       await this.logRoleChangeEvent({
@@ -213,9 +226,9 @@ export class RoleManagerService implements IRoleManager {
         newRole,
         reason: reason || 'Role update requested',
         success: false,
-        errorMessage: error.message
+        errorMessage: error.message,
       });
-      
+
       throw this.mapRoleError(error);
     }
   }
@@ -226,21 +239,25 @@ export class RoleManagerService implements IRoleManager {
   async approveTeacher(firebaseUid: string, adminUid: string): Promise<void> {
     try {
       const currentClaims = await this.getCustomClaims(firebaseUid);
-      
+
       if (currentClaims.role !== UserRole.PENDING_TEACHER) {
         throw new Error('User is not a pending teacher');
       }
 
-      await this.updateUserRole(firebaseUid, UserRole.TEACHER, 'Teacher application approved', adminUid);
-      
+      await this.updateUserRole(
+        firebaseUid,
+        UserRole.TEACHER,
+        'Teacher application approved',
+        adminUid
+      );
+
       // Log teacher approval event
       await this.logTeacherApprovalEvent({
         firebaseUid,
         adminUid,
         decision: 'APPROVED',
-        success: true
+        success: true,
       });
-
     } catch (error: any) {
       // Log failed teacher approval
       await this.logTeacherApprovalEvent({
@@ -248,9 +265,9 @@ export class RoleManagerService implements IRoleManager {
         adminUid,
         decision: 'APPROVED',
         success: false,
-        errorMessage: error.message
+        errorMessage: error.message,
       });
-      
+
       throw this.mapRoleError(error);
     }
   }
@@ -258,10 +275,14 @@ export class RoleManagerService implements IRoleManager {
   /**
    * Reject teacher application (keep as pending with note)
    */
-  async rejectTeacher(firebaseUid: string, reason: string, adminUid: string): Promise<void> {
+  async rejectTeacher(
+    firebaseUid: string,
+    reason: string,
+    adminUid: string
+  ): Promise<void> {
     try {
       const currentClaims = await this.getCustomClaims(firebaseUid);
-      
+
       if (currentClaims.role !== UserRole.PENDING_TEACHER) {
         throw new Error('User is not a pending teacher');
       }
@@ -272,9 +293,8 @@ export class RoleManagerService implements IRoleManager {
         adminUid,
         decision: 'REJECTED',
         reason,
-        success: true
+        success: true,
       });
-
     } catch (error: any) {
       // Log failed teacher rejection
       await this.logTeacherApprovalEvent({
@@ -283,9 +303,9 @@ export class RoleManagerService implements IRoleManager {
         decision: 'REJECTED',
         reason,
         success: false,
-        errorMessage: error.message
+        errorMessage: error.message,
       });
-      
+
       throw this.mapRoleError(error);
     }
   }
@@ -300,7 +320,9 @@ export class RoleManagerService implements IRoleManager {
     }
 
     // Check for partial matches (e.g., /admin/users/123 matches /admin/users)
-    for (const [protectedRoute, permissions] of Object.entries(this.PROTECTED_ROUTES)) {
+    for (const [protectedRoute, permissions] of Object.entries(
+      this.PROTECTED_ROUTES
+    )) {
       if (route.startsWith(protectedRoute)) {
         return permissions;
       }
@@ -320,13 +342,13 @@ export class RoleManagerService implements IRoleManager {
 
     // Ensure permissions match role
     const rolePermissions = this.ROLE_PERMISSIONS[claims.role];
-    const validPermissions = claims.permissions.filter(permission => 
+    const validPermissions = claims.permissions.filter(permission =>
       rolePermissions.includes(permission)
     );
 
     return {
       ...claims,
-      permissions: validPermissions
+      permissions: validPermissions,
     };
   }
 
@@ -360,9 +382,9 @@ export class RoleManagerService implements IRoleManager {
       [UserRole.PENDING_TEACHER]: 2,
       [UserRole.REJECTED_TEACHER]: 2,
       [UserRole.TEACHER]: 3,
-      [UserRole.ADMIN]: 4
+      [UserRole.ADMIN]: 4,
     };
-    
+
     return hierarchy[role] || 0;
   }
 
@@ -372,7 +394,7 @@ export class RoleManagerService implements IRoleManager {
   canManageRole(managerRole: UserRole, targetRole: UserRole): boolean {
     const managerLevel = this.getRoleLevel(managerRole);
     const targetLevel = this.getRoleLevel(targetRole);
-    
+
     // Admins can manage everyone, others can only manage lower levels
     return managerRole === UserRole.ADMIN || managerLevel > targetLevel;
   }
@@ -412,9 +434,9 @@ export class RoleManagerService implements IRoleManager {
           metadata: {
             adminUid: event.adminUid,
             reason: event.reason,
-            timestamp: new Date().toISOString()
-          }
-        }
+            timestamp: new Date().toISOString(),
+          },
+        },
       });
     } catch (error) {
       console.error('Failed to log role change event:', error);
@@ -433,9 +455,10 @@ export class RoleManagerService implements IRoleManager {
     errorMessage?: string;
   }): Promise<void> {
     try {
-      const eventType = event.decision === 'APPROVED' 
-        ? EventType.TEACHER_APPLICATION_APPROVE 
-        : EventType.TEACHER_APPLICATION_REJECT;
+      const eventType =
+        event.decision === 'APPROVED'
+          ? EventType.TEACHER_APPLICATION_APPROVE
+          : EventType.TEACHER_APPLICATION_REJECT;
 
       await this.prisma.auditLog.create({
         data: {
@@ -443,9 +466,9 @@ export class RoleManagerService implements IRoleManager {
           eventType,
           action: `Teacher application ${event.decision.toLowerCase()}`,
           resource: 'teacher_application',
-          newValues: { 
+          newValues: {
             decision: event.decision,
-            approvedBy: event.adminUid 
+            approvedBy: event.adminUid,
           },
           ipAddress: '127.0.0.1', // Will be updated by middleware
           userAgent: 'RoleManagerService',
@@ -454,9 +477,9 @@ export class RoleManagerService implements IRoleManager {
           metadata: {
             adminUid: event.adminUid,
             reason: event.reason,
-            timestamp: new Date().toISOString()
-          }
-        }
+            timestamp: new Date().toISOString(),
+          },
+        },
       });
     } catch (error) {
       console.error('Failed to log teacher approval event:', error);
@@ -466,7 +489,11 @@ export class RoleManagerService implements IRoleManager {
   /**
    * Log permission check events for security monitoring
    */
-  async logPermissionCheck(firebaseUid: string, permission: Permission, granted: boolean): Promise<void> {
+  async logPermissionCheck(
+    firebaseUid: string,
+    permission: Permission,
+    granted: boolean
+  ): Promise<void> {
     try {
       await this.prisma.auditLog.create({
         data: {
@@ -474,17 +501,17 @@ export class RoleManagerService implements IRoleManager {
           eventType: EventType.ADMIN_ACTION,
           action: `Permission check: ${permission}`,
           resource: 'permission',
-          newValues: { 
+          newValues: {
             permission,
-            granted 
+            granted,
           },
           ipAddress: '127.0.0.1', // Will be updated by middleware
           userAgent: 'RoleManagerService',
           success: true,
           metadata: {
-            timestamp: new Date().toISOString()
-          }
-        }
+            timestamp: new Date().toISOString(),
+          },
+        },
       });
     } catch (error) {
       console.error('Failed to log permission check:', error);
@@ -499,10 +526,10 @@ export class RoleManagerService implements IRoleManager {
       return await this.prisma.auditLog.findMany({
         where: {
           firebaseUid,
-          eventType: EventType.ROLE_CHANGE
+          eventType: EventType.ROLE_CHANGE,
         },
         orderBy: { createdAt: 'desc' },
-        take: 50
+        take: 50,
       });
     } catch (error) {
       console.error('Failed to get role change history:', error);
@@ -518,11 +545,14 @@ export class RoleManagerService implements IRoleManager {
       return await this.prisma.auditLog.findMany({
         where: {
           eventType: {
-            in: [EventType.TEACHER_APPLICATION_APPROVE, EventType.TEACHER_APPLICATION_REJECT]
-          }
+            in: [
+              EventType.TEACHER_APPLICATION_APPROVE,
+              EventType.TEACHER_APPLICATION_REJECT,
+            ],
+          },
         },
         orderBy: { createdAt: 'desc' },
-        take: limit
+        take: limit,
       });
     } catch (error) {
       console.error('Failed to get teacher approval history:', error);
@@ -535,24 +565,24 @@ export class RoleManagerService implements IRoleManager {
    */
   private mapRoleError(error: any): AuthError {
     const errorCode = error.code || 'unknown';
-    
+
     switch (errorCode) {
       case 'auth/user-not-found':
         return {
           code: AuthErrorCode.ACCOUNT_NOT_FOUND,
-          message: 'User account not found'
+          message: 'User account not found',
         };
-      
+
       case 'auth/insufficient-permission':
         return {
           code: AuthErrorCode.INSUFFICIENT_PERMISSIONS,
-          message: 'Insufficient permissions to perform this action'
+          message: 'Insufficient permissions to perform this action',
         };
-      
+
       default:
         return {
           code: AuthErrorCode.INTERNAL_ERROR,
-          message: error.message || 'Role management operation failed'
+          message: error.message || 'Role management operation failed',
         };
     }
   }

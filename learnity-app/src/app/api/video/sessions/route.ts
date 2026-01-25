@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { authMiddleware } from '@/lib/middleware/auth.middleware';
 import { UserRole } from '@/types/auth';
@@ -16,7 +17,6 @@ import {
   createValidationErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { z } from 'zod';
 
 const CreateSessionSchema = z.object({
   courseId: z.string().min(1, 'Course ID is required'),
@@ -122,35 +122,44 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Enrich with course details
     const enrichedSessions = await Promise.all(
-      sessions.map(async (session) => {
+      sessions.map(async session => {
         const course = await prisma.course.findUnique({
           where: { id: session.courseRoom.courseId },
           select: { id: true, title: true, teacherId: true },
         });
 
-        const teacher = course ? await prisma.user.findUnique({
-          where: { id: course.teacherId },
-          select: { firstName: true, lastName: true },
-        }) : null;
+        const teacher = course
+          ? await prisma.user.findUnique({
+              where: { id: course.teacherId },
+              select: { firstName: true, lastName: true },
+            })
+          : null;
 
         return {
           ...session,
-          course: course ? {
-            id: course.id,
-            title: course.title,
-          } : null,
-          host: teacher ? {
-            name: `${teacher.firstName} ${teacher.lastName}`,
-          } : null,
+          course: course
+            ? {
+                id: course.id,
+                title: course.title,
+              }
+            : null,
+          host: teacher
+            ? {
+                name: `${teacher.firstName} ${teacher.lastName}`,
+              }
+            : null,
           isHost: course?.teacherId === dbUser.id,
         };
       })
     );
 
-    return createSuccessResponse({
-      sessions: enrichedSessions,
-      total: enrichedSessions.length,
-    }, 'Sessions retrieved successfully');
+    return createSuccessResponse(
+      {
+        sessions: enrichedSessions,
+        total: enrichedSessions.length,
+      },
+      'Sessions retrieved successfully'
+    );
   } catch (error) {
     console.error('Error fetching sessions:', error);
     return createInternalErrorResponse('Failed to fetch sessions');
@@ -189,10 +198,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const validation = CreateSessionSchema.safeParse(body);
 
     if (!validation.success) {
-      return createValidationErrorResponse(validation.error, 'Invalid session data');
+      return createValidationErrorResponse(
+        validation.error,
+        'Invalid session data'
+      );
     }
 
-    const { courseId, title, description, scheduledAt, duration, maxParticipants } = validation.data;
+    const {
+      courseId,
+      title,
+      description,
+      scheduledAt,
+      duration,
+      maxParticipants,
+    } = validation.data;
 
     // Get course and verify ownership
     const course = await prisma.course.findUnique({
@@ -201,18 +220,33 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
     if (!course) {
-      return createErrorResponse('NOT_FOUND', 'Course not found', undefined, 404);
+      return createErrorResponse(
+        'NOT_FOUND',
+        'Course not found',
+        undefined,
+        404
+      );
     }
 
     if (course.teacherId !== dbUser.id && dbUser.role !== 'ADMIN') {
-      return createErrorResponse('FORBIDDEN', 'Only the course teacher can schedule sessions', undefined, 403);
+      return createErrorResponse(
+        'FORBIDDEN',
+        'Only the course teacher can schedule sessions',
+        undefined,
+        403
+      );
     }
 
     // Ensure course room exists
     const room = await courseRoomService.ensureRoomExists(courseId);
 
     if (!room.videoEnabled || !room.hmsRoomId) {
-      return createErrorResponse('NOT_AVAILABLE', 'Video is not enabled for this course', undefined, 400);
+      return createErrorResponse(
+        'NOT_AVAILABLE',
+        'Video is not enabled for this course',
+        undefined,
+        400
+      );
     }
 
     // Create session
@@ -229,13 +263,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
-    return createSuccessResponse({
-      ...session,
-      course: {
-        id: course.id,
-        title: course.title,
+    return createSuccessResponse(
+      {
+        ...session,
+        course: {
+          id: course.id,
+          title: course.title,
+        },
       },
-    }, 'Session scheduled successfully');
+      'Session scheduled successfully'
+    );
   } catch (error) {
     console.error('Error creating session:', error);
     return createInternalErrorResponse('Failed to create session');

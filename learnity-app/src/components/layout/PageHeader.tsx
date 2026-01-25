@@ -38,30 +38,28 @@ export function PageHeader({
   className = '',
 }: PageHeaderProps) {
   return (
-    <header 
+    <header
       className={`backdrop-blur-md -mb-2 ${
         sticky ? 'sticky top-0 z-10' : ''
       } ${className}`}
     >
-      <div className="max-w-[1600px] px-10 mx-auto ">
-        <div className="flex justify-between items-center py-6">
-          <div className="flex items-center space-x-4">
+      <div className='max-w-[1600px] px-10 mx-auto '>
+        <div className='flex justify-between items-center py-6'>
+          <div className='flex items-center space-x-4'>
             {Icon && (
-              <div className={`p-2.5 bg-gradient-to-br from-${iconGradient.from} to-${iconGradient.to} rounded-xl shadow-lg`}>
-                <Icon className="h-6 w-6 text-white" />
+              <div
+                className={`p-2.5 bg-gradient-to-br from-${iconGradient.from} to-${iconGradient.to} rounded-xl shadow-lg`}
+              >
+                <Icon className='h-6 w-6 text-white' />
               </div>
             )}
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
-              {subtitle && (
-                <p className="text-sm text-slate-500">{subtitle}</p>
-              )}
+              <h1 className='text-2xl font-bold text-slate-900'>{title}</h1>
+              {subtitle && <p className='text-sm text-slate-500'>{subtitle}</p>}
             </div>
           </div>
           {actions && (
-            <div className="flex items-center space-x-3">
-              {actions}
-            </div>
+            <div className='flex items-center space-x-3'>{actions}</div>
           )}
         </div>
       </div>

@@ -14,7 +14,7 @@ export class DatabaseFactory {
   /**
    * Get singleton instance of DatabaseService
    */
-  static getDatabaseService(): DatabaseService  {
+  static getDatabaseService(): DatabaseService {
     if (!this.databaseServiceInstance) {
       this.databaseServiceInstance = new DatabaseService();
     }

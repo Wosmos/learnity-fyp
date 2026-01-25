@@ -8,9 +8,9 @@
 
 import React, { ReactNode } from 'react';
 import Link from 'next/link';
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface CoursePlayerLayoutProps {
@@ -67,75 +67,83 @@ export function CoursePlayerLayout({
   return (
     <div className={cn('min-h-screen bg-slate-900 text-white', className)}>
       {/* Header */}
-      <header className="bg-slate-800 border-b border-slate-700">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-4">
+      <header className='bg-slate-800 border-b border-slate-700'>
+        <div className='flex items-center justify-between px-4 py-3'>
+          <div className='flex items-center gap-4'>
             <Link href={`/courses/${courseId}`}>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-slate-300 hover:text-white hover:bg-slate-700"
+              <Button
+                variant='ghost'
+                size='sm'
+                className='text-slate-300 hover:text-white hover:bg-slate-700'
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <ArrowLeft className='h-4 w-4 mr-2' />
                 Exit
               </Button>
             </Link>
-            <div className="hidden sm:block">
-              <h1 className="text-lg font-semibold truncate max-w-md">{courseTitle}</h1>
-              <p className="text-sm text-slate-400">by {teacherName}</p>
+            <div className='hidden sm:block'>
+              <h1 className='text-lg font-semibold truncate max-w-md'>
+                {courseTitle}
+              </h1>
+              <p className='text-sm text-slate-400'>by {teacherName}</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Progress value={progressPercent} className="w-24 sm:w-32 h-2" />
-              <span className="text-sm text-slate-400 min-w-[3rem]">{progressPercent}%</span>
+          <div className='flex items-center gap-4'>
+            <div className='flex items-center gap-2'>
+              <Progress value={progressPercent} className='w-24 sm:w-32 h-2' />
+              <span className='text-sm text-slate-400 min-w-[3rem]'>
+                {progressPercent}%
+              </span>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="flex h-[calc(100vh-64px)]">
+      <div className='flex h-[calc(100vh-64px)]'>
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className='flex-1 flex flex-col min-w-0'>
           {/* Video/Quiz Player Area */}
-          <div className="flex-1 bg-black flex items-center justify-center overflow-hidden">
+          <div className='flex-1 bg-black flex items-center justify-center overflow-hidden'>
             {children}
           </div>
 
           {/* Lesson Controls */}
-          <div className="bg-slate-800 border-t border-slate-700 p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="min-w-0 flex-1">
+          <div className='bg-slate-800 border-t border-slate-700 p-4'>
+            <div className='flex items-center justify-between gap-4'>
+              <div className='min-w-0 flex-1'>
                 {currentLessonTitle && (
-                  <h2 className="text-lg font-semibold truncate">{currentLessonTitle}</h2>
+                  <h2 className='text-lg font-semibold truncate'>
+                    {currentLessonTitle}
+                  </h2>
                 )}
                 {currentLessonDescription && (
-                  <p className="text-sm text-slate-400 truncate">{currentLessonDescription}</p>
+                  <p className='text-sm text-slate-400 truncate'>
+                    {currentLessonDescription}
+                  </p>
                 )}
               </div>
-              <div className="flex items-center gap-3 shrink-0">
+              <div className='flex items-center gap-3 shrink-0'>
                 <Button
-                  variant="outline"
-                  size="sm"
+                  variant='outline'
+                  size='sm'
                   onClick={onPrevious}
                   disabled={prevDisabled}
-                  className="border-slate-600 hover:bg-slate-700"
+                  className='border-slate-600 hover:bg-slate-700'
                 >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  <span className="hidden sm:inline">Previous</span>
+                  <ChevronLeft className='h-4 w-4 mr-1' />
+                  <span className='hidden sm:inline'>Previous</span>
                 </Button>
-                
+
                 {controls}
-                
+
                 <Button
-                  variant="outline"
-                  size="sm"
+                  variant='outline'
+                  size='sm'
                   onClick={onNext}
                   disabled={nextDisabled}
-                  className="border-slate-600 hover:bg-slate-700"
+                  className='border-slate-600 hover:bg-slate-700'
                 >
-                  <span className="hidden sm:inline">Next</span>
-                  <ChevronRight className="h-4 w-4 ml-1" />
+                  <span className='hidden sm:inline'>Next</span>
+                  <ChevronRight className='h-4 w-4 ml-1' />
                 </Button>
               </div>
             </div>
@@ -143,7 +151,7 @@ export function CoursePlayerLayout({
         </div>
 
         {/* Sidebar */}
-        <aside className="w-80 bg-slate-800 border-l border-slate-700 overflow-y-auto hidden lg:block">
+        <aside className='w-80 bg-slate-800 border-l border-slate-700 overflow-y-auto hidden lg:block'>
           {sidebar}
         </aside>
       </div>

@@ -4,8 +4,8 @@
  */
 
 import { cache } from 'react';
-import { prisma } from '@/lib/config/database';
 import { unstable_cache } from 'next/cache';
+import { prisma } from '@/lib/config/database';
 
 export interface PlatformStats {
   activeLearners: number;
@@ -44,7 +44,7 @@ export const getPlatformStats = unstable_cache(
         lessonsCompleted,
         coursesCount,
         enrollmentsCount,
-        completionStats
+        completionStats,
       ] = await Promise.all([
         // Count active students
         prisma.user.count({
@@ -133,7 +133,7 @@ export const getPlatformStats = unstable_cache(
       };
     } catch (error) {
       console.error('Error fetching platform stats:', error);
-      
+
       // Return realistic fallback values for a growing platform
       return {
         activeLearners: 1247,
@@ -170,7 +170,7 @@ export const getDetailedStats = unstable_cache(
         lessonsCompletedThisWeek,
         studentsLastWeek,
         teachersLastWeek,
-        activeUsersThisWeek
+        activeUsersThisWeek,
       ] = await Promise.all([
         // New students this week
         prisma.user.count({
@@ -202,9 +202,9 @@ export const getDetailedStats = unstable_cache(
         prisma.user.count({
           where: {
             role: 'STUDENT',
-            createdAt: { 
+            createdAt: {
               gte: twoWeeksAgo,
-              lt: oneWeekAgo 
+              lt: oneWeekAgo,
             },
             isActive: true,
           },
@@ -214,9 +214,9 @@ export const getDetailedStats = unstable_cache(
         prisma.user.count({
           where: {
             role: 'TEACHER',
-            createdAt: { 
+            createdAt: {
               gte: twoWeeksAgo,
-              lt: oneWeekAgo 
+              lt: oneWeekAgo,
             },
             isActive: true,
           },
@@ -232,17 +232,26 @@ export const getDetailedStats = unstable_cache(
       ]);
 
       // Calculate growth rates
-      const studentGrowthRate = studentsLastWeek > 0 
-        ? Math.round(((newStudentsThisWeek - studentsLastWeek) / studentsLastWeek) * 100)
-        : 100;
+      const studentGrowthRate =
+        studentsLastWeek > 0
+          ? Math.round(
+              ((newStudentsThisWeek - studentsLastWeek) / studentsLastWeek) *
+                100
+            )
+          : 100;
 
-      const teacherGrowthRate = teachersLastWeek > 0
-        ? Math.round(((newTeachersThisWeek - teachersLastWeek) / teachersLastWeek) * 100)
-        : 100;
+      const teacherGrowthRate =
+        teachersLastWeek > 0
+          ? Math.round(
+              ((newTeachersThisWeek - teachersLastWeek) / teachersLastWeek) *
+                100
+            )
+          : 100;
 
-      const engagementRate = baseStats.activeLearners > 0
-        ? Math.round((activeUsersThisWeek / baseStats.activeLearners) * 100)
-        : 75;
+      const engagementRate =
+        baseStats.activeLearners > 0
+          ? Math.round((activeUsersThisWeek / baseStats.activeLearners) * 100)
+          : 75;
 
       return {
         ...baseStats,
@@ -260,7 +269,7 @@ export const getDetailedStats = unstable_cache(
     } catch (error) {
       console.error('Error fetching detailed stats:', error);
       const baseStats = await getPlatformStats();
-      
+
       return {
         ...baseStats,
         recentActivity: {
@@ -309,10 +318,7 @@ export const prefetchCoursesData = cache(async () => {
             },
           },
         },
-        orderBy: [
-          { enrollmentCount: 'desc' },
-          { averageRating: 'desc' },
-        ],
+        orderBy: [{ enrollmentCount: 'desc' }, { averageRating: 'desc' }],
         take: 12,
       }),
 
@@ -471,17 +477,17 @@ export const prefetchTeachersData = cache(async () => {
  */
 export function formatStatValue(value: number, suffix: string = '+'): string {
   if (value === 0) return '0';
-  
+
   // Format large numbers with K, M suffixes
   if (value >= 1000000) {
     return `${(value / 1000000).toFixed(1)}M${suffix}`;
   } else if (value >= 1000) {
     return `${(value / 1000).toFixed(1)}K${suffix}`;
   }
-  
+
   // Format with commas for smaller numbers
   const formatted = value.toLocaleString('en-US');
-  
+
   // Add suffix if value is greater than 0
   return value > 0 ? `${formatted}${suffix}` : formatted;
 }
@@ -496,14 +502,17 @@ export function formatPercentage(value: number): string {
 /**
  * Format trend value with appropriate sign and color class
  */
-export function formatTrend(value: number, suffix: string = '%'): {
+export function formatTrend(
+  value: number,
+  suffix: string = '%'
+): {
   value: string;
   isPositive: boolean;
   colorClass: string;
 } {
   const isPositive = value >= 0;
   const formattedValue = `${isPositive ? '+' : ''}${value}${suffix}`;
-  
+
   return {
     value: formattedValue,
     isPositive,

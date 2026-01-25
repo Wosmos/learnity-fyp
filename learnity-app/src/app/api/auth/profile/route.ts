@@ -7,7 +7,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ServiceFactory } from '@/lib/factories/service.factory';
 import { authenticateApiRequest } from '@/lib/utils/api-auth.utils';
-import { createSuccessResponse, createNotFoundErrorResponse, withErrorHandling } from '@/lib/utils/api-response.utils';
+import {
+  createSuccessResponse,
+  createNotFoundErrorResponse,
+  withErrorHandling,
+} from '@/lib/utils/api-response.utils';
 
 // Cache profile data for 5 minutes on client side
 const CACHE_MAX_AGE = 300; // 5 minutes
@@ -41,44 +45,54 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     lastLoginAt: userProfile.lastLoginAt,
     authProvider: userProfile.authProvider,
     socialProviders: userProfile.socialProviders,
-    
+
     // Role-specific data
-    ...(userProfile.role === 'STUDENT' && userProfile.studentProfile && {
-      studentProfile: {
-        gradeLevel: userProfile.studentProfile.gradeLevel,
-        subjects: userProfile.studentProfile.subjects,
-        learningGoals: userProfile.studentProfile.learningGoals,
-        interests: userProfile.studentProfile.interests,
-        studyPreferences: userProfile.studentProfile.studyPreferences,
-        bio: userProfile.studentProfile.bio,
-        profileCompletionPercentage: userProfile.studentProfile.profileCompletionPercentage
-      }
-    }),
-    
-    ...(userProfile.role === 'TEACHER' && userProfile.teacherProfile && {
-      teacherProfile: {
-        applicationStatus: userProfile.teacherProfile.applicationStatus,
-        subjects: userProfile.teacherProfile.subjects,
-        qualifications: userProfile.teacherProfile.qualifications,
-        experience: userProfile.teacherProfile.experience,
-        bio: userProfile.teacherProfile.bio
-      }
-    }),
-    
-    ...(userProfile.role === 'ADMIN' && userProfile.adminProfile && {
-      adminProfile: {
-        department: userProfile.adminProfile.department,
-        isStatic: userProfile.adminProfile.isStatic
-      }
-    })
+    ...(userProfile.role === 'STUDENT' &&
+      userProfile.studentProfile && {
+        studentProfile: {
+          gradeLevel: userProfile.studentProfile.gradeLevel,
+          subjects: userProfile.studentProfile.subjects,
+          learningGoals: userProfile.studentProfile.learningGoals,
+          interests: userProfile.studentProfile.interests,
+          studyPreferences: userProfile.studentProfile.studyPreferences,
+          bio: userProfile.studentProfile.bio,
+          profileCompletionPercentage:
+            userProfile.studentProfile.profileCompletionPercentage,
+        },
+      }),
+
+    ...(userProfile.role === 'TEACHER' &&
+      userProfile.teacherProfile && {
+        teacherProfile: {
+          applicationStatus: userProfile.teacherProfile.applicationStatus,
+          subjects: userProfile.teacherProfile.subjects,
+          qualifications: userProfile.teacherProfile.qualifications,
+          experience: userProfile.teacherProfile.experience,
+          bio: userProfile.teacherProfile.bio,
+        },
+      }),
+
+    ...(userProfile.role === 'ADMIN' &&
+      userProfile.adminProfile && {
+        adminProfile: {
+          department: userProfile.adminProfile.department,
+          isStatic: userProfile.adminProfile.isStatic,
+        },
+      }),
   };
 
   // Create response with cache headers
-  const response = createSuccessResponse(profileData, 'Profile retrieved successfully');
-  
+  const response = createSuccessResponse(
+    profileData,
+    'Profile retrieved successfully'
+  );
+
   // Add cache headers - private cache for authenticated data
-  response.headers.set('Cache-Control', `private, max-age=${CACHE_MAX_AGE}, stale-while-revalidate=${CACHE_MAX_AGE * 2}`);
-  
+  response.headers.set(
+    'Cache-Control',
+    `private, max-age=${CACHE_MAX_AGE}, stale-while-revalidate=${CACHE_MAX_AGE * 2}`
+  );
+
   return response;
 });
 

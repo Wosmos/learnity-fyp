@@ -26,12 +26,15 @@ export async function GET(req: NextRequest) {
       include: {
         category: true,
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
 
     const publishedCount = courses.filter(c => c.status === 'PUBLISHED').length;
     const draftCount = courses.filter(c => c.status === 'DRAFT').length;
-    const totalEnrollments = courses.reduce((acc, c) => acc + c.enrollmentCount, 0);
+    const totalEnrollments = courses.reduce(
+      (acc, c) => acc + c.enrollmentCount,
+      0
+    );
 
     return NextResponse.json({
       data: {
@@ -39,11 +42,14 @@ export async function GET(req: NextRequest) {
         total: courses.length,
         publishedCount,
         draftCount,
-        totalEnrollments
-      }
+        totalEnrollments,
+      },
     });
   } catch (error) {
     console.error('Error fetching courses:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }

@@ -23,11 +23,11 @@ export function GlobalLoadingIndicator() {
   if (!isLoading) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-transparent">
+    <div className='fixed top-0 left-0 right-0 z-50 h-1 bg-transparent'>
       <div
         className={cn(
-          "h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500",
-          "animate-[loading_1s_ease-in-out_infinite]"
+          'h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500',
+          'animate-[loading_1s_ease-in-out_infinite]'
         )}
         style={{
           animation: 'loading 1s ease-in-out infinite',

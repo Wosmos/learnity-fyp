@@ -21,10 +21,11 @@ export async function POST(request: NextRequest) {
     // If we have an authorization header, extract the Firebase UID
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const idToken = authHeader.substring(7);
-      
+
       try {
         // Validate and extract Firebase token payload
-        const tokenValidation = await sessionManager.validateFirebaseToken(idToken);
+        const tokenValidation =
+          await sessionManager.validateFirebaseToken(idToken);
         if (tokenValidation.isValid && tokenValidation.payload) {
           firebaseUid = tokenValidation.payload.firebaseUid;
           sessionId = tokenValidation.payload.sessionId;
@@ -40,7 +41,8 @@ export async function POST(request: NextRequest) {
     // If we have a refresh token, blacklist it and extract user info
     if (refreshToken) {
       try {
-        const refreshPayload = await sessionManager.extractRefreshTokenPayload(refreshToken);
+        const refreshPayload =
+          await sessionManager.extractRefreshTokenPayload(refreshToken);
         if (refreshPayload) {
           firebaseUid = refreshPayload.firebaseUid;
           sessionId = refreshPayload.sessionId;
@@ -57,9 +59,15 @@ export async function POST(request: NextRequest) {
     if (firebaseUid) {
       if (allDevices) {
         // Terminate all user sessions and blacklist all tokens
-        await sessionManager.terminateAllUserSessions(firebaseUid, 'User logout from all devices');
-        await sessionManager.blacklistAllUserTokens(firebaseUid, 'User logout from all devices');
-        
+        await sessionManager.terminateAllUserSessions(
+          firebaseUid,
+          'User logout from all devices'
+        );
+        await sessionManager.blacklistAllUserTokens(
+          firebaseUid,
+          'User logout from all devices'
+        );
+
         // Revoke all Firebase refresh tokens
         try {
           await adminAuth.revokeRefreshTokens(firebaseUid);
@@ -77,26 +85,27 @@ export async function POST(request: NextRequest) {
         firebaseUid,
         action: 'USER_LOGOUT',
         resource: 'session',
-        newValues: { 
+        newValues: {
           allDevices,
-          sessionId: sessionId || 'unknown'
+          sessionId: sessionId || 'unknown',
         },
-        ipAddress: request.headers.get('x-forwarded-for') || 
-                   request.headers.get('x-real-ip') || 
-                   'unknown',
+        ipAddress:
+          request.headers.get('x-forwarded-for') ||
+          request.headers.get('x-real-ip') ||
+          'unknown',
         userAgent: request.headers.get('user-agent') || 'unknown',
-        deviceFingerprint: request.headers.get('x-device-fingerprint') || 'unknown',
-        success: true
+        deviceFingerprint:
+          request.headers.get('x-device-fingerprint') || 'unknown',
+        success: true,
       });
     }
 
     return NextResponse.json({
       success: true,
-      message: allDevices 
+      message: allDevices
         ? 'Successfully logged out from all devices'
-        : 'Successfully logged out'
+        : 'Successfully logged out',
     });
-
   } catch (error) {
     console.error('Logout API error:', error);
 
@@ -108,13 +117,15 @@ export async function POST(request: NextRequest) {
         action: 'USER_LOGOUT_FAILED',
         resource: 'session',
         newValues: { error: (error as Error).message },
-        ipAddress: request.headers.get('x-forwarded-for') || 
-                   request.headers.get('x-real-ip') || 
-                   'unknown',
+        ipAddress:
+          request.headers.get('x-forwarded-for') ||
+          request.headers.get('x-real-ip') ||
+          'unknown',
         userAgent: request.headers.get('user-agent') || 'unknown',
-        deviceFingerprint: request.headers.get('x-device-fingerprint') || 'unknown',
+        deviceFingerprint:
+          request.headers.get('x-device-fingerprint') || 'unknown',
         success: false,
-        errorMessage: (error as Error).message
+        errorMessage: (error as Error).message,
       });
     } catch (logError) {
       console.error('Failed to log logout error:', logError);
@@ -124,7 +135,7 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: 'Logout failed',
-        message: 'An error occurred during logout'
+        message: 'An error occurred during logout',
       },
       { status: 500 }
     );

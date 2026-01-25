@@ -36,13 +36,13 @@ interface ProfileState {
   isLoading: boolean;
   error: string | null;
   lastFetched: number | null;
-  
+
   // Actions
   setProfile: (profile: ProfileData | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearProfile: () => void;
-  
+
   // Cache helpers
   isCacheValid: () => boolean;
   shouldRefetch: () => boolean;
@@ -56,37 +56,37 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
   isLoading: false,
   error: null,
   lastFetched: null,
-  
-  setProfile: (profile) => {
-    set({ 
-      profile, 
+
+  setProfile: profile => {
+    set({
+      profile,
       lastFetched: Date.now(),
-      error: null 
+      error: null,
     });
   },
-  
-  setLoading: (isLoading) => {
+
+  setLoading: isLoading => {
     set({ isLoading });
   },
-  
-  setError: (error) => {
+
+  setError: error => {
     set({ error, isLoading: false });
   },
-  
+
   clearProfile: () => {
-    set({ 
-      profile: null, 
-      lastFetched: null, 
-      error: null 
+    set({
+      profile: null,
+      lastFetched: null,
+      error: null,
     });
   },
-  
+
   isCacheValid: () => {
     const { lastFetched, profile } = get();
     if (!lastFetched || !profile) return false;
     return Date.now() - lastFetched < CACHE_DURATION;
   },
-  
+
   shouldRefetch: () => {
     const { isLoading, isCacheValid } = get();
     return !isLoading && !isCacheValid();
@@ -94,9 +94,10 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
 }));
 
 // Selectors for better performance
-export const useProfile = () => useProfileStore((state) => state.profile);
-export const useProfileLoading = () => useProfileStore((state) => state.isLoading);
-export const useProfileError = () => useProfileStore((state) => state.error);
+export const useProfile = () => useProfileStore(state => state.profile);
+export const useProfileLoading = () =>
+  useProfileStore(state => state.isLoading);
+export const useProfileError = () => useProfileStore(state => state.error);
 
 // Helper to get initials
 export const getProfileInitials = (profile: ProfileData | null): string => {
@@ -109,5 +110,7 @@ export const getProfileInitials = (profile: ProfileData | null): string => {
 // Helper to get full name
 export const getProfileFullName = (profile: ProfileData | null): string => {
   if (!profile) return 'User';
-  return `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || 'User';
+  return (
+    `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || 'User'
+  );
 };

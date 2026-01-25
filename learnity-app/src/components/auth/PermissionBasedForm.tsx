@@ -8,7 +8,10 @@
 import React from 'react';
 import { useAuth, usePermission, useRole } from '@/hooks/useAuth';
 import { UserRole, Permission } from '@/types/auth';
-import { RequirePermission, RequireRole } from '@/components/auth/PermissionGate';
+import {
+  RequirePermission,
+  RequireRole,
+} from '@/components/auth/PermissionGate';
 
 export interface PermissionBasedFieldProps {
   children: React.ReactNode;
@@ -47,12 +50,12 @@ export function PermissionBasedField({
   roles,
   readOnlyFallback,
   hiddenFallback,
-  mode = 'hide'
+  mode = 'hide',
 }: PermissionBasedFieldProps) {
   const { loading, claims } = useAuth();
 
   if (loading) {
-    return <div className="animate-pulse h-10 bg-gray-200 rounded" />;
+    return <div className='animate-pulse h-10 bg-gray-200 rounded' />;
   }
 
   if (!claims) {
@@ -81,11 +84,7 @@ export function PermissionBasedField({
       case 'readonly':
         return <>{readOnlyFallback || children}</>;
       case 'disabled':
-        return (
-          <div className="opacity-50 pointer-events-none">
-            {children}
-          </div>
-        );
+        return <div className='opacity-50 pointer-events-none'>{children}</div>;
       default:
         return <>{hiddenFallback}</>;
     }
@@ -162,11 +161,7 @@ export function PermissionBasedButton({
   }
 
   return (
-    <button
-      disabled={disabled}
-      className={className}
-      {...props}
-    >
+    <button disabled={disabled} className={className} {...props}>
       {children}
     </button>
   );
@@ -197,13 +192,7 @@ export function PermissionBasedInput({
   }
 
   if (!claims) {
-    return (
-      <input
-        disabled
-        className={`${className} opacity-50`}
-        {...props}
-      />
-    );
+    return <input disabled className={`${className} opacity-50`} {...props} />;
   }
 
   // Check if field should be hidden
@@ -279,11 +268,7 @@ export function PermissionBasedSelect({
 
   if (!claims) {
     return (
-      <select
-        disabled
-        className={`${className} opacity-50`}
-        {...props}
-      >
+      <select disabled className={`${className} opacity-50`} {...props}>
         <option>Not Authorized</option>
       </select>
     );
@@ -349,11 +334,7 @@ export function PermissionBasedTextarea({
 
   if (!claims) {
     return (
-      <textarea
-        disabled
-        className={`${className} opacity-50`}
-        {...props}
-      />
+      <textarea disabled className={`${className} opacity-50`} {...props} />
     );
   }
 
@@ -416,25 +397,21 @@ export function PermissionBasedSection({
   roles,
   title,
   description,
-  className = ''
+  className = '',
 }: PermissionBasedSectionProps) {
   return (
     <PermissionBasedField
       permission={permission}
       role={role}
       roles={roles}
-      mode="hide"
+      mode='hide'
     >
       <div className={`permission-based-section ${className}`}>
         {title && (
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {title}
-          </h3>
+          <h3 className='text-lg font-medium text-gray-900 mb-2'>{title}</h3>
         )}
         {description && (
-          <p className="text-sm text-gray-600 mb-4">
-            {description}
-          </p>
+          <p className='text-sm text-gray-600 mb-4'>{description}</p>
         )}
         {children}
       </div>
@@ -460,7 +437,7 @@ export function RoleBasedForm({
   adminForm,
   pendingTeacherForm,
   defaultForm,
-  loading = <div className="animate-pulse">Loading form...</div>
+  loading = <div className='animate-pulse'>Loading form...</div>,
 }: RoleBasedFormProps) {
   const { loading: authLoading, claims } = useAuth();
 
@@ -508,14 +485,14 @@ export function PermissionBasedCheckbox({
 
   if (loading) {
     return (
-      <div className="flex items-center">
+      <div className='flex items-center'>
         <input
-          type="checkbox"
+          type='checkbox'
           disabled
           className={`${className} animate-pulse`}
           {...props}
         />
-        {label && <span className="ml-2 text-gray-400">Loading...</span>}
+        {label && <span className='ml-2 text-gray-400'>Loading...</span>}
       </div>
     );
   }
@@ -544,13 +521,9 @@ export function PermissionBasedCheckbox({
   }
 
   return (
-    <div className="flex items-center">
-      <input
-        type="checkbox"
-        className={className}
-        {...props}
-      />
-      {label && <label className="ml-2 text-sm text-gray-700">{label}</label>}
+    <div className='flex items-center'>
+      <input type='checkbox' className={className} {...props} />
+      {label && <label className='ml-2 text-sm text-gray-700'>{label}</label>}
     </div>
   );
 }
@@ -579,10 +552,14 @@ export function PermissionBasedFileInput({
 
   if (loading) {
     return (
-      <div className="space-y-2">
-        {label && <label className="block text-sm font-medium text-gray-400">Loading...</label>}
+      <div className='space-y-2'>
+        {label && (
+          <label className='block text-sm font-medium text-gray-400'>
+            Loading...
+          </label>
+        )}
         <input
-          type="file"
+          type='file'
           disabled
           className={`${className} animate-pulse bg-gray-200`}
           {...props}
@@ -617,14 +594,14 @@ export function PermissionBasedFileInput({
   const accept = acceptedTypes ? acceptedTypes.join(',') : props.accept;
 
   return (
-    <div className="space-y-2">
+    <div className='space-y-2'>
       {label && (
-        <label className="block text-sm font-medium text-gray-700">
+        <label className='block text-sm font-medium text-gray-700'>
           {label}
         </label>
       )}
       <input
-        type="file"
+        type='file'
         accept={accept}
         className={`${className} block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-blue-700 hover:file:bg-slate-100`}
         {...props}

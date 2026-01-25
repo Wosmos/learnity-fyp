@@ -2,7 +2,7 @@
  * Course Certificate API Routes
  * POST /api/courses/[courseId]/certificate - Generate a certificate for a completed course
  * GET /api/courses/[courseId]/certificate - Check certificate status for a course
- * 
+ *
  * Requirements covered:
  * - 10.1: Mark course as completed when 100% lessons and all quizzes passed
  * - 10.2: Generate completion certificate with student name, course title, date, unique ID
@@ -74,7 +74,10 @@ export async function POST(
     }
 
     // Generate certificate using service
-    const result = await certificateService.generateCertificate(dbUser.id, courseId);
+    const result = await certificateService.generateCertificate(
+      dbUser.id,
+      courseId
+    );
 
     return createSuccessResponse(
       {
@@ -150,10 +153,11 @@ export async function GET(
     }
 
     // Check if certificate already exists
-    const existingCertificate = await certificateService.getCertificateByStudentAndCourse(
-      dbUser.id,
-      courseId
-    );
+    const existingCertificate =
+      await certificateService.getCertificateByStudentAndCourse(
+        dbUser.id,
+        courseId
+      );
 
     // Check completion status
     const completionStatus = await certificateService.checkCourseCompletion(

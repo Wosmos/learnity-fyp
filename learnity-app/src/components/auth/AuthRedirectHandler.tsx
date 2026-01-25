@@ -18,7 +18,7 @@ export function AuthRedirectHandler() {
     if (!isLoading && isAuthenticated && user && claims) {
       // Determine redirect based on user role
       const role = claims.role;
-      
+
       switch (role) {
         case 'ADMIN':
           router.push('/admin');

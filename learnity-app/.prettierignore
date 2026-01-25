@@ -1,0 +1,68 @@
+# Dependencies
+node_modules/
+
+# Production builds
+.next/
+out/
+build/
+dist/
+
+# Environment files
+.env*
+
+# Database
+prisma/migrations/
+*.sql
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Package manager files
+package-lock.json
+yarn.lock
+bun.lockb
+
+# Generated files
+next-env.d.ts
+*.tsbuildinfo
+
+# Configuration files
+*.config.js
+*.config.mjs
+*.config.ts
+tailwind.config.js
+next.config.ts
+jest.config.js
+jest.setup.js
+postcss.config.mjs
+components.json
+vercel.json
+tsconfig.json
+
+# Markdown files
+*.md
+*.mdx
+
+# Prisma schema
+*.prisma
+
+# Other config files
+.gitignore
+.prettierignore
+.eslintignore
+Dockerfile
+docker-compose.yml
+
+# Documentation
+docs/
+README*
+CHANGELOG*
+LICENSE*

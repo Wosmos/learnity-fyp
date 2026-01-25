@@ -1,7 +1,7 @@
 /**
  * Review Service Interface
  * Defines the contract for review management operations
- * 
+ *
  * Requirements covered:
  * - 8.1: Review eligibility (50% progress required)
  * - 8.2: Rating 1-5 with optional comment (10-500 chars)
@@ -13,7 +13,11 @@
  */
 
 import { Review, User } from '@prisma/client';
-import { CreateReviewData, UpdateReviewData, ReviewFiltersData } from '@/lib/validators/review';
+import {
+  CreateReviewData,
+  UpdateReviewData,
+  ReviewFiltersData,
+} from '@/lib/validators/review';
 
 // ============================================
 // REVIEW DTOs AND TYPES
@@ -113,7 +117,11 @@ export interface IReviewService {
    * @returns The updated review
    * Requirements: 8.5
    */
-  updateReview(reviewId: string, studentId: string, data: UpdateReviewData): Promise<Review>;
+  updateReview(
+    reviewId: string,
+    studentId: string,
+    data: UpdateReviewData
+  ): Promise<Review>;
 
   /**
    * Delete a review
@@ -130,7 +138,10 @@ export interface IReviewService {
    * @returns Paginated reviews with student info
    * Requirements: 8.4
    */
-  getCourseReviews(courseId: string, filters?: ReviewFiltersData): Promise<PaginatedReviews>;
+  getCourseReviews(
+    courseId: string,
+    filters?: ReviewFiltersData
+  ): Promise<PaginatedReviews>;
 
   /**
    * Get a student's review for a specific course
@@ -167,7 +178,7 @@ export enum ReviewErrorCode {
   // Validation errors
   INVALID_RATING = 'INVALID_RATING',
   INVALID_COMMENT = 'INVALID_COMMENT',
-  
+
   // Business logic errors
   REVIEW_NOT_FOUND = 'REVIEW_NOT_FOUND',
   COURSE_NOT_FOUND = 'COURSE_NOT_FOUND',
@@ -175,7 +186,7 @@ export enum ReviewErrorCode {
   INSUFFICIENT_PROGRESS = 'INSUFFICIENT_PROGRESS',
   ALREADY_REVIEWED = 'ALREADY_REVIEWED',
   NOT_REVIEW_OWNER = 'NOT_REVIEW_OWNER',
-  
+
   // Authorization errors
   UNAUTHORIZED = 'UNAUTHORIZED',
   FORBIDDEN = 'FORBIDDEN',

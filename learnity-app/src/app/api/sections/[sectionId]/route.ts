@@ -3,12 +3,13 @@
  * GET /api/sections/[sectionId] - Get section details
  * PUT /api/sections/[sectionId] - Update section
  * DELETE /api/sections/[sectionId] - Delete section
- * 
+ *
  * Requirements covered:
  * - 1.6: Section management
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 import { sectionService } from '@/lib/services/section.service';
 import { UpdateSectionSchema } from '@/lib/validators/section';
 import { SectionError } from '@/lib/interfaces/section.interface';
@@ -22,7 +23,6 @@ import {
   createNotFoundErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { ZodError } from 'zod';
 
 interface RouteParams {
   params: Promise<{ sectionId: string }>;
@@ -109,7 +109,10 @@ export async function PUT(
     }
 
     // Validate ownership
-    const isOwner = await sectionService.validateOwnership(sectionId, dbUser.id);
+    const isOwner = await sectionService.validateOwnership(
+      sectionId,
+      dbUser.id
+    );
     if (!isOwner) {
       return createErrorResponse(
         'FORBIDDEN',
@@ -126,7 +129,10 @@ export async function PUT(
     const validatedData = UpdateSectionSchema.parse(body);
 
     // Update section
-    const section = await sectionService.updateSection(sectionId, validatedData);
+    const section = await sectionService.updateSection(
+      sectionId,
+      validatedData
+    );
 
     return createSuccessResponse(section, 'Section updated successfully');
   } catch (error) {
@@ -197,7 +203,10 @@ export async function DELETE(
     }
 
     // Validate ownership
-    const isOwner = await sectionService.validateOwnership(sectionId, dbUser.id);
+    const isOwner = await sectionService.validateOwnership(
+      sectionId,
+      dbUser.id
+    );
     if (!isOwner) {
       return createErrorResponse(
         'FORBIDDEN',

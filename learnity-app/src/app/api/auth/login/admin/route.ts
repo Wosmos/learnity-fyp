@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body = await request.json();
-    
+
     // Validate input data
     const validationResult = staticAdminLoginSchema.safeParse(body);
     if (!validationResult.success) {
@@ -29,8 +29,8 @@ export async function POST(request: NextRequest) {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: validationResult.error.flatten()
-          }
+            details: validationResult.error.flatten(),
+          },
         },
         { status: 400 }
       );
@@ -50,17 +50,18 @@ export async function POST(request: NextRequest) {
           success: false,
           error: {
             code: 'CAPTCHA_VERIFICATION_FAILED',
-            message: 'Please complete the captcha verification'
-          }
+            message: 'Please complete the captcha verification',
+          },
         },
         { status: 400 }
       );
     }
 
     // Get client information for audit logging
-    const clientIP = request.headers.get('x-forwarded-for') || 
-                    request.headers.get('x-real-ip') || 
-                    'unknown';
+    const clientIP =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
     // Authenticate static admin with Firebase Auth
@@ -79,14 +80,14 @@ export async function POST(request: NextRequest) {
           email: loginData.email,
           role: UserRole.ADMIN,
           errorCode: authResult.error?.code,
-          attemptType: 'static_admin'
-        }
+          attemptType: 'static_admin',
+        },
       });
 
       return NextResponse.json(
         {
           success: false,
-          error: authResult.error
+          error: authResult.error,
         },
         { status: 401 }
       );
@@ -95,30 +96,38 @@ export async function POST(request: NextRequest) {
     // Create or update admin profile in Neon DB
     try {
       let userProfile;
-      
+
       // Check if admin profile already exists
-      const existingProfile = await databaseService.getUserProfile(authResult.user.uid);
-      
+      const existingProfile = await databaseService.getUserProfile(
+        authResult.user.uid
+      );
+
       if (existingProfile) {
         // Update existing profile
-        userProfile = await databaseService.updateUserProfile(authResult.user.uid, {
-          emailVerified: true,
-          lastLoginAt: new Date()
-        });
+        userProfile = await databaseService.updateUserProfile(
+          authResult.user.uid,
+          {
+            emailVerified: true,
+            lastLoginAt: new Date(),
+          }
+        );
       } else {
         // Create new admin profile
-        userProfile = await databaseService.createUserProfile(authResult.user.uid, {
-          firstName: 'Static',
-          lastName: 'Admin',
-          email: authResult.user.email!,
-          role: UserRole.ADMIN,
-          emailVerified: true,
-          adminProfile: {
-            department: 'Platform Management',
-            isStatic: true,
-            createdBy: 'system'
+        userProfile = await databaseService.createUserProfile(
+          authResult.user.uid,
+          {
+            firstName: 'Static',
+            lastName: 'Admin',
+            email: authResult.user.email!,
+            role: UserRole.ADMIN,
+            emailVerified: true,
+            adminProfile: {
+              department: 'Platform Management',
+              isStatic: true,
+              createdBy: 'system',
+            },
           }
-        });
+        );
       }
 
       // Log successful admin login
@@ -134,8 +143,8 @@ export async function POST(request: NextRequest) {
           role: UserRole.ADMIN,
           profileId: userProfile.id,
           isStatic: true,
-          loginType: 'static_admin'
-        }
+          loginType: 'static_admin',
+        },
       });
 
       // Log admin action for enhanced audit trail
@@ -148,8 +157,8 @@ export async function POST(request: NextRequest) {
         success: true,
         newValues: {
           sessionType: 'static_admin',
-          adminLevel: 'platform_owner'
-        }
+          adminLevel: 'platform_owner',
+        },
       });
 
       return NextResponse.json({
@@ -159,7 +168,7 @@ export async function POST(request: NextRequest) {
             uid: authResult.user.uid,
             email: authResult.user.email,
             emailVerified: authResult.user.emailVerified,
-            displayName: `${userProfile.firstName} ${userProfile.lastName}`
+            displayName: `${userProfile.firstName} ${userProfile.lastName}`,
           },
           profile: {
             id: userProfile.id,
@@ -167,7 +176,8 @@ export async function POST(request: NextRequest) {
             lastName: userProfile.lastName,
             role: userProfile.role,
             isStatic: userProfile.adminProfile?.isStatic || false,
-            department: userProfile.adminProfile?.department || 'Platform Management'
+            department:
+              userProfile.adminProfile?.department || 'Platform Management',
           },
           idToken: authResult.idToken,
           permissions: [
@@ -175,13 +185,15 @@ export async function POST(request: NextRequest) {
             'manage:users',
             'approve:teachers',
             'view:audit_logs',
-            'manage:platform'
-          ]
-        }
+            'manage:platform',
+          ],
+        },
       });
-
     } catch (dbError: any) {
-      console.error('Failed to create/update admin profile in Neon DB:', dbError);
+      console.error(
+        'Failed to create/update admin profile in Neon DB:',
+        dbError
+      );
 
       // Log the database sync failure
       await auditService.logAuthenticationEvent({
@@ -195,8 +207,8 @@ export async function POST(request: NextRequest) {
         metadata: {
           email: authResult.user.email,
           role: UserRole.ADMIN,
-          firebaseAuthSuccess: true
-        }
+          firebaseAuthSuccess: true,
+        },
       });
 
       // Still return success since Firebase auth worked
@@ -208,7 +220,7 @@ export async function POST(request: NextRequest) {
             uid: authResult.user.uid,
             email: authResult.user.email,
             emailVerified: authResult.user.emailVerified,
-            displayName: 'Static Admin'
+            displayName: 'Static Admin',
           },
           profile: {
             id: 'temp',
@@ -216,7 +228,7 @@ export async function POST(request: NextRequest) {
             lastName: 'Admin',
             role: UserRole.ADMIN,
             isStatic: true,
-            department: 'Platform Management'
+            department: 'Platform Management',
           },
           idToken: authResult.idToken,
           permissions: [
@@ -224,20 +236,20 @@ export async function POST(request: NextRequest) {
             'manage:users',
             'approve:teachers',
             'view:audit_logs',
-            'manage:platform'
+            'manage:platform',
           ],
-          warning: 'Profile sync failed. Some features may be limited.'
-        }
+          warning: 'Profile sync failed. Some features may be limited.',
+        },
       });
     }
-
   } catch (error: unknown) {
     console.error('Static admin login error:', error);
 
     // Log unexpected error
-    const clientIP = request.headers.get('x-forwarded-for') || 
-                    request.headers.get('x-real-ip') || 
-                    'unknown';
+    const clientIP =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
     try {
@@ -250,8 +262,8 @@ export async function POST(request: NextRequest) {
         errorMessage: error instanceof Error ? error.message : 'Unknown error',
         metadata: {
           errorStack: error instanceof Error ? error.stack : 'No stack trace',
-          attemptType: 'static_admin'
-        }
+          attemptType: 'static_admin',
+        },
       });
     } catch (logError) {
       console.error('Failed to log audit event:', logError);
@@ -262,8 +274,8 @@ export async function POST(request: NextRequest) {
         success: false,
         error: {
           code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred during admin login'
-        }
+          message: 'An unexpected error occurred during admin login',
+        },
       },
       { status: 500 }
     );
@@ -272,4 +284,3 @@ export async function POST(request: NextRequest) {
     await databaseService.disconnect();
   }
 }
-

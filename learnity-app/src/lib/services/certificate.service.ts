@@ -1,7 +1,7 @@
 /**
  * Certificate Service Implementation
  * Handles all certificate generation and management operations
- * 
+ *
  * Requirements covered:
  * - 10.1: Mark course as completed when 100% lessons and all quizzes passed
  * - 10.2: Generate completion certificate with student name, course title, date, unique ID
@@ -11,8 +11,13 @@
  * - 10.6: Unlock "Course Completer" badge after first course completion
  */
 
-import { PrismaClient, Certificate, XPReason, EnrollmentStatus } from '@prisma/client';
 import { randomUUID } from 'crypto';
+import {
+  PrismaClient,
+  Certificate,
+  XPReason,
+  EnrollmentStatus,
+} from '@prisma/client';
 import PDFDocument from 'pdfkit';
 import {
   ICertificateService,
@@ -52,7 +57,10 @@ export class CertificateService implements ICertificateService {
    * Check if a student has completed a course
    * Requirements: 10.1
    */
-  async checkCourseCompletion(studentId: string, courseId: string): Promise<CompletionStatus> {
+  async checkCourseCompletion(
+    studentId: string,
+    courseId: string
+  ): Promise<CompletionStatus> {
     // Get course with all lessons and quizzes
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
@@ -114,19 +122,24 @@ export class CertificateService implements ICertificateService {
 
     // Build missing requirements list
     const missingRequirements: string[] = [];
-    
+
     if (completedLessonsCount < totalLessons) {
       const remaining = totalLessons - completedLessonsCount;
-      missingRequirements.push(`${remaining} lesson${remaining > 1 ? 's' : ''} not completed`);
-    }
-    
-    if (passedQuizzesCount < totalQuizzes) {
-      const remaining = totalQuizzes - passedQuizzesCount;
-      missingRequirements.push(`${remaining} quiz${remaining > 1 ? 'zes' : ''} not passed`);
+      missingRequirements.push(
+        `${remaining} lesson${remaining > 1 ? 's' : ''} not completed`
+      );
     }
 
-    const isComplete = completedLessonsCount === totalLessons && 
-                       passedQuizzesCount === totalQuizzes;
+    if (passedQuizzesCount < totalQuizzes) {
+      const remaining = totalQuizzes - passedQuizzesCount;
+      missingRequirements.push(
+        `${remaining} quiz${remaining > 1 ? 'zes' : ''} not passed`
+      );
+    }
+
+    const isComplete =
+      completedLessonsCount === totalLessons &&
+      passedQuizzesCount === totalQuizzes;
 
     return {
       isComplete,
@@ -142,7 +155,10 @@ export class CertificateService implements ICertificateService {
    * Generate a certificate for a completed course
    * Requirements: 10.1, 10.2, 10.4, 10.6
    */
-  async generateCertificate(studentId: string, courseId: string): Promise<GenerateCertificateResult> {
+  async generateCertificate(
+    studentId: string,
+    courseId: string
+  ): Promise<GenerateCertificateResult> {
     // Check if certificate already exists
     const existingCertificate = await this.prisma.certificate.findUnique({
       where: {
@@ -174,7 +190,10 @@ export class CertificateService implements ICertificateService {
     }
 
     // Check course completion
-    const completionStatus = await this.checkCourseCompletion(studentId, courseId);
+    const completionStatus = await this.checkCourseCompletion(
+      studentId,
+      courseId
+    );
 
     if (!completionStatus.isComplete) {
       if (completionStatus.completedLessons < completionStatus.totalLessons) {
@@ -205,7 +224,7 @@ export class CertificateService implements ICertificateService {
     const isFirstCompletion = existingCertificatesCount === 0;
 
     // Generate certificate in a transaction
-    const result = await this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async tx => {
       // Generate unique certificate ID
       const certificateId = this.generateCertificateId();
 
@@ -299,7 +318,7 @@ export class CertificateService implements ICertificateService {
 
       // Check for milestone badges (5 courses, 10 courses)
       const totalCertificates = existingCertificatesCount + 1;
-      
+
       if (totalCertificates === 5) {
         const badgeDef = await tx.badgeDefinition.findUnique({
           where: { key: 'FIVE_COURSES_COMPLETE' },
@@ -366,7 +385,9 @@ export class CertificateService implements ICertificateService {
    * Get a certificate by its unique certificate ID
    * Requirements: 10.2
    */
-  async getCertificate(certificateId: string): Promise<CertificateWithDetails | null> {
+  async getCertificate(
+    certificateId: string
+  ): Promise<CertificateWithDetails | null> {
     const certificate = await this.prisma.certificate.findUnique({
       where: { certificateId },
       include: {
@@ -477,7 +498,9 @@ export class CertificateService implements ICertificateService {
   /**
    * Verify a certificate by its public ID
    */
-  async verifyCertificate(certificateId: string): Promise<CertificateWithDetails | null> {
+  async verifyCertificate(
+    certificateId: string
+  ): Promise<CertificateWithDetails | null> {
     return this.getCertificate(certificateId);
   }
 
@@ -513,7 +536,9 @@ export class CertificateService implements ICertificateService {
    * Generate PDF buffer for a certificate
    * @private
    */
-  private async generatePDF(certificate: CertificateWithDetails): Promise<Buffer> {
+  private async generatePDF(
+    certificate: CertificateWithDetails
+  ): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       try {
         // Create PDF document in landscape orientation
@@ -659,10 +684,15 @@ export class CertificateService implements ICertificateService {
           .fontSize(10)
           .font('Helvetica')
           .fillColor('#718096')
-          .text('Empowering Learning, One Course at a Time', 0, pageHeight - 60, {
-            align: 'center',
-            width: pageWidth,
-          });
+          .text(
+            'Empowering Learning, One Course at a Time',
+            0,
+            pageHeight - 60,
+            {
+              align: 'center',
+              width: pageWidth,
+            }
+          );
 
         // Finalize PDF
         doc.end();
@@ -709,16 +739,18 @@ export class CertificateService implements ICertificateService {
       { x: margin + 10, y: margin + 10 },
       { x: pageWidth - margin - 10 - cornerSize, y: margin + 10 },
       { x: margin + 10, y: pageHeight - margin - 10 - cornerSize },
-      { x: pageWidth - margin - 10 - cornerSize, y: pageHeight - margin - 10 - cornerSize },
+      {
+        x: pageWidth - margin - 10 - cornerSize,
+        y: pageHeight - margin - 10 - cornerSize,
+      },
     ];
 
     doc.fillColor('#3182ce');
-    corners.forEach((corner) => {
+    corners.forEach(corner => {
       doc.rect(corner.x, corner.y, cornerSize, cornerSize).fill();
     });
   }
 }
-
 
 // Export singleton instance
 export const certificateService = new CertificateService();

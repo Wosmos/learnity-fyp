@@ -93,7 +93,7 @@ export interface CourseBuilderContextType {
   isSaving: boolean;
   isDirty: boolean;
   errors: Record<string, string>;
-  
+
   // Actions
   setCourseData: (data: Partial<CourseFormData>) => void;
   setSections: (sections: SectionFormData[]) => void;
@@ -102,10 +102,21 @@ export interface CourseBuilderContextType {
   updateSection: (index: number, section: Partial<SectionFormData>) => void;
   deleteSection: (index: number) => void;
   reorderSections: (fromIndex: number, toIndex: number) => void;
-  addLesson: (sectionIndex: number, lesson: Omit<LessonFormData, 'order'>) => void;
-  updateLesson: (sectionIndex: number, lessonIndex: number, lesson: Partial<LessonFormData>) => void;
+  addLesson: (
+    sectionIndex: number,
+    lesson: Omit<LessonFormData, 'order'>
+  ) => void;
+  updateLesson: (
+    sectionIndex: number,
+    lessonIndex: number,
+    lesson: Partial<LessonFormData>
+  ) => void;
   deleteLesson: (sectionIndex: number, lessonIndex: number) => void;
-  reorderLessons: (sectionIndex: number, fromIndex: number, toIndex: number) => void;
+  reorderLessons: (
+    sectionIndex: number,
+    fromIndex: number,
+    toIndex: number
+  ) => void;
   saveDraft: () => Promise<void>;
   publishCourse: () => Promise<void>;
   validateCourse: () => boolean;

@@ -7,26 +7,28 @@ import { UserProfile, ApplicationStatus } from '@/types/auth';
 
 export interface INotificationService {
   sendTeacherApprovalNotification(user: UserProfile): Promise<void>;
-  sendTeacherRejectionNotification(user: UserProfile, reason: string): Promise<void>;
+  sendTeacherRejectionNotification(
+    user: UserProfile,
+    reason: string
+  ): Promise<void>;
   sendAdminNewApplicationNotification(user: UserProfile): Promise<void>;
   sendTeacherApplicationSubmittedNotification(user: UserProfile): Promise<void>;
 }
 
 export class NotificationService implements INotificationService {
-  
   /**
    * Send approval notification to teacher
    */
   async sendTeacherApprovalNotification(user: UserProfile): Promise<void> {
     try {
       const emailContent = this.generateApprovalEmail(user);
-      
+
       // In a real implementation, this would integrate with an email service
       // like SendGrid, AWS SES, or Firebase Functions with email triggers
       console.log('Sending teacher approval email:', {
         to: user.email,
         subject: emailContent.subject,
-        content: emailContent.html
+        content: emailContent.html,
       });
 
       // TODO: Integrate with actual email service
@@ -35,7 +37,6 @@ export class NotificationService implements INotificationService {
       //   subject: emailContent.subject,
       //   html: emailContent.html
       // });
-
     } catch (error) {
       console.error('Failed to send teacher approval notification:', error);
       throw error;
@@ -45,14 +46,17 @@ export class NotificationService implements INotificationService {
   /**
    * Send rejection notification to teacher
    */
-  async sendTeacherRejectionNotification(user: UserProfile, reason: string): Promise<void> {
+  async sendTeacherRejectionNotification(
+    user: UserProfile,
+    reason: string
+  ): Promise<void> {
     try {
       const emailContent = this.generateRejectionEmail(user, reason);
-      
+
       console.log('Sending teacher rejection email:', {
         to: user.email,
         subject: emailContent.subject,
-        content: emailContent.html
+        content: emailContent.html,
       });
 
       // TODO: Integrate with actual email service
@@ -61,7 +65,6 @@ export class NotificationService implements INotificationService {
       //   subject: emailContent.subject,
       //   html: emailContent.html
       // });
-
     } catch (error) {
       console.error('Failed to send teacher rejection notification:', error);
       throw error;
@@ -74,15 +77,16 @@ export class NotificationService implements INotificationService {
   async sendAdminNewApplicationNotification(user: UserProfile): Promise<void> {
     try {
       const emailContent = this.generateNewApplicationEmail(user);
-      
+
       // Get admin emails (in real implementation, fetch from database)
-      const adminEmails = process.env.ADMIN_NOTIFICATION_EMAILS?.split(',') || [];
-      
+      const adminEmails =
+        process.env.ADMIN_NOTIFICATION_EMAILS?.split(',') || [];
+
       for (const adminEmail of adminEmails) {
         console.log('Sending new application notification to admin:', {
           to: adminEmail,
           subject: emailContent.subject,
-          content: emailContent.html
+          content: emailContent.html,
         });
 
         // TODO: Integrate with actual email service
@@ -92,7 +96,6 @@ export class NotificationService implements INotificationService {
         //   html: emailContent.html
         // });
       }
-
     } catch (error) {
       console.error('Failed to send admin notification:', error);
       throw error;
@@ -102,14 +105,16 @@ export class NotificationService implements INotificationService {
   /**
    * Send confirmation to teacher that application was submitted
    */
-  async sendTeacherApplicationSubmittedNotification(user: UserProfile): Promise<void> {
+  async sendTeacherApplicationSubmittedNotification(
+    user: UserProfile
+  ): Promise<void> {
     try {
       const emailContent = this.generateApplicationSubmittedEmail(user);
-      
+
       console.log('Sending application submitted confirmation:', {
         to: user.email,
         subject: emailContent.subject,
-        content: emailContent.html
+        content: emailContent.html,
       });
 
       // TODO: Integrate with actual email service
@@ -118,9 +123,11 @@ export class NotificationService implements INotificationService {
       //   subject: emailContent.subject,
       //   html: emailContent.html
       // });
-
     } catch (error) {
-      console.error('Failed to send application submitted notification:', error);
+      console.error(
+        'Failed to send application submitted notification:',
+        error
+      );
       throw error;
     }
   }
@@ -128,9 +135,13 @@ export class NotificationService implements INotificationService {
   /**
    * Generate approval email content
    */
-  private generateApprovalEmail(user: UserProfile): { subject: string; html: string } {
-    const subject = 'Congratulations! Your Teacher Application Has Been Approved';
-    
+  private generateApprovalEmail(user: UserProfile): {
+    subject: string;
+    html: string;
+  } {
+    const subject =
+      'Congratulations! Your Teacher Application Has Been Approved';
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -187,9 +198,12 @@ export class NotificationService implements INotificationService {
   /**
    * Generate rejection email content
    */
-  private generateRejectionEmail(user: UserProfile, reason: string): { subject: string; html: string } {
+  private generateRejectionEmail(
+    user: UserProfile,
+    reason: string
+  ): { subject: string; html: string } {
     const subject = 'Update on Your Teacher Application';
-    
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -246,9 +260,12 @@ export class NotificationService implements INotificationService {
   /**
    * Generate new application notification for admins
    */
-  private generateNewApplicationEmail(user: UserProfile): { subject: string; html: string } {
+  private generateNewApplicationEmail(user: UserProfile): {
+    subject: string;
+    html: string;
+  } {
     const subject = 'New Teacher Application Submitted - Review Required';
-    
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -303,9 +320,12 @@ export class NotificationService implements INotificationService {
   /**
    * Generate application submitted confirmation
    */
-  private generateApplicationSubmittedEmail(user: UserProfile): { subject: string; html: string } {
+  private generateApplicationSubmittedEmail(user: UserProfile): {
+    subject: string;
+    html: string;
+  } {
     const subject = 'Teacher Application Submitted Successfully';
-    
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -373,7 +393,7 @@ export class NotificationService implements INotificationService {
     // - AWS SES
     // - Firebase Functions with email triggers
     // - Nodemailer with SMTP
-    
+
     console.log('Email would be sent:', emailData);
   }
 }

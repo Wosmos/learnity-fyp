@@ -3,32 +3,32 @@
  * Refactored into smaller components for better maintainability.
  */
 
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { TeacherProfileHeader } from "./profile/TeacherProfileHeader";
-import { TeacherHero } from "./profile/TeacherHero";
-import { TeacherAbout } from "./profile/TeacherAbout";
-import { TeacherEducation } from "./profile/TeacherEducation";
-import { TeacherMaterials } from "./profile/TeacherMaterials";
-import { TeacherReviews } from "./profile/TeacherReviews";
-import { TeacherCourses } from "./profile/TeacherCourses";
-import { TeacherActualReviews } from "./profile/TeacherActualReviews";
-import { SimilarTeachers } from "./profile/SimilarTeachers";
-import { TeacherSidebar } from "./profile/TeacherSidebar";
-import { TeacherData, Testimonial } from "./profile/types";
+import { useEffect, useState } from 'react';
+import { TeacherProfileHeader } from './profile/TeacherProfileHeader';
+import { TeacherHero } from './profile/TeacherHero';
+import { TeacherAbout } from './profile/TeacherAbout';
+import { TeacherEducation } from './profile/TeacherEducation';
+import { TeacherMaterials } from './profile/TeacherMaterials';
+import { TeacherReviews } from './profile/TeacherReviews';
+import { TeacherCourses } from './profile/TeacherCourses';
+import { TeacherActualReviews } from './profile/TeacherActualReviews';
+import { SimilarTeachers } from './profile/SimilarTeachers';
+import { TeacherSidebar } from './profile/TeacherSidebar';
+import { TeacherData, Testimonial } from './profile/types';
 
 interface TeacherDetailProps {
   teacher: TeacherData;
 }
 
 const gradients = [
-  "from-blue-600 via-purple-600 to-pink-600",
-  "from-cyan-500 via-blue-600 to-purple-700",
-  "from-orange-500 via-red-600 to-pink-600",
-  "from-green-500 via-teal-600 to-blue-600",
-  "from-purple-600 via-pink-600 to-red-600",
-  "from-indigo-600 via-purple-600 to-pink-600",
+  'from-blue-600 via-purple-600 to-pink-600',
+  'from-cyan-500 via-blue-600 to-purple-700',
+  'from-orange-500 via-red-600 to-pink-600',
+  'from-green-500 via-teal-600 to-blue-600',
+  'from-purple-600 via-pink-600 to-red-600',
+  'from-indigo-600 via-purple-600 to-pink-600',
 ];
 
 export function TeacherDetailContent({
@@ -43,7 +43,7 @@ export function TeacherDetailContent({
   const gradient =
     gradients[
       Math.abs(
-        teacher.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0),
+        teacher.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
       ) % gradients.length
     ];
 
@@ -71,7 +71,7 @@ export function TeacherDetailContent({
           setTestimonials(data.teacher.testimonials || []);
         }
       } catch (error) {
-        console.error("Error fetching teacher data:", error);
+        console.error('Error fetching teacher data:', error);
       } finally {
         setLoading(false);
       }
@@ -81,23 +81,23 @@ export function TeacherDetailContent({
 
   if (loading && !teacher) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className='min-h-screen flex items-center justify-center'>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600'></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className='min-h-screen bg-white'>
       <TeacherProfileHeader teacher={teacher} />
 
       <TeacherHero teacher={teacher} gradient={gradient} initials={initials} />
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className='container mx-auto px-4 py-12'>
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
           {/* Left Column - Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className='lg:col-span-2 space-y-6'>
             <TeacherAbout teacher={teacher} />
 
             <TeacherEducation teacher={teacher} />
@@ -105,14 +105,11 @@ export function TeacherDetailContent({
             <TeacherMaterials teacher={teacher} />
 
             {/* Teacher's Courses */}
-            <TeacherCourses 
-              teacherId={teacher.id} 
-              teacherName={teacher.name}
-            />
+            <TeacherCourses teacherId={teacher.id} teacherName={teacher.name} />
 
             {/* Actual Student Reviews */}
-            <TeacherActualReviews 
-              teacherId={teacher.id} 
+            <TeacherActualReviews
+              teacherId={teacher.id}
               teacherName={teacher.name}
             />
 
@@ -125,11 +122,11 @@ export function TeacherDetailContent({
           </div>
 
           {/* Right Column - Sidebar */}
-          <div className="space-y-6">
+          <div className='space-y-6'>
             <TeacherSidebar teacher={teacher} />
 
             {/* Similar Teachers */}
-            <SimilarTeachers 
+            <SimilarTeachers
               teacherId={teacher.id}
               subjects={teacher.subjects}
               teacherName={teacher.name}

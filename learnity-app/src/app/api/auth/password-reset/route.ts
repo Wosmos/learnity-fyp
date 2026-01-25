@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body = await request.json();
-    
+
     // Validate input data
     const validationResult = passwordResetRequestSchema.safeParse(body);
     if (!validationResult.success) {
@@ -28,8 +28,8 @@ export async function POST(request: NextRequest) {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: validationResult.error.flatten()
-          }
+            details: validationResult.error.flatten(),
+          },
         },
         { status: 400 }
       );
@@ -49,22 +49,27 @@ export async function POST(request: NextRequest) {
           success: false,
           error: {
             code: 'CAPTCHA_VERIFICATION_FAILED',
-            message: 'Please complete the captcha verification'
-          }
+            message: 'Please complete the captcha verification',
+          },
         },
         { status: 400 }
       );
     }
 
     // Get client information for audit logging
-    const clientIP = request.headers.get('x-forwarded-for') || 
-                    request.headers.get('x-real-ip') || 
-                    'unknown';
+    const clientIP =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
     // Check rate limiting for password reset requests
-    const isRateLimited = await checkPasswordResetRateLimit(databaseService, resetData.email, clientIP);
-    
+    const isRateLimited = await checkPasswordResetRateLimit(
+      databaseService,
+      resetData.email,
+      clientIP
+    );
+
     if (isRateLimited) {
       // Log rate limited attempt
       await logAuditEvent(databaseService, {
@@ -75,8 +80,8 @@ export async function POST(request: NextRequest) {
         success: false,
         errorMessage: 'Rate limit exceeded',
         metadata: {
-          email: resetData.email
-        }
+          email: resetData.email,
+        },
       });
 
       return NextResponse.json(
@@ -84,9 +89,10 @@ export async function POST(request: NextRequest) {
           success: false,
           error: {
             code: 'RATE_LIMIT_EXCEEDED',
-            message: 'Too many password reset requests. Please try again later.',
-            retryAfter: 300 // 5 minutes
-          }
+            message:
+              'Too many password reset requests. Please try again later.',
+            retryAfter: 300, // 5 minutes
+          },
         },
         { status: 429 }
       );
@@ -104,18 +110,18 @@ export async function POST(request: NextRequest) {
         userAgent,
         success: true,
         metadata: {
-          email: resetData.email
-        }
+          email: resetData.email,
+        },
       });
 
       // Always return success to prevent email enumeration attacks
       return NextResponse.json({
         success: true,
         data: {
-          message: 'If an account with this email exists, a password reset link has been sent.'
-        }
+          message:
+            'If an account with this email exists, a password reset link has been sent.',
+        },
       });
-
     } catch (resetError: any) {
       console.error('Failed to send password reset email:', resetError);
 
@@ -129,26 +135,27 @@ export async function POST(request: NextRequest) {
         errorMessage: resetError.message,
         metadata: {
           email: resetData.email,
-          errorCode: resetError.code
-        }
+          errorCode: resetError.code,
+        },
       });
 
       // Still return success to prevent email enumeration
       return NextResponse.json({
         success: true,
         data: {
-          message: 'If an account with this email exists, a password reset link has been sent.'
-        }
+          message:
+            'If an account with this email exists, a password reset link has been sent.',
+        },
       });
     }
-
   } catch (error: any) {
     console.error('Password reset request error:', error);
 
     // Log unexpected error
-    const clientIP = request.headers.get('x-forwarded-for') || 
-                    request.headers.get('x-real-ip') || 
-                    'unknown';
+    const clientIP =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
     try {
@@ -160,8 +167,8 @@ export async function POST(request: NextRequest) {
         success: false,
         errorMessage: error.message,
         metadata: {
-          errorStack: error.stack
-        }
+          errorStack: error.stack,
+        },
       });
     } catch (logError) {
       console.error('Failed to log audit event:', logError);
@@ -172,8 +179,8 @@ export async function POST(request: NextRequest) {
         success: false,
         error: {
           code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred'
-        }
+          message: 'An unexpected error occurred',
+        },
       },
       { status: 500 }
     );
@@ -186,7 +193,7 @@ export async function POST(request: NextRequest) {
 /**
  * Password Reset Confirmation API Endpoint
  * PUT /api/auth/password-reset
- * 
+ *
  * This endpoint handles the actual password change after user clicks reset link
  */
 export async function PUT(request: NextRequest) {
@@ -204,30 +211,32 @@ export async function PUT(request: NextRequest) {
           success: false,
           error: {
             code: 'MISSING_TOKEN',
-            message: 'ID token is required'
-          }
+            message: 'ID token is required',
+          },
         },
         { status: 400 }
       );
     }
 
     // Get client information for audit logging
-    const clientIP = request.headers.get('x-forwarded-for') || 
-                    request.headers.get('x-real-ip') || 
-                    'unknown';
+    const clientIP =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
     // Verify and decode the ID token
-    const decodedToken = await firebaseAuthService.validateAndDecodeToken(idToken);
-    
+    const decodedToken =
+      await firebaseAuthService.validateAndDecodeToken(idToken);
+
     if (!decodedToken) {
       return NextResponse.json(
         {
           success: false,
           error: {
             code: 'INVALID_TOKEN',
-            message: 'Invalid or expired token'
-          }
+            message: 'Invalid or expired token',
+          },
         },
         { status: 401 }
       );
@@ -244,27 +253,29 @@ export async function PUT(request: NextRequest) {
       userAgent,
       success: true,
       metadata: {
-        email: decodedToken.email
-      }
+        email: decodedToken.email,
+      },
     });
 
     // Update last login time in Neon DB since password was changed
     try {
       await databaseService.updateUserProfile(firebaseUid, {
-        lastLoginAt: new Date()
+        lastLoginAt: new Date(),
       });
     } catch (dbError) {
-      console.error('Failed to update last login after password reset:', dbError);
+      console.error(
+        'Failed to update last login after password reset:',
+        dbError
+      );
       // Don't fail the request for this
     }
 
     return NextResponse.json({
       success: true,
       data: {
-        message: 'Password has been reset successfully'
-      }
+        message: 'Password has been reset successfully',
+      },
     });
-
   } catch (error: any) {
     console.error('Password reset confirmation error:', error);
 
@@ -273,8 +284,8 @@ export async function PUT(request: NextRequest) {
         success: false,
         error: {
           code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred'
-        }
+          message: 'An unexpected error occurred',
+        },
       },
       { status: 500 }
     );
@@ -294,9 +305,9 @@ async function checkPasswordResetRateLimit(
 ): Promise<boolean> {
   try {
     const prisma = (databaseService as any).prisma;
-    
+
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
-    
+
     // Check requests from this email in the last 15 minutes
     const emailRequests = await prisma.auditLog.count({
       where: {
@@ -304,12 +315,12 @@ async function checkPasswordResetRateLimit(
         action: 'password_reset_requested',
         metadata: {
           path: ['email'],
-          equals: email
+          equals: email,
         },
         createdAt: {
-          gte: fifteenMinutesAgo
-        }
-      }
+          gte: fifteenMinutesAgo,
+        },
+      },
     });
 
     // Check requests from this IP in the last 15 minutes
@@ -319,9 +330,9 @@ async function checkPasswordResetRateLimit(
         action: 'password_reset_requested',
         ipAddress,
         createdAt: {
-          gte: fifteenMinutesAgo
-        }
-      }
+          gte: fifteenMinutesAgo,
+        },
+      },
     });
 
     // Rate limit: max 3 requests per email per 15 minutes, max 10 requests per IP per 15 minutes
@@ -350,7 +361,7 @@ async function logAuditEvent(
 ) {
   try {
     const prisma = (databaseService as any).prisma;
-    
+
     await prisma.auditLog.create({
       data: {
         firebaseUid: event.firebaseUid,
@@ -361,11 +372,13 @@ async function logAuditEvent(
         success: event.success,
         errorMessage: event.errorMessage,
         metadata: event.metadata || {},
-        deviceFingerprint: generateDeviceFingerprintLegacy(event.userAgent, event.ipAddress)
-      }
+        deviceFingerprint: generateDeviceFingerprintLegacy(
+          event.userAgent,
+          event.ipAddress
+        ),
+      },
     });
   } catch (error) {
     console.error('Failed to log audit event:', error);
   }
 }
-

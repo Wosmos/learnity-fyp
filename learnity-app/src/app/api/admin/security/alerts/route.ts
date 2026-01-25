@@ -15,7 +15,9 @@ import { Permission } from '@/types/auth';
 export async function GET(request: NextRequest) {
   try {
     // Authenticate and authorize admin access
-    const authResult = await authMiddleware(request, { requiredPermissions: [Permission.VIEW_AUDIT_LOGS] });
+    const authResult = await authMiddleware(request, {
+      requiredPermissions: [Permission.VIEW_AUDIT_LOGS],
+    });
     if (authResult instanceof NextResponse) {
       return authResult;
     }
@@ -27,10 +29,13 @@ export async function GET(request: NextRequest) {
       adminFirebaseUid: authResult.user.firebaseUid,
       action: 'VIEW_SECURITY_ALERTS',
       targetResource: 'security_alerts',
-      ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+      ipAddress:
+        request.headers.get('x-forwarded-for') ||
+        request.headers.get('x-real-ip') ||
+        'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown',
       success: true,
-      newValues: { alertCount: alerts.length }
+      newValues: { alertCount: alerts.length },
     });
 
     return NextResponse.json(alerts);

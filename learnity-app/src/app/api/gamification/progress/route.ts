@@ -58,7 +58,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Get weekly XP activity (last 7 days)
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    
+
     const weeklyActivity = await prisma.xPActivity.findMany({
       where: {
         userId,
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       const dateStr = date.toISOString().split('T')[0];
       dailyXP[dateStr] = 0;
     }
-    
+
     weeklyActivity.forEach(activity => {
       const day = activity.createdAt.toISOString().split('T')[0];
       if (dailyXP[day] !== undefined) {
@@ -97,7 +97,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     console.error('[GET /api/gamification/progress] Error:', error);
     return createInternalErrorResponse(
-      error instanceof Error ? error.message : 'Failed to fetch gamification progress'
+      error instanceof Error
+        ? error.message
+        : 'Failed to fetch gamification progress'
     );
   }
 }

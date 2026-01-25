@@ -50,21 +50,23 @@ export function Stats({
   // Custom stats using MetricCard
   if (stats) {
     return (
-      <div className={cn(
-        'grid gap-6',
-        gridColsClasses[columns],
-        'max-w-5xl mx-auto pt-8 border-t border-gray-200',
-        className
-      )}>
+      <div
+        className={cn(
+          'grid gap-6',
+          gridColsClasses[columns],
+          'max-w-5xl mx-auto pt-8 border-t border-gray-200',
+          className
+        )}
+      >
         {stats.map((stat, index) => (
           <MetricCard
             key={index}
             title={stat.label}
             value={stat.value.toString()}
-            trendValue=""
-            trendLabel=""
+            trendValue=''
+            trendLabel=''
             icon={stat.icon || BarChart3} // Provide default icon if none specified
-            className="border-0 shadow-sm"
+            className='border-0 shadow-sm'
           />
         ))}
       </div>
@@ -73,4 +75,3 @@ export function Stats({
 
   return null;
 }
-

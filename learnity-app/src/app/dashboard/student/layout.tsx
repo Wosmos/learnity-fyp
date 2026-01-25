@@ -4,8 +4,8 @@
  * OPTIMIZED: Layout shell is server-rendered, auth is client-side
  */
 
-import { StudentLayoutClient } from '@/components/layout/StudentLayoutClient';
 import { Metadata } from 'next';
+import { StudentLayoutClient } from '@/components/layout/StudentLayoutClient';
 
 export const metadata: Metadata = {
   title: 'Student Dashboard - Learnity',

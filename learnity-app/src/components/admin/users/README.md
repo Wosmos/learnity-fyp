@@ -7,6 +7,7 @@ A modern, clean admin interface for managing users with advanced data table func
 ## Features
 
 ### ✅ Modern Data Table
+
 - **Sortable columns** with visual indicators
 - **Advanced filtering** by role, status, and search
 - **Pagination** with customizable page sizes
@@ -15,6 +16,7 @@ A modern, clean admin interface for managing users with advanced data table func
 - **Responsive design** for all screen sizes
 
 ### ✅ Tabbed Interface
+
 - **All Users** - Complete user directory
 - **Students** - Student-specific view
 - **Teachers** - Teacher management
@@ -22,6 +24,7 @@ A modern, clean admin interface for managing users with advanced data table func
 - **Pending** - Users awaiting verification
 
 ### ✅ User Detail Dialog
+
 - **Comprehensive user information** display
 - **Profile pictures** with fallback initials
 - **Role-specific data** (teacher profiles, etc.)
@@ -30,6 +33,7 @@ A modern, clean admin interface for managing users with advanced data table func
 - **Responsive modal** design
 
 ### ✅ Quick Stats Dashboard
+
 - **Total Users** with growth indicators
 - **Active Users** engagement metrics
 - **New Users** monthly tracking
@@ -38,21 +42,27 @@ A modern, clean admin interface for managing users with advanced data table func
 ## Components
 
 ### 1. DataTable (`data-table.tsx`)
+
 Generic, reusable data table component built with TanStack Table:
+
 - Sorting, filtering, pagination
 - Column visibility controls
 - Row selection
 - Search functionality
 
 ### 2. Columns (`columns.tsx`)
+
 Column definitions for the user data table:
+
 - User profile with avatar
 - Role badges with icons
 - Status indicators
 - Action buttons and dropdowns
 
 ### 3. UserDetailDialog (`user-detail-dialog.tsx`)
+
 Detailed user information modal:
+
 - Complete user profile
 - Role-specific information
 - Action buttons
@@ -61,7 +71,11 @@ Detailed user information modal:
 ## Usage
 
 ```tsx
-import { DataTable, createColumns, UserDetailDialog } from '@/components/admin/users';
+import {
+  DataTable,
+  createColumns,
+  UserDetailDialog,
+} from '@/components/admin/users';
 
 // In your component
 const columns = createColumns({
@@ -72,14 +86,15 @@ const columns = createColumns({
 <DataTable
   columns={columns}
   data={users}
-  searchKey="email"
-  searchPlaceholder="Search users..."
-/>
+  searchKey='email'
+  searchPlaceholder='Search users...'
+/>;
 ```
 
 ## API Integration
 
 The components work with the existing admin API:
+
 - `GET /api/admin/users` - Fetch users with pagination and filtering
 - `GET /api/admin/users/stats` - Get user statistics
 - `PUT /api/admin/users` - Perform user actions (activate, deactivate, delete)
@@ -87,24 +102,28 @@ The components work with the existing admin API:
 ## Design Principles
 
 ### 1. **Clean & Modern**
+
 - Inspired by the provided HTML example
 - Glass morphism effects
 - Consistent spacing and typography
 - Professional color scheme
 
 ### 2. **User-Friendly**
+
 - Clear visual hierarchy
 - Intuitive navigation
 - Responsive design
 - Accessible components
 
 ### 3. **Efficient**
+
 - Quick actions without page reloads
 - Bulk operations support
 - Fast search and filtering
 - Optimized data loading
 
 ### 4. **Secure**
+
 - Role-based access control
 - Confirmation dialogs for destructive actions
 - Audit trail support
@@ -113,6 +132,7 @@ The components work with the existing admin API:
 ## Customization
 
 ### Adding New Columns
+
 ```tsx
 // In columns.tsx
 {
@@ -125,18 +145,16 @@ The components work with the existing admin API:
 ```
 
 ### Adding New Actions
+
 ```tsx
 // In user-detail-dialog.tsx
-<Button
-  variant="outline"
-  size="sm"
-  onClick={() => handleAction('new-action')}
->
+<Button variant='outline' size='sm' onClick={() => handleAction('new-action')}>
   New Action
 </Button>
 ```
 
 ### Customizing Filters
+
 ```tsx
 // In the main page component
 const filteredUsers = users.filter(user => {

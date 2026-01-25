@@ -18,7 +18,7 @@ import {
 /**
  * POST /api/video/token
  * Generate a 100ms auth token for joining a video room
- * 
+ *
  * Body: { courseId: string }
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -37,16 +37,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { courseId } = body;
 
     if (!courseId) {
-      return createErrorResponse('VALIDATION_ERROR', 'courseId is required', undefined, 400);
+      return createErrorResponse(
+        'VALIDATION_ERROR',
+        'courseId is required',
+        undefined,
+        400
+      );
     }
 
     // Get user from database
     const dbUser = await prisma.user.findUnique({
       where: { firebaseUid: user.firebaseUid },
-      select: { 
-        id: true, 
-        firstName: true, 
-        lastName: true, 
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
         role: true,
       },
     });
@@ -58,20 +63,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Get course and verify access
     const course = await prisma.course.findUnique({
       where: { id: courseId },
-      select: { 
-        id: true, 
+      select: {
+        id: true,
         teacherId: true,
         title: true,
       },
     });
 
     if (!course) {
-      return createErrorResponse('NOT_FOUND', 'Course not found', undefined, 404);
+      return createErrorResponse(
+        'NOT_FOUND',
+        'Course not found',
+        undefined,
+        404
+      );
     }
 
     // Check if user is teacher or enrolled student
     const isTeacher = course.teacherId === dbUser.id;
-    
+
     if (!isTeacher) {
       const enrollment = await prisma.enrollment.findUnique({
         where: {
@@ -83,7 +93,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
 
       if (!enrollment || enrollment.status !== 'ACTIVE') {
-        return createErrorResponse('FORBIDDEN', 'You must be enrolled in this course to join video sessions', undefined, 403);
+        return createErrorResponse(
+          'FORBIDDEN',
+          'You must be enrolled in this course to join video sessions',
+          undefined,
+          403
+        );
       }
     }
 
@@ -91,7 +106,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const room = await courseRoomService.ensureRoomExists(courseId);
 
     if (!room.hmsRoomId || !room.videoEnabled) {
-      return createErrorResponse('NOT_AVAILABLE', 'Video is not enabled for this course', undefined, 400);
+      return createErrorResponse(
+        'NOT_AVAILABLE',
+        'Video is not enabled for this course',
+        undefined,
+        400
+      );
     }
 
     // Determine role: teacher gets 'host', students get 'guest'
@@ -105,12 +125,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       userName: `${dbUser.firstName} ${dbUser.lastName}`,
     });
 
-    return createSuccessResponse({
-      token,
-      roomId: room.hmsRoomId,
-      role,
-      userName: `${dbUser.firstName} ${dbUser.lastName}`,
-    }, 'Video token generated successfully');
+    return createSuccessResponse(
+      {
+        token,
+        roomId: room.hmsRoomId,
+        role,
+        userName: `${dbUser.firstName} ${dbUser.lastName}`,
+      },
+      'Video token generated successfully'
+    );
   } catch (error) {
     console.error('Error generating video token:', error);
     return createInternalErrorResponse('Failed to generate video token');

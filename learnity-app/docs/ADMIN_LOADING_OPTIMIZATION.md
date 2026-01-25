@@ -39,6 +39,7 @@ Root Layout (layout.tsx)
 ```
 
 **Key Issues:**
+
 1. **Redundant Authentication Checks**: Multiple components checking the same auth state
 2. **Sequential Loading**: Each layer waits for the previous one to complete
 3. **No Data Prefetching**: Page data loads only after all auth checks complete
@@ -51,6 +52,7 @@ Root Layout (layout.tsx)
 ### Phase 1: Eliminate Redundant Loading States
 
 #### 1.1 Consolidate Authentication Checks
+
 **Problem**: Three separate components checking authentication
 **Solution**: Single auth check at the highest level
 
@@ -63,7 +65,9 @@ Root → AuthProvider → AdminRoute → AdminLayout → Page
 ```
 
 #### 1.2 Remove Duplicate AdminRoute Wrappers
+
 **Files to modify:**
+
 - `src/app/admin/layout.tsx` - Keep AdminRoute here
 - `src/app/dashboard/admin/layout.tsx` - Remove AdminRoute (redundant)
 - `src/components/admin/AdminLayout.tsx` - Remove internal auth checks
@@ -73,6 +77,7 @@ Root → AuthProvider → AdminRoute → AdminLayout → Page
 ### Phase 2: Implement Progressive Loading
 
 #### 2.1 Show UI Shell Immediately
+
 Instead of showing loading screens, show the actual UI structure with skeleton states:
 
 ```typescript
@@ -88,6 +93,7 @@ return (
 ```
 
 #### 2.2 Parallel Data Fetching
+
 Load multiple data sources simultaneously instead of sequentially:
 
 ```typescript
@@ -102,7 +108,7 @@ const [auth, profile, stats, pageData] = await Promise.all([
   checkAuth(),
   fetchUserProfile(),
   fetchAdminStats(),
-  fetchPageData()
+  fetchPageData(),
 ]);
 ```
 
@@ -129,7 +135,7 @@ export function AdminDashboardSkeleton() {
           </Card>
         ))}
       </div>
-      
+
       {/* Charts skeleton */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
@@ -149,6 +155,7 @@ export function AdminDashboardSkeleton() {
 #### 3.2 Apply Skeleton States to All Admin Pages
 
 **Pages to update:**
+
 - `/admin/page.tsx` - Security dashboard
 - `/dashboard/admin/page.tsx` - Admin dashboard
 - `/admin/users/page.tsx` - User management
@@ -163,7 +170,7 @@ export function AdminDashboardSkeleton() {
 
 ```typescript
 // Current: Sequential operations
-onAuthStateChanged(auth, async (firebaseUser) => {
+onAuthStateChanged(auth, async firebaseUser => {
   setUser(firebaseUser);
   await syncUserProfile(firebaseUser);
   const claims = await fetch('/api/auth/claims');
@@ -171,15 +178,15 @@ onAuthStateChanged(auth, async (firebaseUser) => {
 });
 
 // Optimized: Parallel operations
-onAuthStateChanged(auth, async (firebaseUser) => {
+onAuthStateChanged(auth, async firebaseUser => {
   setUser(firebaseUser);
-  
+
   const [claims, profile] = await Promise.all([
     fetch('/api/auth/claims').then(r => r.json()),
     fetch('/api/auth/profile').then(r => r.json()),
-    syncUserProfile(firebaseUser) // Don't await this
+    syncUserProfile(firebaseUser), // Don't await this
   ]);
-  
+
   setClaims(claims);
   setProfile(profile);
 });
@@ -228,7 +235,7 @@ export default function AdminLayout({ children }) {
 
 ```typescript
 // Prefetch admin stats when user hovers over admin link
-<Link 
+<Link
   href="/admin"
   onMouseEnter={() => prefetch('/api/admin/stats')}
 >
@@ -241,6 +248,7 @@ export default function AdminLayout({ children }) {
 ## 📊 Expected Performance Improvements
 
 ### Before Optimization
+
 ```
 Login → 1.5s (Auth loading)
       → 0.5s (Route verification)
@@ -251,6 +259,7 @@ Total: 3.5s until content visible
 ```
 
 ### After Optimization
+
 ```
 Login → 0.8s (Parallel auth + claims)
       → 0.0s (No route verification delay - cached)
@@ -268,33 +277,39 @@ Total: 1.1s until skeleton visible
 ## 🛠️ Implementation Checklist
 
 ### Step 1: Remove Redundant Auth Checks ✅ COMPLETED
+
 - [x] Remove `AdminRoute` from `dashboard/admin/layout.tsx`
 - [x] Remove internal auth checks from `AdminLayout.tsx`
 - [x] Keep single `AdminRoute` in `admin/layout.tsx`
 
 ### Step 2: Optimize AuthProvider ✅ COMPLETED
+
 - [x] Implement parallel claims/profile fetching
 - [x] Add localStorage caching for claims (5-minute TTL)
 - [x] Remove `syncUserProfile` await (made it fire-and-forget)
 
 ### Step 3: Create Skeleton Components
+
 - [ ] Create `AdminDashboardSkeleton.tsx`
 - [ ] Create `AdminUsersTableSkeleton.tsx`
 - [ ] Create `AdminTeachersTableSkeleton.tsx`
 - [ ] Create `AdminAnalyticsSkeleton.tsx`
 
 ### Step 4: Update Admin Pages
+
 - [ ] Replace loading screens with skeletons in `/admin/page.tsx`
 - [ ] Replace loading screens with skeletons in `/dashboard/admin/page.tsx`
 - [ ] Replace loading screens with skeletons in `/admin/users/page.tsx`
 - [ ] Replace loading screens with skeletons in `/admin/teachers/page.tsx`
 
 ### Step 5: Implement Progressive Loading
+
 - [ ] Update `AdminLayout.tsx` to show UI shell immediately
 - [ ] Implement parallel data fetching in admin pages
 - [ ] Add Suspense boundaries where appropriate
 
 ### Step 6: Add Data Prefetching
+
 - [ ] Implement hover prefetching for admin navigation
 - [ ] Add route-level data prefetching
 - [ ] Cache frequently accessed data
@@ -304,14 +319,16 @@ Total: 1.1s until skeleton visible
 ## 🎨 User Experience Improvements
 
 ### Current UX (Poor)
+
 ```
-User clicks "Admin" → White screen → "Loading Learnity" 
+User clicks "Admin" → White screen → "Loading Learnity"
                    → White screen → "Verifying Access"
                    → White screen → "Loading admin panel"
                    → Content appears
 ```
 
 ### Optimized UX (Excellent)
+
 ```
 User clicks "Admin" → Instant navigation with top progress bar
                    → Admin layout appears immediately with skeleton
@@ -345,12 +362,12 @@ export default function AdminLayout({ children }) {
 export function AdminLayout({ children }) {
   const { claims } = useAuth(); // No loading check needed
   const [stats, setStats] = useState(null);
-  
+
   useEffect(() => {
     // Load stats in background
     fetchStats().then(setStats);
   }, []);
-  
+
   return (
     <div className="admin-layout">
       <AdminSidebar stats={stats} /> {/* Shows skeleton if stats null */}
@@ -366,11 +383,11 @@ export function AdminLayout({ children }) {
 // src/app/dashboard/admin/page.tsx
 export default function AdminDashboardPage() {
   const [data, setData] = useState(null);
-  
+
   useEffect(() => {
     fetchDashboardData().then(setData);
   }, []);
-  
+
   // Always render layout, show skeleton for missing data
   return (
     <AdminLayout>
@@ -389,21 +406,25 @@ export default function AdminDashboardPage() {
 ## 🚀 Migration Strategy
 
 ### Phase 1 (Quick Wins - 1 hour)
+
 1. Remove duplicate `AdminRoute` wrappers
 2. Remove loading checks from `AdminLayout.tsx`
 3. Test that auth still works correctly
 
 ### Phase 2 (Skeleton Implementation - 2 hours)
+
 1. Create skeleton components
 2. Update 2-3 main admin pages with skeletons
 3. Test loading states
 
 ### Phase 3 (Auth Optimization - 1 hour)
+
 1. Implement parallel fetching in AuthProvider
 2. Add localStorage caching
 3. Test auth flow
 
 ### Phase 4 (Polish - 1 hour)
+
 1. Add prefetching
 2. Fine-tune animations
 3. Performance testing
@@ -415,14 +436,17 @@ export default function AdminDashboardPage() {
 ## ⚠️ Potential Risks & Mitigations
 
 ### Risk 1: Auth Security
+
 **Concern**: Removing auth checks might expose admin routes
 **Mitigation**: Keep single AdminRoute at top level, add API-level checks
 
 ### Risk 2: Race Conditions
+
 **Concern**: Parallel loading might cause state inconsistencies
 **Mitigation**: Use proper React state management, add loading flags
 
 ### Risk 3: Cache Staleness
+
 **Concern**: Cached claims might be outdated
 **Mitigation**: Always refresh in background, set short TTL (5 minutes)
 
@@ -431,12 +455,14 @@ export default function AdminDashboardPage() {
 ## 📈 Success Metrics
 
 ### Quantitative
+
 - [ ] Time to first paint: < 0.5s
 - [ ] Time to interactive: < 1.5s
 - [ ] Lighthouse performance score: > 90
 - [ ] Reduce loading states from 3 to 0 (use skeletons instead)
 
 ### Qualitative
+
 - [ ] No jarring white screens
 - [ ] Smooth, professional feel
 - [ ] Users feel the app is "fast"

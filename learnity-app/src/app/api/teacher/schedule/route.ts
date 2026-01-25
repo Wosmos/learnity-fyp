@@ -16,8 +16,8 @@ export async function GET(req: NextRequest) {
     const teacher = await prisma.user.findUnique({
       where: { firebaseUid },
       include: {
-        teacherProfile: true
-      }
+        teacherProfile: true,
+      },
     });
 
     if (!teacher) {
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
         courseId: 'course_1',
         courseName: 'Mastering Algebra',
         attendeeCount: 5,
-        maxAttendees: 20
+        maxAttendees: 20,
       },
       {
         id: '2',
@@ -51,8 +51,8 @@ export async function GET(req: NextRequest) {
         courseId: 'course_2',
         courseName: 'Calculus I',
         attendeeCount: 12,
-        maxAttendees: null
-      }
+        maxAttendees: null,
+      },
     ];
 
     return NextResponse.json({
@@ -60,11 +60,14 @@ export async function GET(req: NextRequest) {
         events,
         upcomingCount: events.length,
         todayCount: 1,
-        thisWeekCount: 2
-      }
+        thisWeekCount: 2,
+      },
     });
   } catch (error) {
     console.error('Error fetching schedule:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }

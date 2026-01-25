@@ -1,7 +1,7 @@
 /**
  * Enrollment Service Implementation
  * Handles all enrollment management operations
- * 
+ *
  * Requirements covered:
  * - 4.1: Course enrollment
  * - 4.2: Enrollment record creation with initial state (0% progress, ACTIVE status)
@@ -12,10 +12,15 @@
  * - 11.3: Communication link visibility for enrolled students
  */
 
-import { PrismaClient, Enrollment, EnrollmentStatus, CourseStatus } from '@prisma/client';
-import { 
-  IEnrollmentService, 
-  EnrollmentWithCourse, 
+import {
+  PrismaClient,
+  Enrollment,
+  EnrollmentStatus,
+  CourseStatus,
+} from '@prisma/client';
+import {
+  IEnrollmentService,
+  EnrollmentWithCourse,
   EnrollmentWithStudent,
   PaginatedEnrollments,
   EnrollmentError,
@@ -39,7 +44,10 @@ export class EnrollmentService implements IEnrollmentService {
    * Enroll a student in a course
    * Requirements: 4.1, 4.2, 4.3
    */
-  async enrollStudent(studentId: string, courseId: string): Promise<Enrollment> {
+  async enrollStudent(
+    studentId: string,
+    courseId: string
+  ): Promise<Enrollment> {
     // Verify course exists and is published
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
@@ -75,26 +83,28 @@ export class EnrollmentService implements IEnrollmentService {
     if (existingEnrollment) {
       // If previously unenrolled, reactivate the enrollment
       if (existingEnrollment.status === EnrollmentStatus.UNENROLLED) {
-        const reactivatedEnrollment = await this.prisma.$transaction(async (tx) => {
-          // Reactivate enrollment
-          const enrollment = await tx.enrollment.update({
-            where: { id: existingEnrollment.id },
-            data: {
-              status: EnrollmentStatus.ACTIVE,
-              lastAccessedAt: new Date(),
-            },
-          });
+        const reactivatedEnrollment = await this.prisma.$transaction(
+          async tx => {
+            // Reactivate enrollment
+            const enrollment = await tx.enrollment.update({
+              where: { id: existingEnrollment.id },
+              data: {
+                status: EnrollmentStatus.ACTIVE,
+                lastAccessedAt: new Date(),
+              },
+            });
 
-          // Increment course enrollment count
-          await tx.course.update({
-            where: { id: courseId },
-            data: {
-              enrollmentCount: { increment: 1 },
-            },
-          });
+            // Increment course enrollment count
+            await tx.course.update({
+              where: { id: courseId },
+              data: {
+                enrollmentCount: { increment: 1 },
+              },
+            });
 
-          return enrollment;
-        });
+            return enrollment;
+          }
+        );
 
         return reactivatedEnrollment;
       }
@@ -108,7 +118,7 @@ export class EnrollmentService implements IEnrollmentService {
     }
 
     // Create new enrollment with initial state (Requirement 4.2)
-    const enrollment = await this.prisma.$transaction(async (tx) => {
+    const enrollment = await this.prisma.$transaction(async tx => {
       // Create enrollment with 0% progress and ACTIVE status
       const newEnrollment = await tx.enrollment.create({
         data: {
@@ -167,7 +177,7 @@ export class EnrollmentService implements IEnrollmentService {
     }
 
     // Change status to UNENROLLED (preserve history) and decrement count
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async tx => {
       // Update enrollment status
       await tx.enrollment.update({
         where: { id: enrollment.id },
@@ -189,7 +199,10 @@ export class EnrollmentService implements IEnrollmentService {
   /**
    * Get a specific enrollment
    */
-  async getEnrollment(studentId: string, courseId: string): Promise<Enrollment | null> {
+  async getEnrollment(
+    studentId: string,
+    courseId: string
+  ): Promise<Enrollment | null> {
     const enrollment = await this.prisma.enrollment.findUnique({
       where: {
         studentId_courseId: {
@@ -207,7 +220,7 @@ export class EnrollmentService implements IEnrollmentService {
    * Requirements: 4.4
    */
   async getStudentEnrollments(
-    studentId: string, 
+    studentId: string,
     filters?: EnrollmentFiltersData
   ): Promise<PaginatedEnrollments<EnrollmentWithCourse>> {
     const { status, page = 1, limit = 12 } = filters || {};
@@ -264,7 +277,7 @@ export class EnrollmentService implements IEnrollmentService {
    * Requirements: 9.1
    */
   async getCourseEnrollments(
-    courseId: string, 
+    courseId: string,
     filters?: EnrollmentFiltersData
   ): Promise<PaginatedEnrollments<EnrollmentWithStudent>> {
     const { status, page = 1, limit = 12 } = filters || {};
@@ -334,8 +347,8 @@ export class EnrollmentService implements IEnrollmentService {
    * Update enrollment progress
    */
   async updateProgress(
-    studentId: string, 
-    courseId: string, 
+    studentId: string,
+    courseId: string,
     progress: number
   ): Promise<Enrollment> {
     // Validate progress value
@@ -388,7 +401,10 @@ export class EnrollmentService implements IEnrollmentService {
   /**
    * Mark enrollment as completed
    */
-  async markCompleted(studentId: string, courseId: string): Promise<Enrollment> {
+  async markCompleted(
+    studentId: string,
+    courseId: string
+  ): Promise<Enrollment> {
     // Find enrollment
     const enrollment = await this.prisma.enrollment.findUnique({
       where: {

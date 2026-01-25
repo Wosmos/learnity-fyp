@@ -1,11 +1,8 @@
-
-import ProfileEnhancePage from '@/app/profile/enhance/page'
-import React from 'react'
+import React from 'react';
+import ProfileEnhancePage from '@/app/profile/enhance/page';
 
 const page = () => {
-  return (
-    <ProfileEnhancePage/>
-  )
-}
+  return <ProfileEnhancePage />;
+};
 
-export default page
+export default page;

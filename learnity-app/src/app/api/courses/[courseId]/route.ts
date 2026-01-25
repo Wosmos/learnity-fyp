@@ -3,7 +3,7 @@
  * GET /api/courses/[courseId] - Get course details with sections, lessons
  * PUT /api/courses/[courseId] - Update course details (Teacher only)
  * DELETE /api/courses/[courseId] - Delete draft course (Teacher only)
- * 
+ *
  * Requirements covered:
  * - 2.4: Course editing
  * - 2.5, 2.6: Course deletion
@@ -11,6 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 import { courseService } from '@/lib/services/course.service';
 import { UpdateCourseSchema } from '@/lib/validators/course';
 import { CourseError } from '@/lib/interfaces/course.interface';
@@ -24,7 +25,6 @@ import {
   createNotFoundErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { ZodError } from 'zod';
 
 interface RouteParams {
   params: Promise<{ courseId: string }>;
@@ -73,8 +73,14 @@ export async function GET(
     });
 
     // Format rating distribution
-    const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    ratingDistribution.forEach((item) => {
+    const distribution: Record<number, number> = {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+    };
+    ratingDistribution.forEach(item => {
       distribution[item.rating] = item._count.rating;
     });
 
@@ -82,9 +88,8 @@ export async function GET(
     const totalMinutes = Math.ceil(course.totalDuration / 60);
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    const estimatedDuration = hours > 0 
-      ? `${hours}h ${minutes}m` 
-      : `${minutes}m`;
+    const estimatedDuration =
+      hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 
     const responseData = {
       ...course,

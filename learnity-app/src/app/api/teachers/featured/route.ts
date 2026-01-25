@@ -3,8 +3,8 @@
  * Returns approved teachers for public display
  */
 
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/config/database";
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/config/database';
 
 // Helper to calculate if teacher is top rated
 function calculateIsTopRated(
@@ -26,10 +26,10 @@ export async function GET() {
     // Fetch approved teachers with their profiles
     const teachers = await prisma.user.findMany({
       where: {
-        role: "TEACHER",
+        role: 'TEACHER',
         isActive: true,
         teacherProfile: {
-          applicationStatus: "APPROVED",
+          applicationStatus: 'APPROVED',
         },
       },
       include: {
@@ -38,15 +38,15 @@ export async function GET() {
       take: 50,
       orderBy: {
         teacherProfile: {
-          rating: "desc",
+          rating: 'desc',
         },
       },
     });
 
     // Format the response with calculated isTopRated
-    const formattedTeachers = teachers.map((teacher) => {
+    const formattedTeachers = teachers.map(teacher => {
       const profile = teacher.teacherProfile;
-      const rating = parseFloat(profile?.rating?.toString() || "0");
+      const rating = parseFloat(profile?.rating?.toString() || '0');
       const isTopRated = calculateIsTopRated(
         rating,
         profile?.reviewCount || 0,
@@ -63,20 +63,20 @@ export async function GET() {
           teacher.profilePicture || profile?.profilePicture || null,
         subjects: profile?.subjects || [],
         experience: profile?.experience || 0,
-        bio: profile?.bio || "",
+        bio: profile?.bio || '',
         hourlyRate: profile?.hourlyRate?.toString() || null,
         qualifications: profile?.qualifications || [],
         isTopRated,
-        rating: profile?.rating?.toString() || "0",
+        rating: profile?.rating?.toString() || '0',
         reviewCount: profile?.reviewCount || 0,
-        responseTime: profile?.responseTime || "N/A",
-        availability: profile?.availability || "Contact for availability",
+        responseTime: profile?.responseTime || 'N/A',
+        availability: profile?.availability || 'Contact for availability',
         languages: profile?.languages || [],
         lessonsCompleted: profile?.lessonsCompleted,
         activeStudents: profile?.activeStudents,
-        teachingStyle: profile?.teachingStyle || "",
+        teachingStyle: profile?.teachingStyle || '',
         specialties: profile?.specialties || [],
-        headline: profile?.headline || "",
+        headline: profile?.headline || '',
       };
     });
 
@@ -86,11 +86,11 @@ export async function GET() {
       count: formattedTeachers.length,
     });
   } catch (error) {
-    console.error("Error fetching featured teachers:", error);
+    console.error('Error fetching featured teachers:', error);
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to fetch teachers",
+        error: 'Failed to fetch teachers',
         teachers: [],
         count: 0,
       },

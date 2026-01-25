@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/config/database";
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/config/database';
 
 export async function GET(
   request: NextRequest,
@@ -33,15 +33,16 @@ export async function GET(
         },
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
     });
 
     // Calculate statistics
     const totalReviews = reviews.length;
-    const averageRating = totalReviews > 0 
-      ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews 
-      : 0;
+    const averageRating =
+      totalReviews > 0
+        ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews
+        : 0;
 
     // Calculate rating distribution
     const ratingDistribution: { [key: number]: number } = {
@@ -52,11 +53,11 @@ export async function GET(
       5: 0,
     };
 
-    reviews.forEach((review) => {
+    reviews.forEach(review => {
       ratingDistribution[review.rating]++;
     });
 
-    const formattedReviews = reviews.map((review) => ({
+    const formattedReviews = reviews.map(review => ({
       id: review.id,
       rating: review.rating,
       comment: review.comment,
@@ -85,9 +86,9 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Error fetching teacher reviews:", error);
+    console.error('Error fetching teacher reviews:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch reviews" },
+      { success: false, error: 'Failed to fetch reviews' },
       { status: 500 }
     );
   }

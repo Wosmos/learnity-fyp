@@ -31,7 +31,7 @@ export const useDeepLinking = (): DeepLinkingState & DeepLinkingActions => {
     error: null,
     success: false,
     actionType: null,
-    resetToken: null
+    resetToken: null,
   });
 
   const router = useRouter();
@@ -39,18 +39,19 @@ export const useDeepLinking = (): DeepLinkingState & DeepLinkingActions => {
 
   const handleError = useCallback((error: any): AuthError => {
     console.error('Deep linking error:', error);
-    
+
     const authError: AuthError = {
       code: AuthErrorCode.INTERNAL_ERROR,
       message: 'An unexpected error occurred.',
-      details: { originalError: error.message }
+      details: { originalError: error.message },
     };
 
     if (error.code) {
       switch (error.code) {
         case 'auth/expired-action-code':
           authError.code = AuthErrorCode.TOKEN_EXPIRED;
-          authError.message = 'This link has expired. Please request a new one.';
+          authError.message =
+            'This link has expired. Please request a new one.';
           break;
         case 'auth/invalid-action-code':
           authError.code = AuthErrorCode.TOKEN_INVALID;
@@ -70,61 +71,75 @@ export const useDeepLinking = (): DeepLinkingState & DeepLinkingActions => {
     return authError;
   }, []);
 
-  const handleEmailVerification = useCallback(async (actionCode: string) => {
-    setState(prev => ({ ...prev, isProcessing: true, error: null, actionType: 'verifyEmail' }));
-    
-    try {
-      await applyActionCode(auth, actionCode);
-      
-      setState(prev => ({ 
-        ...prev, 
-        isProcessing: false, 
-        success: true 
+  const handleEmailVerification = useCallback(
+    async (actionCode: string) => {
+      setState(prev => ({
+        ...prev,
+        isProcessing: true,
+        error: null,
+        actionType: 'verifyEmail',
       }));
-      
-      // Redirect to success page or dashboard
-      router.push('/auth/verification-success');
-      
-    } catch (error: any) {
-      const authError = handleError(error);
-      setState(prev => ({ 
-        ...prev, 
-        isProcessing: false, 
-        error: authError 
-      }));
-      
-      // Redirect to error page
-      router.push('/auth/verification-error');
-    }
-  }, [router, handleError]);
 
-  const handlePasswordResetVerification = useCallback(async (actionCode: string): Promise<string> => {
-    setState(prev => ({ ...prev, isProcessing: true, error: null, actionType: 'resetPassword' }));
-    
-    try {
-      // Verify the password reset code and get the email
-      const email = await verifyPasswordResetCode(auth, actionCode);
-      
-      setState(prev => ({ 
-        ...prev, 
-        isProcessing: false, 
-        success: true,
-        resetToken: actionCode
+      try {
+        await applyActionCode(auth, actionCode);
+
+        setState(prev => ({
+          ...prev,
+          isProcessing: false,
+          success: true,
+        }));
+
+        // Redirect to success page or dashboard
+        router.push('/auth/verification-success');
+      } catch (error: any) {
+        const authError = handleError(error);
+        setState(prev => ({
+          ...prev,
+          isProcessing: false,
+          error: authError,
+        }));
+
+        // Redirect to error page
+        router.push('/auth/verification-error');
+      }
+    },
+    [router, handleError]
+  );
+
+  const handlePasswordResetVerification = useCallback(
+    async (actionCode: string): Promise<string> => {
+      setState(prev => ({
+        ...prev,
+        isProcessing: true,
+        error: null,
+        actionType: 'resetPassword',
       }));
-      
-      return email;
-      
-    } catch (error: any) {
-      const authError = handleError(error);
-      setState(prev => ({ 
-        ...prev, 
-        isProcessing: false, 
-        error: authError 
-      }));
-      
-      throw authError;
-    }
-  }, [handleError]);
+
+      try {
+        // Verify the password reset code and get the email
+        const email = await verifyPasswordResetCode(auth, actionCode);
+
+        setState(prev => ({
+          ...prev,
+          isProcessing: false,
+          success: true,
+          resetToken: actionCode,
+        }));
+
+        return email;
+      } catch (error: any) {
+        const authError = handleError(error);
+        setState(prev => ({
+          ...prev,
+          isProcessing: false,
+          error: authError,
+        }));
+
+        throw authError;
+      }
+    },
+    [handleError]
+  );
 
   const clearState = useCallback(() => {
     setState({
@@ -132,7 +147,7 @@ export const useDeepLinking = (): DeepLinkingState & DeepLinkingActions => {
       error: null,
       success: false,
       actionType: null,
-      resetToken: null
+      resetToken: null,
     });
   }, []);
 
@@ -140,7 +155,7 @@ export const useDeepLinking = (): DeepLinkingState & DeepLinkingActions => {
   useEffect(() => {
     const mode = searchParams.get('mode');
     const actionCode = searchParams.get('oobCode');
-    
+
     if (!mode || !actionCode) return;
 
     switch (mode) {
@@ -161,13 +176,18 @@ export const useDeepLinking = (): DeepLinkingState & DeepLinkingActions => {
       default:
         console.warn('Unknown action mode:', mode);
     }
-  }, [searchParams, handleEmailVerification, handlePasswordResetVerification, router]);
+  }, [
+    searchParams,
+    handleEmailVerification,
+    handlePasswordResetVerification,
+    router,
+  ]);
 
   return {
     ...state,
     handleEmailVerification,
     handlePasswordResetVerification,
-    clearState
+    clearState,
   };
 };
 
@@ -189,15 +209,18 @@ export const useMobileDeepLinking = () => {
     checkAppInstalled();
   }, []);
 
-  const openInApp = useCallback((path: string) => {
-    if (isAppInstalled) {
-      // Try to open in app
-      window.location.href = `learnity://auth${path}`;
-    } else {
-      // Fallback to web
-      window.location.href = path;
-    }
-  }, [isAppInstalled]);
+  const openInApp = useCallback(
+    (path: string) => {
+      if (isAppInstalled) {
+        // Try to open in app
+        window.location.href = `learnity://auth${path}`;
+      } else {
+        // Fallback to web
+        window.location.href = path;
+      }
+    },
+    [isAppInstalled]
+  );
 
   const generateAppLink = useCallback((path: string) => {
     return `learnity://auth${path}`;
@@ -206,6 +229,6 @@ export const useMobileDeepLinking = () => {
   return {
     isAppInstalled,
     openInApp,
-    generateAppLink
+    generateAppLink,
   };
 };

@@ -1,11 +1,11 @@
-import fs from "fs";
-import path from "path";
-import matter from "gray-matter";
-import { remark } from "remark";
-import html from "remark-html";
-import gfm from "remark-gfm";
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
+import { remark } from 'remark';
+import html from 'remark-html';
+import gfm from 'remark-gfm';
 
-const docsDirectory = path.join(process.cwd(), "docs");
+const docsDirectory = path.join(process.cwd(), 'docs');
 
 export interface DocMetadata {
   title: string;
@@ -32,16 +32,16 @@ export function getAllDocs(): Doc[] {
   const fileNames = fs.readdirSync(docsDirectory);
 
   const allDocs = fileNames
-    .filter((fileName) => fileName.endsWith(".md"))
-    .map((fileName) => {
-      const slug = fileName.replace(/\.md$/, "");
+    .filter(fileName => fileName.endsWith('.md'))
+    .map(fileName => {
+      const slug = fileName.replace(/\.md$/, '');
       const fullPath = path.join(docsDirectory, fileName);
-      const fileContents = fs.readFileSync(fullPath, "utf8");
+      const fileContents = fs.readFileSync(fullPath, 'utf8');
 
       const { data, content } = matter(fileContents);
 
       // Extract title from content if not in frontmatter
-      let title = data.title || slug.replace(/_/g, " ").replace(/-/g, " ");
+      let title = data.title || slug.replace(/_/g, ' ').replace(/-/g, ' ');
 
       // Try to get title from first heading in markdown
       const titleMatch = content.match(/^#\s+(.+)$/m);
@@ -74,12 +74,12 @@ export function getAllDocs(): Doc[] {
 export async function getDocBySlug(slug: string): Promise<DocWithHtml | null> {
   try {
     const fullPath = path.join(docsDirectory, `${slug}.md`);
-    const fileContents = fs.readFileSync(fullPath, "utf8");
+    const fileContents = fs.readFileSync(fullPath, 'utf8');
 
     const { data, content } = matter(fileContents);
 
     // Extract title from content if not in frontmatter
-    let title = data.title || slug.replace(/_/g, " ").replace(/-/g, " ");
+    let title = data.title || slug.replace(/_/g, ' ').replace(/-/g, ' ');
 
     // Try to get title from first heading in markdown
     const titleMatch = content.match(/^#\s+(.+)$/m);
@@ -88,11 +88,8 @@ export async function getDocBySlug(slug: string): Promise<DocWithHtml | null> {
     }
 
     // Convert markdown to HTML
-    const processedContent = await remark()
-      .use(gfm)
-      .use(html)
-      .process(content);
-    
+    const processedContent = await remark().use(gfm).use(html).process(content);
+
     const htmlContent = processedContent.toString();
 
     return {
@@ -119,8 +116,8 @@ export async function getDocBySlug(slug: string): Promise<DocWithHtml | null> {
 export function getAllDocSlugs(): string[] {
   const fileNames = fs.readdirSync(docsDirectory);
   return fileNames
-    .filter((fileName) => fileName.endsWith(".md"))
-    .map((fileName) => fileName.replace(/\.md$/, ""));
+    .filter(fileName => fileName.endsWith('.md'))
+    .map(fileName => fileName.replace(/\.md$/, ''));
 }
 
 /**
@@ -128,18 +125,18 @@ export function getAllDocSlugs(): string[] {
  */
 function extractDescription(content: string): string {
   // Remove markdown headings
-  const withoutHeadings = content.replace(/^#+\s+.+$/gm, "");
+  const withoutHeadings = content.replace(/^#+\s+.+$/gm, '');
 
   // Get first paragraph
   const firstParagraph = withoutHeadings
     .trim()
-    .split("\n\n")[0]
-    .replace(/\n/g, " ")
+    .split('\n\n')[0]
+    .replace(/\n/g, ' ')
     .trim();
 
   // Limit to 160 characters
   return firstParagraph.length > 160
-    ? firstParagraph.substring(0, 157) + "..."
+    ? firstParagraph.substring(0, 157) + '...'
     : firstParagraph;
 }
 
@@ -149,26 +146,26 @@ function extractDescription(content: string): string {
 function categorizeDoc(slug: string): string {
   const lowerSlug = slug.toLowerCase();
 
-  if (lowerSlug.includes("admin")) return "Admin";
-  if (lowerSlug.includes("teacher")) return "Teachers";
-  if (lowerSlug.includes("student")) return "Students";
+  if (lowerSlug.includes('admin')) return 'Admin';
+  if (lowerSlug.includes('teacher')) return 'Teachers';
+  if (lowerSlug.includes('student')) return 'Students';
   if (
-    lowerSlug.includes("auth") ||
-    lowerSlug.includes("registration") ||
-    lowerSlug.includes("login")
+    lowerSlug.includes('auth') ||
+    lowerSlug.includes('registration') ||
+    lowerSlug.includes('login')
   )
-    return "Authentication";
-  if (lowerSlug.includes("firebase")) return "Infrastructure";
-  if (lowerSlug.includes("loading")) return "UI/UX";
-  if (lowerSlug.includes("certificate")) return "Features";
-  if (lowerSlug.includes("seo")) return "SEO";
-  if (lowerSlug.includes("setup") || lowerSlug.includes("infrastructure"))
-    return "Setup";
-  if (lowerSlug.includes("guide") || lowerSlug.includes("how")) return "Guides";
-  if (lowerSlug.includes("plan") || lowerSlug.includes("execution"))
-    return "Planning";
+    return 'Authentication';
+  if (lowerSlug.includes('firebase')) return 'Infrastructure';
+  if (lowerSlug.includes('loading')) return 'UI/UX';
+  if (lowerSlug.includes('certificate')) return 'Features';
+  if (lowerSlug.includes('seo')) return 'SEO';
+  if (lowerSlug.includes('setup') || lowerSlug.includes('infrastructure'))
+    return 'Setup';
+  if (lowerSlug.includes('guide') || lowerSlug.includes('how')) return 'Guides';
+  if (lowerSlug.includes('plan') || lowerSlug.includes('execution'))
+    return 'Planning';
 
-  return "General";
+  return 'General';
 }
 
 /**
@@ -178,8 +175,8 @@ export function getDocsByCategory(): Record<string, Doc[]> {
   const allDocs = getAllDocs();
   const grouped: Record<string, Doc[]> = {};
 
-  allDocs.forEach((doc) => {
-    const category = doc.metadata.category || "General";
+  allDocs.forEach(doc => {
+    const category = doc.metadata.category || 'General';
     if (!grouped[category]) {
       grouped[category] = [];
     }

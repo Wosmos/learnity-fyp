@@ -5,7 +5,13 @@
  * Initializes and provides the StreamChat client to child components
  */
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from 'react';
 import { StreamChat, Channel as StreamChannel } from 'stream-chat';
 import { useAuthStore } from '@/lib/stores/auth.store';
 
@@ -55,7 +61,7 @@ export function ChatProvider({ children }: ChatProviderProps) {
         // Get token from API
         const token = await user.getIdToken();
         const response = await fetch('/api/chat/token', {
-          headers: { 'Authorization': `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (!response.ok) {
@@ -87,7 +93,9 @@ export function ChatProvider({ children }: ChatProviderProps) {
         setIsConnected(true);
       } catch (err) {
         console.error('Failed to initialize chat:', err);
-        setError(err instanceof Error ? err.message : 'Failed to connect to chat');
+        setError(
+          err instanceof Error ? err.message : 'Failed to connect to chat'
+        );
       } finally {
         setIsLoading(false);
       }
@@ -104,7 +112,9 @@ export function ChatProvider({ children }: ChatProviderProps) {
   }, [isAuthenticated, user]);
 
   return (
-    <ChatContext.Provider value={{ client, isConnected, isLoading, error, userId }}>
+    <ChatContext.Provider
+      value={{ client, isConnected, isLoading, error, userId }}
+    >
       {children}
     </ChatContext.Provider>
   );

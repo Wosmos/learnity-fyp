@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/config/database";
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/config/database';
 
 function calculateIsTopRated(
   rating: number,
@@ -25,7 +25,7 @@ export async function GET(
     const teacher = await prisma.user.findUnique({
       where: {
         id,
-        role: "TEACHER",
+        role: 'TEACHER',
         isActive: true,
       },
       include: {
@@ -36,22 +36,22 @@ export async function GET(
     if (
       !teacher ||
       !teacher.teacherProfile ||
-      teacher.teacherProfile.applicationStatus !== "APPROVED"
+      teacher.teacherProfile.applicationStatus !== 'APPROVED'
     ) {
       return NextResponse.json(
-        { success: false, error: "Teacher not found" },
+        { success: false, error: 'Teacher not found' },
         { status: 404 }
       );
     }
 
     const testimonials = await prisma.testimonial.findMany({
       where: { teacherId: teacher.id },
-      orderBy: { date: "desc" },
+      orderBy: { date: 'desc' },
       take: 20,
     });
 
     const profile = teacher.teacherProfile;
-    const rating = parseFloat(profile.rating?.toString() || "0");
+    const rating = parseFloat(profile.rating?.toString() || '0');
     const isTopRated = calculateIsTopRated(
       rating,
       profile.reviewCount,
@@ -113,7 +113,7 @@ export async function GET(
         sampleLessons: profile.sampleLessons,
         successStories: profile.successStories,
         whyChooseMe: profile.whyChooseMe,
-        testimonials: testimonials.map((t) => ({
+        testimonials: testimonials.map(t => ({
           id: t.id,
           studentName: t.studentName,
           rating: t.rating,
@@ -125,9 +125,9 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Error fetching teacher:", error);
+    console.error('Error fetching teacher:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch teacher" },
+      { success: false, error: 'Failed to fetch teacher' },
       { status: 500 }
     );
   }

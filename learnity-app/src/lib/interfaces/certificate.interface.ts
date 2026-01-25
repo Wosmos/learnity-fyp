@@ -1,7 +1,7 @@
 /**
  * Certificate Service Interface
  * Defines the contract for certificate generation and management operations
- * 
+ *
  * Requirements covered:
  * - 10.1: Mark course as completed when 100% lessons and all quizzes passed
  * - 10.2: Generate completion certificate with student name, course title, date, unique ID
@@ -87,7 +87,10 @@ export interface ICertificateService {
    * @returns The generated certificate with XP and badge info
    * Requirements: 10.1, 10.2, 10.4, 10.6
    */
-  generateCertificate(studentId: string, courseId: string): Promise<GenerateCertificateResult>;
+  generateCertificate(
+    studentId: string,
+    courseId: string
+  ): Promise<GenerateCertificateResult>;
 
   /**
    * Get a certificate by its unique certificate ID
@@ -103,7 +106,10 @@ export interface ICertificateService {
    * @param courseId - The course ID
    * @returns The certificate or null
    */
-  getCertificateByStudentAndCourse(studentId: string, courseId: string): Promise<Certificate | null>;
+  getCertificateByStudentAndCourse(
+    studentId: string,
+    courseId: string
+  ): Promise<Certificate | null>;
 
   /**
    * Get all certificates for a student
@@ -134,7 +140,10 @@ export interface ICertificateService {
    * @returns Completion status with details
    * Requirements: 10.1
    */
-  checkCourseCompletion(studentId: string, courseId: string): Promise<CompletionStatus>;
+  checkCourseCompletion(
+    studentId: string,
+    courseId: string
+  ): Promise<CompletionStatus>;
 
   /**
    * Check if a certificate already exists for student and course
@@ -149,7 +158,9 @@ export interface ICertificateService {
    * @param certificateId - The unique certificate ID
    * @returns The certificate with details or null if invalid
    */
-  verifyCertificate(certificateId: string): Promise<CertificateWithDetails | null>;
+  verifyCertificate(
+    certificateId: string
+  ): Promise<CertificateWithDetails | null>;
 }
 
 // ============================================
@@ -168,11 +179,11 @@ export enum CertificateErrorCode {
   CERTIFICATE_NOT_FOUND = 'CERTIFICATE_NOT_FOUND',
   LESSONS_NOT_COMPLETED = 'LESSONS_NOT_COMPLETED',
   QUIZZES_NOT_PASSED = 'QUIZZES_NOT_PASSED',
-  
+
   // Authorization errors
   UNAUTHORIZED = 'UNAUTHORIZED',
   FORBIDDEN = 'FORBIDDEN',
-  
+
   // Generation errors
   PDF_GENERATION_FAILED = 'PDF_GENERATION_FAILED',
 }

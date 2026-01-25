@@ -7,13 +7,19 @@ export interface IProfileEnhancementService {
   // Avatar management
   uploadAvatar(userId: string, file: File): Promise<string>;
   deleteAvatar(userId: string): Promise<void>;
-  
+
   // Profile enhancement
-  updateStudentProfile(userId: string, data: StudentProfileUpdateData): Promise<void>;
+  updateStudentProfile(
+    userId: string,
+    data: StudentProfileUpdateData
+  ): Promise<void>;
   getProfileCompletion(userId: string): Promise<ProfileCompletionData>;
-  
+
   // Privacy controls
-  updatePrivacySettings(userId: string, settings: PrivacySettings): Promise<void>;
+  updatePrivacySettings(
+    userId: string,
+    settings: PrivacySettings
+  ): Promise<void>;
   getPrivacySettings(userId: string): Promise<PrivacySettings>;
 }
 

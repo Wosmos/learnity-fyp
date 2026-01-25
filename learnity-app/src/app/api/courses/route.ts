@@ -2,15 +2,19 @@
  * Course API Routes
  * GET /api/courses - List published courses with filters, search, pagination
  * POST /api/courses - Create new course (Teacher only)
- * 
+ *
  * Requirements covered:
  * - 1.1-1.10: Course creation
  * - 3.1, 3.2, 3.3, 3.4: Course discovery and browsing
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 import { courseService } from '@/lib/services/course.service';
-import { CourseFiltersSchema, CreateCourseSchema } from '@/lib/validators/course';
+import {
+  CourseFiltersSchema,
+  CreateCourseSchema,
+} from '@/lib/validators/course';
 import { CourseError } from '@/lib/interfaces/course.interface';
 import { authMiddleware } from '@/lib/middleware/auth.middleware';
 import { UserRole } from '@/types/auth';
@@ -22,7 +26,6 @@ import {
   createAuthErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { ZodError } from 'zod';
 
 /**
  * GET /api/courses
@@ -33,10 +36,10 @@ import { ZodError } from 'zod';
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url);
-    
+
     // Check if teacher is requesting their own courses
     const teacherOnly = searchParams.get('teacherOnly') === 'true';
-    
+
     if (teacherOnly) {
       // Authenticate teacher
       const authResult = await authMiddleware(request, {
@@ -61,30 +64,30 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
       // Get teacher's courses
       const courses = await courseService.getCoursesByTeacher(dbUser.id);
-      
+
       return createSuccessResponse(
         { courses, total: courses.length },
         'Teacher courses retrieved successfully'
       );
     }
-    
+
     // Parse query parameters for public course listing
     const rawFilters = {
       categoryId: searchParams.get('categoryId') || undefined,
       difficulty: searchParams.get('difficulty') || undefined,
-      minRating: searchParams.get('minRating') 
-        ? parseFloat(searchParams.get('minRating')!) 
+      minRating: searchParams.get('minRating')
+        ? parseFloat(searchParams.get('minRating')!)
         : undefined,
-      isFree: searchParams.get('isFree') 
-        ? searchParams.get('isFree') === 'true' 
+      isFree: searchParams.get('isFree')
+        ? searchParams.get('isFree') === 'true'
         : undefined,
       search: searchParams.get('search') || undefined,
       sortBy: searchParams.get('sortBy') || 'popular',
-      page: searchParams.get('page') 
-        ? parseInt(searchParams.get('page')!, 10) 
+      page: searchParams.get('page')
+        ? parseInt(searchParams.get('page')!, 10)
         : 1,
-      limit: searchParams.get('limit') 
-        ? parseInt(searchParams.get('limit')!, 10) 
+      limit: searchParams.get('limit')
+        ? parseInt(searchParams.get('limit')!, 10)
         : 12,
     };
 
@@ -95,7 +98,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     let result;
     if (validatedFilters.search) {
       result = await courseService.searchCourses(
-        validatedFilters.search, 
+        validatedFilters.search,
         validatedFilters
       );
     } else {

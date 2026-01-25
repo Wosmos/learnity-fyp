@@ -7,9 +7,11 @@ export class HCaptchaService {
   constructor() {
     this.secretKey = process.env.HCAPTCHA_SECRET_KEY || '';
     this.siteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || '';
-    
+
     if (!this.secretKey || !this.siteKey) {
-      console.warn('hCaptcha keys not configured. Bot protection may be limited.');
+      console.warn(
+        'hCaptcha keys not configured. Bot protection may be limited.'
+      );
     }
   }
 
@@ -30,7 +32,7 @@ export class HCaptchaService {
         body: new URLSearchParams({
           secret: this.secretKey,
           response: token,
-          ...(remoteip && { remoteip })
+          ...(remoteip && { remoteip }),
         }),
       });
 
@@ -50,7 +52,7 @@ export class HCaptchaService {
    * Verify hCaptcha token with additional validation
    */
   async verifyTokenWithValidation(
-    token: string, 
+    token: string,
     expectedAction?: string,
     minScore?: number,
     remoteip?: string
@@ -62,7 +64,7 @@ export class HCaptchaService {
         return {
           success: false,
           error: 'hCaptcha verification failed',
-          result
+          result,
         };
       }
 
@@ -71,12 +73,13 @@ export class HCaptchaService {
 
       return {
         success: true,
-        result
+        result,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
+        error:
+          error instanceof Error ? error.message : 'Unknown error occurred',
       };
     }
   }

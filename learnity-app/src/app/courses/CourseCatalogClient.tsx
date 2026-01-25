@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useEffect, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Filter, Grid3X3, LayoutGrid, List, Search, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   CourseCard,
   CourseFilters,
   SearchInput,
   type CourseFiltersState,
   type Category,
-} from "@/components/courses";
-import { Filter, Grid3X3, LayoutGrid, List, Search, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+} from '@/components/courses';
+import { cn } from '@/lib/utils';
 
 interface CourseData {
   id: string;
   title: string;
   description: string;
   thumbnailUrl?: string | null;
-  difficulty: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
   isFree: boolean;
   price?: number | null;
   totalDuration: number;
@@ -51,33 +51,33 @@ export default function CourseCatalogClient({
   initialCategories,
   initialTotal,
   initialTotalPages,
-  basePath = "/courses",
+  basePath = '/courses',
 }: CourseCatalogClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState(
-    searchParams.get("search") || "",
+    searchParams.get('search') || ''
   );
 
   const filters = useMemo(
     (): CourseFiltersState => ({
-      categoryId: searchParams.get("categoryId") || undefined,
-      difficulty: (searchParams.get("difficulty") as any) || undefined,
-      minRating: searchParams.get("minRating")
-        ? parseFloat(searchParams.get("minRating")!)
+      categoryId: searchParams.get('categoryId') || undefined,
+      difficulty: (searchParams.get('difficulty') as any) || undefined,
+      minRating: searchParams.get('minRating')
+        ? parseFloat(searchParams.get('minRating')!)
         : undefined,
-      sortBy: (searchParams.get("sortBy") as any) || "popular",
+      sortBy: (searchParams.get('sortBy') as any) || 'popular',
     }),
-    [searchParams],
+    [searchParams]
   );
 
   const currentPage = useMemo(
     () =>
-      searchParams.get("page") ? parseInt(searchParams.get("page")!, 10) : 1,
-    [searchParams],
+      searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1,
+    [searchParams]
   );
 
   const performNavigation = useCallback(
@@ -91,18 +91,18 @@ export default function CourseCatalogClient({
         });
       }
     },
-    [searchParams, router, basePath],
+    [searchParams, router, basePath]
   );
 
   const handleSearchUpdate = useCallback(
     (newSearch: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (newSearch) params.set("search", newSearch);
-      else params.delete("search");
-      params.delete("page"); // Reset page on search
+      if (newSearch) params.set('search', newSearch);
+      else params.delete('search');
+      params.delete('page'); // Reset page on search
       performNavigation(params);
     },
-    [searchParams, performNavigation],
+    [searchParams, performNavigation]
   );
 
   const handleFiltersChange = useCallback(
@@ -110,40 +110,40 @@ export default function CourseCatalogClient({
       const params = new URLSearchParams(searchParams.toString());
 
       if (newFilters.categoryId)
-        params.set("categoryId", newFilters.categoryId);
-      else params.delete("categoryId");
+        params.set('categoryId', newFilters.categoryId);
+      else params.delete('categoryId');
       if (newFilters.difficulty)
-        params.set("difficulty", newFilters.difficulty);
-      else params.delete("difficulty");
+        params.set('difficulty', newFilters.difficulty);
+      else params.delete('difficulty');
       if (newFilters.minRating)
-        params.set("minRating", newFilters.minRating.toString());
-      else params.delete("minRating");
-      if (newFilters.sortBy && newFilters.sortBy !== "popular")
-        params.set("sortBy", newFilters.sortBy);
-      else params.delete("sortBy");
+        params.set('minRating', newFilters.minRating.toString());
+      else params.delete('minRating');
+      if (newFilters.sortBy && newFilters.sortBy !== 'popular')
+        params.set('sortBy', newFilters.sortBy);
+      else params.delete('sortBy');
 
-      params.delete("page"); // Reset page on filter change
+      params.delete('page'); // Reset page on filter change
       performNavigation(params);
     },
-    [searchParams, performNavigation],
+    [searchParams, performNavigation]
   );
 
   const handlePageChange = useCallback(
     (page: number) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (page > 1) params.set("page", page.toString());
-      else params.delete("page");
+      if (page > 1) params.set('page', page.toString());
+      else params.delete('page');
       performNavigation(params);
-      if (typeof window !== "undefined")
-        window.scrollTo({ top: 400, behavior: "smooth" });
+      if (typeof window !== 'undefined')
+        window.scrollTo({ top: 400, behavior: 'smooth' });
     },
-    [searchParams, performNavigation],
+    [searchParams, performNavigation]
   );
 
   // Handle Search Input Debounce
   useEffect(() => {
     const timer = setTimeout(() => {
-      const currentSearchInUrl = searchParams.get("search") || "";
+      const currentSearchInUrl = searchParams.get('search') || '';
       if (searchQuery !== currentSearchInUrl) {
         handleSearchUpdate(searchQuery);
       }
@@ -152,50 +152,50 @@ export default function CourseCatalogClient({
   }, [searchQuery, handleSearchUpdate, searchParams]);
 
   return (
-    <main className="max-w-[1600px] mx-auto px-6 lg:px-10 py-10">
+    <main className='max-w-[1600px] mx-auto px-6 lg:px-10 py-10'>
       {/* Control Bar */}
-      <div className="bg-white rounded-3xl p-4 shadow-xl  border border-slate-100 mb-10 sticky top-[72px] z-40 backdrop-blur-md bg-white/90">
-        <div className="flex flex-col md:flex-row items-center gap-4">
-          <div className="relative flex-1 w-full group">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300" />
+      <div className='bg-white rounded-3xl p-4 shadow-xl  border border-slate-100 mb-10 sticky top-[72px] z-40 backdrop-blur-md bg-white/90'>
+        <div className='flex flex-col md:flex-row items-center gap-4'>
+          <div className='relative flex-1 w-full group'>
+            <Search className='absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300' />
             <SearchInput
               value={searchQuery}
               onChange={setSearchQuery}
-              placeholder="Search courses..."
-              className="w-full h-14 pl-14 pr-6 bg-slate-50 border-none rounded-2xl text-sm"
+              placeholder='Search courses...'
+              className='w-full h-14 pl-14 pr-6 bg-slate-50 border-none rounded-2xl text-sm'
               debounceMs={0} // We handle debounce locally for URL stability
             />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className='flex items-center gap-3'>
             <Button
-              variant="outline"
+              variant='outline'
               onClick={() => setShowFilters(!showFilters)}
               className={cn(
-                "h-14 px-8 rounded-2xl border-slate-100 font-black text-xs uppercase tracking-widest transition-all",
-                showFilters && "bg-slate-900 text-white border-slate-900",
+                'h-14 px-8 rounded-2xl border-slate-100 font-black text-xs uppercase tracking-widest transition-all',
+                showFilters && 'bg-slate-900 text-white border-slate-900'
               )}
             >
-              <Filter className="h-4 w-4 mr-3" />
-              {showFilters ? "Hide" : "Filter"}
+              <Filter className='h-4 w-4 mr-3' />
+              {showFilters ? 'Hide' : 'Filter'}
             </Button>
 
-            <div className="hidden sm:flex items-center p-1 bg-slate-50 rounded-2xl border border-slate-100 h-14">
+            <div className='hidden sm:flex items-center p-1 bg-slate-50 rounded-2xl border border-slate-100 h-14'>
               {[
-                { id: "grid", icon: Grid3X3 },
-                { id: "list", icon: List },
-              ].map((option) => (
+                { id: 'grid', icon: Grid3X3 },
+                { id: 'list', icon: List },
+              ].map(option => (
                 <button
                   key={option.id}
-                  onClick={() => setViewMode(option.id as "grid" | "list")}
+                  onClick={() => setViewMode(option.id as 'grid' | 'list')}
                   className={cn(
-                    "flex items-center justify-center w-12 h-12 rounded-xl transition-all",
+                    'flex items-center justify-center w-12 h-12 rounded-xl transition-all',
                     viewMode === option.id
-                      ? "bg-white shadow-sm text-indigo-600 border border-slate-100"
-                      : "text-slate-400 hover:text-slate-600",
+                      ? 'bg-white shadow-sm text-indigo-600 border border-slate-100'
+                      : 'text-slate-400 hover:text-slate-600'
                   )}
                 >
-                  <option.icon className="h-5 w-5" />
+                  <option.icon className='h-5 w-5' />
                 </button>
               ))}
             </div>
@@ -204,7 +204,7 @@ export default function CourseCatalogClient({
 
         {/* Inline Filters */}
         {showFilters && (
-          <div className="mt-4 pt-6 border-t border-slate-50 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className='mt-4 pt-6 border-t border-slate-50 animate-in fade-in slide-in-from-top-2 duration-300'>
             <CourseFilters
               categories={initialCategories}
               filters={filters}
@@ -214,45 +214,45 @@ export default function CourseCatalogClient({
         )}
       </div>
 
-      <div className="flex flex-col gap-10 min-h-[600px]">
-        <div className="flex items-center justify-between px-2">
-          <div className="space-y-1">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">
+      <div className='flex flex-col gap-10 min-h-[600px]'>
+        <div className='flex items-center justify-between px-2'>
+          <div className='space-y-1'>
+            <h3 className='text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]'>
               Course Catalog
             </h3>
-            <p className="text-sm font-bold text-slate-800">
-              Found {initialTotal} courses{" "}
+            <p className='text-sm font-bold text-slate-800'>
+              Found {initialTotal} courses{' '}
               {searchQuery && <span>matching "{searchQuery}"</span>}
             </p>
           </div>
           {currentPage > 1 && (
-            <span className="text-xs font-black text-indigo-600 uppercase tracking-widest">
+            <span className='text-xs font-black text-indigo-600 uppercase tracking-widest'>
               Page {currentPage}
             </span>
           )}
         </div>
 
         {initialCourses.length === 0 ? (
-          <div className="bg-slate-50 rounded-[3rem] py-32 text-center border-2 border-dashed border-slate-100 opacity-60">
-            <h3 className="text-xl font-black text-slate-900 uppercase">
+          <div className='bg-slate-50 rounded-[3rem] py-32 text-center border-2 border-dashed border-slate-100 opacity-60'>
+            <h3 className='text-xl font-black text-slate-900 uppercase'>
               No courses found
             </h3>
-            <p className="text-slate-400 text-sm mt-2">
+            <p className='text-slate-400 text-sm mt-2'>
               Try adjusting your filters or search terms.
             </p>
           </div>
         ) : (
           <div
             className={cn(
-              viewMode === "grid"
-                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
-                : "flex flex-col gap-4 max-w-5xl mx-auto w-full",
+              viewMode === 'grid'
+                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8'
+                : 'flex flex-col gap-4 max-w-5xl mx-auto w-full'
             )}
           >
-            {initialCourses.map((course) => (
+            {initialCourses.map(course => (
               <div
                 key={course.id}
-                className="transition-transform duration-300 hover:scale-[1.01]"
+                className='transition-transform duration-300 hover:scale-[1.01]'
               >
                 <CourseCard
                   id={course.id}
@@ -279,13 +279,13 @@ export default function CourseCatalogClient({
 
         {/* Simple Pagination */}
         {initialTotalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-20">
+          <div className='flex justify-center gap-2 mt-20'>
             {Array.from({ length: initialTotalPages }).map((_, i) => (
               <Button
                 key={i}
-                variant={currentPage === i + 1 ? "default" : "outline"}
+                variant={currentPage === i + 1 ? 'default' : 'outline'}
                 onClick={() => handlePageChange(i + 1)}
-                className="rounded-xl font-black text-xs h-12 w-12"
+                className='rounded-xl font-black text-xs h-12 w-12'
               >
                 {i + 1}
               </Button>

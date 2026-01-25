@@ -16,8 +16,8 @@ export async function GET(req: NextRequest) {
     const teacher = await prisma.user.findUnique({
       where: { firebaseUid },
       include: {
-        teacherProfile: true
-      }
+        teacherProfile: true,
+      },
     });
 
     if (!teacher || !teacher.teacherProfile) {
@@ -28,16 +28,27 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       data: {
-        totalCourses: await prisma.course.count({ where: { teacherId: teacher.id } }),
-        publishedCourses: await prisma.course.count({ where: { teacherId: teacher.id, status: 'PUBLISHED' } }),
-        totalEnrollments: await prisma.enrollment.count({ where: { course: { teacherId: teacher.id } } }),
-        activeEnrollments: await prisma.enrollment.count({ where: { course: { teacherId: teacher.id }, status: 'ACTIVE' } }),
+        totalCourses: await prisma.course.count({
+          where: { teacherId: teacher.id },
+        }),
+        publishedCourses: await prisma.course.count({
+          where: { teacherId: teacher.id, status: 'PUBLISHED' },
+        }),
+        totalEnrollments: await prisma.enrollment.count({
+          where: { course: { teacherId: teacher.id } },
+        }),
+        activeEnrollments: await prisma.enrollment.count({
+          where: { course: { teacherId: teacher.id }, status: 'ACTIVE' },
+        }),
         averageRating: Number(profile.rating),
-        totalReviews: profile.reviewCount
-      }
+        totalReviews: profile.reviewCount,
+      },
     });
   } catch (error) {
     console.error('Error fetching teacher stats:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }
