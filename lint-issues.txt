@@ -1,0 +1,804 @@
+D:\learnity-fyp\learnity-app\src\components\layout\AppLayout.tsx
+   19:3   warning  'Home' is defined but never used  @typescript-eslint/no-unused-vars
+   93:11  warning  Unexpected console statement      no-console
+  105:7   warning  Unexpected console statement      no-console
+
+D:\learnity-fyp\learnity-app\src\components\layout\DashboardNavbar.tsx
+   10:43  warning  'Menu' is defined but never used                          @typescript-eslint/no-unused-vars
+   10:49  warning  'X' is defined but never used                             @typescript-eslint/no-unused-vars
+  102:10  warning  'isMobileMenuOpen' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  102:28  warning  'setIsMobileMenuOpen' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  128:11  warning  Unexpected console statement                              no-console
+
+D:\learnity-fyp\learnity-app\src\components\layout\DashboardSidebar.tsx
+   29:3  warning  'MoreHorizontal' is defined but never used      @typescript-eslint/no-unused-vars
+   36:3  warning  'Sheet' is defined but never used               @typescript-eslint/no-unused-vars
+   37:3  warning  'SheetContent' is defined but never used        @typescript-eslint/no-unused-vars
+   38:3  warning  'SheetHeader' is defined but never used         @typescript-eslint/no-unused-vars
+   39:3  warning  'SheetTitle' is defined but never used          @typescript-eslint/no-unused-vars
+  172:9  warning  'BrandIcon' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\layout\Footer.tsx
+  1:10  warning  'GraduationCap' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\layout\MobileBottomNav.tsx
+  7:40  warning  'LogOut' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\profile\EnhanceHeader.tsx
+  5:10  warning  'cn' is defined but never used  @typescript-eslint/no-unused-vars 
+
+D:\learnity-fyp\learnity-app\src\components\profile\PrivacySettingsForm.tsx        
+   5:3  warning  'Shield' is defined but never used  @typescript-eslint/no-unused-vars
+   7:3  warning  'EyeOff' is defined but never used  @typescript-eslint/no-unused-vars
+  16:3  warning  'Info' is defined but never used    @typescript-eslint/no-unused-vars
+  61:7  warning  Unexpected console statement        no-console
+
+D:\learnity-fyp\learnity-app\src\components\profile\ProfileCompletionBanner.tsx    
+  91:9  warning  'unlockedFeatures' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\profile\ProfileEnhancementForm.tsx     
+   14:3   warning  'Clock' is defined but never used              @typescript-eslint/no-unused-vars
+   15:3   warning  'Check' is defined but never used              @typescript-eslint/no-unused-vars
+   23:3   warning  'Layers' is defined but never used             @typescript-eslint/no-unused-vars
+   25:10  warning  'Card' is defined but never used               @typescript-eslint/no-unused-vars
+   45:17  warning  'authUser' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  117:7   warning  Unexpected console statement                   no-console       
+
+D:\learnity-fyp\learnity-app\src\components\quiz\QuestionCard.tsx
+  55:3  warning  'questionId' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\quiz\QuizPageLayout.tsx
+   9:38  warning  'useCallback' is defined but never used  @typescript-eslint/no-unused-vars
+  67:3   warning  'quizId' is defined but never used       @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\quiz\QuizResultsPage.tsx
+  90:3  warning  'quizId' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\shared\GlobalLoadingIndicator.tsx      
+  18:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\learnity-fyp\learnity-app\src\components\shared\GlobalLoadingIndicator.tsx:18:5 
+  16 |
+  17 |   useEffect(() => {
+> 18 |     setIsLoading(true);
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  19 |     const timeout = setTimeout(() => setIsLoading(false), 500);
+  20 |     return () => clearTimeout(timeout);
+  21 |   }, [pathname, searchParams]);  react-hooks/set-state-in-effect
+
+D:\learnity-fyp\learnity-app\src\components\shared\LoadingStatesExample.tsx        
+  34:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\students\CourseCardSkeleton.tsx        
+   2:8   warning  'Image' is defined but never used               @typescript-eslint/no-unused-vars
+   3:8   warning  'Link' is defined but never used                @typescript-eslint/no-unused-vars
+   4:10  warning  'motion' is defined but never used              @typescript-eslint/no-unused-vars
+   5:10  warning  'cva' is defined but never used                 @typescript-eslint/no-unused-vars
+   5:20  warning  'VariantProps' is defined but never used        @typescript-eslint/no-unused-vars
+   7:3   warning  'Star' is defined but never used                @typescript-eslint/no-unused-vars
+   8:3   warning  'Users' is defined but never used               @typescript-eslint/no-unused-vars
+   9:3   warning  'Clock' is defined but never used               @typescript-eslint/no-unused-vars
+  10:3   warning  'BookOpen' is defined but never used            @typescript-eslint/no-unused-vars
+  11:3   warning  'ShieldCheck' is defined but never used         @typescript-eslint/no-unused-vars
+  12:3   warning  'Zap' is defined but never used                 @typescript-eslint/no-unused-vars
+  13:3   warning  'Tag' is defined but never used                 @typescript-eslint/no-unused-vars
+  14:3   warning  'Calendar' is defined but never used            @typescript-eslint/no-unused-vars
+  18:10  warning  'Badge' is defined but never used               @typescript-eslint/no-unused-vars
+  20:10  warning  'PLACEHOLDER_IMAGES' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\students\EnrolledCourseCard.tsx        
+  54:37  warning  'lastAccessedAt' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\students\Header.tsx
+  3:10  warning  'Avatar' is defined but never used          @typescript-eslint/no-unused-vars
+  3:18  warning  'AvatarFallback' is defined but never used  @typescript-eslint/no-unused-vars
+  3:34  warning  'AvatarImage' is defined but never used     @typescript-eslint/no-unused-vars
+  6:3   warning  'profileData' is defined but never used     @typescript-eslint/no-unused-vars
+  7:3   warning  'getInitials' is defined but never used     @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\students\HighLights.tsx
+   6:3   warning  'Trophy' is defined but never used      @typescript-eslint/no-unused-vars
+   9:3   warning  'Users' is defined but never used       @typescript-eslint/no-unused-vars
+  11:3   warning  'ArrowRight' is defined but never used  @typescript-eslint/no-unused-vars
+  14:10  warning  'Button' is defined but never used      @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\students\MainSection.tsx
+  11:3  warning  'Loader2' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\students\ProfileCard.tsx
+   6:3   warning  'CheckCircle2' is defined but never used  @typescript-eslint/no-unused-vars
+   9:3   warning  'Terminal' is defined but never used      @typescript-eslint/no-unused-vars
+  12:3   warning  'ArrowUpRight' is defined but never used  @typescript-eslint/no-unused-vars
+  18:10  warning  'cn' is defined but never used            @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\students\ProfileSection.tsx
+   3:24  warning  'Rocket' is defined but never used            @typescript-eslint/no-unused-vars
+   3:32  warning  'Zap' is defined but never used               @typescript-eslint/no-unused-vars
+   5:10  warning  'Button' is defined but never used            @typescript-eslint/no-unused-vars
+  17:3   warning  'learningGoals' is defined but never used     @typescript-eslint/no-unused-vars
+  18:3   warning  'onEnhanceProfile' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\students\SideBar.tsx
+   9:3   warning  'Users' is defined but never used        @typescript-eslint/no-unused-vars
+  11:3   warning  'ArrowRight' is defined but never used   @typescript-eslint/no-unused-vars
+  12:3   warning  'Trophy' is defined but never used       @typescript-eslint/no-unused-vars
+  13:3   warning  'Star' is defined but never used         @typescript-eslint/no-unused-vars
+  14:3   warning  'Target' is defined but never used       @typescript-eslint/no-unused-vars
+  15:3   warning  'Zap' is defined but never used          @typescript-eslint/no-unused-vars
+  16:3   warning  'ShieldCheck' is defined but never used  @typescript-eslint/no-unused-vars
+  17:3   warning  'LayoutGrid' is defined but never used   @typescript-eslint/no-unused-vars
+  19:10  warning  'motion' is defined but never used       @typescript-eslint/no-unused-vars
+  22:10  warning  'Button' is defined but never used       @typescript-eslint/no-unused-vars
+  23:10  warning  'Progress' is defined but never used     @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\students\StreaksCard.tsx
+   5:22  warning  'Trophy' is defined but never used                               
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                        @typescript-eslint/no-unused-vars
+  12:36  error    Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+D:\learnity-fyp\learnity-app\src\components\students\StreaksCard.tsx:12:36
+  10 |   const desktopActivity = Array.from({ length: 35 }, (_, i) => ({
+  11 |     active: i > 28,
+> 12 |     level: i > 28 ? 4 : Math.floor(Math.random() * 3),
+     |                                    ^^^^^^^^^^^^^ Cannot call impure function
+  13 |   }));
+  14 |
+  15 |   // Mobile: Last 7 days only  react-hooks/purity
+
+D:\learnity-fyp\learnity-app\src\components\teachers\AnalyticsView.tsx
+   9:3  warning  'BarChart' is defined but never used             @typescript-eslint/no-unused-vars
+  10:3  warning  'Bar' is defined but never used                  @typescript-eslint/no-unused-vars
+  11:3  warning  'Cell' is defined but never used                 @typescript-eslint/no-unused-vars
+  34:7  warning  'healthData' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\teachers\TeacherCard.tsx
+  5:10  warning  'cn' is defined but never used  @typescript-eslint/no-unused-vars 
+
+D:\learnity-fyp\learnity-app\src\components\teachers\TeacherDetailContent.tsx      
+  67:9  warning  Unexpected console statement  no-console
+  74:9  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\components\teachers\TeachersGrid.tsx
+  98:9  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\components\teachers\countdown-card.tsx
+   4:28  warning  'differenceInHours' is defined but never used                    
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                 @typescript-eslint/no-unused-vars
+  11:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\learnity-fyp\learnity-app\src\components\teachers\countdown-card.tsx:11:5       
+   9 |   useEffect(() => {
+  10 |     const diff = differenceInDays(new Date(targetDate), new Date());        
+> 11 |     setDaysLeft(diff > 0 ? diff : 0);
+     |     ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  12 |   }, [targetDate]);
+  13 |
+  14 |   return (  react-hooks/set-state-in-effect
+
+D:\learnity-fyp\learnity-app\src\components\teachers\profile-action-grid.tsx       
+  4:46  warning  'AlertCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\teachers\profile\SimilarTeachers.tsx   
+  185:9  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\components\teachers\profile\TeacherActualReviews.tsx
+  126:9  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\components\teachers\profile\TeacherCourses.tsx    
+  90:9  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\components\teachers\profile\TeacherHero.tsx       
+  6:10  warning  'Badge' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\teachers\profile\TeacherSidebar.tsx    
+  6:3  warning  'Users' is defined but never used       @typescript-eslint/no-unused-vars
+  7:3  warning  'BookOpen' is defined but never used    @typescript-eslint/no-unused-vars
+  8:3  warning  'Clock' is defined but never used       @typescript-eslint/no-unused-vars
+  9:3  warning  'TrendingUp' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\ui\AuthLoadingSpinner.tsx
+  8:10  warning  'GraduationCap' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\components\video\VideoRoom.tsx
+   27:3   warning  'selectRemotePeers' is defined but never used            @typescript-eslint/no-unused-vars
+   43:3   warning  'LayoutGrid' is defined but never used                   @typescript-eslint/no-unused-vars
+   45:3   warning  'Share2' is defined but never used                       @typescript-eslint/no-unused-vars
+   47:3   warning  'Volume2' is defined but never used                      @typescript-eslint/no-unused-vars
+   48:3   warning  'VolumeX' is defined but never used                      @typescript-eslint/no-unused-vars
+   50:3   warning  'ChevronLeft' is defined but never used                  @typescript-eslint/no-unused-vars
+   58:16  warning  'CardContent' is defined but never used                  @typescript-eslint/no-unused-vars
+   92:9   warning  'localPeer' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  102:10  warning  'activeSpeakerId' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  102:27  warning  'setActiveSpeakerId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  113:9   warning  Unexpected console statement                             no-console
+  171:7   warning  Unexpected console statement                             no-console
+
+D:\learnity-fyp\learnity-app\src\hooks\use-toast.ts
+  21:7  warning  'actionTypes' is assigned a value but only used as a type  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\hooks\useAuth.unified.ts
+    9:10  warning  'useState' is defined but never used                @typescript-eslint/no-unused-vars
+    9:20  warning  'useEffect' is defined but never used               @typescript-eslint/no-unused-vars
+   10:32  warning  'onAuthStateChanged' is defined but never used      @typescript-eslint/no-unused-vars
+   66:16  warning  'extractClaimsFromToken' is defined but never used  @typescript-eslint/no-unused-vars
+   74:5   warning  Unexpected console statement                        no-console  
+   78:7   warning  Unexpected console statement                        no-console  
+  107:11  warning  Unexpected console statement                        no-console  
+  127:9   warning  Unexpected console statement                        no-console  
+  154:5   warning  Unexpected console statement                        no-console  
+  199:7   warning  Unexpected console statement                        no-console  
+  201:7   warning  Unexpected console statement                        no-console  
+  213:7   warning  Unexpected console statement                        no-console  
+
+D:\learnity-fyp\learnity-app\src\hooks\useAuthRedirect.ts
+   16:10  warning  'UserRole' is defined but never used                            
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                             @typescript-eslint/no-unused-vars     
+  101:7   warning  Unexpected console statement                                    
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                             no-console
+  128:11  warning  Unexpected console statement                                    
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                             no-console
+  151:29  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\learnity-fyp\learnity-app\src\hooks\useAuthRedirect.ts:151:29
+  149 |     }
+  150 |
+> 151 |     const newRedirectPath = calculateRedirectPath();
+      |                             ^^^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  152 |     setRedirectPath(newRedirectPath);
+  153 |
+  154 |     if (newRedirectPath && !isRedirecting) {                               
+                    react-hooks/set-state-in-effect
+  166:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\learnity-fyp\learnity-app\src\hooks\useAuthRedirect.ts:166:7
+  164 |   useEffect(() => {
+  165 |     if (!loading && !redirectPath) {
+> 166 |       setIsRedirecting(false);
+      |       ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect  
+  167 |     }
+  168 |   }, [loading, redirectPath]);
+  169 |                                                                            
+                    react-hooks/set-state-in-effect
+  176:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\learnity-fyp\learnity-app\src\hooks\useAuthRedirect.ts:176:7
+  174 |     if (!loading && !isAuthenticated && user === null) {
+  175 |       // Authentication failed or user logged out
+> 176 |       setError(null); // Clear any previous errors
+      |       ^^^^^^^^ Avoid calling setState() directly within an effect
+  177 |     }
+  178 |   }, [loading, isAuthenticated, user]);
+  179 |                         react-hooks/set-state-in-effect
+  202:7   warning  Unexpected console statement                                    
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                             no-console
+  214:7   warning  Unexpected console statement                                    
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                             no-console
+  253:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\learnity-fyp\learnity-app\src\hooks\useAuthRedirect.ts:253:7
+  251 |     if (isAuthenticated && user && claims) {
+  252 |       // User is authenticated, redirect to appropriate dashboard
+> 253 |       setIsRedirecting(true);
+      |       ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect  
+  254 |       setError(null);
+  255 |       setRetryCount(0); // Reset retry count on success
+  256 |  react-hooks/set-state-in-effect
+  268:13  warning  Unexpected console statement                                    
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                             no-console
+  273:9   warning  Unexpected console statement                                    
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                             no-console
+  278:7   warning  Unexpected console statement                                    
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                             no-console
+  283:11  warning  Unexpected console statement                                    
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                             no-console
+
+D:\learnity-fyp\learnity-app\src\hooks\useAuthService.ts
+  11:3   warning  'EnhancedTeacherRegistrationData' is defined but never used  @typescript-eslint/no-unused-vars
+  46:20  warning  'setClaims' is assigned a value but never used               @typescript-eslint/no-unused-vars
+  50:7   warning  Unexpected console statement                                 no-console
+
+D:\learnity-fyp\learnity-app\src\hooks\useAuthenticatedFetch.ts
+   20:9   warning  Unexpected console statement                                    
+                                                   no-console
+   37:11  warning  Unexpected console statement                                    
+                                                   no-console
+   48:13  warning  Unexpected console statement                                    
+                                                   no-console
+  101:13  warning  Unexpected console statement                                    
+                                                   no-console
+  112:5   warning  React Hook useCallback has an unnecessary dependency: 'loading'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps     
+  176:5   warning  Unexpected console statement                                    
+                                                   no-console
+
+D:\learnity-fyp\learnity-app\src\hooks\useDeepLinking.ts
+   41:5  warning  Unexpected console statement                                     
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                   no-console
+  163:9  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\learnity-fyp\learnity-app\src\hooks\useDeepLinking.ts:163:9
+  161 |     switch (mode) {
+  162 |       case 'verifyEmail':
+> 163 |         handleEmailVerification(actionCode);
+      |         ^^^^^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  164 |         break;
+  165 |       case 'resetPassword':
+  166 |         handlePasswordResetVerification(actionCode)  react-hooks/set-state-in-effect
+  177:9  warning  Unexpected console statement                                     
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                   no-console
+
+D:\learnity-fyp\learnity-app\src\hooks\useLogout.ts
+   46:13  warning  Unexpected console statement  no-console
+   67:13  warning  Unexpected console statement  no-console
+   71:11  warning  Unexpected console statement  no-console
+  110:9   warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\hooks\usePermissionCheck.ts
+   38:19  warning  'setLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   39:17  warning  'setError' is assigned a value but never used    @typescript-eslint/no-unused-vars
+   62:19  warning  'setLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   63:17  warning  'setError' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  123:19  warning  'setLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  124:17  warning  'setError' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  143:19  warning  'setLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  144:17  warning  'setError' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  167:19  warning  'setLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  168:17  warning  'setError' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\hooks\usePrefetch.ts
+   11:11  warning  'PrefetchOptions' is defined but never used                     
+                                                                                   
+    @typescript-eslint/no-unused-vars
+   47:14  error    React Hook "useCallback" cannot be called inside a callback. React Hooks must be called in a React function component or a custom React Hook function  react-hooks/rules-of-hooks
+   64:9   warning  React Hook useCallback has a missing dependency: 'options'. Either include it or remove the dependency array                                       
+    react-hooks/exhaustive-deps
+   72:7   error    React Hook "useEffect" cannot be called inside a callback. React Hooks must be called in a React function component or a custom React Hook function
+    react-hooks/rules-of-hooks
+  147:9   warning  Unexpected console statement                                    
+                                                                                   
+    no-console
+
+D:\learnity-fyp\learnity-app\src\lib\cache\index.ts
+   45:10  warning  '_filters' is defined but never used  @typescript-eslint/no-unused-vars
+   98:5   warning  Unexpected console statement          no-console
+  110:5   warning  Unexpected console statement          no-console
+  112:5   warning  Unexpected console statement          no-console
+
+D:\learnity-fyp\learnity-app\src\lib\config\firebase-admin.ts
+   9:15  error    Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  47:1   warning  'adminAuth' is never reassigned. Use 'const' instead             
+                                           prefer-const
+  48:1   warning  'adminStorage' is never reassigned. Use 'const' instead          
+                                           prefer-const
+
+D:\learnity-fyp\learnity-app\src\lib\config\firebase.ts
+  55:5  warning  Unexpected console statement  no-console
+  57:5  warning  Unexpected console statement  no-console
+  74:7  warning  Unexpected console statement  no-console
+  82:7  warning  Unexpected console statement  no-console
+  87:5  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\data\stats.ts
+  135:7  warning  Unexpected console statement  no-console
+  270:7  warning  Unexpected console statement  no-console
+  380:5  warning  Unexpected console statement  no-console
+  466:5  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\docs.ts
+  108:5  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\factories\database.factory.ts
+  8:10  warning  'IUserProfileService' is defined but never used  @typescript-eslint/no-unused-vars
+  8:31  warning  'ISyncService' is defined but never used         @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\lib\interfaces\course.interface.ts
+  12:3  warning  'Difficulty' is defined but never used    @typescript-eslint/no-unused-vars
+  13:3  warning  'CourseStatus' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\lib\interfaces\enrollment.interface.ts
+  17:3  warning  'Course' is defined but never used            @typescript-eslint/no-unused-vars
+  18:3  warning  'User' is defined but never used              @typescript-eslint/no-unused-vars
+  20:3  warning  'EnrollmentStatus' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\lib\interfaces\lesson.interface.ts
+  7:24  warning  'LessonType' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\lib\interfaces\review.interface.ts
+  15:18  warning  'User' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\lib\middleware\auth.middleware.ts
+  112:5  warning  Unexpected console statement  no-console
+  355:5  warning  Unexpected console statement  no-console
+  357:5  warning  Unexpected console statement  no-console
+  369:5  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\__tests__\quiz.service.test.ts       
+  34:21  warning  'QuizErrorCode' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\lib\services\app-check.service.ts
+   85:7   warning  Unexpected console statement  no-console
+  108:7   warning  Unexpected console statement  no-console
+  131:9   warning  Unexpected console statement  no-console
+  134:11  warning  Unexpected console statement  no-console
+  214:7   warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\audit-logger.service.ts
+  192:7  warning  Unexpected console statement  no-console
+  210:7  warning  Unexpected console statement  no-console
+  219:5  warning  Unexpected console statement  no-console
+  242:7  warning  Unexpected console statement  no-console
+  254:7  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\audit.service.ts
+    10:3   warning  'AuthEvent' is defined but never used      @typescript-eslint/no-unused-vars
+    11:3   warning  'SecurityEvent' is defined but never used  @typescript-eslint/no-unused-vars
+   271:7   warning  Unexpected console statement               no-console
+   305:7   warning  Unexpected console statement               no-console
+   334:7   warning  Unexpected console statement               no-console
+   361:7   warning  Unexpected console statement               no-console
+   435:7   warning  Unexpected console statement               no-console
+   523:7   warning  Unexpected console statement               no-console
+   603:7   warning  Unexpected console statement               no-console
+   682:7   warning  Unexpected console statement               no-console
+   712:7   warning  Unexpected console statement               no-console
+   783:7   warning  Unexpected console statement               no-console
+   802:5   warning  Unexpected console statement               no-console
+   810:5   warning  Unexpected console statement               no-console
+  1021:51  warning  'riskLevel' is defined but never used      @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\lib\services\blob.service.ts
+   49:7  warning  Unexpected console statement  no-console
+   82:7  warning  Unexpected console statement  no-console
+  115:7  warning  Unexpected console statement  no-console
+  148:7  warning  Unexpected console statement  no-console
+  180:7  warning  Unexpected console statement  no-console
+  195:7  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\certificate.service.ts
+  526:7  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\client-auth.service.ts
+  29:3  warning  'UserCredential' is defined but never used  @typescript-eslint/no-unused-vars
+  67:7  warning  Unexpected console statement                no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\course-room.service.ts
+   81:9  warning  Unexpected console statement  no-console
+   95:9  warning  Unexpected console statement  no-console
+  131:7  warning  Unexpected console statement  no-console
+  143:9  warning  Unexpected console statement  no-console
+  169:9  warning  Unexpected console statement  no-console
+  189:9  warning  Unexpected console statement  no-console
+  198:9  warning  Unexpected console statement  no-console
+  252:9  warning  Unexpected console statement  no-console
+  254:9  warning  Unexpected console statement  no-console
+  280:9  warning  Unexpected console statement  no-console
+  284:9  warning  Unexpected console statement  no-console
+  324:7  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\database.service.ts
+   8:3   warning  'User' is defined but never used            @typescript-eslint/no-unused-vars
+   9:15  warning  'PrismaUserRole' is defined but never used  @typescript-eslint/no-unused-vars
+  53:7   warning  Unexpected console statement                no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\firebase-auth.service.ts
+  476:13  warning  Unexpected console statement       no-console
+  481:7   warning  Unexpected console statement       no-console
+  571:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  588:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\lib\services\firebase-sync.service.ts
+   11:3  warning  'SyncError' is defined but never used  @typescript-eslint/no-unused-vars
+   39:9  warning  Unexpected console statement           no-console
+   44:7  warning  Unexpected console statement           no-console
+   72:7  warning  Unexpected console statement           no-console
+   74:7  warning  Unexpected console statement           no-console
+   90:7  warning  Unexpected console statement           no-console
+  113:7  warning  Unexpected console statement           no-console
+  117:7  warning  Unexpected console statement           no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\hcaptcha.service.ts
+  12:7  warning  Unexpected console statement  no-console
+  46:7  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\lesson.service.ts
+  30:3  warning  'isValidYouTubeUrl' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\lib\services\notification.service.ts
+    6:23  warning  'ApplicationStatus' is defined but never used  @typescript-eslint/no-unused-vars
+   28:7   warning  Unexpected console statement                   no-console       
+   41:7   warning  Unexpected console statement                   no-console       
+   56:7   warning  Unexpected console statement                   no-console       
+   69:7   warning  Unexpected console statement                   no-console       
+   86:9   warning  Unexpected console statement                   no-console       
+  100:7   warning  Unexpected console statement                   no-console       
+  114:7   warning  Unexpected console statement                   no-console       
+  127:7   warning  Unexpected console statement                   no-console       
+  397:5   warning  Unexpected console statement                   no-console       
+
+D:\learnity-fyp\learnity-app\src\lib\services\prefetch.service.ts
+   45:5  warning  Unexpected console statement  no-console
+  124:5  warning  Unexpected console statement  no-console
+  200:5  warning  Unexpected console statement  no-console
+  272:7  warning  Unexpected console statement  no-console
+  274:7  warning  Unexpected console statement  no-console
+  285:7  warning  Unexpected console statement  no-console
+  287:7  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\profile-enhancement.service.ts       
+   60:7  warning  Unexpected console statement  no-console
+   76:7  warning  Unexpected console statement  no-console
+  150:7  warning  Unexpected console statement  no-console
+  265:7  warning  Unexpected console statement  no-console
+  410:7  warning  Unexpected console statement  no-console
+  440:7  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\role-manager.service.ts
+   76:7  warning  Unexpected console statement  no-console
+   89:7  warning  Unexpected console statement  no-console
+  102:7  warning  Unexpected console statement  no-console
+  174:7  warning  Unexpected console statement  no-console
+  442:7  warning  Unexpected console statement  no-console
+  485:7  warning  Unexpected console statement  no-console
+  517:7  warning  Unexpected console statement  no-console
+  535:7  warning  Unexpected console statement  no-console
+  558:7  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\security.service.ts
+  159:7  warning  Unexpected console statement  no-console
+  242:7  warning  Unexpected console statement  no-console
+  268:7  warning  Unexpected console statement  no-console
+  321:7  warning  Unexpected console statement  no-console
+  542:5  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\session-manager.service.ts
+     8:35  warning  'createHmac' is defined but never used         @typescript-eslint/no-unused-vars
+    10:24  warning  'JwtPayload' is defined but never used         @typescript-eslint/no-unused-vars
+   239:13  warning  'issuedAt' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   327:16  warning  'firebaseError' is defined but never used      @typescript-eslint/no-unused-vars
+   450:7   warning  Unexpected console statement                   no-console      
+   586:9   warning  Unexpected console statement                   no-console      
+   602:7   warning  Unexpected console statement                   no-console      
+   626:9   warning  Unexpected console statement                   no-console      
+   636:7   warning  Unexpected console statement                   no-console      
+   887:26  warning  '_firebaseUid' is defined but never used       @typescript-eslint/no-unused-vars
+  1016:9   warning  Unexpected console statement                   no-console      
+
+D:\learnity-fyp\learnity-app\src\lib\services\sync.service.ts
+   36:9   warning  Unexpected console statement  no-console
+   44:7   warning  Unexpected console statement  no-console
+   87:7   warning  Unexpected console statement  no-console
+  109:7   warning  Unexpected console statement  no-console
+  111:7   warning  Unexpected console statement  no-console
+  190:11  warning  Unexpected console statement  no-console
+  205:7   warning  Unexpected console statement  no-console
+  237:7   warning  Unexpected console statement  no-console
+  241:7   warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\services\token-manager.service.ts
+    3:3   warning  'getIdToken' is defined but never used  @typescript-eslint/no-unused-vars
+  251:43  warning  Unexpected console statement            no-console
+  259:9   warning  Unexpected console statement            no-console
+
+D:\learnity-fyp\learnity-app\src\lib\stores\auth.store.ts
+  14:3   warning  'AuthErrorCode' is defined but never used  @typescript-eslint/no-unused-vars
+  83:13  warning  'state' is defined but never used          @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\lib\utils\api-auth.utils.ts
+   52:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  322:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\src\lib\utils\api-response.utils.ts
+  140:3  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\utils\auth-redirect.utils.ts
+  223:5  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\utils\youtube.ts
+  127:7  warning  Unexpected console statement  no-console
+  141:5  warning  Unexpected console statement  no-console
+
+D:\learnity-fyp\learnity-app\src\lib\validators\auth.ts
+  2:20  warning  'ApplicationStatus' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\learnity-fyp\learnity-app\tailwind.config.js
+  4:13  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+D:\learnity-fyp\learnity-app\temp\env-validation.js
+  4:15  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+✖ 991 problems (30 errors, 961 warnings)
+
+error: script "lint" exited with code 1

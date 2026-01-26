@@ -130,56 +130,50 @@ export function YouTubePlayer({
     };
   }, []);
 
-  // Initialize player when API is ready
-  useEffect(() => {
-    if (!isApiReady || !videoId) return;
+  // Update progress
+  const updateProgress = useCallback(() => {
+    if (!playerRef.current) return;
 
-    const playerId = `youtube-player-${lessonId}`;
-
-    // Create player container if it doesn't exist
-    if (containerRef.current && !document.getElementById(playerId)) {
-      const playerDiv = document.createElement('div');
-      playerDiv.id = playerId;
-      containerRef.current.appendChild(playerDiv);
-    }
-
-    // Initialize player
     try {
-      playerRef.current = new window.YT.Player(playerId, {
-        videoId,
-        playerVars: {
-          rel: 0,
-          modestbranding: 1,
-          playsinline: 1,
-          start: Math.floor(lastPosition),
-        },
-        events: {
-          onReady: handlePlayerReady,
-          onStateChange: handleStateChange,
-          onError: handleError,
-        },
-      });
-    } catch (err) {
-      console.error('Failed to initialize YouTube player:', err);
-      setError('Failed to load video player');
-      setIsLoading(false);
-    }
+      const currentTime = playerRef.current.getCurrentTime();
+      const videoDuration = playerRef.current.getDuration() || duration;
 
-    return () => {
-      // Cleanup
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-      }
-      if (playerRef.current) {
-        try {
-          playerRef.current.destroy();
-        } catch {
-          // Player may already be destroyed
+      // Track maximum watched seconds
+      const newMaxWatched = Math.max(maxWatchedSeconds, currentTime);
+      setMaxWatchedSeconds(newMaxWatched);
+
+      // Call progress update callback
+      onProgressUpdate?.(Math.floor(newMaxWatched), Math.floor(currentTime));
+
+      // Check for auto-completion (90% threshold)
+      if (!hasAutoCompletedRef.current && videoDuration > 0) {
+        const watchedPercentage = newMaxWatched / videoDuration;
+        if (watchedPercentage >= COMPLETION_THRESHOLD) {
+          hasAutoCompletedRef.current = true;
+          onAutoComplete?.();
         }
-        playerRef.current = null;
       }
-    };
-  }, [isApiReady, videoId, lessonId]);
+    } catch (err) {
+      // Error updating progress
+    }
+  }, [duration, maxWatchedSeconds, onProgressUpdate, onAutoComplete]);
+
+  // Start progress tracking interval
+  const startProgressTracking = useCallback(() => {
+    if (progressIntervalRef.current) return;
+
+    progressIntervalRef.current = setInterval(() => {
+      updateProgress();
+    }, progressInterval);
+  }, [progressInterval, updateProgress]);
+
+  // Stop progress tracking interval
+  const stopProgressTracking = useCallback(() => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+  }, []);
 
   // Handle player ready
   const handlePlayerReady = useCallback(
@@ -215,7 +209,7 @@ export function YouTubePlayer({
         }
       }
     },
-    []
+    [startProgressTracking, stopProgressTracking, updateProgress]
   );
 
   // Handle error
@@ -232,50 +226,55 @@ export function YouTubePlayer({
     setIsLoading(false);
   }, []);
 
-  // Start progress tracking interval
-  const startProgressTracking = useCallback(() => {
-    if (progressIntervalRef.current) return;
+  // Initialize player when API is ready
+  useEffect(() => {
+    if (!isApiReady || !videoId) return;
 
-    progressIntervalRef.current = setInterval(() => {
-      updateProgress();
-    }, progressInterval);
-  }, [progressInterval]);
+    const playerId = `youtube-player-${lessonId}`;
 
-  // Stop progress tracking interval
-  const stopProgressTracking = useCallback(() => {
-    if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current);
-      progressIntervalRef.current = null;
+    // Create player container if it doesn't exist
+    if (containerRef.current && !document.getElementById(playerId)) {
+      const playerDiv = document.createElement('div');
+      playerDiv.id = playerId;
+      containerRef.current.appendChild(playerDiv);
     }
-  }, []);
 
-  // Update progress
-  const updateProgress = useCallback(() => {
-    if (!playerRef.current) return;
-
+    // Initialize player
     try {
-      const currentTime = playerRef.current.getCurrentTime();
-      const videoDuration = playerRef.current.getDuration() || duration;
-
-      // Track maximum watched seconds
-      const newMaxWatched = Math.max(maxWatchedSeconds, currentTime);
-      setMaxWatchedSeconds(newMaxWatched);
-
-      // Call progress update callback
-      onProgressUpdate?.(Math.floor(newMaxWatched), Math.floor(currentTime));
-
-      // Check for auto-completion (90% threshold)
-      if (!hasAutoCompletedRef.current && videoDuration > 0) {
-        const watchedPercentage = newMaxWatched / videoDuration;
-        if (watchedPercentage >= COMPLETION_THRESHOLD) {
-          hasAutoCompletedRef.current = true;
-          onAutoComplete?.();
-        }
-      }
+      playerRef.current = new window.YT.Player(playerId, {
+        videoId,
+        playerVars: {
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          start: Math.floor(lastPosition),
+        },
+        events: {
+          onReady: handlePlayerReady,
+          onStateChange: handleStateChange,
+          onError: handleError,
+        },
+      });
     } catch (err) {
-      console.error('Error updating progress:', err);
+      setError('Failed to load video player');
+      setIsLoading(false);
     }
-  }, [duration, maxWatchedSeconds, onProgressUpdate, onAutoComplete]);
+
+    return () => {
+      // Cleanup
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+      if (playerRef.current) {
+        try {
+          playerRef.current.destroy();
+        } catch {
+          // Player may already be destroyed
+        }
+        playerRef.current = null;
+      }
+    };
+  }, [isApiReady, videoId, lessonId, handlePlayerReady, handleStateChange, handleError]);
 
   // Retry loading
   const handleRetry = useCallback(() => {

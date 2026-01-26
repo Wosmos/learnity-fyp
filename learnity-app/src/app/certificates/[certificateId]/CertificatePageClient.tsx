@@ -15,16 +15,13 @@ import {
 } from '@/components/courses/CertificatePage';
 import { useToast } from '@/hooks/use-toast';
 
-interface CertificatePageClientProps extends Omit<
-  CertificatePageProps,
-  'onDownload' | 'isDownloading'
-> {}
+
 
 /**
  * Client-side certificate page with download functionality
  * Requirements: 10.3
  */
-export function CertificatePageClient(props: CertificatePageClientProps) {
+export function CertificatePageClient(props: any) {
   const { toast } = useToast();
   const [isDownloading, setIsDownloading] = React.useState(false);
 

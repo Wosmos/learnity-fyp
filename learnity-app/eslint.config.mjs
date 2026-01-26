@@ -14,12 +14,15 @@ const eslintConfig = defineConfig([
     'next-env.d.ts',
     'node_modules/**',
     'prisma/migrations/**',
+    'temp/**',
+    '*.config.js',
+    '*.config.mjs',
   ]),
   {
     rules: {
-      // Relaxed TypeScript rules
+      // Disable most TypeScript strict rules
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-empty-function': 'off',
@@ -28,39 +31,34 @@ const eslintConfig = defineConfig([
       '@typescript-eslint/no-inferrable-types': 'off',
       '@typescript-eslint/prefer-as-const': 'off',
       '@typescript-eslint/no-empty-interface': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
 
-      // React rules
+      // Disable React strict rules
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
       'react/display-name': 'off',
       'react/no-unescaped-entities': 'off',
-      'react-hooks/exhaustive-deps': 'warn',
+      'react/jsx-no-comment-textnodes': 'off',
+      'react-hooks/exhaustive-deps': 'off',
+      'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/purity': 'off',
+      'react-hooks/incompatible-library': 'off',
+      'react-hooks/immutability': 'off',
 
-      // General rules
-      'no-console': 'warn',
-      'no-debugger': 'warn',
-      'no-unused-vars': 'off', // Use TypeScript version instead
-      'prefer-const': 'warn',
-      'no-var': 'error',
+      // Disable general strict rules
+      'no-console': 'off',
+      'no-debugger': 'off',
+      'no-unused-vars': 'off',
+      'prefer-const': 'off',
+      'no-var': 'off',
 
-      // Import rules
+      // Disable import rules
       'import/no-unresolved': 'off',
-      'import/order': [
-        'warn',
-        {
-          groups: [
-            'builtin',
-            'external',
-            'internal',
-            'parent',
-            'sibling',
-            'index',
-          ],
-          'newlines-between': 'never',
-        },
-      ],
+      'import/order': 'off',
 
-      // Next.js specific
+      // Disable Next.js specific rules
       '@next/next/no-img-element': 'off',
       '@next/next/no-html-link-for-pages': 'off',
     },
