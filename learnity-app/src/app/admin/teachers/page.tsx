@@ -91,7 +91,7 @@ export default function TeacherManagementPage() {
 
   useEffect(() => {
     fetchTeachers();
-  }, [fetchTeachers]);
+  }, []);
 
   // Filter teachers based on active tab
   useEffect(() => {

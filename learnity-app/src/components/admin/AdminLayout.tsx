@@ -6,7 +6,7 @@
  * Implements proper authentication protection and responsive design
  */
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { AdminAuthenticatedLayout } from '@/components/layout/AppLayout';
 import { AdminSidebar } from './AdminSidebar';
@@ -80,41 +80,19 @@ export function AdminLayout({
   actions,
 }: AdminLayoutProps) {
   const api = useAuthenticatedApi();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [quickStats, setQuickStats] = useState<QuickStats>({
-    activeUsers: 0,
-    todaysLogins: 0,
-    securityEvents: 0,
-    systemStatus: 'Loading...',
-  });
 
-  const statsService = AdminStatsService.getInstance();
-
-  // Fetch quick stats - auth is already verified by AdminRoute wrapper
-  useEffect(() => {
-    const fetchStats = async () => {
-      const stats = await statsService.fetchQuickStats(api);
-      setQuickStats(stats);
-    };
-
-    fetchStats();
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchStats, 30000);
-    return () => clearInterval(interval);
-  }, [api, statsService]);
+  // Stats service usage removed as the new sidebar doesn't display stats
+  // const statsService = AdminStatsService.getInstance();
+  // useEffect fetching stats removed
 
   return (
     <AdminAuthenticatedLayout>
       <div className='min-h-screen bg-gray-50 flex'>
         {/* Sidebar */}
-        <AdminSidebar
-          isOpen={sidebarOpen}
-          onToggle={() => setSidebarOpen(!sidebarOpen)}
-          quickStats={quickStats}
-        />
+        <AdminSidebar />
 
         {/* Main Content Area */}
-        <div className='flex-1 flex flex-col min-w-0 lg:ml-80'>
+        <div className='flex-1 flex flex-col min-w-0'>
           {/* Top Header */}
 
           {/* Main Content */}

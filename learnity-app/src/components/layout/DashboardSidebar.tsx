@@ -27,6 +27,12 @@ import {
   ChevronLeft,
   ChevronRight,
   MoreHorizontal,
+  Shield,
+  BarChart3,
+  UserCheck,
+  Play,
+  Lock,
+  Layers,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -42,7 +48,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLogout } from '@/hooks/useLogout';
 
 // --- Types ---
-export type SidebarRole = 'teacher' | 'student';
+export type SidebarRole = 'teacher' | 'student' | 'admin';
 
 export interface NavItem {
   label: string;
@@ -94,6 +100,21 @@ const studentNavItems: NavItem[] = [
   { label: 'Profile', href: '/dashboard/student/profile/enhance', icon: User },
 ];
 
+const adminNavItems: NavItem[] = [
+  { label: 'Overview', href: '/dashboard/admin', icon: Home },
+  { label: 'Security Hub', href: '/admin', icon: Shield },
+  { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+  { label: 'Users', href: '/admin/users', icon: Users },
+  {
+    label: 'Applications',
+    href: '/admin/teachers',
+    icon: UserCheck,
+  },
+  { label: 'Demo Tools', href: '/admin/demo', icon: Play },
+  { label: 'Auth Debug', href: '/admin/auth-test', icon: Lock },
+
+];
+
 export const teacherSidebarConfig: SidebarConfig = {
   role: 'teacher',
   brandName: 'Learnity',
@@ -122,6 +143,16 @@ export const studentSidebarConfig: SidebarConfig = {
     description: 'Get unlimited access to all courses & features.',
     link: '#',
   },
+};
+
+export const adminSidebarConfig: SidebarConfig = {
+  role: 'admin',
+  brandName: 'Learnity',
+  brandSubtitle: 'Admin Panel',
+  brandIcon: Layers,
+  brandGradient: 'from-purple-600 to-pink-600',
+  navItems: adminNavItems,
+  theme: 'dark',
 };
 
 // --- Helper: Active Route Checker ---
@@ -310,7 +341,7 @@ const DesktopSidebarContent = ({
           </div>
         )}
 
-        <Link href={`/dashboard/${config.role}/settings`} className='block'>
+        <Link href={`/${config.role}/settings`} className='block'>
           <Button
             variant='ghost'
             className={cn(
