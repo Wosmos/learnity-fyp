@@ -1,11 +1,3 @@
-'use client';
-
-/**
- * Admin Analytics Page
- * Platform analytics and insights for administrators
- */
-
-import { useState, useEffect } from 'react';
 import {
   BarChart3,
   TrendingUp,
@@ -26,7 +18,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 
 interface AnalyticsData {
   userGrowth: {
@@ -52,83 +43,35 @@ interface AnalyticsData {
   };
 }
 
-export default function AdminAnalyticsPage() {
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+export default async function AdminAnalyticsPage() {
+  // SSR data fetching
+  // Note: Role protection is handled by AdminLayout (client-side)
+  // and basic auth by middleware.ts
 
-  const { toast } = useToast();
-
-  const fetchAnalytics = async (showRefreshToast = false) => {
-    try {
-      if (showRefreshToast) setRefreshing(true);
-
-      // For now, we'll use mock data since we don't have a dedicated analytics API
-      // In a real implementation, this would call /api/admin/analytics
-      const mockAnalytics: AnalyticsData = {
-        userGrowth: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-          data: [120, 150, 180, 220, 280, 350],
-        },
-        teacherApplications: {
-          pending: 15,
-          approved: 45,
-          rejected: 8,
-        },
-        platformMetrics: {
-          totalRevenue: 45680,
-          activeUsers: 1250,
-          sessionCompletion: 94.2,
-          userSatisfaction: 4.7,
-        },
-        monthlyStats: {
-          newUsers: 89,
-          newTeachers: 12,
-          totalSessions: 456,
-          revenue: 12450,
-        },
-      };
-
-      setAnalytics(mockAnalytics);
-
-      if (showRefreshToast) {
-        toast({
-          title: 'Analytics Updated',
-          description: 'Latest analytics data has been loaded.',
-        });
-      }
-    } catch (error) {
-      console.error('Failed to fetch analytics:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load analytics data. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+  // Mock data fetching (SSR)
+  const analytics: AnalyticsData = {
+    userGrowth: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      data: [120, 150, 180, 220, 280, 350],
+    },
+    teacherApplications: {
+      pending: 15,
+      approved: 45,
+      rejected: 8,
+    },
+    platformMetrics: {
+      totalRevenue: 45680,
+      activeUsers: 1250,
+      sessionCompletion: 94.2,
+      userSatisfaction: 4.7,
+    },
+    monthlyStats: {
+      newUsers: 89,
+      newTeachers: 12,
+      totalSessions: 456,
+      revenue: 12450,
+    },
   };
-
-  useEffect(() => {
-    fetchAnalytics();
-  }, []);
-
-  if (loading) {
-    return (
-      <AdminLayout
-        title='Analytics'
-        description='Platform analytics and insights'
-      >
-        <div className='flex items-center justify-center min-h-96'>
-          <div className='text-center'>
-            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4'></div>
-            <p className='text-gray-600'>Loading analytics...</p>
-          </div>
-        </div>
-      </AdminLayout>
-    );
-  }
 
   return (
     <AdminLayout>

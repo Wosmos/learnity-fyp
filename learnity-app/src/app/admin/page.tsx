@@ -1,11 +1,3 @@
-'use client';
-
-/**
- * Admin Security Dashboard Page
- * Main security monitoring interface with audit capabilities
- */
-
-import Link from 'next/link';
 import {
   FileText,
   AlertTriangle,
@@ -28,7 +20,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export default function AdminSecurityDashboardPage() {
+export default async function AdminSecurityDashboardPage() {
+  // Role protection is handled by AdminLayout (client-side)
+  // and basic auth by middleware.ts
+
   return (
     <AdminLayout>
       {/* Main Security Dashboard Tabs */}
