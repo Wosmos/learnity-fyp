@@ -344,7 +344,7 @@ export default function TeacherManagementPage() {
       </Card>
 
       <TeacherDetailDialog
-        teacher={selectedTeacher}
+        teacher={selectedTeacher as any}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onTeacherAction={handleTeacherAction}

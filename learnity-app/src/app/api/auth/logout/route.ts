@@ -100,12 +100,20 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: allDevices
         ? 'Successfully logged out from all devices'
         : 'Successfully logged out',
     });
+
+    // Clear the session cookie
+    response.headers.set(
+      'Set-Cookie',
+      'session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    );
+
+    return response;
   } catch (error) {
     console.error('Logout API error:', error);
 

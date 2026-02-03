@@ -9,7 +9,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Loader2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, Loader2, CheckCircle } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -53,6 +53,8 @@ export default function NewCoursePage() {
   const [difficulty, setDifficulty] = useState<
     'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
   >('BEGINNER');
+  const [isFree, setIsFree] = useState(true);
+  const [price, setPrice] = useState(0);
 
   // Fetch categories
   const fetchCategories = useCallback(async () => {
@@ -94,7 +96,8 @@ export default function NewCoursePage() {
           categoryId,
           difficulty,
           tags: [],
-          isFree: true,
+          isFree,
+          price: isFree ? 0 : Number(price),
         }),
       });
 
@@ -232,6 +235,74 @@ export default function NewCoursePage() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100'>
+              <div className='space-y-3'>
+                <Label className='text-base font-bold text-slate-900'>
+                  Pricing Strategy
+                </Label>
+                <div className='flex gap-3'>
+                  <Button
+                    type='button'
+                    variant={isFree ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => {
+                      setIsFree(true);
+                      setPrice(0);
+                    }}
+                    className='flex-1 rounded-xl h-11 uppercase font-black text-[10px] tracking-widest'
+                  >
+                    Free Access
+                  </Button>
+                  <Button
+                    type='button'
+                    variant={!isFree ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => setIsFree(false)}
+                    className='flex-1 rounded-xl h-11 uppercase font-black text-[10px] tracking-widest'
+                  >
+                    Premium Access
+                  </Button>
+                </div>
+              </div>
+
+              {!isFree && (
+                <div className='space-y-3 animate-in fade-in slide-in-from-top-2 duration-300'>
+                  <Label
+                    htmlFor='price'
+                    className='text-base font-bold text-slate-900'
+                  >
+                    Course Fee (USD)
+                  </Label>
+                  <div className='relative'>
+                    <span className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold'>
+                      $
+                    </span>
+                    <Input
+                      id='price'
+                      type='number'
+                      step='0.01'
+                      min='0'
+                      value={price}
+                      onChange={e => setPrice(Number(e.target.value))}
+                      className='pl-8 h-11 rounded-xl font-bold border-2 focus-visible:ring-indigo-500 transition-all'
+                      placeholder='99.99'
+                    />
+                  </div>
+                </div>
+              )}
+
+              {isFree && (
+                <div className='flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl animate-in fade-in slide-in-from-top-2 duration-300'>
+                  <div className='h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600'>
+                    <CheckCircle className='h-4 w-4' />
+                  </div>
+                  <p className='text-xs font-bold text-emerald-700'>
+                    This course will be FREE. Anyone can enroll instantly.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className='pt-4 flex justify-end gap-3'>

@@ -108,6 +108,7 @@ interface CourseData {
   difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
   tags: string[];
   isFree: boolean;
+  price?: number;
   status?: string;
   whatsappGroupLink?: string;
   contactEmail?: string;
@@ -140,6 +141,7 @@ export default function EditCoursePage() {
     difficulty: 'BEGINNER',
     tags: [],
     isFree: true,
+    price: 0,
   });
   const [sections, setSections] = useState<Section[]>([]);
 
@@ -215,6 +217,7 @@ export default function EditCoursePage() {
         difficulty: data.difficulty || 'BEGINNER',
         tags: data.tags || [],
         isFree: data.isFree ?? true,
+        price: data.price ? Number(data.price) : 0,
         status: data.status,
         whatsappGroupLink: data.whatsappGroupLink,
         contactEmail: data.contactEmail,
@@ -279,6 +282,7 @@ export default function EditCoursePage() {
             difficulty: courseData.difficulty,
             tags: courseData.tags,
             isFree: courseData.isFree,
+            price: courseData.isFree ? 0 : Number(courseData.price),
             whatsappGroupLink: courseData.whatsappGroupLink,
             contactEmail: courseData.contactEmail,
           }),
@@ -795,6 +799,84 @@ export default function EditCoursePage() {
                   placeholder='https://chat.whatsapp.com/...'
                 />
               </div>
+            </div>
+
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100'>
+              <div className='space-y-3'>
+                <Label className='text-base font-bold text-slate-900'>
+                  Pricing Strategy
+                </Label>
+                <div className='flex gap-3'>
+                  <Button
+                    type='button'
+                    variant={courseData.isFree ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() =>
+                      setCourseData({ ...courseData, isFree: true, price: 0 })
+                    }
+                    className='flex-1 rounded-xl h-11 uppercase font-black text-[10px] tracking-widest'
+                  >
+                    Free Access
+                  </Button>
+                  <Button
+                    type='button'
+                    variant={!courseData.isFree ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() =>
+                      setCourseData({ ...courseData, isFree: false })
+                    }
+                    className='flex-1 rounded-xl h-11 uppercase font-black text-[10px] tracking-widest'
+                  >
+                    Premium Access
+                  </Button>
+                </div>
+              </div>
+
+              {!courseData.isFree && (
+                <div className='space-y-3 animate-in fade-in slide-in-from-top-2 duration-300'>
+                  <Label
+                    htmlFor='price'
+                    className='text-base font-bold text-slate-900'
+                  >
+                    Course Fee (USD)
+                  </Label>
+                  <div className='relative'>
+                    <span className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold'>
+                      $
+                    </span>
+                    <Input
+                      id='price'
+                      type='number'
+                      step='0.01'
+                      min='0'
+                      value={courseData.price}
+                      onChange={e =>
+                        setCourseData({
+                          ...courseData,
+                          price: Number(e.target.value),
+                        })
+                      }
+                      className='pl-8 h-11 rounded-xl font-bold border-2 focus-visible:ring-indigo-500 transition-all'
+                      placeholder='99.99'
+                    />
+                  </div>
+                  <p className='text-xs text-slate-500 font-medium'>
+                    Set a competitive price for your premium educational
+                    content.
+                  </p>
+                </div>
+              )}
+
+              {courseData.isFree && (
+                <div className='flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl animate-in fade-in slide-in-from-top-2 duration-300'>
+                  <div className='h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600'>
+                    <CheckCircle className='h-4 w-4' />
+                  </div>
+                  <p className='text-xs font-bold text-emerald-700'>
+                    This course is currently FREE. Anyone can enroll instantly.
+                  </p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

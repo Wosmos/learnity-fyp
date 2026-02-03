@@ -50,6 +50,8 @@ interface TeacherCourse {
   thumbnailUrl: string | null;
   status: 'DRAFT' | 'PUBLISHED' | 'UNPUBLISHED';
   difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  isFree: boolean;
+  price: number | null;
   enrollmentCount: number;
   averageRating: number;
   reviewCount: number;
@@ -474,13 +476,21 @@ function CourseCard({
           {status.label}
         </Badge>
 
-        {/* Difficulty Badge */}
         <Badge
           className={`absolute top-3 right-3 ${difficultyColors[course.difficulty]}`}
         >
           {course.difficulty.charAt(0) +
             course.difficulty.slice(1).toLowerCase()}
         </Badge>
+
+        {/* Price Badge */}
+        <div className='absolute bottom-3 right-3'>
+          <div className='px-3 py-1 bg-white/90 backdrop-blur-md border border-slate-200 rounded-lg text-[10px] font-black text-slate-900 uppercase tracking-tight shadow-sm'>
+            {course.isFree || !course.price || Number(course.price) === 0
+              ? 'FREE'
+              : `$${course.price}`}
+          </div>
+        </div>
       </div>
 
       <CardContent className='p-4'>

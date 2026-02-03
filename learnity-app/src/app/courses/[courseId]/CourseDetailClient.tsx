@@ -390,9 +390,15 @@ export default function CourseDetailClient({
                 </span>
                 <div className='flex items-baseline gap-2'>
                   <span className='text-5xl font-black text-slate-900 tracking-tighter'>
-                    {course.isFree ? 'FREE' : `$${course.price}`}
+                    {course.isFree ||
+                    !course.price ||
+                    Number(course.price) === 0
+                      ? 'FREE'
+                      : `$${course.price}`}
                   </span>
-                  {course.isFree && (
+                  {(course.isFree ||
+                    !course.price ||
+                    Number(course.price) === 0) && (
                     <span className='text-[9px] font-black text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg uppercase'>
                       100% OFF
                     </span>

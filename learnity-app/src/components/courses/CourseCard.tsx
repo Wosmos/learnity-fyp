@@ -168,7 +168,7 @@ export function CourseCard({
 
           <div className='absolute top-3 right-3'>
             <div className='px-3 py-1 bg-black/50 backdrop-blur-md border border-white/10 rounded-lg text-[10px] font-black text-white uppercase tracking-tight'>
-              {isFree ? 'FREE' : `$${price}`}
+              {isFree || !price || Number(price) === 0 ? 'FREE' : `$${price}`}
             </div>
           </div>
 

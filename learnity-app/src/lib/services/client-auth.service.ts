@@ -369,7 +369,18 @@ export class ClientAuthService {
    * Sign out current user
    */
   async logout(): Promise<void> {
-    await signOut(auth);
+    try {
+      // 1. Clear server-side session cookie
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+    } catch (error) {
+      console.error('Failed to clear server session:', error);
+    } finally {
+      // 2. Sign out from Firebase
+      await signOut(auth);
+    }
   }
 }
 

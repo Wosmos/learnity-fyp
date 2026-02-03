@@ -124,6 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.setItem(
           'learnity_user_claims',
           JSON.stringify({
+            uid: user.uid,
             claims: customClaims,
             timestamp: Date.now(),
           })
@@ -149,10 +150,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = useCallback(async () => {
     try {
       setLoading(true);
-      await signOut(auth);
+
+      // 1. Call client logout (clears session and Firebase)
+      const { clientAuthService } =
+        await import('@/lib/services/client-auth.service');
+      await clientAuthService.logout();
+
+      // 2. Clear stores
       clearAuth();
-      // Clear cached claims on logout
+      clearProfile();
+
+      // 3. Clear all cached data
       localStorage.removeItem('learnity_user_claims');
+      localStorage.removeItem('learnity-auth-storage'); // Zustand persist key
+
+      // 4. Hard redirect to clear everything in memory
+      window.location.href = '/auth/login';
     } catch (error: any) {
       console.error('Failed to logout:', error);
       setError({
@@ -163,7 +176,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [setLoading, setError, clearAuth]);
+  }, [setLoading, setError, clearAuth, clearProfile]);
 
   /**
    * Clear current error
@@ -214,13 +227,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (cachedClaims) {
             try {
               const parsed = JSON.parse(cachedClaims);
-              // Check if cache is less than 5 minutes old
+              // Check if cache is for the same user and is fresh
               if (
+                parsed.uid === firebaseUser.uid &&
                 parsed.timestamp &&
                 Date.now() - parsed.timestamp < 5 * 60 * 1000
               ) {
                 setClaims(parsed.claims);
                 setLoading(false); // Show UI immediately with cached data
+              } else if (parsed.uid !== firebaseUser.uid) {
+                // Clear stale cache for different user
+                localStorage.removeItem('learnity_user_claims');
+                clearProfile(); // Clear previous account's profile
               }
             } catch (e) {
               console.warn('Failed to parse cached claims:', e);
@@ -267,10 +285,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const customClaims = await claimsResponse.json();
             setClaims(customClaims);
 
-            // Cache claims with timestamp
+            // Cache claims with timestamp and UID
             localStorage.setItem(
               'learnity_user_claims',
               JSON.stringify({
+                uid: firebaseUser.uid,
                 claims: customClaims,
                 timestamp: Date.now(),
               })
