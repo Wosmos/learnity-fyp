@@ -247,9 +247,34 @@ export default function AchievementsPage() {
       setGamificationData(gamificationRes.data);
       setAchievementsData(achievementsRes.data);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to load achievements'
-      );
+      const message =
+        err instanceof Error ? err.message : 'Failed to load achievements';
+      // If Forbidden, treat as empty results to avoid breaking the UI for newly registered users
+      if (message.includes('Forbidden')) {
+        console.warn(
+          '[AchievementsPage] Access forbidden, showing empty state'
+        );
+        // Setting both as null or empty to prevent the error screen
+        setGamificationData(null);
+        setAchievementsData({
+          achievements: [],
+          achievementsByCategory: {
+            learning: [],
+            streak: [],
+            quiz: [],
+            community: [],
+          },
+          stats: {
+            total: 0,
+            unlocked: 0,
+            locked: 0,
+            completionPercentage: 0,
+            totalXPEarned: 0,
+          },
+        });
+      } else {
+        setError(message);
+      }
       console.error('[AchievementsPage] Error:', err);
     } finally {
       setIsLoading(false);

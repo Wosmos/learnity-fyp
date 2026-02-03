@@ -103,7 +103,7 @@ export function EnrolledCourseCard({
               <div>
                 <div className='flex items-center gap-2 mb-2'>
                   <Badge className='bg-slate-900/5 text-slate-500 border-none font-black text-[9px] uppercase tracking-widest'>
-                    {course.category.name}
+                    {course.category?.name || 'Uncategorized'}
                   </Badge>
                   {isCompleted && (
                     <Badge className='bg-emerald-50 text-emerald-600 border-none font-black text-[9px] uppercase tracking-widest'>
@@ -112,11 +112,13 @@ export function EnrolledCourseCard({
                   )}
                 </div>
                 <h4 className='text-2xl font-black text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors leading-tight'>
-                  {course.title}
+                  {course.title || 'Untitled Course'}
                 </h4>
                 <p className='text-sm font-bold text-slate-400 mt-1'>
                   with{' '}
-                  <span className='text-slate-600'>{course.teacher.name}</span>
+                  <span className='text-slate-600'>
+                    {course.teacher?.name || 'Unknown Teacher'}
+                  </span>
                 </p>
               </div>
 

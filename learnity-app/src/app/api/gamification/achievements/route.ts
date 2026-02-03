@@ -129,8 +129,10 @@ const ACHIEVEMENT_DEFINITIONS: Record<
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    // Authenticate user
-    const authResult = await authMiddleware(request);
+    // Authenticate user - Allow unverified users to see their own achievements
+    const authResult = await authMiddleware(request, {
+      skipEmailVerification: true,
+    });
 
     if (authResult instanceof NextResponse) {
       return authResult;

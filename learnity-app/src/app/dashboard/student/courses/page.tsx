@@ -105,7 +105,15 @@ export default function MyCoursesPage() {
       // API returns { success: true, data: { enrollments: ... } }
       setEnrollments(response.data?.enrollments || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load courses');
+      const message =
+        err instanceof Error ? err.message : 'Failed to load courses';
+      // If Forbidden, treat as empty results to avoid breaking the UI
+      if (message.includes('Forbidden')) {
+        console.warn('[MyCoursesPage] Access forbidden, showing empty state');
+        setEnrollments([]);
+      } else {
+        setError(message);
+      }
     } finally {
       setIsLoading(false);
     }

@@ -220,7 +220,15 @@ const MainSection = () => {
       const response = await api.get('/api/enrollments?limit=5&status=ACTIVE');
       setEnrollments(response.data?.enrollments || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load courses');
+      const message =
+        err instanceof Error ? err.message : 'Failed to load courses';
+      // If Forbidden, treat as empty results to avoid breaking the UI for newly registered users
+      if (message.includes('Forbidden')) {
+        console.warn('[MainSection] Access forbidden, showing empty state');
+        setEnrollments([]);
+      } else {
+        setError(message);
+      }
     } finally {
       setIsLoading(false);
     }

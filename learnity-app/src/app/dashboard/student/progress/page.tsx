@@ -131,7 +131,27 @@ export default function ProgressPage() {
       const response = await api.get('/api/student/progress');
       setData(response.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load progress');
+      const message =
+        err instanceof Error ? err.message : 'Failed to load progress';
+      // If Forbidden, treat as empty results to avoid breaking the UI for newly registered users
+      if (message.includes('Forbidden')) {
+        console.warn('[ProgressPage] Access forbidden, showing empty state');
+        setData({
+          overview: {
+            totalEnrolled: 0,
+            completedCourses: 0,
+            inProgressCourses: 0,
+            totalLessonsCompleted: 0,
+            totalWatchTime: 0,
+            averageProgress: 0,
+          },
+          courses: [],
+          weeklyActivity: [],
+          categoryStats: [],
+        });
+      } else {
+        setError(message);
+      }
       console.error('[ProgressPage] Error:', err);
     } finally {
       setIsLoading(false);
@@ -539,7 +559,7 @@ export default function ProgressPage() {
                         <div className='space-y-3'>
                           <div className='flex items-center gap-2'>
                             <Badge className='bg-slate-900/5 text-slate-500 border-none font-black text-[9px] uppercase tracking-widest px-2 py-0.5'>
-                              {course.category.name}
+                              {course.category?.name || 'Uncategorized'}
                             </Badge>
                             <div
                               className={cn(
@@ -551,12 +571,12 @@ export default function ProgressPage() {
                             />
                           </div>
                           <h3 className='text-2xl font-black text-slate-900 tracking-tighter leading-tight group-hover:text-indigo-600 transition-colors'>
-                            {course.courseTitle}
+                            {course.courseTitle || 'Untitled Course'}
                           </h3>
                           <p className='text-xs font-bold text-slate-400 uppercase tracking-tighter'>
                             Instructor //{' '}
                             <span className='text-slate-600'>
-                              {course.teacher.name}
+                              {course.teacher?.name || 'Unknown Teacher'}
                             </span>
                           </p>
                         </div>
