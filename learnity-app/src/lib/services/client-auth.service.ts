@@ -24,6 +24,7 @@ import {
   sendEmailVerification,
   sendPasswordResetEmail,
   updatePassword as firebaseUpdatePassword,
+  updateProfile,
   signOut,
   User as FirebaseUser,
   UserCredential,
@@ -82,6 +83,11 @@ export class ClientAuthService {
         data.password
       );
 
+      // Update Firebase profile with name
+      await updateProfile(userCredential.user, {
+        displayName: `${data.firstName} ${data.lastName}`.trim(),
+      });
+
       // Send email verification
       await sendEmailVerification(userCredential.user);
 
@@ -134,6 +140,11 @@ export class ClientAuthService {
         data.password
       );
 
+      // Update Firebase profile with name
+      await updateProfile(userCredential.user, {
+        displayName: `${data.firstName} ${data.lastName}`.trim(),
+      });
+
       // Send email verification
       await sendEmailVerification(userCredential.user);
 
@@ -179,6 +190,11 @@ export class ClientAuthService {
         data.email,
         data.password
       );
+
+      // Update Firebase profile with name
+      await updateProfile(userCredential.user, {
+        displayName: `${data.firstName} ${data.lastName}`.trim(),
+      });
 
       // Send email verification
       await sendEmailVerification(userCredential.user);
@@ -233,6 +249,11 @@ export class ClientAuthService {
         data.email,
         data.password
       );
+
+      // Update Firebase profile with name
+      await updateProfile(userCredential.user, {
+        displayName: `${data.firstName} ${data.lastName}`.trim(),
+      });
 
       // Send email verification
       await sendEmailVerification(userCredential.user);

@@ -51,8 +51,30 @@ export class DatabaseService implements IUserProfileService {
     // If user exists, return existing profile
     if (existingUser) {
       console.log(
-        `User with firebaseUid ${firebaseUid} already exists, returning existing profile`
+        `User with firebaseUid ${firebaseUid} already exists, checking for default name...`
       );
+
+      // Fix: If user exists but has the default name 'User' (from sync-profile race), update it
+      if (
+        (existingUser.firstName === 'User' || !existingUser.firstName) &&
+        data.firstName &&
+        data.firstName !== 'User'
+      ) {
+        console.log(`Updating default name for user ${firebaseUid}`);
+        return await this.prisma.user.update({
+          where: { id: existingUser.id },
+          data: {
+            firstName: data.firstName,
+            lastName: data.lastName,
+          },
+          include: {
+            studentProfile: true,
+            teacherProfile: true,
+            adminProfile: true,
+          },
+        });
+      }
+
       return existingUser;
     }
 
