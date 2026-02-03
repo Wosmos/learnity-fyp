@@ -102,8 +102,10 @@ async function fetchUsersFromDb(options: UserManagementOptions) {
 
     return {
       ...user,
+      createdAt: user.createdAt.toISOString(),
+      lastLoginAt: user.lastLoginAt?.toISOString() || null,
       // Metadata fields for unified table
-      bio: teacherProfile?.bio || studentProfile?.bio || null,
+      bio: teacherProfile?.bio || null,
       expertise: teacherProfile?.subjects || studentProfile?.subjects || [],
       experience: teacherProfile?.experience || null,
       hourlyRate,
@@ -118,7 +120,7 @@ async function fetchUsersFromDb(options: UserManagementOptions) {
         : null,
       teacherProfile: undefined, // Remove nested profile to keep it flat-ish
       studentProfile: undefined,
-    };
+    } as any; // Cast as any to avoid prisma-specific type conflicts while satisfying UnifiedUserInterface
   });
 
   // Global counts for tabs

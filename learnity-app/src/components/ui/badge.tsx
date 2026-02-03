@@ -24,6 +24,8 @@ const badgeVariants = cva(
         neon: 'border-transparent bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.2)] hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] hover:bg-emerald-500/20',
         gradient:
           'border-0 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 shadow-md',
+        success:
+          'border-transparent bg-emerald-100 text-emerald-800 hover:bg-emerald-200 shadow-sm',
       },
 
       /* ------------------- SIZE VARIANTS ------------------- */

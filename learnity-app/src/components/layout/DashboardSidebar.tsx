@@ -123,11 +123,6 @@ export const teacherSidebarConfig: SidebarConfig = {
   brandGradient: 'from-blue-600 to-indigo-600',
   navItems: teacherNavItems,
   theme: 'dark',
-  upgradePromo: {
-    title: 'Pro Teacher',
-    description: 'Access advanced analytics & priority support.',
-    link: '#',
-  },
 };
 
 export const studentSidebarConfig: SidebarConfig = {
@@ -138,11 +133,6 @@ export const studentSidebarConfig: SidebarConfig = {
   brandGradient: 'from-emerald-600 to-teal-600',
   navItems: studentNavItems,
   theme: 'dark',
-  upgradePromo: {
-    title: 'Premium Student',
-    description: 'Get unlimited access to all courses & features.',
-    link: '#',
-  },
 };
 
 export const adminSidebarConfig: SidebarConfig = {

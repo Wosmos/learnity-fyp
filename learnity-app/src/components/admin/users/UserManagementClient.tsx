@@ -97,7 +97,7 @@ export function UserManagementClient({
       if (action === 'approve' || action === 'reject') {
         await api.put('/api/admin/teachers', { teacherId: userId, action });
       } else {
-        await api.put(`/api/admin/users/${userId}`, { action });
+        await api.put('/api/admin/users', { userId, action });
       }
 
       // Trigger global cache revalidation for lightning fast updates
@@ -121,6 +121,7 @@ export function UserManagementClient({
   };
 
   const columns = createUnifiedColumns({
+    activeRole,
     onViewDetails: user => {
       setSelectedUser(user);
       setDialogOpen(true);
@@ -239,7 +240,7 @@ export function UserManagementClient({
       </Tabs>
 
       <TeacherDetailDialog
-        teacher={selectedUser as any}
+        teacher={selectedUser}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onTeacherAction={(id, action) => handleUserAction(id, action)}

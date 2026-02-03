@@ -25,9 +25,9 @@ import {
   createTeacherColumns,
   Teacher,
 } from '@/components/admin/teachers/columns';
-import { TeacherDetailDialog } from '@/components/admin/teachers/teacher-detail-dialog';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { useToast } from '@/hooks/use-toast';
+import { TeacherDetailDialog } from './teacher-detail-dialog';
 
 interface TeacherStats {
   totalTeachers: number;
@@ -318,12 +318,12 @@ export function TeacherManagementClient({
         </CardContent>
       </Card>
 
-      <TeacherDetailDialog
-        teacher={selectedTeacher}
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        onTeacherAction={handleTeacherAction}
-      />
+        <TeacherDetailDialog
+          teacher={selectedTeacher}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          onTeacherAction={handleTeacherAction}
+        />
     </>
   );
 }

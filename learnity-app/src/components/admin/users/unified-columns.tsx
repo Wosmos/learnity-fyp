@@ -16,6 +16,7 @@ import {
   User as UserIcon,
   GraduationCap,
 } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -55,11 +56,13 @@ export interface UnifiedUser {
 interface ColumnActionsProps {
   onViewDetails: (user: UnifiedUser) => void;
   onUserAction: (userId: string, action: string) => void;
+  activeRole?: string;
 }
 
 export const createUnifiedColumns = ({
   onViewDetails,
   onUserAction,
+  activeRole,
 }: ColumnActionsProps): ColumnDef<UnifiedUser>[] => [
   {
     accessorKey: 'user',
@@ -131,36 +134,87 @@ export const createUnifiedColumns = ({
       }
     },
   },
-  {
-    accessorKey: 'stats',
-    header: 'Progress/Rate',
-    cell: ({ row }) => {
-      const user = row.original;
-      if (user.role.includes('TEACHER')) {
-        return (
-          <div className='flex flex-col gap-1'>
-            {user.hourlyRate && (
-              <span className='text-xs font-medium'>${user.hourlyRate}/hr</span>
-            )}
-            {user.rating !== undefined && (
-              <div className='flex items-center gap-1'>
-                <Star className='h-3 w-3 text-yellow-500 fill-current' />
-                <span className='text-xs'>{user.rating}</span>
+  // Role-specific column for Teachers
+  ...(activeRole === 'teacher' || activeRole === 'pending_teacher'
+    ? [
+        {
+          accessorKey: 'stats',
+          header: 'Rate & Rating',
+          cell: ({ row }: { row: any }) => {
+            const user = row.original;
+            return (
+              <div className='flex flex-col gap-1'>
+                {user.hourlyRate && (
+                  <span className='text-xs font-medium text-slate-700'>
+                    ${user.hourlyRate}/hr
+                  </span>
+                )}
+                {user.rating !== undefined && (
+                  <div className='flex items-center gap-1'>
+                    <Star className='h-3 w-3 text-yellow-500 fill-current' />
+                    <span className='text-xs text-slate-600'>
+                      {user.rating}
+                    </span>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        );
-      }
-      if (user.role === 'STUDENT') {
-        return (
-          <span className='text-xs text-muted-foreground'>
-            Student Activity
-          </span>
-        );
-      }
-      return null;
-    },
-  },
+            );
+          },
+        },
+        {
+          accessorKey: 'experience',
+          header: 'Experience',
+          cell: ({ row }: { row: any }) => (
+            <span className='text-xs text-slate-600'>
+              {row.original.experience || 0} years
+            </span>
+          ),
+        },
+      ]
+    : []),
+
+  // Role-specific column for Students
+  ...(activeRole === 'student'
+    ? [
+        {
+          accessorKey: 'gradeLevel',
+          header: 'Grade',
+          cell: ({ row }: { row: any }) => (
+            <Badge variant='outline' className='text-blue-700 bg-blue-50'>
+              {row.original.studentData?.gradeLevel || 'N/A'}
+            </Badge>
+          ),
+        },
+      ]
+    : []),
+
+  // Default Stats column when viewing All
+  ...(activeRole === 'all' || !activeRole
+    ? [
+        {
+          accessorKey: 'stats',
+          header: 'Stats',
+          cell: ({ row }: { row: any }) => {
+            const user = row.original;
+            if (user.role.includes('TEACHER')) {
+              return (
+                <span className='text-xs font-medium'>
+                  ${user.hourlyRate}/hr • {user.rating} ★
+                </span>
+              );
+            }
+            if (user.role === 'STUDENT') {
+              return (
+                <span className='text-xs text-muted-foreground uppercase tracking-wider font-semibold'>
+                  {user.studentData?.gradeLevel || 'Student'}
+                </span>
+              );
+            }
+            return null;
+          },
+        },
+      ]
+    : []),
   {
     accessorKey: 'createdAt',
     header: ({ column }) => (
@@ -207,6 +261,14 @@ export const createUnifiedColumns = ({
               <Eye className='mr-2 h-4 w-4' />
               View Details
             </DropdownMenuItem>
+            {user.role.includes('TEACHER') && (
+              <DropdownMenuItem asChild>
+                <Link href={`/teachers/${user.id}`}>
+                  <UserIcon className='mr-2 h-4 w-4' />
+                  View Public Profile
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             {user.role === 'PENDING_TEACHER' && (
               <>
@@ -228,7 +290,7 @@ export const createUnifiedColumns = ({
             )}
             <DropdownMenuItem
               onClick={() =>
-                onUserAction(user.id, user.isActive ? 'suspend' : 'activate')
+                onUserAction(user.id, user.isActive ? 'deactivate' : 'activate')
               }
               className={user.isActive ? 'text-red-600' : 'text-green-600'}
             >

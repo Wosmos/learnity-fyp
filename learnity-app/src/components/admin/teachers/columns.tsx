@@ -10,7 +10,14 @@ import {
   Star,
   Award,
 } from 'lucide-react';
-import { Clock, Mail, Calendar } from 'lucide-react';
+import {
+  Clock,
+  Mail,
+  Calendar,
+  User as UserIcon,
+  ExternalLink,
+} from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -268,6 +275,12 @@ export const createTeacherColumns = ({
             <DropdownMenuItem onClick={() => onViewDetails(teacher)}>
               <Eye className='mr-2 h-4 w-4' />
               View details
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href={`/teachers/${teacher.id}`}>
+                <UserIcon className='mr-2 h-4 w-4' />
+                View Public Profile
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {teacher.role === 'PENDING_TEACHER' && (

@@ -91,40 +91,40 @@ export async function getTeachers({
 
   // Flatten teacher data with profile information
   const teachersWithProfiles = teachers.map(teacher => {
-  const profile = teacher.teacherProfile;
+    const profile = teacher.teacherProfile;
 
-  // Safely convert Decimal fields to plain numbers or strings
-  const hourlyRate =
-    profile?.hourlyRate != null
-      ? typeof profile.hourlyRate === 'object'
-        ? (profile.hourlyRate as any).toString()
-        : profile.hourlyRate
-      : null;
+    // Safely convert Decimal fields to plain numbers or strings
+    const hourlyRate =
+      profile?.hourlyRate != null
+        ? typeof profile.hourlyRate === 'object'
+          ? (profile.hourlyRate as any).toString()
+          : profile.hourlyRate
+        : null;
 
-  const rating =
-    profile?.rating != null
-      ? typeof profile.rating === 'object'
-        ? Number((profile.rating as any).toString())
-        : Number(profile.rating)
-      : 0;
+    const rating =
+      profile?.rating != null
+        ? typeof profile.rating === 'object'
+          ? Number((profile.rating as any).toString())
+          : Number(profile.rating)
+        : 0;
 
-  return {
-    ...teacher,
-    bio: profile?.bio,
-    expertise: profile?.subjects || [],
-    experience: profile?.experience,
-    education: profile?.education,
-    certifications: profile?.certifications || [],
-    hourlyRate, // ← now safe
-    availability: profile?.availability,
-    rating, // ← now safe
-    totalSessions: profile?.lessonsCompleted || 0,
-    applicationStatus: profile?.applicationStatus,
-    applicationDate: profile?.submittedAt,
-    reviewedAt: profile?.reviewedAt,
-    reviewedBy: profile?.approvedBy,
-  };
-});
+    return {
+      ...teacher,
+      bio: profile?.bio,
+      expertise: profile?.subjects || [],
+      experience: profile?.experience,
+      education: profile?.education,
+      certifications: profile?.certifications || [],
+      hourlyRate, // ← now safe
+      availability: profile?.availability,
+      rating, // ← now safe
+      totalSessions: profile?.lessonsCompleted || 0,
+      applicationStatus: profile?.applicationStatus,
+      applicationDate: profile?.submittedAt,
+      reviewedAt: profile?.reviewedAt,
+      reviewedBy: profile?.approvedBy,
+    };
+  });
 
   // Calculate statistics
   const [
@@ -148,12 +148,18 @@ export async function getTeachers({
   ]);
 
   const averageRatingValue = averageRatingResult._avg.rating
-  ? Number(averageRatingResult._avg.rating.toString?.() || averageRatingResult._avg.rating)
-  : 0;
+    ? Number(
+        averageRatingResult._avg.rating.toString?.() ||
+          averageRatingResult._avg.rating
+      )
+    : 0;
 
-const totalSessionsValue = totalSessionsResult._sum.lessonsCompleted
-  ? Number(totalSessionsResult._sum.lessonsCompleted.toString?.() || totalSessionsResult._sum.lessonsCompleted)
-  : 0;
+  const totalSessionsValue = totalSessionsResult._sum.lessonsCompleted
+    ? Number(
+        totalSessionsResult._sum.lessonsCompleted.toString?.() ||
+          totalSessionsResult._sum.lessonsCompleted
+      )
+    : 0;
 
   const stats = {
     totalTeachers:
