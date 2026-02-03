@@ -13,6 +13,8 @@ import {
   studentNavbarConfig,
 } from '@/components/layout/DashboardNavbar';
 
+import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
+
 interface StudentLayoutClientProps {
   children: React.ReactNode;
 }
@@ -28,6 +30,9 @@ export function StudentLayoutClient({ children }: StudentLayoutClientProps) {
         <div className='flex-1 flex flex-col overflow-x-hidden'>
           {/* Top Navbar with Stats */}
           <DashboardNavbar config={studentNavbarConfig} />
+
+          {/* Dynamic Breadcrumbs */}
+          <Breadcrumbs />
 
           {/* Page Content */}
           <main className='flex-1'>{children}</main>

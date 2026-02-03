@@ -14,6 +14,8 @@ import {
 } from '@/components/layout/DashboardNavbar';
 import { ClientTeacherProtection } from '@/components/auth/ClientTeacherProtection';
 
+import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
+
 interface TeacherLayoutClientProps {
   children: React.ReactNode;
 }
@@ -30,6 +32,9 @@ export function TeacherLayoutClient({ children }: TeacherLayoutClientProps) {
           <div className='flex-1 flex flex-col overflow-x-hidden'>
             {/* Top Navbar */}
             <DashboardNavbar config={teacherNavbarConfig} />
+
+            {/* Dynamic Breadcrumbs */}
+            <Breadcrumbs />
 
             {/* Page Content */}
             <main className='flex-1'>{children}</main>

@@ -11,6 +11,8 @@ import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { AdminAuthenticatedLayout } from '@/components/layout/AppLayout';
 import { AdminSidebar } from './AdminSidebar';
 
+import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
+
 interface AdminLayoutProps {
   children: React.ReactNode;
   title?: string;
@@ -93,7 +95,8 @@ export function AdminLayout({
 
         {/* Main Content Area */}
         <div className='flex-1 flex flex-col min-w-0'>
-          {/* Top Header */}
+          {/* Dynamic Breadcrumbs */}
+          <Breadcrumbs />
 
           {/* Main Content */}
           <main className='flex-1 overflow-auto'>

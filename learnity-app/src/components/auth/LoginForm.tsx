@@ -48,6 +48,7 @@ import { useAuthStore } from '@/lib/stores/auth.store';
 import { useToast } from '@/hooks/use-toast';
 import { formatErrorForDisplay } from '@/lib/utils/error-messages';
 import MobileAuthLayout from './MobileAuthLayout';
+import router from 'next/router';
 
 export interface LoginFormProps {
   onSubmit: (data: LoginData) => Promise<void>;
@@ -307,12 +308,27 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           Continue with Google
         </Button>
 
-        <Link href='/auth/register/teacher'>
-          <Button type='button' variant='nova' className='w-full'>
+        <div className='flex gap-2'>
+          <Button
+            type='button'
+            variant='nova'
+            className='flex-1'
+            onClick={() => router.push('/auth/register/teacher')}
+          >
             Become a Teacher
             <ChevronRight className='h-4 w-4 ml-2' />
           </Button>
-        </Link>
+
+          <Button
+            type='button'
+            variant='nova'
+            className='flex-1'
+            onClick={() => router.push('/auth/register/student')}
+            >
+            Become a Student
+            <ChevronRight className='h-4 w-4 ml-2' />
+          </Button>
+        </div>
         {/* <Button
           type="button"
           variant="nova"
