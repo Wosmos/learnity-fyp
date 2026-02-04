@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎓 Learnity: Advanced AI-Powered Learning Ecosystem
 
-## Getting Started
+Learnity is a premium, feature-rich LMS designed with the "Onyx" aesthetic. It bridges the gap between students and educators through interactive course players, real-time community spaces, and a gamified progression system.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🏗 Project Architecture
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 🛡 Core Technologies
+- **Frontend**: Next.js 15 (App Router), Tailwind CSS, Framer Motion (for "Crispy" animations).
+- **Backend/DB**: Prisma ORM with Neon (PostgreSQL).
+- **Authentication**: Dual-layer system (Clerk/Firebase + Custom JWT Session Cookies).
+- **Real-time**: GetStream.io (Chat) and 100ms.live (Video/Live Classes).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🧩 Module Breakdown
+- **Student Dashboard**: Progress tracking, Streak management, and AI Study Mate.
+- **Teacher Panel**: Curriculum Builder, Analytics, and Profile Optimization.
+- **Admin Command Center**: User management, Application auditing, and System logs.
+- **Course Player**: YouTube-integrated video player with auto-complete and synchronized quizzes.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📈 Current Project Status
 
-To learn more about Next.js, take a look at the following resources:
+We have built a robust infrastructure with high-fidelity UI. The following specialized documents track our next steps:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1.  **[ROADMAP & TODO](./TODO_LEARNITY.md)**: Prioritized list of functional integrations (Reviews, Messaging, Payments).
+2.  **[AI ENHANCEMENTS](./docs/AI_ENHANCEMENTS.md)**: Strategy for "Magic" AI features like Quiz Generation and Study Assistants.
+3.  **[AUTH FLOW](./docs/AUTH_FLOW.md)**: Understanding the secure registration and login handshake.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🚀 Future Vision: The Monetization Layer
+Learnity is designed to be **Paywall Ready**. 
+- Course enrollment logic is abstracted to allow a seamless swap between "Free Enrollment" and "Payment-gated Access."
+- Support for Stripe and Local Gateways (bottom of priority list) is architected for later integration.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠 Getting Started
+
+1.  **Install dependencies**:
+    ```bash
+    bun install
+    ```
+2.  **Setup Environment Variables**:
+    Copy `.env.example` to `.env.local` and add your keys.
+3.  **Run Development Server**:
+    ```bash
+    bun dev --webpack
+    ```
+
+---
+*Maintained by the Learnity Core Team*

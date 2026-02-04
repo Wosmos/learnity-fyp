@@ -14,6 +14,8 @@ import {
   CheckCircle,
   HelpCircle,
   AlertCircle,
+  Sparkles,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +33,8 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCourseBuilder } from './CourseBuilderContext';
 import { QuestionFormData, QuizFormData } from './types';
+import { useAuthStore } from '@/lib/stores/auth.store';
+import { useToast } from '@/hooks/use-toast';
 
 interface QuizBuilderProps {
   sectionIndex: number;
@@ -59,6 +63,10 @@ export function QuizBuilder({
     index: number | null;
     data: QuestionFormData;
   } | null>(null);
+
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const { user } = useAuthStore();
+  const { toast } = useToast();
 
   // Initialize new question
   const createNewQuestion = (): QuestionFormData => ({
@@ -201,6 +209,74 @@ export function QuizBuilder({
     }));
   };
 
+  // Generate quiz with AI
+  const handleGenerateAI = async () => {
+    if (!lesson?.description || lesson.description.length < 50) {
+      toast({
+        title: 'More content needed',
+        description:
+          'Please provide a detailed lesson description (at least 50 characters) to generate a quiz.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setIsGeneratingAI(true);
+      const token = await user?.getIdToken();
+      if (!token) throw new Error('Not authenticated');
+
+      const response = await fetch('/api/ai/generate-quiz', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          content: lesson.description,
+          lessonTitle: lesson.title,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to generate quiz');
+      }
+
+      const generatedData = result.data;
+
+      // Update quiz state with generated data
+      setQuiz(prev => ({
+        ...prev,
+        title: generatedData.title || prev.title,
+        description: generatedData.description || prev.description,
+        questions: [
+          ...prev.questions,
+          ...generatedData.questions.map((q: any, i: number) => ({
+            ...q,
+            order: prev.questions.length + i,
+          })),
+        ],
+      }));
+
+      toast({
+        title: 'Quiz Generated!',
+        description: `Successfully generated ${generatedData.questions.length} questions using AI.`,
+      });
+    } catch (error) {
+      console.error('AI Generation Error:', error);
+      toast({
+        title: 'Generation Failed',
+        description:
+          error instanceof Error ? error.message : 'Could not generate quiz',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className='max-w-2xl max-h-[90vh] overflow-y-auto'>
@@ -261,16 +337,33 @@ export function QuizBuilder({
           <div className='space-y-3'>
             <div className='flex items-center justify-between'>
               <Label>Questions ({quiz.questions.length})</Label>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={handleAddQuestion}
-                className='gap-2'
-              >
-                <Plus className='h-4 w-4' />
-                Add Question
-              </Button>
+              <div className='flex items-center gap-2'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={handleAddQuestion}
+                  className='gap-2'
+                >
+                  <Plus className='h-4 w-4' />
+                  Add Question
+                </Button>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  onClick={handleGenerateAI}
+                  disabled={isGeneratingAI}
+                  className='gap-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border border-indigo-100'
+                >
+                  {isGeneratingAI ? (
+                    <Loader2 className='h-4 w-4 animate-spin' />
+                  ) : (
+                    <Sparkles className='h-4 w-4' />
+                  )}
+                  Generate with AI
+                </Button>
+              </div>
             </div>
+          </div>
 
             {quiz.questions.length === 0 ? (
               <div className='text-center py-8 border-2 border-dashed rounded-lg'>
