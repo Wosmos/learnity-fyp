@@ -1,6 +1,7 @@
 # Loading States Migration Checklist
 
 ## 🎯 Goal
+
 Add loading states to all button actions across the Learnity app for better UX.
 
 ## 📋 Component Migration Checklist
@@ -8,6 +9,7 @@ Add loading states to all button actions across the Learnity app for better UX.
 ### 🔴 High Priority (User-Facing Critical Actions)
 
 #### Authentication Components
+
 - [ ] `src/components/auth/LoginForm.tsx`
   - [ ] Email/password login button
   - [ ] Social login buttons (Google, Microsoft)
@@ -24,6 +26,7 @@ Add loading states to all button actions across the Learnity app for better UX.
   - [ ] All navigation and submit buttons
 
 #### Course Components
+
 - [ ] `src/components/courses/ReviewForm.tsx`
   - [ ] Submit review button
   - [ ] Update review button
@@ -34,6 +37,7 @@ Add loading states to all button actions across the Learnity app for better UX.
   - [ ] Enrollment confirmation button
 
 #### Course Builder Components
+
 - [ ] `src/components/course-builder/CourseBuilderPage.tsx`
   - [ ] Save draft button
   - [ ] Publish button
@@ -54,6 +58,7 @@ Add loading states to all button actions across the Learnity app for better UX.
   - [ ] Delete question button
 
 #### Quiz Components
+
 - [ ] `src/components/quiz/QuestionCard.tsx`
   - [ ] Submit answer button
   - [ ] Next question button
@@ -62,6 +67,7 @@ Add loading states to all button actions across the Learnity app for better UX.
   - [ ] Continue button
 
 #### Profile Components
+
 - [x] `src/components/profile/ProfileEnhancementForm.tsx` ✅ DONE
   - [x] Save profile button
 - [x] `src/components/profile/PrivacySettingsForm.tsx` ✅ DONE
@@ -73,6 +79,7 @@ Add loading states to all button actions across the Learnity app for better UX.
 ### 🟡 Medium Priority (Important but Less Critical)
 
 #### Admin Components
+
 - [ ] `src/components/admin/*`
   - [ ] All admin action buttons
   - [ ] Approval buttons
@@ -80,6 +87,7 @@ Add loading states to all button actions across the Learnity app for better UX.
   - [ ] Update buttons
 
 #### Navigation Components
+
 - [ ] `src/components/layout/DashboardSidebar.tsx`
   - [ ] Logout button
 - [ ] `src/components/layout/AppLayout.tsx`
@@ -87,12 +95,14 @@ Add loading states to all button actions across the Learnity app for better UX.
   - [ ] Mobile menu toggle
 
 #### Course Player Components
+
 - [ ] `src/components/course-player/*`
   - [ ] Complete lesson button
   - [ ] Next lesson button
   - [ ] Previous lesson button
 
 #### Search & Filter Components
+
 - [ ] Search buttons
 - [ ] Filter apply buttons
 - [ ] Load more buttons
@@ -100,6 +110,7 @@ Add loading states to all button actions across the Learnity app for better UX.
 ### 🟢 Low Priority (Nice to Have)
 
 #### UI Components
+
 - [ ] Toggle buttons (already have visual state)
 - [ ] Icon-only buttons
 - [ ] Dropdown menu items
@@ -108,6 +119,7 @@ Add loading states to all button actions across the Learnity app for better UX.
 ## 📝 Migration Steps for Each Component
 
 ### Step 1: Identify Buttons
+
 ```bash
 # Open the component file
 # Find all <Button> components
@@ -116,11 +128,13 @@ Add loading states to all button actions across the Learnity app for better UX.
 ```
 
 ### Step 2: Choose Pattern
+
 - **Simple async operation?** → Use `AsyncButton`
 - **Need state control?** → Use `LoadingButton` + `useState`
 - **Need error handling?** → Use `useAsyncAction` + `LoadingButton`
 
 ### Step 3: Implement
+
 ```tsx
 // Add import
 import { LoadingButton } from '@/components/shared/LoadingButton';
@@ -142,13 +156,14 @@ const handleClick = async () => {
 <LoadingButton
   onClick={handleClick}
   isLoading={isLoading}
-  loadingText="Processing..."
+  loadingText='Processing...'
 >
   Click Me
-</LoadingButton>
+</LoadingButton>;
 ```
 
 ### Step 4: Test
+
 - [ ] Click button
 - [ ] Verify loading state shows
 - [ ] Verify button is disabled
@@ -158,18 +173,21 @@ const handleClick = async () => {
 - [ ] Verify no duplicate submissions
 
 ### Step 5: Document
+
 - [ ] Add comment explaining loading state
 - [ ] Update component documentation if needed
 
 ## 🔍 Finding Components to Update
 
 ### Method 1: Audit Script
+
 ```bash
 cd learnity-app
 ./scripts/audit-loading-states.sh
 ```
 
 ### Method 2: Manual Search
+
 ```bash
 # Find buttons without loading states
 grep -r "<Button" src/components --include="*.tsx" | \
@@ -183,6 +201,7 @@ grep -r "onSubmit\|handleSubmit" src/components --include="*.tsx"
 ```
 
 ### Method 3: IDE Search
+
 1. Open VS Code
 2. Search for `<Button` in `src/components`
 3. Check each result for async operations
@@ -191,11 +210,13 @@ grep -r "onSubmit\|handleSubmit" src/components --include="*.tsx"
 ## 📊 Progress Tracking
 
 ### Overall Progress
+
 - **Total Components**: ~50+ components with buttons
 - **Completed**: 2 components (4%)
 - **Remaining**: ~48+ components (96%)
 
 ### By Category
+
 - **Auth**: 0/6 (0%)
 - **Courses**: 0/5 (0%)
 - **Course Builder**: 0/6 (0%)
@@ -208,23 +229,27 @@ grep -r "onSubmit\|handleSubmit" src/components --include="*.tsx"
 ## 🎯 Sprint Planning
 
 ### Sprint 1: Critical User Actions (Week 1)
+
 - [ ] All auth components
 - [ ] Course enrollment
 - [ ] Quiz submissions
 - [ ] Profile updates
 
 ### Sprint 2: Course Builder (Week 2)
+
 - [ ] Course builder save/publish
 - [ ] Section management
 - [ ] Lesson management
 - [ ] Quiz builder
 
 ### Sprint 3: Admin & Navigation (Week 3)
+
 - [ ] Admin actions
 - [ ] Navigation buttons
 - [ ] Settings forms
 
 ### Sprint 4: Polish & Testing (Week 4)
+
 - [ ] Remaining components
 - [ ] Comprehensive testing
 - [ ] Bug fixes
@@ -233,6 +258,7 @@ grep -r "onSubmit\|handleSubmit" src/components --include="*.tsx"
 ## ✅ Definition of Done
 
 A component is considered "done" when:
+
 - [ ] All buttons have loading states
 - [ ] Loading text is descriptive
 - [ ] Buttons are disabled during loading
@@ -246,6 +272,7 @@ A component is considered "done" when:
 ## 🚀 Quick Wins
 
 Start with these for immediate impact:
+
 1. **LoginForm** - Most used component
 2. **Course enrollment** - Critical user action
 3. **Quiz submission** - Prevents duplicate submissions
@@ -256,7 +283,7 @@ Start with these for immediate impact:
 - **Quick Reference**: `LOADING_STATES_QUICK_REFERENCE.md`
 - **Full Guide**: `LOADING_STATES_IMPLEMENTATION_GUIDE.md`
 - **Examples**: `src/components/shared/LoadingStatesExample.tsx`
-- **Updated Components**: 
+- **Updated Components**:
   - `src/components/profile/ProfileEnhancementForm.tsx`
   - `src/components/profile/PrivacySettingsForm.tsx`
 

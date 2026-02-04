@@ -20,7 +20,7 @@ export type {
   ApprovalDecision,
   ProfileCompletion,
   SyncReport,
-  SyncError
+  SyncError,
 } from '../interfaces/database-sync.interface';
 
 // Factory
@@ -36,5 +36,5 @@ export {
   ApplicationStatus,
   EventType,
   SecurityEventType,
-  RiskLevel
+  RiskLevel,
 } from '@prisma/client';

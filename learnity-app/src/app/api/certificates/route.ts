@@ -1,18 +1,18 @@
 /**
  * Certificates Collection API Routes
  * GET /api/certificates - Get all certificates for the authenticated student
- * 
+ *
  * Requirements covered:
  * - 10.5: Display completed courses in student profile
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { certificateService } from '@/lib/services/certificate.service';
 import { CertificateError } from '@/lib/interfaces/certificate.interface';
 import { authMiddleware } from '@/lib/middleware/auth.middleware';
 import { UserRole } from '@/types/auth';
 import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
 import {
   createSuccessResponse,
   createErrorResponse,
@@ -81,10 +81,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       limit
     );
 
-    return createSuccessResponse(
-      result,
-      'Certificates retrieved successfully'
-    );
+    return createSuccessResponse(result, 'Certificates retrieved successfully');
   } catch (error) {
     console.error('Error getting certificates:', error);
 

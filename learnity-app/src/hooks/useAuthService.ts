@@ -3,20 +3,20 @@
  * Provides authentication operations with Firebase integration
  */
 
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 import {
   StudentRegistrationData,
   EnhancedTeacherRegistrationData,
   LoginData,
   PasswordResetRequestData,
   PasswordResetData,
-} from "@/lib/validators/auth";
-import { clientAuthService } from "@/lib/services/client-auth.service";
-import { useAuthStore } from "@/lib/stores/auth.store";
-import { AuthError, AuthErrorCode } from "@/types/auth";
-import { formatErrorForDisplay } from "@/lib/utils/error-messages";
+} from '@/lib/validators/auth';
+import { clientAuthService } from '@/lib/services/client-auth.service';
+import { useAuthStore } from '@/lib/stores/auth.store';
+import { AuthError, AuthErrorCode } from '@/types/auth';
+import { formatErrorForDisplay } from '@/lib/utils/error-messages';
 
 export interface AuthServiceHooks {
   // Registration
@@ -26,7 +26,7 @@ export interface AuthServiceHooks {
 
   // Login
   login: (data: LoginData) => Promise<void>;
-  socialLogin: (provider: "google" | "microsoft") => Promise<void>;
+  socialLogin: (provider: 'google' | 'microsoft') => Promise<void>;
 
   // Password management
   requestPasswordReset: (data: PasswordResetRequestData) => Promise<void>;
@@ -47,7 +47,7 @@ export const useAuthService = (): AuthServiceHooks => {
 
   const handleError = useCallback(
     (error: any): never => {
-      console.error("Auth service error:", error);
+      console.error('Auth service error:', error);
 
       // Get user-friendly error message
       const errorMessage = formatErrorForDisplay(error);
@@ -79,7 +79,7 @@ export const useAuthService = (): AuthServiceHooks => {
           setUser(result.user);
           // Claims will be set by the auth provider
         } else {
-          throw new Error(result.error?.message || "Registration failed");
+          throw new Error(result.error?.message || 'Registration failed');
         }
       } catch (error: any) {
         throw handleError(error);
@@ -101,7 +101,7 @@ export const useAuthService = (): AuthServiceHooks => {
           setUser(result.user);
           // Claims will be set by the auth provider
         } else {
-          throw new Error(result.error?.message || "Registration failed");
+          throw new Error(result.error?.message || 'Registration failed');
         }
       } catch (error: any) {
         throw handleError(error);
@@ -123,7 +123,7 @@ export const useAuthService = (): AuthServiceHooks => {
           setUser(result.user);
           // Claims will be set by the auth provider
         } else {
-          throw new Error(result.error?.message || "Registration failed");
+          throw new Error(result.error?.message || 'Registration failed');
         }
       } catch (error: any) {
         throw handleError(error);
@@ -145,7 +145,7 @@ export const useAuthService = (): AuthServiceHooks => {
           setUser(result.user);
           // Claims will be set by the auth provider
         } else {
-          throw new Error(result.error?.message || "Login failed");
+          throw new Error(result.error?.message || 'Login failed');
         }
       } catch (error: any) {
         throw handleError(error);
@@ -157,7 +157,7 @@ export const useAuthService = (): AuthServiceHooks => {
   );
 
   const socialLogin = useCallback(
-    async (provider: "google" | "microsoft") => {
+    async (provider: 'google' | 'microsoft') => {
       setIsLoading(true);
       setError(null);
 
@@ -217,7 +217,7 @@ export const useAuthService = (): AuthServiceHooks => {
     try {
       const user = useAuthStore.getState().user;
       if (!user) {
-        throw new Error("No user found");
+        throw new Error('No user found');
       }
       await clientAuthService.sendEmailVerification(user);
     } catch (error: unknown) {

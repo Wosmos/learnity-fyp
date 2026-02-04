@@ -4,15 +4,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { auditService } from '@/lib/services/audit.service';
 import { authMiddleware } from '@/lib/middleware/auth.middleware';
 import { Permission } from '@/types/auth';
-import { z } from 'zod';
 
 // Validation schema for time range
 const timeRangeSchema = z.object({
   startDate: z.string().datetime(),
-  endDate: z.string().datetime()
+  endDate: z.string().datetime(),
 });
 
 /**
@@ -22,25 +22,30 @@ const timeRangeSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     // Authenticate and authorize admin access
-    const authResult = await authMiddleware(request, { requiredPermissions: [Permission.VIEW_AUDIT_LOGS] });
+    const authResult = await authMiddleware(request, {
+      requiredPermissions: [Permission.VIEW_AUDIT_LOGS],
+    });
     if (authResult instanceof NextResponse) {
       return authResult;
     }
 
     const body = await request.json();
-    
+
     // Validate time range
     const validationResult = timeRangeSchema.safeParse(body);
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Invalid time range parameters', details: validationResult.error.errors },
+        {
+          error: 'Invalid time range parameters',
+          details: validationResult.error.errors,
+        },
         { status: 400 }
       );
     }
 
     const timeRange = {
       startDate: new Date(validationResult.data.startDate),
-      endDate: new Date(validationResult.data.endDate)
+      endDate: new Date(validationResult.data.endDate),
     };
 
     const patterns = await auditService.detectSuspiciousPatterns(timeRange);
@@ -50,10 +55,13 @@ export async function POST(request: NextRequest) {
       adminFirebaseUid: authResult.user.firebaseUid,
       action: 'VIEW_SUSPICIOUS_PATTERNS',
       targetResource: 'security_patterns',
-      ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+      ipAddress:
+        request.headers.get('x-forwarded-for') ||
+        request.headers.get('x-real-ip') ||
+        'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown',
       success: true,
-      newValues: { timeRange, patternsFound: patterns.length }
+      newValues: { timeRange, patternsFound: patterns.length },
     });
 
     return NextResponse.json(patterns);

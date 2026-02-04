@@ -6,12 +6,12 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { User as FirebaseUser } from 'firebase/auth';
-import { 
-  UserRole, 
-  CustomClaims, 
-  UserProfile, 
+import {
+  UserRole,
+  CustomClaims,
+  UserProfile,
   AuthError,
-  AuthErrorCode 
+  AuthErrorCode,
 } from '@/types/auth';
 
 export interface AuthState {
@@ -22,11 +22,11 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: AuthError | null;
-  
+
   // Registration state
   registrationStep: 'role-selection' | 'form' | 'verification' | 'complete';
   selectedRole: UserRole | null;
-  
+
   // Session state
   sessionExpiry: Date | null;
   lastActivity: Date | null;
@@ -39,19 +39,19 @@ export interface AuthActions {
   setProfile: (profile: UserProfile | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: AuthError | null) => void;
-  
+
   // Registration actions
   setRegistrationStep: (step: AuthState['registrationStep']) => void;
   setSelectedRole: (role: UserRole | null) => void;
-  
+
   // Session actions
   updateLastActivity: () => void;
   setSessionExpiry: (expiry: Date | null) => void;
-  
+
   // Utility actions
   clearAuth: () => void;
   reset: () => void;
-  
+
   // Permission helpers
   hasPermission: (permission: string) => boolean;
   hasRole: (role: UserRole) => boolean;
@@ -77,50 +77,50 @@ export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
       ...initialState,
-      
+
       // Authentication actions
-      setUser: (user) => {
-        set((state) => ({
+      setUser: user => {
+        set(state => ({
           user,
           isAuthenticated: !!user,
           lastActivity: user ? new Date() : null,
         }));
       },
-      
-      setClaims: (claims) => {
+
+      setClaims: claims => {
         set({ claims });
       },
-      
-      setProfile: (profile) => {
+
+      setProfile: profile => {
         set({ profile });
       },
-      
-      setLoading: (isLoading) => {
+
+      setLoading: isLoading => {
         set({ isLoading });
       },
-      
-      setError: (error) => {
+
+      setError: error => {
         set({ error });
       },
-      
+
       // Registration actions
-      setRegistrationStep: (registrationStep) => {
+      setRegistrationStep: registrationStep => {
         set({ registrationStep });
       },
-      
-      setSelectedRole: (selectedRole) => {
+
+      setSelectedRole: selectedRole => {
         set({ selectedRole });
       },
-      
+
       // Session actions
       updateLastActivity: () => {
         set({ lastActivity: new Date() });
       },
-      
-      setSessionExpiry: (sessionExpiry) => {
+
+      setSessionExpiry: sessionExpiry => {
         set({ sessionExpiry });
       },
-      
+
       // Utility actions
       clearAuth: () => {
         set({
@@ -133,23 +133,23 @@ export const useAuthStore = create<AuthStore>()(
           lastActivity: null,
         });
       },
-      
+
       reset: () => {
         set(initialState);
       },
-      
+
       // Permission helpers
-      hasPermission: (permission) => {
+      hasPermission: permission => {
         const { claims } = get();
         return claims?.permissions?.includes(permission as any) || false;
       },
-      
-      hasRole: (role) => {
+
+      hasRole: role => {
         const { claims } = get();
         return claims?.role === role;
       },
-      
-      hasAnyRole: (roles) => {
+
+      hasAnyRole: roles => {
         const { claims } = get();
         return roles.includes(claims?.role as UserRole);
       },
@@ -157,7 +157,7 @@ export const useAuthStore = create<AuthStore>()(
     {
       name: 'learnity-auth-storage',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
+      partialize: state => ({
         // Only persist non-sensitive data
         registrationStep: state.registrationStep,
         selectedRole: state.selectedRole,
@@ -168,22 +168,24 @@ export const useAuthStore = create<AuthStore>()(
 );
 
 // Selectors for better performance
-export const useAuthUser = () => useAuthStore((state) => state.user);
-export const useAuthClaims = () => useAuthStore((state) => state.claims);
-export const useAuthProfile = () => useAuthStore((state) => state.profile);
-export const useAuthLoading = () => useAuthStore((state) => state.isLoading);
-export const useAuthError = () => useAuthStore((state) => state.error);
-export const useIsAuthenticated = () => useAuthStore((state) => state.isAuthenticated);
-export const useRegistrationStep = () => useAuthStore((state) => state.registrationStep);
-export const useSelectedRole = () => useAuthStore((state) => state.selectedRole);
+export const useAuthUser = () => useAuthStore(state => state.user);
+export const useAuthClaims = () => useAuthStore(state => state.claims);
+export const useAuthProfile = () => useAuthStore(state => state.profile);
+export const useAuthLoading = () => useAuthStore(state => state.isLoading);
+export const useAuthError = () => useAuthStore(state => state.error);
+export const useIsAuthenticated = () =>
+  useAuthStore(state => state.isAuthenticated);
+export const useRegistrationStep = () =>
+  useAuthStore(state => state.registrationStep);
+export const useSelectedRole = () => useAuthStore(state => state.selectedRole);
 
 // Permission selectors
-export const useHasPermission = (permission: string) => 
-  useAuthStore((state) => state.hasPermission(permission));
-export const useHasRole = (role: UserRole) => 
-  useAuthStore((state) => state.hasRole(role));
-export const useHasAnyRole = (roles: UserRole[]) => 
-  useAuthStore((state) => state.hasAnyRole(roles));
+export const useHasPermission = (permission: string) =>
+  useAuthStore(state => state.hasPermission(permission));
+export const useHasRole = (role: UserRole) =>
+  useAuthStore(state => state.hasRole(role));
+export const useHasAnyRole = (roles: UserRole[]) =>
+  useAuthStore(state => state.hasAnyRole(roles));
 
 // Role-specific selectors
 export const useIsAdmin = () => useHasRole(UserRole.ADMIN);

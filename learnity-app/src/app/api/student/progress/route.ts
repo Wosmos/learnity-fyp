@@ -4,8 +4,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { EnrollmentStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { authMiddleware } from '@/lib/middleware/auth.middleware';
 import {
   createSuccessResponse,
@@ -15,8 +15,10 @@ import {
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    // Authenticate user
-    const authResult = await authMiddleware(request);
+    // Authenticate user - Allow unverified users to see their own progress overview
+    const authResult = await authMiddleware(request, {
+      skipEmailVerification: true,
+    });
 
     if (authResult instanceof NextResponse) {
       return authResult;
@@ -43,7 +45,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Get all enrollments with course details
     const enrollments = await prisma.enrollment.findMany({
-      where: { 
+      where: {
         studentId: userId,
         status: { not: EnrollmentStatus.UNENROLLED },
       },
@@ -93,7 +95,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       const course = enrollment.course;
       const allLessons = course.sections.flatMap(s => s.lessons);
       const totalLessons = allLessons.length;
-      
+
       // Calculate completed lessons
       const completedLessons = allLessons.filter(
         lesson => lessonProgressMap.get(lesson.id)?.completed
@@ -106,7 +108,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }, 0);
 
       // Calculate total course duration
-      const totalDuration = allLessons.reduce((sum, lesson) => sum + (lesson.duration || 0), 0);
+      const totalDuration = allLessons.reduce(
+        (sum, lesson) => sum + (lesson.duration || 0),
+        0
+      );
 
       // Section-wise progress
       const sectionProgress = course.sections.map(section => {
@@ -121,9 +126,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           order: section.order,
           totalLessons: sectionLessons.length,
           completedLessons: completedInSection,
-          progress: sectionLessons.length > 0 
-            ? Math.round((completedInSection / sectionLessons.length) * 100)
-            : 0,
+          progress:
+            sectionLessons.length > 0
+              ? Math.round((completedInSection / sectionLessons.length) * 100)
+              : 0,
         };
       });
 
@@ -179,18 +185,25 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Calculate overall stats
     const totalEnrolled = enrollments.length;
-    const completedCourses = enrollments.filter(e => e.status === EnrollmentStatus.COMPLETED).length;
+    const completedCourses = enrollments.filter(
+      e => e.status === EnrollmentStatus.COMPLETED
+    ).length;
     const inProgressCourses = enrollments.filter(
       e => e.status === EnrollmentStatus.ACTIVE && e.progress < 100
     ).length;
 
-    const totalLessonsCompleted = lessonProgress.filter(lp => lp.completed).length;
-    const totalWatchTime = lessonProgress.reduce((sum, lp) => sum + (lp.watchedSeconds || 0), 0);
+    const totalLessonsCompleted = lessonProgress.filter(
+      lp => lp.completed
+    ).length;
+    const totalWatchTime = lessonProgress.reduce(
+      (sum, lp) => sum + (lp.watchedSeconds || 0),
+      0
+    );
 
     // Get weekly activity (lessons completed per day)
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    
+
     const weeklyLessonActivity = await prisma.lessonProgress.findMany({
       where: {
         studentId: userId,
@@ -209,7 +222,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       const dateStr = date.toISOString().split('T')[0];
       dailyActivity[dateStr] = 0;
     }
-    
+
     weeklyLessonActivity.forEach(activity => {
       if (activity.completedAt) {
         const day = activity.completedAt.toISOString().split('T')[0];
@@ -220,25 +233,34 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
     // Get category breakdown
-    const categoryBreakdown = enrollments.reduce((acc, enrollment) => {
-      const categoryName = enrollment.course.category?.name || 'Uncategorized';
-      if (!acc[categoryName]) {
-        acc[categoryName] = { enrolled: 0, completed: 0, totalProgress: 0 };
-      }
-      acc[categoryName].enrolled++;
-      if (enrollment.status === EnrollmentStatus.COMPLETED) {
-        acc[categoryName].completed++;
-      }
-      acc[categoryName].totalProgress += enrollment.progress;
-      return acc;
-    }, {} as Record<string, { enrolled: number; completed: number; totalProgress: number }>);
+    const categoryBreakdown = enrollments.reduce(
+      (acc, enrollment) => {
+        const categoryName =
+          enrollment.course.category?.name || 'Uncategorized';
+        if (!acc[categoryName]) {
+          acc[categoryName] = { enrolled: 0, completed: 0, totalProgress: 0 };
+        }
+        acc[categoryName].enrolled++;
+        if (enrollment.status === EnrollmentStatus.COMPLETED) {
+          acc[categoryName].completed++;
+        }
+        acc[categoryName].totalProgress += enrollment.progress;
+        return acc;
+      },
+      {} as Record<
+        string,
+        { enrolled: number; completed: number; totalProgress: number }
+      >
+    );
 
-    const categoryStats = Object.entries(categoryBreakdown).map(([name, stats]) => ({
-      name,
-      enrolled: stats.enrolled,
-      completed: stats.completed,
-      averageProgress: Math.round(stats.totalProgress / stats.enrolled),
-    }));
+    const categoryStats = Object.entries(categoryBreakdown).map(
+      ([name, stats]) => ({
+        name,
+        enrolled: stats.enrolled,
+        completed: stats.completed,
+        averageProgress: Math.round(stats.totalProgress / stats.enrolled),
+      })
+    );
 
     return createSuccessResponse({
       overview: {
@@ -247,9 +269,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         inProgressCourses,
         totalLessonsCompleted,
         totalWatchTime,
-        averageProgress: totalEnrolled > 0
-          ? Math.round(enrollments.reduce((sum, e) => sum + e.progress, 0) / totalEnrolled)
-          : 0,
+        averageProgress:
+          totalEnrolled > 0
+            ? Math.round(
+                enrollments.reduce((sum, e) => sum + e.progress, 0) /
+                  totalEnrolled
+              )
+            : 0,
       },
       courses: courseProgress,
       weeklyActivity: Object.entries(dailyActivity).map(([date, count]) => ({

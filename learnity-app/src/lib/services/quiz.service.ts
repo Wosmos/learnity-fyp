@@ -1,7 +1,7 @@
 /**
  * Quiz Service Implementation
  * Handles all quiz management operations
- * 
+ *
  * Requirements covered:
  * - 6.1: Create multiple-choice quizzes with 2-4 options per question
  * - 6.2: Support explanations for correct answers
@@ -14,7 +14,14 @@
  * - 6.9: Track quiz attempts, scores, and time taken
  */
 
-import { PrismaClient, Quiz, Question, QuizAttempt, XPReason, EnrollmentStatus } from '@prisma/client';
+import {
+  PrismaClient,
+  Quiz,
+  Question,
+  QuizAttempt,
+  XPReason,
+  EnrollmentStatus,
+} from '@prisma/client';
 import {
   IQuizService,
   QuizWithQuestions,
@@ -89,7 +96,7 @@ export class QuizService implements IQuizService {
     }
 
     // Create quiz with questions in a transaction
-    const quiz = await this.prisma.$transaction(async (tx) => {
+    const quiz = await this.prisma.$transaction(async tx => {
       // Create the quiz
       const createdQuiz = await tx.quiz.create({
         data: {
@@ -139,18 +146,17 @@ export class QuizService implements IQuizService {
     });
 
     if (!existingQuiz) {
-      throw new QuizError(
-        'Quiz not found',
-        QuizErrorCode.QUIZ_NOT_FOUND,
-        404
-      );
+      throw new QuizError('Quiz not found', QuizErrorCode.QUIZ_NOT_FOUND, 404);
     }
 
     // Build update data
     const updateData: Record<string, unknown> = {};
-    if (validatedData.title !== undefined) updateData.title = validatedData.title;
-    if (validatedData.description !== undefined) updateData.description = validatedData.description;
-    if (validatedData.passingScore !== undefined) updateData.passingScore = validatedData.passingScore;
+    if (validatedData.title !== undefined)
+      updateData.title = validatedData.title;
+    if (validatedData.description !== undefined)
+      updateData.description = validatedData.description;
+    if (validatedData.passingScore !== undefined)
+      updateData.passingScore = validatedData.passingScore;
 
     // Update quiz
     const quiz = await this.prisma.quiz.update({
@@ -171,11 +177,7 @@ export class QuizService implements IQuizService {
     });
 
     if (!existingQuiz) {
-      throw new QuizError(
-        'Quiz not found',
-        QuizErrorCode.QUIZ_NOT_FOUND,
-        404
-      );
+      throw new QuizError('Quiz not found', QuizErrorCode.QUIZ_NOT_FOUND, 404);
     }
 
     // Delete quiz (cascades to questions and attempts)
@@ -216,7 +218,6 @@ export class QuizService implements IQuizService {
     return quiz as QuizWithQuestions | null;
   }
 
-
   /**
    * Submit a quiz attempt
    * Requirements: 6.3, 6.4, 6.5, 6.6, 6.7, 6.9
@@ -249,11 +250,7 @@ export class QuizService implements IQuizService {
     });
 
     if (!quiz) {
-      throw new QuizError(
-        'Quiz not found',
-        QuizErrorCode.QUIZ_NOT_FOUND,
-        404
-      );
+      throw new QuizError('Quiz not found', QuizErrorCode.QUIZ_NOT_FOUND, 404);
     }
 
     const courseId = quiz.lesson.section.course.id;
@@ -276,7 +273,7 @@ export class QuizService implements IQuizService {
     // Validate answers - check for missing or duplicate answers
     const questionIds = quiz.questions.map(q => q.id);
     const answeredQuestionIds = answers.map(a => a.questionId);
-    
+
     // Check for duplicate answers
     const uniqueAnsweredIds = new Set(answeredQuestionIds);
     if (uniqueAnsweredIds.size !== answeredQuestionIds.length) {
@@ -288,7 +285,9 @@ export class QuizService implements IQuizService {
     }
 
     // Check for missing answers
-    const missingQuestions = questionIds.filter(id => !uniqueAnsweredIds.has(id));
+    const missingQuestions = questionIds.filter(
+      id => !uniqueAnsweredIds.has(id)
+    );
     if (missingQuestions.length > 0) {
       throw new QuizError(
         `Missing answers for ${missingQuestions.length} question(s)`,
@@ -319,7 +318,8 @@ export class QuizService implements IQuizService {
         );
       }
 
-      const isCorrect = answer.selectedOptionIndex === question.correctOptionIndex;
+      const isCorrect =
+        answer.selectedOptionIndex === question.correctOptionIndex;
       if (isCorrect) {
         correctAnswers++;
       }
@@ -341,9 +341,10 @@ export class QuizService implements IQuizService {
 
     // Calculate score percentage
     const totalQuestions = quiz.questions.length;
-    const score = totalQuestions > 0 
-      ? Math.round((correctAnswers / totalQuestions) * 100) 
-      : 0;
+    const score =
+      totalQuestions > 0
+        ? Math.round((correctAnswers / totalQuestions) * 100)
+        : 0;
 
     // Determine if passed (70% threshold - Requirement 6.6)
     const passed = score >= quiz.passingScore;
@@ -394,7 +395,10 @@ export class QuizService implements IQuizService {
    * Get all quiz attempts for a student
    * Requirements: 6.8
    */
-  async getQuizAttempts(studentId: string, quizId: string): Promise<QuizAttempt[]> {
+  async getQuizAttempts(
+    studentId: string,
+    quizId: string
+  ): Promise<QuizAttempt[]> {
     const attempts = await this.prisma.quizAttempt.findMany({
       where: {
         studentId,
@@ -410,7 +414,10 @@ export class QuizService implements IQuizService {
    * Get the best quiz attempt for a student
    * Requirements: 6.8
    */
-  async getBestAttempt(studentId: string, quizId: string): Promise<QuizAttempt | null> {
+  async getBestAttempt(
+    studentId: string,
+    quizId: string
+  ): Promise<QuizAttempt | null> {
     const bestAttempt = await this.prisma.quizAttempt.findFirst({
       where: {
         studentId,
@@ -462,7 +469,10 @@ export class QuizService implements IQuizService {
   /**
    * Add a question to an existing quiz
    */
-  async addQuestion(quizId: string, data: CreateQuestionData): Promise<Question> {
+  async addQuestion(
+    quizId: string,
+    data: CreateQuestionData
+  ): Promise<Question> {
     // Validate input
     const validatedData = CreateQuestionSchema.parse(data);
 
@@ -479,11 +489,7 @@ export class QuizService implements IQuizService {
     });
 
     if (!quiz) {
-      throw new QuizError(
-        'Quiz not found',
-        QuizErrorCode.QUIZ_NOT_FOUND,
-        404
-      );
+      throw new QuizError('Quiz not found', QuizErrorCode.QUIZ_NOT_FOUND, 404);
     }
 
     // Determine order (append to end if not specified)
@@ -508,7 +514,10 @@ export class QuizService implements IQuizService {
   /**
    * Update a question
    */
-  async updateQuestion(questionId: string, data: UpdateQuestionData): Promise<Question> {
+  async updateQuestion(
+    questionId: string,
+    data: UpdateQuestionData
+  ): Promise<Question> {
     // Validate input
     const validatedData = UpdateQuestionSchema.parse(data);
 
@@ -527,16 +536,23 @@ export class QuizService implements IQuizService {
 
     // Build update data
     const updateData: Record<string, unknown> = {};
-    if (validatedData.question !== undefined) updateData.question = validatedData.question;
-    if (validatedData.options !== undefined) updateData.options = validatedData.options;
+    if (validatedData.question !== undefined)
+      updateData.question = validatedData.question;
+    if (validatedData.options !== undefined)
+      updateData.options = validatedData.options;
     if (validatedData.correctOptionIndex !== undefined) {
       updateData.correctOptionIndex = validatedData.correctOptionIndex;
     }
-    if (validatedData.explanation !== undefined) updateData.explanation = validatedData.explanation;
-    if (validatedData.order !== undefined) updateData.order = validatedData.order;
+    if (validatedData.explanation !== undefined)
+      updateData.explanation = validatedData.explanation;
+    if (validatedData.order !== undefined)
+      updateData.order = validatedData.order;
 
     // Validate correctOptionIndex against options if both are being updated
-    if (validatedData.options && validatedData.correctOptionIndex !== undefined) {
+    if (
+      validatedData.options &&
+      validatedData.correctOptionIndex !== undefined
+    ) {
       if (validatedData.correctOptionIndex >= validatedData.options.length) {
         throw new QuizError(
           'Correct option index must be within the options array bounds',
@@ -593,11 +609,7 @@ export class QuizService implements IQuizService {
     });
 
     if (!quiz) {
-      throw new QuizError(
-        'Quiz not found',
-        QuizErrorCode.QUIZ_NOT_FOUND,
-        404
-      );
+      throw new QuizError('Quiz not found', QuizErrorCode.QUIZ_NOT_FOUND, 404);
     }
 
     // Verify all question IDs belong to this quiz
@@ -631,7 +643,10 @@ export class QuizService implements IQuizService {
    * Award XP for passing a quiz
    * @private
    */
-  private async awardQuizXP(studentId: string, quizId: string): Promise<number> {
+  private async awardQuizXP(
+    studentId: string,
+    quizId: string
+  ): Promise<number> {
     // Get or create user progress
     let userProgress = await this.prisma.userProgress.findUnique({
       where: { userId: studentId },

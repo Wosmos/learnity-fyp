@@ -4,7 +4,7 @@
  */
 
 export { AdminLayout } from './AdminLayout';
-export { AdminSidebar, AdminNavigationService } from './AdminSidebar';
+export { AdminSidebar } from './AdminSidebar';
 export { SecurityDashboard } from './SecurityDashboard';
 export { AuditLogViewer } from './AuditLogViewer';
 export { SecurityEventsViewer } from './SecurityEventsViewer';

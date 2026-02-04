@@ -3,18 +3,18 @@
  * PUT /api/reviews/[reviewId] - Update a review
  * DELETE /api/reviews/[reviewId] - Delete a review
  * GET /api/reviews/[reviewId] - Get a specific review
- * 
+ *
  * Requirements covered:
  * - 8.5: Review edit/delete with ownership validation
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { reviewService } from '@/lib/services/review.service';
 import { ReviewError } from '@/lib/interfaces/review.interface';
 import { authMiddleware } from '@/lib/middleware/auth.middleware';
 import { UserRole } from '@/types/auth';
 import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
 import {
   createSuccessResponse,
   createErrorResponse,
@@ -31,12 +31,14 @@ interface RouteParams {
  * Schema for updating a review
  */
 const UpdateReviewBodySchema = z.object({
-  rating: z.number()
+  rating: z
+    .number()
     .int('Rating must be an integer')
     .min(1, 'Rating must be at least 1 star')
     .max(5, 'Rating cannot exceed 5 stars')
     .optional(),
-  comment: z.string()
+  comment: z
+    .string()
     .min(10, 'Comment must be at least 10 characters')
     .max(500, 'Comment must be less than 500 characters')
     .trim()

@@ -12,168 +12,25 @@ type AuthenticatedAdmin = {
  * GET: Fetch platform statistics and metrics
  */
 
-async function handleGetStats(request: NextRequest, user: AuthenticatedAdmin): Promise<NextResponse> {
+async function handleGetStats(
+  request: NextRequest,
+  user: AuthenticatedAdmin
+): Promise<NextResponse> {
   try {
-    console.debug('[AdminStats] request received', { url: request.url, admin: user.firebaseUid });
-    // Get current date ranges
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-
-    // Fetch user statistics
-    const [
-      totalUsers,
-      pendingTeachers,
-      approvedTeachers,
-      totalStudents,
-      newUsersThisMonth,
-      newUsersLastMonth
-    ] = await Promise.all([
-      // Total users
-      prisma.user.count(),
-      
-      // Pending teachers
-      prisma.user.count({
-        where: { role: UserRole.PENDING_TEACHER }
-      }),
-      
-      // Approved teachers
-      prisma.user.count({
-        where: { role: UserRole.TEACHER }
-      }),
-      
-      // Total students
-      prisma.user.count({
-        where: { role: UserRole.STUDENT }
-      }),
-      
-      // New users this month
-      prisma.user.count({
-        where: {
-          createdAt: {
-            gte: startOfMonth
-          }
-        }
-      }),
-      
-      // New users last month
-      prisma.user.count({
-        where: {
-          createdAt: {
-            gte: startOfLastMonth,
-            lte: endOfLastMonth
-          }
-        }
-      })
-    ]);
-
-    // Calculate growth metrics
-    const userGrowthRate = newUsersLastMonth > 0 
-      ? ((newUsersThisMonth - newUsersLastMonth) / newUsersLastMonth) * 100 
-      : 0;
-
-    // Fetch session statistics (if sessions table exists)
-    let activeSessions = 0;
-    let sessionCompletionRate = 0;
-    
-    try {
-      // These would be actual queries if session tables exist
-      activeSessions = Math.floor(Math.random() * 100); // Placeholder
-      const totalSessions = Math.floor(Math.random() * 1000) + 500; // Placeholder
-      sessionCompletionRate = 94.2; // Placeholder
-      
-      // Use totalSessions for future calculations when needed
-      console.log(`Total sessions: ${totalSessions}`);
-    } catch {
-      // Sessions table might not exist yet
-      console.log('Sessions table not available yet');
-    }
-
-    // Fetch revenue statistics (placeholder for now)
-    const totalRevenue = 45680; // This would come from payment records
-    const monthlyRevenue = 12450; // This would come from payment records
-    const revenueGrowth = 12.5; // This would be calculated from actual data
-
-    // Platform rating (would come from reviews table)
-    const platformRating = 4.7;
-
-    // Recent activity metrics
-    const recentSignups = await prisma.user.count({
-      where: {
-        createdAt: {
-          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
-        }
-      }
+    console.debug('[AdminStats] request received', {
+      url: request.url,
+      admin: user.firebaseUid,
     });
 
-    // Teacher retention rate (placeholder calculation)
-    const teacherRetentionRate = 89.5;
-
-    const stats = {
-      // Core metrics
-      totalUsers,
-      pendingTeachers,
-      approvedTeachers,
-      totalStudents,
-      activeSessions,
-      totalRevenue,
-      monthlyGrowth: userGrowthRate,
-      platformRating,
-
-      // Growth metrics
-      newUsersThisMonth,
-      newUsersLastMonth,
-      userGrowthRate: Math.round(userGrowthRate * 100) / 100,
-      recentSignups,
-
-      // Performance metrics
-      sessionCompletionRate,
-      teacherRetentionRate,
-      revenueGrowth,
-      monthlyRevenue,
-
-      // Platform health
-      systemStatus: 'operational',
-      uptime: '99.9%',
-      responseTime: '120ms'
-    };
-
-    // Platform metrics for dashboard
-    const platformMetrics = [
-      {
-        label: 'New Signups',
-        value: recentSignups.toString(),
-        change: `+${Math.round(userGrowthRate)}%`,
-        trend: userGrowthRate > 0 ? 'up' : userGrowthRate < 0 ? 'down' : 'stable'
-      },
-      {
-        label: 'Session Completion',
-        value: `${sessionCompletionRate}%`,
-        change: '+2.1%',
-        trend: 'up'
-      },
-      {
-        label: 'Teacher Retention',
-        value: `${teacherRetentionRate}%`,
-        change: '-1.2%',
-        trend: 'down'
-      },
-      {
-        label: 'Revenue Growth',
-        value: `${revenueGrowth}%`,
-        change: '+3.2%',
-        trend: 'up'
-      }
-    ];
+    // Use the shared service to get stats
+    const { getAdminStats } =
+      await import('@/lib/services/admin-stats.service');
+    const data = await getAdminStats();
 
     return NextResponse.json({
       success: true,
-      stats,
-      platformMetrics,
-      lastUpdated: new Date().toISOString()
+      ...data,
     });
-
   } catch (error) {
     console.error('Admin stats fetch error:', error);
     return NextResponse.json(

@@ -3,13 +3,13 @@
  * Automatically creates or updates user profile in Neon DB when user authenticates
  */
 
+import { createHash } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { DatabaseService } from '@/lib/services/database.service';
 import { RoleManagerService } from '@/lib/services/role-manager.service';
 import { adminAuth } from '@/lib/config/firebase-admin';
 import { UserRole, Permission, EventType } from '@/types/auth';
-import { z } from 'zod';
-import { createHash } from 'crypto';
 import { generateDeviceFingerprintLegacy } from '@/lib/utils/device-fingerprint';
 
 // Validation schema for sync profile request
@@ -19,13 +19,17 @@ const syncProfileSchema = z.object({
   displayName: z.string().nullable(),
   photoURL: z.string().url().nullable().optional(),
   emailVerified: z.boolean(),
-  providerData: z.array(z.object({
-    providerId: z.string(),
-    uid: z.string(),
-    displayName: z.string().nullable(),
-    email: z.string().nullable(),
-    photoURL: z.string().nullable()
-  })).optional()
+  providerData: z
+    .array(
+      z.object({
+        providerId: z.string(),
+        uid: z.string(),
+        displayName: z.string().nullable(),
+        email: z.string().nullable(),
+        photoURL: z.string().nullable(),
+      })
+    )
+    .optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -44,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     const idToken = authHeader.split('Bearer ')[1];
     let decodedToken;
-    
+
     try {
       decodedToken = await adminAuth.verifyIdToken(idToken);
     } catch (error) {
@@ -57,12 +61,12 @@ export async function POST(request: NextRequest) {
     // Parse and validate request body
     const body = await request.json();
     const validationResult = syncProfileSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid request data',
-          details: validationResult.error.flatten()
+          details: validationResult.error.flatten(),
         },
         { status: 400 }
       );
@@ -72,16 +76,14 @@ export async function POST(request: NextRequest) {
 
     // Verify the UID matches the token
     if (userData.uid !== decodedToken.uid) {
-      return NextResponse.json(
-        { error: 'UID mismatch' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'UID mismatch' }, { status: 403 });
     }
 
     // Get client information for audit logging
-    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-                    request.headers.get('x-real-ip') || 
-                    'unknown';
+    const clientIP =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
     // Check if user profile already exists
@@ -91,11 +93,14 @@ export async function POST(request: NextRequest) {
     if (!userProfile) {
       // Create new user profile
       isNewUser = true;
-      
+
       // Determine if this is a social login
-      const isSocialLogin = userData.providerData?.some(
-        provider => provider.providerId === 'google.com' || provider.providerId === 'microsoft.com'
-      ) || false;
+      const isSocialLogin =
+        userData.providerData?.some(
+          provider =>
+            provider.providerId === 'google.com' ||
+            provider.providerId === 'microsoft.com'
+        ) || false;
 
       // Split display name into first and last name
       const names = userData.displayName?.split(' ') || [];
@@ -118,8 +123,8 @@ export async function POST(request: NextRequest) {
           learningGoals: [],
           interests: [],
           studyPreferences: [],
-          profileCompletionPercentage: 20
-        }
+          profileCompletionPercentage: 20,
+        },
       });
 
       // Set initial custom claims
@@ -129,11 +134,11 @@ export async function POST(request: NextRequest) {
           Permission.VIEW_STUDENT_DASHBOARD,
           Permission.JOIN_STUDY_GROUPS,
           Permission.BOOK_TUTORING,
-          Permission.ENHANCE_PROFILE
+          Permission.ENHANCE_PROFILE,
         ],
         profileComplete: false,
         emailVerified: userData.emailVerified,
-        profileId: userProfile.id
+        profileId: userProfile.id,
       });
 
       // Log new user creation
@@ -149,22 +154,21 @@ export async function POST(request: NextRequest) {
           isNewUser: true,
           isSocialLogin,
           providers: userData.providerData?.map(p => p.providerId) || ['email'],
-          createdFromAuth: true
-        }
+          createdFromAuth: true,
+        },
       });
 
       console.log('✅ New user profile created:', {
         uid: userData.uid,
         email: userData.email,
         profileId: userProfile.id,
-        isSocialLogin
+        isSocialLogin,
       });
-
     } else {
       // Update existing profile with latest Firebase data
       const updateData: any = {
         emailVerified: userData.emailVerified,
-        lastLoginAt: new Date()
+        lastLoginAt: new Date(),
       };
 
       // Update profile picture if not set and available from Firebase
@@ -175,20 +179,28 @@ export async function POST(request: NextRequest) {
       // Update social providers if changed
       const currentProviders = userProfile.socialProviders || [];
       const newProviders = userData.providerData?.map(p => p.providerId) || [];
-      if (JSON.stringify(currentProviders.sort()) !== JSON.stringify(newProviders.sort())) {
+      if (
+        JSON.stringify(currentProviders.sort()) !==
+        JSON.stringify(newProviders.sort())
+      ) {
         updateData.socialProviders = newProviders;
       }
 
-      userProfile = await databaseService.updateUserProfile(userData.uid, updateData);
+      userProfile = await databaseService.updateUserProfile(
+        userData.uid,
+        updateData
+      );
 
       // Update custom claims with latest profile data
       await roleManagerService.setCustomClaims(userData.uid, {
         role: userProfile.role as UserRole,
-        permissions: await roleManagerService.getRolePermissions(userProfile.role as UserRole),
+        permissions: await roleManagerService.getRolePermissions(
+          userProfile.role as UserRole
+        ),
         profileComplete: calculateProfileCompletion(userProfile),
         emailVerified: userProfile.emailVerified,
         lastLoginAt: new Date().toISOString(),
-        profileId: userProfile.id
+        profileId: userProfile.id,
       });
 
       // Log profile sync
@@ -203,15 +215,15 @@ export async function POST(request: NextRequest) {
           email: userData.email,
           profileId: userProfile.id,
           updatedFields: Object.keys(updateData),
-          providers: newProviders
-        }
+          providers: newProviders,
+        },
       });
 
       console.log('✅ User profile synced:', {
         uid: userData.uid,
         email: userData.email,
         profileId: userProfile.id,
-        updatedFields: Object.keys(updateData)
+        updatedFields: Object.keys(updateData),
       });
     }
 
@@ -222,17 +234,17 @@ export async function POST(request: NextRequest) {
         isNewUser,
         role: userProfile.role,
         emailVerified: userProfile.emailVerified,
-        profileComplete: calculateProfileCompletion(userProfile)
-      }
+        profileComplete: calculateProfileCompletion(userProfile),
+      },
     });
-
   } catch (error: any) {
     console.error('Profile sync error:', error);
 
     // Log error
-    const clientIP = request.headers.get('x-forwarded-for') || 
-                    request.headers.get('x-real-ip') || 
-                    'unknown';
+    const clientIP =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
     try {
@@ -244,8 +256,8 @@ export async function POST(request: NextRequest) {
         success: false,
         errorMessage: error.message,
         metadata: {
-          errorStack: error.stack
-        }
+          errorStack: error.stack,
+        },
       });
     } catch (logError) {
       console.error('Failed to log audit event:', logError);
@@ -256,8 +268,8 @@ export async function POST(request: NextRequest) {
         success: false,
         error: {
           code: 'PROFILE_SYNC_FAILED',
-          message: 'Failed to sync user profile'
-        }
+          message: 'Failed to sync user profile',
+        },
       },
       { status: 500 }
     );
@@ -298,7 +310,7 @@ async function logAuditEvent(
 ) {
   try {
     const prisma = (databaseService as any).prisma;
-    
+
     await prisma.auditLog.create({
       data: {
         firebaseUid: event.firebaseUid,
@@ -306,14 +318,16 @@ async function logAuditEvent(
         action: event.action,
         ipAddress: event.ipAddress,
         userAgent: event.userAgent,
-        deviceFingerprint: generateDeviceFingerprintLegacy(event.userAgent, event.ipAddress),
+        deviceFingerprint: generateDeviceFingerprintLegacy(
+          event.userAgent,
+          event.ipAddress
+        ),
         success: event.success,
         errorMessage: event.errorMessage,
-        metadata: event.metadata || {}
-      }
+        metadata: event.metadata || {},
+      },
     });
   } catch (error) {
     console.error('Failed to log audit event:', error);
   }
 }
-

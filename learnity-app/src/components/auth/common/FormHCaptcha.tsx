@@ -3,17 +3,17 @@
  * Common HCaptcha integration for auth forms
  */
 
-"use client";
+'use client';
 
-import React, { useRef } from "react";
+import React, { useRef } from 'react';
+import { Control, FieldPath, FieldValues } from 'react-hook-form';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 import {
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from "@/components/ui/form";
-import { Control, FieldPath, FieldValues } from "react-hook-form";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
+} from '@/components/ui/form';
 
 interface FormHCaptchaProps<T extends FieldValues> {
   control: Control<T>;
@@ -32,13 +32,13 @@ export function FormHCaptcha<T extends FieldValues>({
   onExpire,
   onError,
   disabled = false,
-  className = "",
+  className = '',
 }: FormHCaptchaProps<T>) {
   const hcaptchaRef = useRef<HCaptcha>(null);
   const siteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY;
 
   if (!siteKey) {
-    console.warn("HCaptcha site key not configured");
+    console.warn('HCaptcha site key not configured');
     return null;
   }
 
@@ -53,7 +53,7 @@ export function FormHCaptcha<T extends FieldValues>({
   };
 
   const handleError = (error: string) => {
-    console.error("HCaptcha error:", error);
+    console.error('HCaptcha error:', error);
     onError?.(error);
   };
 
@@ -64,15 +64,15 @@ export function FormHCaptcha<T extends FieldValues>({
       render={({ field }) => (
         <FormItem className={className}>
           <FormControl>
-            <div className="flex justify-center">
+            <div className='flex justify-center'>
               <HCaptcha
                 ref={hcaptchaRef}
                 sitekey={siteKey}
                 onVerify={handleVerify}
                 onExpire={handleExpire}
                 onError={handleError}
-                size="normal"
-                theme="light"
+                size='normal'
+                theme='light'
               />
             </div>
           </FormControl>

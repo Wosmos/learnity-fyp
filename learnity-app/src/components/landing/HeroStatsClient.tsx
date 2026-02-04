@@ -5,16 +5,16 @@
 
 'use client';
 
-import { PlatformStatsClient } from '@/components/shared/PlatformStatsClient';
 import { useEffect, useState } from 'react';
+import { PlatformStatsClient } from '@/components/shared/PlatformStatsClient';
 
 function StatsLoading() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl mx-auto pt-8 border-t border-gray-200">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="text-center animate-pulse">
-          <div className="h-10 bg-gray-200 rounded mb-2 w-24 mx-auto"></div>
-          <div className="h-4 bg-gray-200 rounded w-20 mx-auto"></div>
+    <div className='grid grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl mx-auto pt-8 border-t border-gray-200'>
+      {[1, 2, 3].map(i => (
+        <div key={i} className='text-center animate-pulse'>
+          <div className='h-10 bg-gray-200 rounded mb-2 w-24 mx-auto'></div>
+          <div className='h-4 bg-gray-200 rounded w-20 mx-auto'></div>
         </div>
       ))}
     </div>
@@ -59,5 +59,5 @@ export function HeroStatsClient() {
     return null;
   }
 
-  return <PlatformStatsClient stats={stats} variant="hero" />;
+  return <PlatformStatsClient stats={stats} variant='hero' />;
 }

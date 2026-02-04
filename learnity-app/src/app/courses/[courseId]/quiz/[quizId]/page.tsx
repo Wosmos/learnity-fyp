@@ -8,13 +8,16 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { AlertCircle, PlayCircle } from 'lucide-react';
 import { QuizPageLayout } from '@/components/quiz/QuizPageLayout';
 import { QuestionCard } from '@/components/quiz/QuestionCard';
-import { QuizResultsPage, AnswerResult } from '@/components/quiz/QuizResultsPage';
+import {
+  QuizResultsPage,
+  AnswerResult,
+} from '@/components/quiz/QuizResultsPage';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, PlayCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface QuizQuestion {
@@ -59,7 +62,13 @@ interface QuizStats {
   passed: boolean;
 }
 
-type QuizState = 'loading' | 'ready' | 'taking' | 'submitting' | 'results' | 'error';
+type QuizState =
+  | 'loading'
+  | 'ready'
+  | 'taking'
+  | 'submitting'
+  | 'results'
+  | 'error';
 
 export default function QuizPage() {
   const params = useParams();
@@ -113,7 +122,9 @@ export default function QuizPage() {
           setQuizStats({
             totalAttempts: attempts.length,
             bestScore: Math.max(...scores),
-            averageScore: Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length),
+            averageScore: Math.round(
+              scores.reduce((a: number, b: number) => a + b, 0) / scores.length
+            ),
             passed: attempts.some((a: { passed: boolean }) => a.passed),
           });
         }
@@ -164,10 +175,12 @@ export default function QuizPage() {
       setQuizState('submitting');
 
       const timeTaken = Math.round((Date.now() - startTime) / 1000);
-      const answersArray = Array.from(answers.entries()).map(([questionId, selectedOptionIndex]) => ({
-        questionId,
-        selectedOptionIndex,
-      }));
+      const answersArray = Array.from(answers.entries()).map(
+        ([questionId, selectedOptionIndex]) => ({
+          questionId,
+          selectedOptionIndex,
+        })
+      );
 
       const response = await fetch(`/api/quizzes/${quizId}/submit`, {
         method: 'POST',
@@ -207,7 +220,8 @@ export default function QuizPage() {
       console.error('Error submitting quiz:', err);
       toast({
         title: 'Submission Failed',
-        description: err instanceof Error ? err.message : 'Failed to submit quiz',
+        description:
+          err instanceof Error ? err.message : 'Failed to submit quiz',
         variant: 'destructive',
       });
       setQuizState('taking');
@@ -222,14 +236,14 @@ export default function QuizPage() {
   // Loading state
   if (quizState === 'loading') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <Card className="bg-white dark:bg-slate-800">
-            <CardContent className="p-8">
-              <Skeleton className="h-8 w-64 mb-4" />
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-3/4 mb-6" />
-              <Skeleton className="h-12 w-32" />
+      <div className='min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-8'>
+        <div className='max-w-4xl mx-auto px-4'>
+          <Card className='bg-white dark:bg-slate-800'>
+            <CardContent className='p-8'>
+              <Skeleton className='h-8 w-64 mb-4' />
+              <Skeleton className='h-4 w-full mb-2' />
+              <Skeleton className='h-4 w-3/4 mb-6' />
+              <Skeleton className='h-12 w-32' />
             </CardContent>
           </Card>
         </div>
@@ -240,24 +254,22 @@ export default function QuizPage() {
   // Error state
   if (quizState === 'error') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <Card className="bg-white dark:bg-slate-800 border-red-200 dark:border-red-800">
-            <CardContent className="p-8 text-center">
-              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+      <div className='min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-8'>
+        <div className='max-w-4xl mx-auto px-4'>
+          <Card className='bg-white dark:bg-slate-800 border-red-200 dark:border-red-800'>
+            <CardContent className='p-8 text-center'>
+              <AlertCircle className='h-12 w-12 text-red-500 mx-auto mb-4' />
+              <h2 className='text-xl font-semibold text-slate-900 dark:text-white mb-2'>
                 Failed to Load Quiz
               </h2>
-              <p className="text-slate-600 dark:text-slate-400 mb-6">
+              <p className='text-slate-600 dark:text-slate-400 mb-6'>
                 {error || 'An unexpected error occurred'}
               </p>
-              <div className="flex gap-3 justify-center">
-                <Button variant="outline" onClick={() => router.back()}>
+              <div className='flex gap-3 justify-center'>
+                <Button variant='outline' onClick={() => router.back()}>
                   Go Back
                 </Button>
-                <Button onClick={fetchQuiz}>
-                  Try Again
-                </Button>
+                <Button onClick={fetchQuiz}>Try Again</Button>
               </div>
             </CardContent>
           </Card>
@@ -268,18 +280,20 @@ export default function QuizPage() {
 
   // Results state
   if (quizState === 'results' && results && quiz) {
-    const answerResultsWithText: AnswerResult[] = results.answerResults.map((ar) => {
-      const question = quiz.questions.find(q => q.id === ar.questionId);
-      return {
-        questionId: ar.questionId,
-        questionText: question?.question || '',
-        options: question?.options || [],
-        selectedOptionIndex: ar.selectedOptionIndex,
-        correctOptionIndex: ar.correctOptionIndex,
-        isCorrect: ar.isCorrect,
-        explanation: ar.explanation,
-      };
-    });
+    const answerResultsWithText: AnswerResult[] = results.answerResults.map(
+      ar => {
+        const question = quiz.questions.find(q => q.id === ar.questionId);
+        return {
+          questionId: ar.questionId,
+          questionText: question?.question || '',
+          options: question?.options || [],
+          selectedOptionIndex: ar.selectedOptionIndex,
+          correctOptionIndex: ar.correctOptionIndex,
+          isCorrect: ar.isCorrect,
+          explanation: ar.explanation,
+        };
+      }
+    );
 
     return (
       <QuizResultsPage
@@ -305,49 +319,54 @@ export default function QuizPage() {
   // Ready state (quiz intro)
   if (quizState === 'ready' && quiz) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
-            <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                <PlayCircle className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+      <div className='min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-8'>
+        <div className='max-w-4xl mx-auto px-4'>
+          <Card className='bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'>
+            <CardContent className='p-8 text-center'>
+              <div className='w-16 h-16 bg-slate-100 dark:bg-slate-900/30 rounded-full flex items-center justify-center mx-auto mb-6'>
+                <PlayCircle className='h-8 w-8 text-blue-600 dark:text-blue-400' />
               </div>
 
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+              <h1 className='text-2xl font-bold text-slate-900 dark:text-white mb-2'>
                 {quiz.title}
               </h1>
 
               {quiz.description && (
-                <p className="text-slate-600 dark:text-slate-400 mb-6">
+                <p className='text-slate-600 dark:text-slate-400 mb-6'>
                   {quiz.description}
                 </p>
               )}
 
-              <div className="grid grid-cols-2 gap-4 max-w-xs mx-auto mb-8">
-                <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                  <div className="text-2xl font-bold text-slate-900 dark:text-white">
+              <div className='grid grid-cols-2 gap-4 max-w-xs mx-auto mb-8'>
+                <div className='p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg'>
+                  <div className='text-2xl font-bold text-slate-900 dark:text-white'>
                     {quiz.totalQuestions}
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">Questions</div>
+                  <div className='text-xs text-slate-500 dark:text-slate-400'>
+                    Questions
+                  </div>
                 </div>
-                <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                  <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                <div className='p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg'>
+                  <div className='text-2xl font-bold text-slate-900 dark:text-white'>
                     {quiz.passingScore}%
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">To Pass</div>
+                  <div className='text-xs text-slate-500 dark:text-slate-400'>
+                    To Pass
+                  </div>
                 </div>
               </div>
 
               {quizStats && (
-                <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-700/30 rounded-lg">
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    Previous attempts: {quizStats.totalAttempts} | Best score: {quizStats.bestScore}%
+                <div className='mb-6 p-4 bg-slate-50 dark:bg-slate-700/30 rounded-lg'>
+                  <p className='text-sm text-slate-600 dark:text-slate-400'>
+                    Previous attempts: {quizStats.totalAttempts} | Best score:{' '}
+                    {quizStats.bestScore}%
                   </p>
                 </div>
               )}
 
-              <Button size="lg" onClick={handleStartQuiz}>
-                <PlayCircle className="h-5 w-5 mr-2" />
+              <Button size='lg' onClick={handleStartQuiz}>
+                <PlayCircle className='h-5 w-5 mr-2' />
                 Start Quiz
               </Button>
             </CardContent>

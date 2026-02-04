@@ -6,8 +6,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { ArrowLeft, Smartphone, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   RoleSelection,
   LoginForm,
@@ -17,10 +23,9 @@ import {
   PasswordResetForm,
   EmailVerificationPending,
   EmailVerificationResult,
-  AuthProvider
+  AuthProvider,
 } from '@/components/auth';
 import { UserRole } from '@/types/auth';
-import { ArrowLeft, Smartphone, Monitor } from 'lucide-react';
 
 type DemoComponent =
   | 'overview'
@@ -36,7 +41,8 @@ type DemoComponent =
   | 'email-verification-error';
 
 export default function DemoPage() {
-  const [currentComponent, setCurrentComponent] = useState<DemoComponent>('overview');
+  const [currentComponent, setCurrentComponent] =
+    useState<DemoComponent>('overview');
 
   const demoComponents = [
     { id: 'role-selection', name: 'Role Selection', icon: '👥' },
@@ -44,11 +50,27 @@ export default function DemoPage() {
     { id: 'login-mobile', name: 'Login (Mobile)', icon: '📱' },
     { id: 'student-registration', name: 'Student Registration', icon: '🎓' },
     { id: 'teacher-registration', name: 'Teacher Registration', icon: '👨‍🏫' },
-    { id: 'password-reset-request', name: 'Password Reset Request', icon: '🔑' },
+    {
+      id: 'password-reset-request',
+      name: 'Password Reset Request',
+      icon: '🔑',
+    },
     { id: 'password-reset', name: 'Password Reset', icon: '🔒' },
-    { id: 'email-verification-pending', name: 'Email Verification Pending', icon: '📧' },
-    { id: 'email-verification-success', name: 'Email Verification Success', icon: '✅' },
-    { id: 'email-verification-error', name: 'Email Verification Error', icon: '❌' },
+    {
+      id: 'email-verification-pending',
+      name: 'Email Verification Pending',
+      icon: '📧',
+    },
+    {
+      id: 'email-verification-success',
+      name: 'Email Verification Success',
+      icon: '✅',
+    },
+    {
+      id: 'email-verification-error',
+      name: 'Email Verification Error',
+      icon: '❌',
+    },
   ];
 
   const mockHandlers = {
@@ -75,7 +97,7 @@ export default function DemoPage() {
     },
     onBackToLogin: () => setCurrentComponent('login-desktop'),
     onContinue: () => setCurrentComponent('overview'),
-    onRetry: () => setCurrentComponent('email-verification-pending')
+    onRetry: () => setCurrentComponent('email-verification-pending'),
   };
 
   const renderComponent = () => {
@@ -85,7 +107,7 @@ export default function DemoPage() {
 
       case 'login-desktop':
         return (
-          <div className="max-w-md mx-auto">
+          <div className='max-w-md mx-auto'>
             <LoginForm
               onSubmit={mockHandlers.onSubmit}
               onForgotPassword={mockHandlers.onForgotPassword}
@@ -113,7 +135,7 @@ export default function DemoPage() {
 
       case 'password-reset-request':
         return (
-          <div className="max-w-md mx-auto">
+          <div className='max-w-md mx-auto'>
             <PasswordResetRequestForm
               onSubmit={mockHandlers.onSubmit}
               onBackToLogin={mockHandlers.onBackToLogin}
@@ -123,9 +145,9 @@ export default function DemoPage() {
 
       case 'password-reset':
         return (
-          <div className="max-w-md mx-auto">
+          <div className='max-w-md mx-auto'>
             <PasswordResetForm
-              token="demo-token"
+              token='demo-token'
               onSubmit={mockHandlers.onSubmit}
               onBackToLogin={mockHandlers.onBackToLogin}
             />
@@ -154,7 +176,7 @@ export default function DemoPage() {
         return (
           <EmailVerificationResult
             success={false}
-            error="The verification link has expired or is invalid."
+            error='The verification link has expired or is invalid.'
             onContinue={mockHandlers.onContinue}
             onRetry={mockHandlers.onRetry}
           />
@@ -162,26 +184,28 @@ export default function DemoPage() {
 
       default:
         return (
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className='max-w-4xl mx-auto'>
+            <div className='text-center mb-8'>
+              <h1 className='text-3xl font-bold text-gray-900 mb-4'>
                 🎨 Authentication Components Demo
               </h1>
-              <p className="text-lg text-gray-600">
+              <p className='text-lg text-gray-600'>
                 Explore all the authentication components built for Learnity
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {demoComponents.map((component) => (
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+              {demoComponents.map(component => (
                 <Card
                   key={component.id}
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => setCurrentComponent(component.id as DemoComponent)}
+                  className='cursor-pointer hover:shadow-lg transition-shadow'
+                  onClick={() =>
+                    setCurrentComponent(component.id as DemoComponent)
+                  }
                 >
-                  <CardHeader className="text-center">
-                    <div className="text-4xl mb-2">{component.icon}</div>
-                    <CardTitle className="text-lg">{component.name}</CardTitle>
+                  <CardHeader className='text-center'>
+                    <div className='text-4xl mb-2'>{component.icon}</div>
+                    <CardTitle className='text-lg'>{component.name}</CardTitle>
                     <CardDescription>
                       Click to view this component
                     </CardDescription>
@@ -190,14 +214,14 @@ export default function DemoPage() {
               ))}
             </div>
 
-            <div className="mt-12 bg-slate-50 rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-blue-900 mb-4">
+            <div className='mt-12 bg-slate-50 rounded-lg p-6'>
+              <h2 className='text-xl font-semibold text-blue-900 mb-4'>
                 🚀 Features Implemented
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800'>
                 <div>
-                  <h3 className="font-medium mb-2">✅ Core Features:</h3>
-                  <ul className="space-y-1">
+                  <h3 className='font-medium mb-2'>✅ Core Features:</h3>
+                  <ul className='space-y-1'>
                     <li>• Role-based registration (Student/Teacher)</li>
                     <li>• Form validation with real-time feedback</li>
                     <li>• Social authentication (Google/Microsoft)</li>
@@ -206,8 +230,8 @@ export default function DemoPage() {
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-medium mb-2">📱 Mobile Features:</h3>
-                  <ul className="space-y-1">
+                  <h3 className='font-medium mb-2'>📱 Mobile Features:</h3>
+                  <ul className='space-y-1'>
                     <li>• Touch-friendly interfaces</li>
                     <li>• Biometric authentication detection</li>
                     <li>• Responsive design</li>
@@ -224,36 +248,36 @@ export default function DemoPage() {
 
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50'>
         {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
+        <div className='bg-white shadow-sm border-b'>
+          <div className='container mx-auto px-4 py-4'>
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center space-x-4'>
                 {currentComponent !== 'overview' && (
                   <Button
-                    variant="ghost"
-                    size="sm"
+                    variant='ghost'
+                    size='sm'
                     onClick={() => setCurrentComponent('overview')}
                   >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    <ArrowLeft className='h-4 w-4 mr-2' />
                     Back to Overview
                   </Button>
                 )}
-                <h1 className="text-xl font-semibold text-gray-900">
+                <h1 className='text-xl font-semibold text-gray-900'>
                   Authentication Demo
                 </h1>
               </div>
 
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <div className='flex items-center space-x-2 text-sm text-gray-600'>
                 {currentComponent.includes('mobile') ? (
-                  <div className="flex items-center space-x-1">
-                    <Smartphone className="h-4 w-4" />
+                  <div className='flex items-center space-x-1'>
+                    <Smartphone className='h-4 w-4' />
                     <span>Mobile View</span>
                   </div>
                 ) : (
-                  <div className="flex items-center space-x-1">
-                    <Monitor className="h-4 w-4" />
+                  <div className='flex items-center space-x-1'>
+                    <Monitor className='h-4 w-4' />
                     <span>Desktop View</span>
                   </div>
                 )}
@@ -263,16 +287,14 @@ export default function DemoPage() {
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-4 py-8">
-          {renderComponent()}
-        </div>
+        <div className='container mx-auto px-4 py-8'>{renderComponent()}</div>
 
         {/* Footer */}
-        <div className="bg-white border-t mt-12">
-          <div className="container mx-auto px-4 py-6 text-center text-sm text-gray-600">
+        <div className='bg-white border-t mt-12'>
+          <div className='container mx-auto px-4 py-6 text-center text-sm text-gray-600'>
             <p>
-              This is a demo page showcasing the authentication components.
-              All forms are in demo mode and will not actually submit data.
+              This is a demo page showcasing the authentication components. All
+              forms are in demo mode and will not actually submit data.
             </p>
           </div>
         </div>

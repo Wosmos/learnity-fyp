@@ -1,7 +1,7 @@
 /**
  * Seed Script for Communication Features
  * Creates sample users, courses, enrollments, and course rooms
- * 
+ *
  * Run with: npx tsx prisma/seed-communication.ts
  */
 
@@ -65,7 +65,10 @@ async function main() {
         teacherProfile: {
           create: {
             applicationStatus: 'APPROVED',
-            qualifications: ['PhD Computer Science', 'MSc Software Engineering'],
+            qualifications: [
+              'PhD Computer Science',
+              'MSc Software Engineering',
+            ],
             subjects: ['Python', 'JavaScript', 'Web Development'],
             experience: 8,
             bio: 'Passionate educator with 8 years of experience in software development and teaching.',
@@ -255,7 +258,8 @@ async function main() {
       create: {
         title: 'Python Fundamentals',
         slug: 'python-fundamentals',
-        description: 'Learn Python from scratch. Perfect for beginners who want to start their programming journey.',
+        description:
+          'Learn Python from scratch. Perfect for beginners who want to start their programming journey.',
         teacherId: teachers[0].id,
         categoryId: categories[0].id,
         difficulty: 'BEGINNER',
@@ -276,7 +280,8 @@ async function main() {
       create: {
         title: 'Advanced JavaScript',
         slug: 'advanced-javascript',
-        description: 'Master advanced JavaScript concepts including async/await, closures, and modern ES6+ features.',
+        description:
+          'Master advanced JavaScript concepts including async/await, closures, and modern ES6+ features.',
         teacherId: teachers[0].id,
         categoryId: categories[0].id,
         difficulty: 'ADVANCED',
@@ -298,7 +303,8 @@ async function main() {
       create: {
         title: 'Calculus Mastery',
         slug: 'calculus-mastery',
-        description: 'Complete calculus course covering limits, derivatives, integrals, and applications.',
+        description:
+          'Complete calculus course covering limits, derivatives, integrals, and applications.',
         teacherId: teachers[1].id,
         categoryId: categories[1].id,
         difficulty: 'INTERMEDIATE',
@@ -319,7 +325,8 @@ async function main() {
       create: {
         title: 'Introduction to Quantum Physics',
         slug: 'quantum-physics-intro',
-        description: 'Explore the fascinating world of quantum mechanics. No prior physics knowledge required.',
+        description:
+          'Explore the fascinating world of quantum mechanics. No prior physics knowledge required.',
         teacherId: teachers[2].id,
         categoryId: categories[2].id,
         difficulty: 'INTERMEDIATE',
@@ -342,62 +349,172 @@ async function main() {
   const enrollments = await Promise.all([
     // Python course enrollments
     prisma.enrollment.upsert({
-      where: { studentId_courseId: { studentId: students[0].id, courseId: courses[0].id } },
+      where: {
+        studentId_courseId: {
+          studentId: students[0].id,
+          courseId: courses[0].id,
+        },
+      },
       update: {},
-      create: { studentId: students[0].id, courseId: courses[0].id, progress: 75, status: 'ACTIVE' },
+      create: {
+        studentId: students[0].id,
+        courseId: courses[0].id,
+        progress: 75,
+        status: 'ACTIVE',
+      },
     }),
     prisma.enrollment.upsert({
-      where: { studentId_courseId: { studentId: students[2].id, courseId: courses[0].id } },
+      where: {
+        studentId_courseId: {
+          studentId: students[2].id,
+          courseId: courses[0].id,
+        },
+      },
       update: {},
-      create: { studentId: students[2].id, courseId: courses[0].id, progress: 45, status: 'ACTIVE' },
+      create: {
+        studentId: students[2].id,
+        courseId: courses[0].id,
+        progress: 45,
+        status: 'ACTIVE',
+      },
     }),
     prisma.enrollment.upsert({
-      where: { studentId_courseId: { studentId: students[3].id, courseId: courses[0].id } },
+      where: {
+        studentId_courseId: {
+          studentId: students[3].id,
+          courseId: courses[0].id,
+        },
+      },
       update: {},
-      create: { studentId: students[3].id, courseId: courses[0].id, progress: 30, status: 'ACTIVE' },
+      create: {
+        studentId: students[3].id,
+        courseId: courses[0].id,
+        progress: 30,
+        status: 'ACTIVE',
+      },
     }),
     // JavaScript course enrollments
     prisma.enrollment.upsert({
-      where: { studentId_courseId: { studentId: students[0].id, courseId: courses[1].id } },
+      where: {
+        studentId_courseId: {
+          studentId: students[0].id,
+          courseId: courses[1].id,
+        },
+      },
       update: {},
-      create: { studentId: students[0].id, courseId: courses[1].id, progress: 20, status: 'ACTIVE' },
+      create: {
+        studentId: students[0].id,
+        courseId: courses[1].id,
+        progress: 20,
+        status: 'ACTIVE',
+      },
     }),
     prisma.enrollment.upsert({
-      where: { studentId_courseId: { studentId: students[3].id, courseId: courses[1].id } },
+      where: {
+        studentId_courseId: {
+          studentId: students[3].id,
+          courseId: courses[1].id,
+        },
+      },
       update: {},
-      create: { studentId: students[3].id, courseId: courses[1].id, progress: 60, status: 'ACTIVE' },
+      create: {
+        studentId: students[3].id,
+        courseId: courses[1].id,
+        progress: 60,
+        status: 'ACTIVE',
+      },
     }),
     // Calculus course enrollments
     prisma.enrollment.upsert({
-      where: { studentId_courseId: { studentId: students[1].id, courseId: courses[2].id } },
+      where: {
+        studentId_courseId: {
+          studentId: students[1].id,
+          courseId: courses[2].id,
+        },
+      },
       update: {},
-      create: { studentId: students[1].id, courseId: courses[2].id, progress: 85, status: 'ACTIVE' },
+      create: {
+        studentId: students[1].id,
+        courseId: courses[2].id,
+        progress: 85,
+        status: 'ACTIVE',
+      },
     }),
     prisma.enrollment.upsert({
-      where: { studentId_courseId: { studentId: students[4].id, courseId: courses[2].id } },
+      where: {
+        studentId_courseId: {
+          studentId: students[4].id,
+          courseId: courses[2].id,
+        },
+      },
       update: {},
-      create: { studentId: students[4].id, courseId: courses[2].id, progress: 50, status: 'ACTIVE' },
+      create: {
+        studentId: students[4].id,
+        courseId: courses[2].id,
+        progress: 50,
+        status: 'ACTIVE',
+      },
     }),
     prisma.enrollment.upsert({
-      where: { studentId_courseId: { studentId: students[0].id, courseId: courses[2].id } },
+      where: {
+        studentId_courseId: {
+          studentId: students[0].id,
+          courseId: courses[2].id,
+        },
+      },
       update: {},
-      create: { studentId: students[0].id, courseId: courses[2].id, progress: 35, status: 'ACTIVE' },
+      create: {
+        studentId: students[0].id,
+        courseId: courses[2].id,
+        progress: 35,
+        status: 'ACTIVE',
+      },
     }),
     prisma.enrollment.upsert({
-      where: { studentId_courseId: { studentId: students[2].id, courseId: courses[2].id } },
+      where: {
+        studentId_courseId: {
+          studentId: students[2].id,
+          courseId: courses[2].id,
+        },
+      },
       update: {},
-      create: { studentId: students[2].id, courseId: courses[2].id, progress: 15, status: 'ACTIVE' },
+      create: {
+        studentId: students[2].id,
+        courseId: courses[2].id,
+        progress: 15,
+        status: 'ACTIVE',
+      },
     }),
     // Physics course enrollments
     prisma.enrollment.upsert({
-      where: { studentId_courseId: { studentId: students[1].id, courseId: courses[3].id } },
+      where: {
+        studentId_courseId: {
+          studentId: students[1].id,
+          courseId: courses[3].id,
+        },
+      },
       update: {},
-      create: { studentId: students[1].id, courseId: courses[3].id, progress: 40, status: 'ACTIVE' },
+      create: {
+        studentId: students[1].id,
+        courseId: courses[3].id,
+        progress: 40,
+        status: 'ACTIVE',
+      },
     }),
     prisma.enrollment.upsert({
-      where: { studentId_courseId: { studentId: students[4].id, courseId: courses[3].id } },
+      where: {
+        studentId_courseId: {
+          studentId: students[4].id,
+          courseId: courses[3].id,
+        },
+      },
       update: {},
-      create: { studentId: students[4].id, courseId: courses[3].id, progress: 25, status: 'ACTIVE' },
+      create: {
+        studentId: students[4].id,
+        courseId: courses[3].id,
+        progress: 25,
+        status: 'ACTIVE',
+      },
     }),
   ]);
   console.log(`   ✅ Created ${enrollments.length} enrollments\n`);
@@ -405,7 +522,7 @@ async function main() {
   // Create Course Rooms (without actual 100ms/GetStream - just DB records)
   console.log('🏠 Creating course rooms...');
   const courseRooms = await Promise.all(
-    courses.map((course) =>
+    courses.map(course =>
       prisma.courseRoom.upsert({
         where: { courseId: course.id },
         update: {},
@@ -472,13 +589,17 @@ async function main() {
   console.log(`   - Live Sessions: ${sessions.length}`);
   console.log('\n🔑 Test Accounts:');
   console.log('   Teachers:');
-  teachers.forEach((t) => console.log(`     - ${t.email} (Firebase UID: ${t.firebaseUid})`));
+  teachers.forEach(t =>
+    console.log(`     - ${t.email} (Firebase UID: ${t.firebaseUid})`)
+  );
   console.log('   Students:');
-  students.forEach((s) => console.log(`     - ${s.email} (Firebase UID: ${s.firebaseUid})`));
+  students.forEach(s =>
+    console.log(`     - ${s.email} (Firebase UID: ${s.firebaseUid})`)
+  );
 }
 
 main()
-  .catch((e) => {
+  .catch(e => {
     console.error('❌ Seed failed:', e);
     process.exit(1);
   })

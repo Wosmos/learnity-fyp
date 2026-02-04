@@ -14,7 +14,9 @@ console.log('1. Checking Prisma schema configuration...');
 const schemaPath = path.join(process.cwd(), 'prisma', 'schema.prisma');
 const schemaContent = fs.readFileSync(schemaPath, 'utf8');
 
-if (schemaContent.includes('binaryTargets = ["native", "rhel-openssl-3.0.x"]')) {
+if (
+  schemaContent.includes('binaryTargets = ["native", "rhel-openssl-3.0.x"]')
+) {
   console.log('   ✅ Binary targets correctly configured');
 } else {
   console.log('   ❌ Binary targets missing or incorrect');
@@ -25,8 +27,10 @@ console.log('2. Checking Next.js configuration...');
 const nextConfigPath = path.join(process.cwd(), 'next.config.ts');
 const nextConfigContent = fs.readFileSync(nextConfigPath, 'utf8');
 
-if (nextConfigContent.includes('serverComponentsExternalPackages') && 
-    nextConfigContent.includes('@prisma/client')) {
+if (
+  nextConfigContent.includes('serverComponentsExternalPackages') &&
+  nextConfigContent.includes('@prisma/client')
+) {
   console.log('   ✅ Next.js Prisma externalization configured');
 } else {
   console.log('   ❌ Next.js Prisma externalization missing');
@@ -37,8 +41,10 @@ console.log('3. Checking Vercel configuration...');
 const vercelConfigPath = path.join(process.cwd(), 'vercel.json');
 const vercelConfigContent = fs.readFileSync(vercelConfigPath, 'utf8');
 
-if (vercelConfigContent.includes('libquery_engine-') && 
-    vercelConfigContent.includes('deploy-setup.js')) {
+if (
+  vercelConfigContent.includes('libquery_engine-') &&
+  vercelConfigContent.includes('deploy-setup.js')
+) {
   console.log('   ✅ Vercel configuration updated');
 } else {
   console.log('   ❌ Vercel configuration incomplete');
@@ -46,16 +52,28 @@ if (vercelConfigContent.includes('libquery_engine-') &&
 
 // Test 4: Check if Prisma client binary exists
 console.log('4. Checking Prisma client binaries...');
-const prismaClientPath = path.join(process.cwd(), 'node_modules', '.prisma', 'client');
+const prismaClientPath = path.join(
+  process.cwd(),
+  'node_modules',
+  '.prisma',
+  'client'
+);
 
 if (fs.existsSync(prismaClientPath)) {
   const files = fs.readdirSync(prismaClientPath);
-  const queryEngineFiles = files.filter(file => file.includes('libquery_engine'));
-  
+  const queryEngineFiles = files.filter(file =>
+    file.includes('libquery_engine')
+  );
+
   if (queryEngineFiles.length > 0) {
-    console.log('   ✅ Prisma query engine binaries found:', queryEngineFiles.join(', '));
+    console.log(
+      '   ✅ Prisma query engine binaries found:',
+      queryEngineFiles.join(', ')
+    );
   } else {
-    console.log('   ⚠️  No query engine binaries found (run npm run db:generate)');
+    console.log(
+      '   ⚠️  No query engine binaries found (run npm run db:generate)'
+    );
   }
 } else {
   console.log('   ⚠️  Prisma client not generated (run npm run db:generate)');

@@ -1,12 +1,13 @@
 /**
  * Section Reorder API Route
  * PUT /api/courses/[courseId]/sections/reorder - Reorder sections
- * 
+ *
  * Requirements covered:
  * - 1.9: Reordering sections via drag-and-drop
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 import { sectionService } from '@/lib/services/section.service';
 import { ReorderSectionsSchema } from '@/lib/validators/section';
 import { SectionError } from '@/lib/interfaces/section.interface';
@@ -19,7 +20,6 @@ import {
   createValidationErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { ZodError } from 'zod';
 
 interface RouteParams {
   params: Promise<{ courseId: string }>;

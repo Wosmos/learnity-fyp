@@ -185,7 +185,7 @@ export class ServiceFactory {
       hcaptchaService: this.getHCaptchaService(),
       appCheckService: this.getAppCheckService(),
       roleManagerService: this.getRoleManagerService(),
-      securityService: this.getSecurityService()
+      securityService: this.getSecurityService(),
     };
   }
 

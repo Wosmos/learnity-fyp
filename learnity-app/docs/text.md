@@ -1,4 +1,3 @@
-
 ## 🚀 **Key Changes That Fix Your Issue:**
 
 1. **Removed custom CSS**: Using Tailwind's built-in `prose` classes instead

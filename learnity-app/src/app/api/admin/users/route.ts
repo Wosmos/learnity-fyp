@@ -4,16 +4,16 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { UserRole } from '@/types/auth';
 import { z } from 'zod';
 import type { Prisma } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { UserRole } from '@/types/auth';
 import { withAdminApiAuth } from '@/lib/utils/api-auth.utils';
 
 // Validation schemas
 const userActionSchema = z.object({
   userId: z.string(),
-  action: z.enum(['activate', 'deactivate', 'delete'])
+  action: z.enum(['activate', 'deactivate', 'delete']),
 });
 
 type AuthenticatedAdmin = {
@@ -23,17 +23,23 @@ type AuthenticatedAdmin = {
 const ensureActiveAdmin = async (firebaseUid: string) => {
   const adminUser = await prisma.user.findUnique({
     where: { firebaseUid },
-    select: { role: true, isActive: true }
+    select: { role: true, isActive: true },
   });
 
   if (!adminUser || !adminUser.isActive || adminUser.role !== UserRole.ADMIN) {
-    return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    return NextResponse.json(
+      { error: 'Forbidden - Admin access required' },
+      { status: 403 }
+    );
   }
 
   return null;
 };
 
-async function handleGetUsers(request: NextRequest, user: AuthenticatedAdmin): Promise<NextResponse> {
+async function handleGetUsers(
+  request: NextRequest,
+  user: AuthenticatedAdmin
+): Promise<NextResponse> {
   try {
     const adminCheck = await ensureActiveAdmin(user.firebaseUid);
     if (adminCheck) {
@@ -49,16 +55,16 @@ async function handleGetUsers(request: NextRequest, user: AuthenticatedAdmin): P
 
     // Build where clause
     const where: Prisma.UserWhereInput = {};
-    
+
     if (role && role !== 'all') {
       where.role = role as UserRole;
     }
-    
+
     if (search) {
       where.OR = [
         { email: { contains: search, mode: 'insensitive' } },
         { firstName: { contains: search, mode: 'insensitive' } },
-        { lastName: { contains: search, mode: 'insensitive' } }
+        { lastName: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -76,13 +82,13 @@ async function handleGetUsers(request: NextRequest, user: AuthenticatedAdmin): P
           isActive: true,
           lastLoginAt: true,
           createdAt: true,
-          profilePicture: true
+          profilePicture: true,
         },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
-        take: limit
+        take: limit,
       }),
-      prisma.user.count({ where })
+      prisma.user.count({ where }),
     ]);
 
     return NextResponse.json({
@@ -92,10 +98,9 @@ async function handleGetUsers(request: NextRequest, user: AuthenticatedAdmin): P
         page,
         limit,
         total: totalCount,
-        pages: Math.ceil(totalCount / limit)
-      }
+        pages: Math.ceil(totalCount / limit),
+      },
     });
-
   } catch (error) {
     console.error('Admin users fetch error:', error);
     return NextResponse.json(
@@ -105,7 +110,10 @@ async function handleGetUsers(request: NextRequest, user: AuthenticatedAdmin): P
   }
 }
 
-async function handleUpdateUser(request: NextRequest, user: AuthenticatedAdmin): Promise<NextResponse> {
+async function handleUpdateUser(
+  request: NextRequest,
+  user: AuthenticatedAdmin
+): Promise<NextResponse> {
   try {
     const adminCheck = await ensureActiveAdmin(user.firebaseUid);
     if (adminCheck) {
@@ -113,12 +121,15 @@ async function handleUpdateUser(request: NextRequest, user: AuthenticatedAdmin):
     }
 
     const body = await request.json();
-    
+
     // Validate request body
     const validationResult = userActionSchema.safeParse(body);
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: validationResult.error.errors },
+        {
+          error: 'Invalid request data',
+          details: validationResult.error.errors,
+        },
         { status: 400 }
       );
     }
@@ -134,15 +145,12 @@ async function handleUpdateUser(request: NextRequest, user: AuthenticatedAdmin):
         isActive: true,
         email: true,
         firstName: true,
-        lastName: true
-      }
+        lastName: true,
+      },
     });
 
     if (!existingUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Prevent admin from deleting themselves
@@ -158,14 +166,14 @@ async function handleUpdateUser(request: NextRequest, user: AuthenticatedAdmin):
       case 'activate':
         await prisma.user.update({
           where: { id: userId },
-          data: { isActive: true }
+          data: { isActive: true },
         });
         break;
 
       case 'deactivate':
         await prisma.user.update({
           where: { id: userId },
-          data: { isActive: false }
+          data: { isActive: false },
         });
         break;
 
@@ -177,23 +185,19 @@ async function handleUpdateUser(request: NextRequest, user: AuthenticatedAdmin):
             isActive: false,
             email: `deleted_${userId}@deleted.com`,
             firstName: 'Deleted',
-            lastName: 'User'
-          }
+            lastName: 'User',
+          },
         });
         break;
 
       default:
-        return NextResponse.json(
-          { error: 'Invalid action' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
 
     return NextResponse.json({
       success: true,
-      message: `User ${action}d successfully`
+      message: `User ${action}d successfully`,
     });
-
   } catch (error) {
     console.error('Admin user action error:', error);
     return NextResponse.json(

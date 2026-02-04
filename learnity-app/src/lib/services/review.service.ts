@@ -1,7 +1,7 @@
 /**
  * Review Service Implementation
  * Handles all review management operations
- * 
+ *
  * Requirements covered:
  * - 8.1: Review eligibility (50% progress required)
  * - 8.2: Rating 1-5 with optional comment (10-500 chars)
@@ -53,7 +53,10 @@ export class ReviewService implements IReviewService {
    * Check if a student can review a course
    * Requirements: 8.1
    */
-  async canReview(studentId: string, courseId: string): Promise<ReviewEligibility> {
+  async canReview(
+    studentId: string,
+    courseId: string
+  ): Promise<ReviewEligibility> {
     // Check if course exists
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
@@ -136,13 +139,16 @@ export class ReviewService implements IReviewService {
    * Create a new review
    * Requirements: 8.2, 8.3, 8.6
    */
-  async createReview(studentId: string, data: CreateReviewData): Promise<Review> {
+  async createReview(
+    studentId: string,
+    data: CreateReviewData
+  ): Promise<Review> {
     // Validate input
     const validatedData = CreateReviewSchema.parse(data);
 
     // Check eligibility
     const eligibility = await this.canReview(studentId, validatedData.courseId);
-    
+
     if (!eligibility.canReview) {
       if (eligibility.hasExistingReview) {
         throw new ReviewError(
@@ -151,9 +157,11 @@ export class ReviewService implements IReviewService {
           409
         );
       }
-      
-      if (eligibility.enrollmentProgress !== undefined && 
-          eligibility.enrollmentProgress < MINIMUM_REVIEW_PROGRESS) {
+
+      if (
+        eligibility.enrollmentProgress !== undefined &&
+        eligibility.enrollmentProgress < MINIMUM_REVIEW_PROGRESS
+      ) {
         throw new ReviewError(
           eligibility.reason || 'Insufficient progress to review',
           ReviewErrorCode.INSUFFICIENT_PROGRESS,
@@ -169,7 +177,7 @@ export class ReviewService implements IReviewService {
     }
 
     // Create review and update course rating in a transaction
-    const review = await this.prisma.$transaction(async (tx) => {
+    const review = await this.prisma.$transaction(async tx => {
       // Create the review
       const newReview = await tx.review.create({
         data: {
@@ -238,7 +246,7 @@ export class ReviewService implements IReviewService {
     }
 
     // Update review and recalculate course rating
-    const review = await this.prisma.$transaction(async (tx) => {
+    const review = await this.prisma.$transaction(async tx => {
       const updatedReview = await tx.review.update({
         where: { id: reviewId },
         data: updateData,
@@ -288,7 +296,7 @@ export class ReviewService implements IReviewService {
     }
 
     // Delete review and recalculate course rating
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async tx => {
       await tx.review.delete({
         where: { id: reviewId },
       });
@@ -353,7 +361,10 @@ export class ReviewService implements IReviewService {
   /**
    * Get a student's review for a specific course
    */
-  async getStudentReview(studentId: string, courseId: string): Promise<Review | null> {
+  async getStudentReview(
+    studentId: string,
+    courseId: string
+  ): Promise<Review | null> {
     const review = await this.prisma.review.findUnique({
       where: {
         studentId_courseId: {
@@ -393,9 +404,10 @@ export class ReviewService implements IReviewService {
     }
 
     const reviewCount = reviews.length;
-    const averageRating = reviewCount > 0
-      ? Math.round((totalRating / reviewCount) * 10) / 10 // Round to 1 decimal
-      : 0;
+    const averageRating =
+      reviewCount > 0
+        ? Math.round((totalRating / reviewCount) * 10) / 10 // Round to 1 decimal
+        : 0;
 
     return {
       averageRating,
@@ -417,7 +429,17 @@ export class ReviewService implements IReviewService {
    * Can be used within transactions
    */
   private async recalculateCourseRating(
-    tx: PrismaClient | Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>,
+    tx:
+      | PrismaClient
+      | Omit<
+          PrismaClient,
+          | '$connect'
+          | '$disconnect'
+          | '$on'
+          | '$transaction'
+          | '$use'
+          | '$extends'
+        >,
     courseId: string
   ): Promise<void> {
     // Get all reviews for the course
@@ -427,9 +449,10 @@ export class ReviewService implements IReviewService {
     });
 
     const reviewCount = reviews.length;
-    const averageRating = reviewCount > 0
-      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
-      : 0;
+    const averageRating =
+      reviewCount > 0
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+        : 0;
 
     // Update course with new rating (rounded to 1 decimal place)
     await tx.course.update({

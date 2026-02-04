@@ -1,12 +1,13 @@
 /**
  * YouTube Validation API Route
  * POST /api/youtube/validate - Validate YouTube URL and return video metadata
- * 
+ *
  * Requirements covered:
  * - 1.8: Validating YouTube URLs and extracting video metadata
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { lessonService } from '@/lib/services/lesson.service';
 import { authMiddleware } from '@/lib/middleware/auth.middleware';
 import { UserRole } from '@/types/auth';
@@ -15,7 +16,6 @@ import {
   createErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { z } from 'zod';
 
 /**
  * Validation schema for YouTube URL request

@@ -4,40 +4,34 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 import { prisma } from '@/lib/config/database';
 import { adminAuth } from '@/lib/config/firebase-admin';
-import { headers } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   try {
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Verify Firebase token
     const idToken = authHeader.substring(7);
     const decodedToken = await adminAuth.verifyIdToken(idToken);
-    
+
     console.log('🔵 Fetching teacher profile for:', decodedToken.uid);
 
     // Find user and teacher profile
     const user = await prisma.user.findUnique({
       where: { firebaseUid: decodedToken.uid },
       include: {
-        teacherProfile: true
-      }
+        teacherProfile: true,
+      },
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     if (!user.teacherProfile) {
@@ -89,13 +83,12 @@ export async function GET(request: NextRequest) {
         phone: user.teacherProfile.phone,
         country: user.teacherProfile.country,
         city: user.teacherProfile.city,
-        state: user.teacherProfile.state
-      }
+        state: user.teacherProfile.state,
+      },
     });
-
   } catch (error: unknown) {
     console.error('❌ Failed to fetch teacher profile:', error);
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -108,16 +101,13 @@ export async function PATCH(request: NextRequest) {
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Verify Firebase token
     const idToken = authHeader.substring(7);
     const decodedToken = await adminAuth.verifyIdToken(idToken);
-    
+
     // Get request body
     const body = await request.json();
     const { section, data } = body;
@@ -125,7 +115,7 @@ export async function PATCH(request: NextRequest) {
     // Find user to get IDs
     const user = await prisma.user.findUnique({
       where: { firebaseUid: decodedToken.uid },
-      include: { teacherProfile: true }
+      include: { teacherProfile: true },
     });
 
     if (!user) {
@@ -133,11 +123,14 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (!user.teacherProfile) {
-      return NextResponse.json({ error: 'Teacher profile not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Teacher profile not found' },
+        { status: 404 }
+      );
     }
 
     // Prepare update data
-    let userUpdateData: any = {};
+    const userUpdateData: any = {};
     let profileUpdateData: any = {};
 
     // Map data based on section
@@ -145,8 +138,14 @@ export async function PATCH(request: NextRequest) {
     if (section === 'identity') {
       if (data.firstName) userUpdateData.firstName = data.firstName;
       if (data.lastName) userUpdateData.lastName = data.lastName;
-      
-      const profileFields = ['headline', 'bio', 'videoIntroUrl', 'teachingApproach', 'whyChooseMe'];
+
+      const profileFields = [
+        'headline',
+        'bio',
+        'videoIntroUrl',
+        'teachingApproach',
+        'whyChooseMe',
+      ];
       profileFields.forEach(field => {
         if (data[field] !== undefined) profileUpdateData[field] = data[field];
       });
@@ -154,8 +153,14 @@ export async function PATCH(request: NextRequest) {
     // 'expertise' section is purely Profile
     else if (section === 'expertise') {
       const profileFields = [
-        'subjects', 'specialties', 'languages', 'education', 
-        'certifications', 'experience', 'onlineExperience', 'achievements'
+        'subjects',
+        'specialties',
+        'languages',
+        'education',
+        'certifications',
+        'experience',
+        'onlineExperience',
+        'achievements',
       ];
       profileFields.forEach(field => {
         if (data[field] !== undefined) profileUpdateData[field] = data[field];
@@ -164,8 +169,16 @@ export async function PATCH(request: NextRequest) {
     // 'logistics' section is purely Profile
     else if (section === 'logistics') {
       const profileFields = [
-        'hourlyRate', 'timezone', 'city', 'country', 'phone', 
-        'websiteUrl', 'linkedinUrl', 'availability', 'availableDays', 'preferredTimes'
+        'hourlyRate',
+        'timezone',
+        'city',
+        'country',
+        'phone',
+        'websiteUrl',
+        'linkedinUrl',
+        'availability',
+        'availableDays',
+        'preferredTimes',
       ];
       profileFields.forEach(field => {
         if (data[field] !== undefined) profileUpdateData[field] = data[field];
@@ -173,23 +186,23 @@ export async function PATCH(request: NextRequest) {
     }
     // Fallback/Legacy
     else {
-       // Try to distribute fields intelligently
-       if (data.firstName) userUpdateData.firstName = data.firstName;
-       if (data.lastName) userUpdateData.lastName = data.lastName;
-       
-       // Everything else goes to profile data, excluding user fields
-       profileUpdateData = { ...data };
-       delete profileUpdateData.firstName;
-       delete profileUpdateData.lastName;
+      // Try to distribute fields intelligently
+      if (data.firstName) userUpdateData.firstName = data.firstName;
+      if (data.lastName) userUpdateData.lastName = data.lastName;
+
+      // Everything else goes to profile data, excluding user fields
+      profileUpdateData = { ...data };
+      delete profileUpdateData.firstName;
+      delete profileUpdateData.lastName;
     }
 
     // Transaction to update both tables if needed
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async tx => {
       // Update User table if we have fields
       if (Object.keys(userUpdateData).length > 0) {
         await tx.user.update({
           where: { id: user.id },
-          data: userUpdateData
+          data: userUpdateData,
         });
       }
 
@@ -197,13 +210,12 @@ export async function PATCH(request: NextRequest) {
       if (Object.keys(profileUpdateData).length > 0) {
         await tx.teacherProfile.update({
           where: { id: user.teacherProfile!.id },
-          data: profileUpdateData
+          data: profileUpdateData,
         });
       }
     });
 
     return NextResponse.json({ success: true });
-
   } catch (error: unknown) {
     console.error('❌ Failed to update profile:', error);
     return NextResponse.json(

@@ -1,7 +1,7 @@
 /**
  * Review Eligibility API Route
  * GET /api/courses/[courseId]/reviews/eligibility - Check if user can review
- * 
+ *
  * Requirements covered:
  * - 8.1: Review eligibility (50% progress required)
  * - 8.6: One review per student per course
@@ -74,13 +74,19 @@ export async function GET(
     // Get existing review if any
     let existingReview = null;
     if (eligibility.hasExistingReview) {
-      existingReview = await reviewService.getStudentReview(dbUser.id, courseId);
+      existingReview = await reviewService.getStudentReview(
+        dbUser.id,
+        courseId
+      );
     }
 
-    return createSuccessResponse({
-      ...eligibility,
-      existingReview,
-    }, 'Review eligibility checked successfully');
+    return createSuccessResponse(
+      {
+        ...eligibility,
+        existingReview,
+      },
+      'Review eligibility checked successfully'
+    );
   } catch (error) {
     console.error('Error checking review eligibility:', error);
     return createInternalErrorResponse('Failed to check review eligibility');

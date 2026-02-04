@@ -8,6 +8,15 @@
 
 import React from 'react';
 import {
+  PartyPopper,
+  Trophy,
+  Flame,
+  ChevronRight,
+  RotateCcw,
+  GraduationCap,
+  Sparkles,
+} from 'lucide-react';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -17,15 +26,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  PartyPopper,
-  Trophy,
-  Flame,
-  ChevronRight,
-  RotateCcw,
-  GraduationCap,
-  Sparkles,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface LessonCompleteDialogProps {
@@ -69,30 +69,30 @@ export function LessonCompleteDialog({
 }: LessonCompleteDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="text-center">
+      <DialogContent className='sm:max-w-md'>
+        <DialogHeader className='text-center'>
           {/* Celebration Icon */}
-          <div className="mx-auto mb-4">
+          <div className='mx-auto mb-4'>
             {courseCompleted ? (
-              <div className="relative">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center animate-pulse">
-                  <GraduationCap className="h-10 w-10 text-white" />
+              <div className='relative'>
+                <div className='w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center animate-pulse'>
+                  <GraduationCap className='h-10 w-10 text-white' />
                 </div>
-                <div className="absolute -top-2 -right-2">
-                  <Sparkles className="h-8 w-8 text-yellow-400 animate-bounce" />
+                <div className='absolute -top-2 -right-2'>
+                  <Sparkles className='h-8 w-8 text-yellow-400 animate-bounce' />
                 </div>
               </div>
             ) : (
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">
-                <PartyPopper className="h-10 w-10 text-white" />
+              <div className='w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center'>
+                <PartyPopper className='h-10 w-10 text-white' />
               </div>
             )}
           </div>
 
-          <DialogTitle className="text-2xl">
+          <DialogTitle className='text-2xl'>
             {courseCompleted ? 'Course Completed!' : 'Lesson Complete!'}
           </DialogTitle>
-          <DialogDescription className="text-base">
+          <DialogDescription className='text-base'>
             {courseCompleted
               ? 'Congratulations! You have completed the entire course.'
               : 'Great job! Keep up the momentum.'}
@@ -100,32 +100,44 @@ export function LessonCompleteDialog({
         </DialogHeader>
 
         {/* Stats Section */}
-        <div className="py-4 space-y-4">
+        <div className='py-4 space-y-4'>
           {/* XP Earned */}
-          <div className="flex items-center justify-center gap-3">
-            <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 px-4 py-2 rounded-full">
-              <Sparkles className="h-5 w-5 text-yellow-500" />
-              <span className="text-xl font-bold text-orange-600">+{xpEarned} XP</span>
+          <div className='flex items-center justify-center gap-3'>
+            <div className='flex items-center gap-2 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 px-4 py-2 rounded-full'>
+              <Sparkles className='h-5 w-5 text-yellow-500' />
+              <span className='text-xl font-bold text-orange-600'>
+                +{xpEarned} XP
+              </span>
             </div>
           </div>
 
           {/* Streak Info */}
           {currentStreak !== undefined && currentStreak > 0 && (
-            <div className="flex items-center justify-center gap-2">
-              <div className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-full',
-                streakIncreased 
-                  ? 'bg-gradient-to-r from-red-400/20 to-orange-400/20' 
-                  : 'bg-slate-100 dark:bg-slate-800'
-              )}>
-                <Flame className={cn(
-                  'h-5 w-5',
-                  streakIncreased ? 'text-orange-500 animate-pulse' : 'text-slate-500'
-                )} />
-                <span className={cn(
-                  'font-semibold',
-                  streakIncreased ? 'text-orange-600' : 'text-slate-600 dark:text-slate-400'
-                )}>
+            <div className='flex items-center justify-center gap-2'>
+              <div
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 rounded-full',
+                  streakIncreased
+                    ? 'bg-gradient-to-r from-red-400/20 to-orange-400/20'
+                    : 'bg-slate-100 dark:bg-slate-800'
+                )}
+              >
+                <Flame
+                  className={cn(
+                    'h-5 w-5',
+                    streakIncreased
+                      ? 'text-orange-500 animate-pulse'
+                      : 'text-slate-500'
+                  )}
+                />
+                <span
+                  className={cn(
+                    'font-semibold',
+                    streakIncreased
+                      ? 'text-orange-600'
+                      : 'text-slate-600 dark:text-slate-400'
+                  )}
+                >
                   {currentStreak} day streak
                   {streakIncreased && ' 🔥'}
                 </span>
@@ -135,9 +147,9 @@ export function LessonCompleteDialog({
 
           {/* Course Completion Badge */}
           {courseCompleted && (
-            <div className="flex items-center justify-center">
-              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-1.5 text-sm">
-                <Trophy className="h-4 w-4 mr-2" />
+            <div className='flex items-center justify-center'>
+              <Badge className='bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-1.5 text-sm'>
+                <Trophy className='h-4 w-4 mr-2' />
                 Certificate Earned!
               </Badge>
             </div>
@@ -145,31 +157,33 @@ export function LessonCompleteDialog({
 
           {/* Next Lesson Preview */}
           {!courseCompleted && nextLessonTitle && (
-            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 text-center">
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Up next:</p>
-              <p className="font-medium text-slate-900 dark:text-white truncate">
+            <div className='bg-slate-50 dark:bg-slate-800 rounded-lg p-3 text-center'>
+              <p className='text-sm text-slate-500 dark:text-slate-400 mb-1'>
+                Up next:
+              </p>
+              <p className='font-medium text-slate-900 dark:text-white truncate'>
                 {nextLessonTitle}
               </p>
             </div>
           )}
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
+        <DialogFooter className='flex-col sm:flex-row gap-2'>
           {courseCompleted ? (
             <>
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={() => onOpenChange(false)}
-                className="w-full sm:w-auto"
+                className='w-full sm:w-auto'
               >
                 Close
               </Button>
               {onViewCertificate && (
                 <Button
                   onClick={onViewCertificate}
-                  className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  className='w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
                 >
-                  <GraduationCap className="h-4 w-4 mr-2" />
+                  <GraduationCap className='h-4 w-4 mr-2' />
                   View Certificate
                 </Button>
               )}
@@ -178,27 +192,27 @@ export function LessonCompleteDialog({
             <>
               {onReplay && (
                 <Button
-                  variant="outline"
+                  variant='outline'
                   onClick={onReplay}
-                  className="w-full sm:w-auto"
+                  className='w-full sm:w-auto'
                 >
-                  <RotateCcw className="h-4 w-4 mr-2" />
+                  <RotateCcw className='h-4 w-4 mr-2' />
                   Replay
                 </Button>
               )}
               {onNextLesson && nextLessonTitle && (
                 <Button
                   onClick={onNextLesson}
-                  className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                  className='w-full sm:w-auto bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
                 >
                   Next Lesson
-                  <ChevronRight className="h-4 w-4 ml-2" />
+                  <ChevronRight className='h-4 w-4 ml-2' />
                 </Button>
               )}
               {!nextLessonTitle && (
                 <Button
                   onClick={() => onOpenChange(false)}
-                  className="w-full sm:w-auto"
+                  className='w-full sm:w-auto'
                 >
                   Continue
                 </Button>
@@ -242,12 +256,12 @@ export function XPCelebration({
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-      <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-4 rounded-2xl shadow-2xl animate-bounce">
-        <div className="flex items-center gap-3">
-          <PartyPopper className="h-8 w-8" />
-          <span className="text-2xl font-bold">+{xpAmount} XP!</span>
-          <Flame className="h-8 w-8" />
+    <div className='fixed inset-0 z-50 flex items-center justify-center pointer-events-none'>
+      <div className='bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-4 rounded-2xl shadow-2xl animate-bounce'>
+        <div className='flex items-center gap-3'>
+          <PartyPopper className='h-8 w-8' />
+          <span className='text-2xl font-bold'>+{xpAmount} XP!</span>
+          <Flame className='h-8 w-8' />
         </div>
       </div>
     </div>

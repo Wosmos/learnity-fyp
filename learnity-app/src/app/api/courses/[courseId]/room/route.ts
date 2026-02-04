@@ -57,7 +57,12 @@ export async function GET(
     });
 
     if (!course) {
-      return createErrorResponse('NOT_FOUND', 'Course not found', undefined, 404);
+      return createErrorResponse(
+        'NOT_FOUND',
+        'Course not found',
+        undefined,
+        404
+      );
     }
 
     // Check access: must be teacher, admin, or enrolled student
@@ -75,7 +80,12 @@ export async function GET(
       });
 
       if (!enrollment || enrollment.status !== 'ACTIVE') {
-        return createErrorResponse('FORBIDDEN', 'Access denied', undefined, 403);
+        return createErrorResponse(
+          'FORBIDDEN',
+          'Access denied',
+          undefined,
+          403
+        );
       }
     }
 
@@ -83,26 +93,33 @@ export async function GET(
     const room = await courseRoomService.getCourseRoom(courseId);
 
     if (!room) {
-      return createSuccessResponse({
-        exists: false,
-        courseId,
-        chatEnabled: false,
-        videoEnabled: false,
-      }, 'Course room not found');
+      return createSuccessResponse(
+        {
+          exists: false,
+          courseId,
+          chatEnabled: false,
+          videoEnabled: false,
+        },
+        'Course room not found'
+      );
     }
 
     // Self-healing: Ensure the requesting user is in the room's chat channel
     // We already verified they are authorized (teacher, admin, or enrolled student)
     // This fixes errors where the user is enrolled but missing from the Stream channel
-    if (dbUser.role !== 'ADMIN') { // Admins might not need to be in chat unless they view it? Or maybe they do.
-       await courseRoomService.ensureUserInRoom(courseId, dbUser.id);
+    if (dbUser.role !== 'ADMIN') {
+      // Admins might not need to be in chat unless they view it? Or maybe they do.
+      await courseRoomService.ensureUserInRoom(courseId, dbUser.id);
     }
-    
-    return createSuccessResponse({
-      exists: true,
-      ...room,
-      isTeacher,
-    }, 'Course room retrieved successfully');
+
+    return createSuccessResponse(
+      {
+        exists: true,
+        ...room,
+        isTeacher,
+      },
+      'Course room retrieved successfully'
+    );
   } catch (error) {
     console.error('Error getting course room:', error);
     return createInternalErrorResponse('Failed to get course room');
@@ -148,12 +165,22 @@ export async function POST(
     });
 
     if (!course) {
-      return createErrorResponse('NOT_FOUND', 'Course not found', undefined, 404);
+      return createErrorResponse(
+        'NOT_FOUND',
+        'Course not found',
+        undefined,
+        404
+      );
     }
 
     // Verify ownership (unless admin)
     if (course.teacherId !== dbUser.id && dbUser.role !== 'ADMIN') {
-      return createErrorResponse('FORBIDDEN', 'Only the course teacher can manage the room', undefined, 403);
+      return createErrorResponse(
+        'FORBIDDEN',
+        'Only the course teacher can manage the room',
+        undefined,
+        403
+      );
     }
 
     // Parse options from body

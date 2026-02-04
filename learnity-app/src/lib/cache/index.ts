@@ -42,7 +42,7 @@ export const getCachedLandingStats = unstable_cache(
 
 // Teachers data caching
 export const getCachedTeachers = unstable_cache(
-  async (filters: any) => {
+  async (_filters?: Record<string, unknown>) => {
     // This would connect to your database
     // For now, return empty array
     return {
@@ -80,9 +80,23 @@ export async function revalidateCache(tag: string) {
   (revalidateTag as any)(tag);
 }
 
-export async function revalidatePath(path: string) {
-  const { revalidatePath: nextRevalidatePath } = await import('next/cache');
-  nextRevalidatePath(path);
+export async function revalidatePath(
+  path: string,
+  type: 'page' | 'layout' = 'page'
+) {
+  try {
+    const nextCache = await import('next/cache');
+    if ('revalidatePath' in nextCache) {
+      (
+        nextCache.revalidatePath as (
+          path: string,
+          type: 'page' | 'layout'
+        ) => void
+      )(path, type);
+    }
+  } catch (error) {
+    console.error('Failed to revalidate path:', path, error);
+  }
 }
 
 // Cache warming utilities

@@ -3,16 +3,20 @@
  * Defines the contract for course management operations
  */
 
-import { 
-  Course, 
-  Section, 
-  Lesson, 
-  Category, 
+import {
+  Course,
+  Section,
+  Lesson,
+  Category,
   User,
   Difficulty,
   CourseStatus,
 } from '@prisma/client';
-import { CreateCourseData, UpdateCourseData, CourseFiltersData } from '@/lib/validators/course';
+import {
+  CreateCourseData,
+  UpdateCourseData,
+  CourseFiltersData,
+} from '@/lib/validators/course';
 
 // ============================================
 // COURSE DTOs AND TYPES
@@ -98,7 +102,11 @@ export interface ICourseService {
    * @returns The updated course
    * Requirements: 2.4
    */
-  updateCourse(courseId: string, teacherId: string, data: UpdateCourseData): Promise<Course>;
+  updateCourse(
+    courseId: string,
+    teacherId: string,
+    data: UpdateCourseData
+  ): Promise<Course>;
 
   /**
    * Publish a course (change status from DRAFT to PUBLISHED)
@@ -164,7 +172,10 @@ export interface ICourseService {
    * @returns Paginated search results
    * Requirements: 3.3
    */
-  searchCourses(query: string, filters: CourseFiltersData): Promise<PaginatedCourses>;
+  searchCourses(
+    query: string,
+    filters: CourseFiltersData
+  ): Promise<PaginatedCourses>;
 
   /**
    * Validate if a course can be published
@@ -208,7 +219,7 @@ export enum CourseErrorCode {
   INVALID_DESCRIPTION = 'INVALID_DESCRIPTION',
   INVALID_YOUTUBE_URL = 'INVALID_YOUTUBE_URL',
   TOO_MANY_TAGS = 'TOO_MANY_TAGS',
-  
+
   // Business logic errors
   COURSE_NOT_FOUND = 'COURSE_NOT_FOUND',
   NOT_COURSE_OWNER = 'NOT_COURSE_OWNER',
@@ -217,7 +228,7 @@ export enum CourseErrorCode {
   ALREADY_PUBLISHED = 'ALREADY_PUBLISHED',
   NOT_PUBLISHED = 'NOT_PUBLISHED',
   CATEGORY_NOT_FOUND = 'CATEGORY_NOT_FOUND',
-  
+
   // Authorization errors
   UNAUTHORIZED = 'UNAUTHORIZED',
   FORBIDDEN = 'FORBIDDEN',

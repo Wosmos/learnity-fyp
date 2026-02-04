@@ -4,28 +4,36 @@
 
 ### 1. Core Components & Hooks
 
-#### **GlobalLoadingIndicator** 
+#### **GlobalLoadingIndicator**
+
 `src/components/shared/GlobalLoadingIndicator.tsx`
+
 - Automatic loading bar for page navigation
 - Already integrated into root layout
 - Shows at top of page during route transitions
 
 #### **LoadingButton Component**
+
 `src/components/shared/LoadingButton.tsx`
+
 - Drop-in replacement for standard Button
 - Props: `isLoading`, `loadingText`
 - Automatically shows spinner and disables during loading
 - **Recommended for most use cases**
 
 #### **AsyncButton Component**
+
 `src/components/ui/async-button.tsx`
+
 - Automatically manages loading state for async onClick handlers
 - No manual state management needed
 - Props: `onClick` (async), `loadingText`, `isLoading` (optional external control)
 - **Best for simple async operations**
 
 #### **useAsyncAction Hook**
+
 `src/hooks/useAsyncAction.ts`
+
 - Custom hook for async operations with built-in error handling
 - Automatic toast notifications
 - Returns: `{ execute, isLoading, error }`
@@ -34,6 +42,7 @@
 ### 2. Example Implementations
 
 Updated components demonstrating the patterns:
+
 - ✅ `ProfileEnhancementForm.tsx` - Using LoadingButton
 - ✅ `PrivacySettingsForm.tsx` - Using LoadingButton
 
@@ -47,9 +56,11 @@ Updated components demonstrating the patterns:
 ## 🎯 Solution Overview
 
 ### The Problem
+
 Users clicking buttons saw no visual feedback, causing confusion about whether actions were registered.
 
 ### The Solution
+
 Three complementary approaches:
 
 1. **Global Navigation Loading** - Automatic top bar during page transitions
@@ -59,9 +70,10 @@ Three complementary approaches:
 ## 📊 Implementation Status
 
 ### ✅ Completed
+
 - [x] Global loading indicator (integrated in layout)
 - [x] LoadingButton component
-- [x] AsyncButton component  
+- [x] AsyncButton component
 - [x] useAsyncAction hook
 - [x] Example implementations (2 components updated)
 - [x] Comprehensive documentation
@@ -71,6 +83,7 @@ Three complementary approaches:
 ### 🔄 Next Steps (To Be Done)
 
 #### High Priority - User-Facing Actions
+
 - [ ] Auth components (LoginForm, RegistrationFlow, etc.)
 - [ ] Course enrollment buttons
 - [ ] Quiz submission buttons
@@ -79,6 +92,7 @@ Three complementary approaches:
 - [ ] Payment/checkout buttons
 
 #### Medium Priority
+
 - [ ] Navigation buttons
 - [ ] Filter/search buttons
 - [ ] Load more buttons
@@ -86,6 +100,7 @@ Three complementary approaches:
 - [ ] Admin actions
 
 #### Low Priority
+
 - [ ] Toggle buttons
 - [ ] Icon-only buttons
 - [ ] Dropdown menu items
@@ -95,50 +110,50 @@ Three complementary approaches:
 ### Quick Migration Pattern
 
 **Before:**
+
 ```tsx
 <Button onClick={handleClick}>Save</Button>
 ```
 
 **After (Option 1 - LoadingButton):**
+
 ```tsx
 import { LoadingButton } from '@/components/shared/LoadingButton';
 
 const [isLoading, setIsLoading] = useState(false);
 
-<LoadingButton 
-  onClick={handleClick} 
+<LoadingButton
+  onClick={handleClick}
   isLoading={isLoading}
-  loadingText="Saving..."
+  loadingText='Saving...'
 >
   Save
-</LoadingButton>
+</LoadingButton>;
 ```
 
 **After (Option 2 - AsyncButton):**
+
 ```tsx
 import { AsyncButton } from '@/components/ui/async-button';
 
-<AsyncButton 
-  onClick={async () => await handleClick()}
-  loadingText="Saving..."
->
+<AsyncButton onClick={async () => await handleClick()} loadingText='Saving...'>
   Save
-</AsyncButton>
+</AsyncButton>;
 ```
 
 **After (Option 3 - useAsyncAction):**
+
 ```tsx
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { LoadingButton } from '@/components/shared/LoadingButton';
 
-const { execute, isLoading } = useAsyncAction(
-  async () => await handleClick(),
-  { successMessage: 'Saved successfully!' }
-);
+const { execute, isLoading } = useAsyncAction(async () => await handleClick(), {
+  successMessage: 'Saved successfully!',
+});
 
 <LoadingButton onClick={execute} isLoading={isLoading}>
   Save
-</LoadingButton>
+</LoadingButton>;
 ```
 
 ## 📋 Migration Checklist
@@ -170,6 +185,7 @@ For each button/action in the app:
 ## 🎨 Design Patterns
 
 ### Pattern 1: Form Submissions
+
 ```tsx
 const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -187,15 +203,16 @@ const handleSubmit = async (e: React.FormEvent) => {
 };
 
 <LoadingButton
-  type="submit"
+  type='submit'
   isLoading={isSubmitting}
-  loadingText="Submitting..."
+  loadingText='Submitting...'
 >
   Submit
-</LoadingButton>
+</LoadingButton>;
 ```
 
 ### Pattern 2: Multiple Actions
+
 ```tsx
 const [action, setAction] = useState<'save' | 'delete' | null>(null);
 
@@ -218,6 +235,7 @@ const [action, setAction] = useState<'save' | 'delete' | null>(null);
 ```
 
 ### Pattern 3: Social Login
+
 ```tsx
 const [provider, setProvider] = useState<'google' | 'microsoft' | null>(null);
 
@@ -227,17 +245,19 @@ const [provider, setProvider] = useState<'google' | 'microsoft' | null>(null);
   disabled={!!provider}
 >
   Continue with Google
-</LoadingButton>
+</LoadingButton>;
 ```
 
 ## 🔍 Finding Buttons to Update
 
 Run the audit script:
+
 ```bash
 ./learnity-app/scripts/audit-loading-states.sh
 ```
 
 Or manually search:
+
 ```bash
 # Find buttons without loading states
 grep -r "onClick.*async\|onClick.*=.*{" learnity-app/src/components --include="*.tsx" | \
@@ -253,6 +273,7 @@ grep -r "fetch(\|api\.\(get\|post\|put\|delete\)" learnity-app/src/components --
 ## 🎯 Best Practices
 
 ### ✅ DO
+
 - Always show loading state for async operations
 - Disable buttons during loading
 - Use descriptive loading text ("Saving..." not "Loading...")
@@ -263,6 +284,7 @@ grep -r "fetch(\|api\.\(get\|post\|put\|delete\)" learnity-app/src/components --
 - Use useAsyncAction when you need error handling
 
 ### ❌ DON'T
+
 - Leave users wondering if their action was registered
 - Allow multiple clicks during loading
 - Use generic loading text
@@ -280,6 +302,7 @@ grep -r "fetch(\|api\.\(get\|post\|put\|delete\)" learnity-app/src/components --
 ## 🧪 Testing
 
 For each updated component:
+
 1. Click the button
 2. Verify loading spinner appears immediately
 3. Verify button is disabled
@@ -292,12 +315,14 @@ For each updated component:
 ## 📈 Impact
 
 ### Before
+
 - ❌ No visual feedback on button clicks
 - ❌ Users confused if action registered
 - ❌ Possible duplicate submissions
 - ❌ Poor user experience
 
 ### After
+
 - ✅ Immediate visual feedback
 - ✅ Clear loading states
 - ✅ Prevented duplicate submissions
@@ -307,6 +332,7 @@ For each updated component:
 ## 🎉 Success Criteria
 
 The implementation is successful when:
+
 - [x] All components/hooks are created and working
 - [x] Documentation is complete
 - [x] Example implementations exist
@@ -319,17 +345,20 @@ The implementation is successful when:
 ## 🚦 Current Status
 
 **Phase 1: Foundation** ✅ COMPLETE
+
 - Core components created
 - Hooks implemented
 - Documentation written
 - Examples provided
 
 **Phase 2: Migration** 🔄 IN PROGRESS
+
 - 2 components updated as examples
 - Remaining components need updating
 - Use the patterns from updated components
 
 **Phase 3: Testing** ⏳ PENDING
+
 - Test all updated components
 - Verify UX improvements
 - Fix any issues

@@ -1,7 +1,7 @@
 /**
  * Individual Certificate API Routes
  * GET /api/certificates/[certificateId] - Get certificate details by ID
- * 
+ *
  * Requirements covered:
  * - 10.2: Certificate with student name, course title, date, unique ID
  * - 10.5: Display completed courses in student profile

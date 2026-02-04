@@ -1,7 +1,7 @@
 /**
  * Course Progress API Route
  * GET /api/courses/[courseId]/progress - Get course progress for current user
- * 
+ *
  * Requirements covered:
  * - 5.7: Show next lesson recommendation
  * - 5.8: Lock subsequent sections until previous section is 80% complete
@@ -77,7 +77,10 @@ export async function GET(
     }
 
     // Get course progress
-    const courseProgress = await progressService.getCourseProgress(dbUser.id, courseId);
+    const courseProgress = await progressService.getCourseProgress(
+      dbUser.id,
+      courseId
+    );
 
     // Get next lesson recommendation
     const nextLesson = await progressService.getNextLesson(dbUser.id, courseId);
@@ -124,7 +127,10 @@ export async function GET(
 /**
  * Helper function to get XP earned for a specific course
  */
-async function getXPEarnedForCourse(studentId: string, courseId: string): Promise<number> {
+async function getXPEarnedForCourse(
+  studentId: string,
+  courseId: string
+): Promise<number> {
   // Get all lesson IDs for the course
   const course = await prisma.course.findUnique({
     where: { id: courseId },
@@ -149,11 +155,11 @@ async function getXPEarnedForCourse(studentId: string, courseId: string): Promis
   }
 
   // Collect all lesson and quiz IDs
-  const lessonIds = course.sections.flatMap((s) => s.lessons.map((l) => l.id));
+  const lessonIds = course.sections.flatMap(s => s.lessons.map(l => l.id));
   const quizIds = course.sections
-    .flatMap((s) => s.lessons)
-    .filter((l) => l.quiz)
-    .map((l) => l.quiz!.id);
+    .flatMap(s => s.lessons)
+    .filter(l => l.quiz)
+    .map(l => l.quiz!.id);
 
   // Sum XP from lesson completions
   const lessonXP = await prisma.xPActivity.aggregate({

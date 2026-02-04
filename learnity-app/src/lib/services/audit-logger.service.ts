@@ -26,7 +26,7 @@ export enum AuditEventType {
   ACCESS_DENIED = 'ACCESS_DENIED',
   ROLE_VERIFICATION = 'ROLE_VERIFICATION',
   DASHBOARD_ACCESS = 'DASHBOARD_ACCESS',
-  UNAUTHORIZED_ATTEMPT = 'UNAUTHORIZED_ATTEMPT'
+  UNAUTHORIZED_ATTEMPT = 'UNAUTHORIZED_ATTEMPT',
 }
 
 class AuditLoggerService {
@@ -61,8 +61,8 @@ class AuditLoggerService {
       timestamp: new Date().toISOString(),
       details: {
         dashboardType,
-        accessMethod: 'client-side-protection'
-      }
+        accessMethod: 'client-side-protection',
+      },
     };
 
     this.logEvent(event);
@@ -90,9 +90,9 @@ class AuditLoggerService {
       details: {
         actualRole,
         expectedRole,
-        securityViolation: true
+        securityViolation: true,
       },
-      errorMessage: `User with role ${actualRole} attempted to access ${attemptedResource} which requires ${expectedRole}`
+      errorMessage: `User with role ${actualRole} attempted to access ${attemptedResource} which requires ${expectedRole}`,
     };
 
     this.logEvent(event);
@@ -116,7 +116,7 @@ class AuditLoggerService {
       action: 'LOGIN',
       success,
       timestamp: new Date().toISOString(),
-      errorMessage
+      errorMessage,
     };
 
     this.logEvent(event);
@@ -143,9 +143,9 @@ class AuditLoggerService {
       success,
       timestamp: new Date().toISOString(),
       details: {
-        verificationMethod: 'firebase-claims'
+        verificationMethod: 'firebase-claims',
       },
-      errorMessage
+      errorMessage,
     };
 
     this.logEvent(event);
@@ -174,9 +174,9 @@ class AuditLoggerService {
       details: {
         violationType,
         requiredRole,
-        securityAlert: true
+        securityAlert: true,
       },
-      errorMessage: `Access control violation: ${violationType}`
+      errorMessage: `Access control violation: ${violationType}`,
     };
 
     this.logEvent(event);
@@ -197,12 +197,12 @@ class AuditLoggerService {
     // - Sent to a logging service like CloudWatch, Datadog, etc.
     // - Stored in a secure audit database
     // - Sent to SIEM systems for security monitoring
-    
+
     try {
       // Store in localStorage for demo purposes (in production, use proper logging service)
       const existingLogs = this.getStoredLogs();
       existingLogs.push(event);
-      
+
       // Keep only last 100 events in localStorage
       const recentLogs = existingLogs.slice(-100);
       localStorage.setItem('audit_logs', JSON.stringify(recentLogs));
@@ -221,7 +221,7 @@ class AuditLoggerService {
       user: event.userEmail,
       resource: event.resource,
       timestamp: event.timestamp,
-      details: event.details
+      details: event.details,
     });
 
     // In a real application, this would:
@@ -273,10 +273,11 @@ class AuditLoggerService {
    * Get security violations
    */
   public getSecurityViolations(): AuditEvent[] {
-    return this.getStoredLogs().filter(log => 
-      log.eventType === AuditEventType.UNAUTHORIZED_ATTEMPT ||
-      log.eventType === AuditEventType.ACCESS_DENIED ||
-      (log.details && log.details.securityViolation)
+    return this.getStoredLogs().filter(
+      log =>
+        log.eventType === AuditEventType.UNAUTHORIZED_ATTEMPT ||
+        log.eventType === AuditEventType.ACCESS_DENIED ||
+        (log.details && log.details.securityViolation)
     );
   }
 }

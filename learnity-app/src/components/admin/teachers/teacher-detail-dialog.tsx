@@ -1,428 +1,215 @@
-'use client';
+    'use client';
 
-import { useMemo, useState } from 'react';
+    import { useState } from 'react';
+    import {
+    Mail,
+    Calendar,
+    Check,
+    X,
+    MapPin,
+    Phone,
+    GraduationCap,
+    Award,
+    Star,
+    DollarSign,
+    User,
+    ExternalLink,
+    ShieldAlert,
+    Clock,
+    } from 'lucide-react';
+    import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+    import { Badge } from '@/components/ui/badge';
+    import { Button } from '@/components/ui/button';
+    import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+    import { Separator } from '@/components/ui/separator';
+    import { cn } from '@/lib/utils';
+    import { useToast } from '@/hooks/use-toast';
+    import type { UnifiedUser } from '../users/unified-columns';
+    import Link from 'next/link';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  User,
-  Mail,
-  Calendar,
-  Clock,
-  Check,
-  X,
-  MapPin,
-  Phone,
-  GraduationCap,
-  Award,
-  Star,
-  BookOpen,
-  DollarSign,
-  FileText,
-  Activity,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+    interface TeacherDetailDialogProps {
+    teacher: UnifiedUser | null;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onTeacherAction?: (userId: string, action: string) => void;
+    }
 
-import type { Teacher } from './columns';
+    export function TeacherDetailDialog({
+    teacher: user,
+    open,
+    onOpenChange,
+    onTeacherAction,
+    }: TeacherDetailDialogProps) {
+    const [loading, setLoading] = useState(false);
+    const { toast } = useToast();
 
-interface TeacherDetailDialogProps {
-  teacher: Teacher | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onTeacherAction?: (teacherId: string, action: string) => void;
-}
+    if (!user) return null;
 
-export function TeacherDetailDialog({
-  teacher,
-  open,
-  onOpenChange,
-  onTeacherAction,
-}: TeacherDetailDialogProps) {
-  const [loading, setLoading] = useState(false);
-
-  const highlightCards = useMemo(() => {
-    if (!teacher) return [];
-
-    const cards: { icon: LucideIcon; label: string; value: string; accent: string }[] = [];
-    const addCard = (condition: boolean, card: { icon: LucideIcon; label: string; value: string; accent: string }) => {
-      if (condition) cards.push(card);
+    const formatDate = (dateString?: string | null) => {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        });
     };
 
-    addCard(
-      teacher.experience !== undefined && teacher.experience !== null,
-      {
-        icon: Award,
-        label: 'Experience',
-        value: `${teacher.experience} yrs`,
-        accent: 'from-blue-50 to-blue-100 text-blue-700 border-blue-100'
-      }
-    );
+    const handleAction = async (action: string) => {
+        if (!onTeacherAction) return;
+        setLoading(true);
+        try {
+        await onTeacherAction(user.id, action);
+        if (['approve', 'reject', 'deactivate', 'activate'].includes(action)) {
+            onOpenChange(false);
+        }
+        } finally {
+        setLoading(false);
+        }
+    };
 
-    addCard(
-      teacher.hourlyRate !== undefined && teacher.hourlyRate !== null,
-      {
-        icon: DollarSign,
-        label: 'Hourly Rate',
-        value: `$${teacher.hourlyRate}/hr`,
-        accent: 'from-green-50 to-green-100 text-green-700 border-green-100'
-      }
-    );
+    const isTeacher = user.role.includes('TEACHER');
+    const isStudent = user.role === 'STUDENT';
 
-    addCard(
-      teacher.totalSessions !== undefined && teacher.totalSessions !== null,
-      {
-        icon: BookOpen,
-        label: 'Sessions',
-        value: `${teacher.totalSessions}`,
-        accent: 'from-purple-50 to-purple-100 text-purple-700 border-purple-100'
-      }
-    );
-
-    addCard(
-      teacher.rating !== undefined && teacher.rating !== null,
-      {
-        icon: Star,
-        label: 'Rating',
-        value: `${teacher.rating}/5`,
-        accent: 'from-amber-50 to-amber-100 text-amber-700 border-amber-100'
-      }
-    );
-
-    return cards;
-  }, [teacher]);
-
-  if (!teacher) return null;
-
-  const formatDate = (value?: string | null, config: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' }) => {
-    if (!value) return 'Not available';
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return 'Not available';
-    return date.toLocaleDateString('en-US', config);
-  };
-
-  const applicationStatus = teacher.applicationStatus
-    ? teacher.applicationStatus.replace('_', ' ').toLowerCase()
-    : teacher.role === 'TEACHER'
-      ? 'approved'
-      : teacher.role === 'REJECTED_TEACHER'
-        ? 'rejected'
-        : 'pending review';
-
-  const getStatusBadge = (role: string) => {
-    switch (role) {
-      case 'PENDING_TEACHER':
-        return (
-          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-            <Clock className="h-3 w-3 mr-1" />
-            Pending Review
-          </Badge>
-        );
-      case 'TEACHER':
-        return (
-          <Badge className="bg-green-100 text-green-800 border-green-200">
-            <Check className="h-3 w-3 mr-1" />
-            Approved
-          </Badge>
-        );
-      case 'REJECTED_TEACHER':
-        return (
-          <Badge className="bg-red-100 text-red-800 border-red-200">
-            <X className="h-3 w-3 mr-1" />
-            Rejected
-          </Badge>
-        );
-      default:
-        return <Badge variant="outline">Unknown</Badge>;
-    }
-  };
-
-  const handleAction = async (action: string) => {
-    if (!onTeacherAction) return;
-
-    setLoading(true);
-    try {
-      await onTeacherAction(teacher.id, action);
-      if (action === 'approve' || action === 'reject') {
-        onOpenChange(false);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[1600px] max-h-[90vh] overflow-hidden border-0 p-0 shadow-2xl">
-        <div className="flex h-full flex-col overflow-hidden bg-linear-to-br from-white via-gray-50 to-white">
-          <div className="border-b bg-white/80 px-6 py-5">
-            <DialogHeader className="space-y-3">
-              <DialogTitle className="flex flex-wrap items-center gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={teacher.profilePicture} />
-                  <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white text-lg">
-                    {teacher.firstName?.charAt(0)}{teacher.lastName?.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h2 className="text-2xl font-semibold leading-tight">
-                    {teacher.firstName} {teacher.lastName}
-                  </h2>
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-                    {getStatusBadge(teacher.role)}
-                    <span className="text-muted-foreground">Joined {formatDate(teacher.createdAt)}</span>
-                  </div>
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-md p-0 overflow-hidden border-none shadow-2xl bg-white rounded-xl">
+            <DialogHeader className="p-6 pb-2">
+                <div className="flex items-center gap-4">
+                    <Avatar className="h-16 w-16 border-2 border-slate-100 shadow-sm">
+                        <AvatarImage src={user.profilePicture} />
+                        <AvatarFallback className="bg-slate-100 text-slate-600 font-bold text-xl">
+                            {user.firstName?.[0]}{user.lastName?.[0]}
+                        </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                        <DialogTitle className="text-xl font-bold text-slate-900 truncate">
+                            {user.firstName} {user.lastName}
+                        </DialogTitle>
+                        <div className="flex items-center gap-2 mt-1">
+                            <Badge variant={user.isActive !== false ? "success" : "destructive"} className="text-[10px] h-5 px-1.5 uppercase font-bold tracking-wider">
+                                {user.isActive !== false ? 'Active' : 'Suspended'}
+                            </Badge>
+                            <Badge variant="outline" className="text-[10px] h-5 px-1.5 uppercase font-bold tracking-wider border-slate-200 text-slate-500">
+                                {user.role?.replace('_', ' ') || 'User'}
+                            </Badge>
+                        </div>
+                    </div>
                 </div>
-              </DialogTitle>
-              <DialogDescription>
-                Teacher application and profile details
-              </DialogDescription>
             </DialogHeader>
-          </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-6">
-            <div className="space-y-6">
-              {highlightCards.length > 0 && (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {highlightCards.map(({ icon: Icon, label, value, accent }) => (
-                    <div
-                      key={label}
-                      className={`rounded-2xl border bg-linear-to-br ${accent} p-4 shadow-sm`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
-                          <p className="mt-2 text-xl font-semibold">{value}</p>
+            <div className="p-6 pt-2 space-y-6">
+                {/* Contact Info */}
+                <div className="grid grid-cols-1 gap-3">
+                    <div className="flex items-center gap-3 text-sm text-slate-600">
+                        <div className="p-2 bg-slate-50 rounded-lg">
+                            <Mail className="h-4 w-4 text-slate-400" />
                         </div>
-                        <Icon className="h-5 w-5 text-current" />
-                      </div>
+                        <span className="truncate">{user.email}</span>
                     </div>
-                  ))}
-                </div>
-              )}
-
-              <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
-                {/* Main Content */}
-                <div className="space-y-5">
-                  <section className="rounded-2xl border bg-white p-5 shadow-sm">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Contact Information</h3>
-                      {teacher.emailVerified ? (
-                        <Badge className="bg-green-100 text-green-700 border-green-200">Verified</Badge>
-                      ) : (
-                        <Badge variant="outline" className="border-yellow-200 text-yellow-700">Unverified</Badge>
-                      )}
+                    <div className="flex items-center gap-3 text-sm text-slate-600">
+                        <div className="p-2 bg-slate-50 rounded-lg">
+                            <Calendar className="h-4 w-4 text-slate-400" />
+                        </div>
+                        <span>Joined {formatDate(user.createdAt)}</span>
                     </div>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                      <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
-                        <Mail className="h-5 w-5 text-gray-500" />
-                        <div>
-                          <p className="text-xs uppercase tracking-wide text-gray-500">Email</p>
-                          <p className="font-medium">{teacher.email}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
-                        <Calendar className="h-5 w-5 text-gray-500" />
-                        <div>
-                          <p className="text-xs uppercase tracking-wide text-gray-500">Applied</p>
-                          <p className="font-medium">
-                            {formatDate(teacher.createdAt)}
-                          </p>
-                        </div>
-                      </div>
-
-                      {teacher.phone && (
-                        <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
-                          <Phone className="h-5 w-5 text-gray-500" />
-                          <div>
-                            <p className="text-xs uppercase tracking-wide text-gray-500">Phone</p>
-                            <p className="font-medium">{teacher.phone}</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {teacher.location && (
-                        <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
-                          <MapPin className="h-5 w-5 text-gray-500" />
-                          <div>
-                            <p className="text-xs uppercase tracking-wide text-gray-500">Location</p>
-                            <p className="font-medium">{teacher.location}</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </section>
-
-                  {teacher.bio && (
-                    <section className="rounded-2xl border bg-white p-5 shadow-sm">
-                      <h3 className="text-lg font-semibold">About</h3>
-                      <p className="mt-3 text-sm leading-relaxed text-gray-700">{teacher.bio}</p>
-                    </section>
-                  )}
-
-                  {teacher.expertise && teacher.expertise.length > 0 && (
-                    <section className="rounded-2xl border bg-white p-5 shadow-sm">
-                      <h3 className="text-lg font-semibold">Expertise & Subjects</h3>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {teacher.expertise.map((skill: string, index: number) => (
-                          <Badge key={index} variant="secondary" className="bg-gray-100 text-gray-700">
-                            {skill}
-                          </Badge>
-                        ))}
-                      </div>
-                    </section>
-                  )}
-
-                  <section className="rounded-2xl border bg-white p-5 shadow-sm">
-                    <h3 className="text-lg font-semibold">Profile Insights</h3>
-                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">Application Status</p>
-                        <p className="mt-1 text-sm font-medium capitalize">{applicationStatus}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">Application Date</p>
-                        <p className="mt-1 text-sm font-medium">{formatDate(teacher.applicationDate)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">Last Login</p>
-                        <p className="mt-1 text-sm font-medium">
-                          {teacher.lastLoginAt ? formatDate(teacher.lastLoginAt, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never'}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">Availability</p>
-                        <p className="mt-1 text-sm font-medium">{teacher.availability ?? 'Not specified'}</p>
-                      </div>
-                    </div>
-                  </section>
-
-                  {(teacher.education || (teacher.certifications && teacher.certifications.length > 0)) && (
-                    <section className="rounded-2xl border bg-white p-5 shadow-sm">
-                      <h3 className="text-lg font-semibold">Education & Certifications</h3>
-                      <div className="mt-4 space-y-4">
-                        {teacher.education && (
-                          <div className="flex items-start gap-3 rounded-xl bg-slate-50 p-3">
-                            <GraduationCap className="h-5 w-5 text-blue-500" />
-                            <div>
-                              <p className="text-sm font-medium text-blue-700">Education</p>
-                              <p className="text-sm text-blue-900">{teacher.education}</p>
-                            </div>
-                          </div>
-                        )}
-
-                        {teacher.certifications && teacher.certifications.length > 0 && (
-                          <div className="flex items-start gap-3 rounded-xl bg-green-50 p-3">
-                            <Award className="h-5 w-5 text-green-600" />
-                            <div>
-                              <p className="text-sm font-medium text-green-700">Certifications</p>
-                              <ul className="mt-1 space-y-1 text-sm text-green-900">
-                                {teacher.certifications.map((cert: string, index: number) => (
-                                  <li key={index}>• {cert}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </section>
-                  )}
                 </div>
 
-                {/* Sidebar */}
-                <div className="space-y-5">
-                  <section className="rounded-2xl border bg-white p-5 shadow-sm">
-                    <h3 className="text-lg font-semibold">Application Summary</h3>
-                    <div className="mt-4 space-y-3 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-blue-500" />
-                        <span>Submitted on {formatDate(teacher.applicationDate)}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Activity className="h-4 w-4 text-purple-500" />
-                        <span>Current status: <span className="capitalize">{applicationStatus}</span></span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-green-500" />
-                        <span>{teacher.reviewedAt ? `Reviewed on ${formatDate(teacher.reviewedAt)}` : 'Awaiting review'}</span>
-                      </div>
-                      {teacher.reviewedBy && (
+                <Separator className="bg-slate-100" />
+
+                {/* Role Specific Content */}
+                {isTeacher && (
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100/50">
+                                <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Hourly Rate</p>
+                                <p className="text-lg font-bold text-indigo-700">${user.hourlyRate || 0}/hr</p>
+                            </div>
+                            <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-100/50">
+                                <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1">Rating</p>
+                                <div className="flex items-center gap-1">
+                                    <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                                    <p className="text-lg font-bold text-amber-700">{user.rating || 'New'}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {user.expertise && user.expertise.length > 0 && (
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Expertise</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {user.expertise.map(skill => (
+                                        <Badge key={skill} variant="secondary" className="bg-slate-100 text-slate-600 hover:bg-slate-200 border-none px-2 py-0.5 text-[11px]">
+                                            {skill}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <Button asChild variant="outline" className="w-full justify-between group hover:border-indigo-200 hover:bg-indigo-50/30">
+                            <Link href={`/teachers/${user.id}`}>
+                                <span className="flex items-center gap-2">
+                                    <User className="h-4 w-4 text-indigo-500" />
+                                    View Full Public Profile
+                                </span>
+                                <ExternalLink className="h-3 w-3 text-slate-300 group-hover:text-indigo-400" />
+                            </Link>
+                        </Button>
+                    </div>
+                )}
+
+                {isStudent && (
+                    <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100/50">
+                        <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">Academic Status</p>
                         <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-gray-500" />
-                          <span>Reviewed by {teacher.reviewedBy}</span>
+                            <GraduationCap className="h-5 w-5 text-blue-600" />
+                            <p className="text-lg font-bold text-blue-700">{user.studentData?.gradeLevel || 'Student'}</p>
                         </div>
-                      )}
                     </div>
-                  </section>
+                )}
 
-                  <section className="rounded-2xl border bg-white p-5 shadow-sm">
-                    <h3 className="text-lg font-semibold">Actions</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Review the application and manage teacher access
-                    </p>
-                    <div className="mt-4 space-y-2">
-                      {teacher.role === 'PENDING_TEACHER' && (
-                        <>
-                          <Button
-                            onClick={() => handleAction('approve')}
-                            disabled={loading}
-                            className="w-full bg-green-600 hover:bg-green-700"
-                          >
-                            <Check className="mr-2 h-4 w-4" />
-                            Approve Application
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            onClick={() => handleAction('reject')}
-                            disabled={loading}
-                            className="w-full"
-                          >
-                            <X className="mr-2 h-4 w-4" />
-                            Reject Application
-                          </Button>
-                        </>
-                      )}
-
-                      <Button variant="outline" className="w-full">
-                        <Mail className="mr-2 h-4 w-4" />
-                        Send Message
-                      </Button>
-
-                      <Button variant="outline" className="w-full">
-                        <FileText className="mr-2 h-4 w-4" />
-                        View Documents
-                      </Button>
-                    </div>
-                  </section>
-
-                  {teacher.reviewedAt && (
-                    <section className="rounded-2xl border bg-white p-5 shadow-sm">
-                      <h3 className="text-lg font-semibold">Application Timeline</h3>
-                      <div className="mt-4 space-y-4 text-sm">
-                        <div className="flex items-center gap-3">
-                          <div className="h-2 w-2 rounded-full bg-slate-500" />
-                          <span>Applied on {formatDate(teacher.createdAt)}</span>
+                {/* Admin Actions */}
+                <div className="pt-2">
+                    {user.role === 'PENDING_TEACHER' ? (
+                        <div className="grid grid-cols-2 gap-3">
+                            <Button 
+                                onClick={() => handleAction('approve')} 
+                                disabled={loading}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-200/50 border-none"
+                            >
+                                <Check className="mr-2 h-4 w-4" /> Approve
+                            </Button>
+                            <Button 
+                                onClick={() => handleAction('reject')} 
+                                disabled={loading}
+                                variant="outline"
+                                className="border-red-100 text-red-600 hover:bg-red-50 hover:border-red-200"
+                            >
+                                <X className="mr-2 h-4 w-4" /> Reject
+                            </Button>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <div className="h-2 w-2 rounded-full bg-green-500" />
-                          <span>Reviewed on {formatDate(teacher.reviewedAt)}</span>
-                        </div>
-                      </div>
-                    </section>
-                  )}
+                    ) : (
+                        <Button 
+                            onClick={() => handleAction(user.isActive !== false ? 'deactivate' : 'activate')} 
+                            disabled={loading}
+                            variant={user.isActive !== false ? "outline" : "default"}
+                            className={cn(
+                                "w-full font-bold uppercase tracking-tight",
+                                user.isActive !== false 
+                                    ? "border-red-100 text-red-600 hover:bg-red-50 hover:border-red-200" 
+                                    : "bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-200/50 text-white border-none"
+                            )}
+                        >
+                            {user.isActive !== false ? (
+                                <><ShieldAlert className="mr-2 h-4 w-4" /> Suspend Access</>
+                            ) : (
+                                <><Check className="mr-2 h-4 w-4" /> Restore Access</>
+                            )}
+                        </Button>
+                    )}
                 </div>
-              </div>
             </div>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
+        </DialogContent>
+        </Dialog>
+    );
+    }

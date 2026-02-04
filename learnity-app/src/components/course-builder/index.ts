@@ -7,7 +7,10 @@
 export * from './types';
 
 // Context
-export { CourseBuilderProvider, useCourseBuilder } from './CourseBuilderContext';
+export {
+  CourseBuilderProvider,
+  useCourseBuilder,
+} from './CourseBuilderContext';
 
 // Components
 export { CourseBuilderPage } from './CourseBuilderPage';

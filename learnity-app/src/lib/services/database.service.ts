@@ -8,7 +8,7 @@ import {
   User,
   UserRole as PrismaUserRole,
   ApplicationStatus as PrismaApplicationStatus,
-} from "@prisma/client";
+} from '@prisma/client';
 import {
   IUserProfileService,
   CreateProfileData,
@@ -16,12 +16,12 @@ import {
   TeacherApplicationData,
   TeacherApplication,
   ProfileCompletion,
-} from "@/lib/interfaces/auth";
+} from '@/lib/interfaces/auth';
 import {
   StudentProfileEnhancementData,
   TeacherApprovalData,
-} from "@/lib/validators/auth";
-import { UserRole, ApplicationStatus } from "@/types/auth";
+} from '@/lib/validators/auth';
+import { UserRole, ApplicationStatus } from '@/types/auth';
 
 export class DatabaseService implements IUserProfileService {
   private prisma: PrismaClient;
@@ -50,7 +50,31 @@ export class DatabaseService implements IUserProfileService {
 
     // If user exists, return existing profile
     if (existingUser) {
-      console.log(`User with firebaseUid ${firebaseUid} already exists, returning existing profile`);
+      console.log(
+        `User with firebaseUid ${firebaseUid} already exists, checking for default name...`
+      );
+
+      // Fix: If user exists but has the default name 'User' (from sync-profile race), update it
+      if (
+        (existingUser.firstName === 'User' || !existingUser.firstName) &&
+        data.firstName &&
+        data.firstName !== 'User'
+      ) {
+        console.log(`Updating default name for user ${firebaseUid}`);
+        return await this.prisma.user.update({
+          where: { id: existingUser.id },
+          data: {
+            firstName: data.firstName,
+            lastName: data.lastName,
+          },
+          include: {
+            studentProfile: true,
+            teacherProfile: true,
+            adminProfile: true,
+          },
+        });
+      }
+
       return existingUser;
     }
 
@@ -71,7 +95,7 @@ export class DatabaseService implements IUserProfileService {
           data.studentProfile && {
             studentProfile: {
               create: {
-                gradeLevel: data.studentProfile.gradeLevel || "Not specified",
+                gradeLevel: data.studentProfile.gradeLevel || 'Not specified',
                 subjects: data.studentProfile.subjects || [],
                 learningGoals: data.studentProfile.learningGoals || [],
                 interests: data.studentProfile.interests || [],
@@ -100,7 +124,7 @@ export class DatabaseService implements IUserProfileService {
             adminProfile: {
               create: {
                 department:
-                  data.adminProfile.department || "Platform Management",
+                  data.adminProfile.department || 'Platform Management',
                 isStatic: data.adminProfile.isStatic || false,
                 createdBy: data.adminProfile.createdBy,
               },
@@ -145,8 +169,12 @@ export class DatabaseService implements IUserProfileService {
           emailVerified: data.emailVerified,
         }),
         ...(data.lastLoginAt && { lastLoginAt: data.lastLoginAt }),
-        ...((data as any).authProvider && { authProvider: (data as any).authProvider }),
-        ...((data as any).socialProviders && { socialProviders: (data as any).socialProviders }),
+        ...((data as any).authProvider && {
+          authProvider: (data as any).authProvider,
+        }),
+        ...((data as any).socialProviders && {
+          socialProviders: (data as any).socialProviders,
+        }),
       },
       include: {
         studentProfile: true,
@@ -248,10 +276,10 @@ Submit teacher application
           },
         },
       },
-      orderBy: { submittedAt: "desc" },
+      orderBy: { submittedAt: 'desc' },
     });
 
-    return teacherProfiles.map((profile) => ({
+    return teacherProfiles.map(profile => ({
       id: profile.id,
       userId: profile.userId,
       applicationStatus: profile.applicationStatus as ApplicationStatus,
@@ -291,17 +319,17 @@ Submit teacher application
       where: { id: applicationId },
       data: {
         applicationStatus:
-          decision.decision === "APPROVED"
+          decision.decision === 'APPROVED'
             ? PrismaApplicationStatus.APPROVED
             : PrismaApplicationStatus.REJECTED,
         reviewedAt: new Date(),
-        approvedBy: decision.decision === "APPROVED" ? "admin" : undefined,
+        approvedBy: decision.decision === 'APPROVED' ? 'admin' : undefined,
         rejectionReason: decision.rejectionReason,
       },
     });
 
     // Update user role if approved
-    if (decision.decision === "APPROVED") {
+    if (decision.decision === 'APPROVED') {
       await this.prisma.user.update({
         where: { id: teacherProfile.userId },
         data: { role: UserRole.TEACHER },
@@ -372,32 +400,32 @@ Submit teacher application
     }
 
     const profile = user.studentProfile;
-    const completedSections: string[] = ["Basic Information"]; // Always completed
+    const completedSections: string[] = ['Basic Information']; // Always completed
     const missingFields: string[] = [];
 
     // Check completion status
     if (profile.subjects.length > 0) {
-      completedSections.push("Subject Interests");
+      completedSections.push('Subject Interests');
     } else {
-      missingFields.push("Subject Interests");
+      missingFields.push('Subject Interests');
     }
 
     if (profile.learningGoals && profile.learningGoals.length > 0) {
-      completedSections.push("Learning Goals");
+      completedSections.push('Learning Goals');
     } else {
-      missingFields.push("Learning Goals");
+      missingFields.push('Learning Goals');
     }
 
     if (profile.interests && profile.interests.length > 0) {
-      completedSections.push("Personal Interests");
+      completedSections.push('Personal Interests');
     } else {
-      missingFields.push("Personal Interests");
+      missingFields.push('Personal Interests');
     }
 
     if (profile.studyPreferences && profile.studyPreferences.length > 0) {
-      completedSections.push("Study Preferences");
+      completedSections.push('Study Preferences');
     } else {
-      missingFields.push("Study Preferences");
+      missingFields.push('Study Preferences');
     }
 
     return {

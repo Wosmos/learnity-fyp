@@ -8,9 +8,9 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { onAuthStateChanged, User } from 'firebase/auth';
+import { Shield, AlertTriangle, GraduationCap } from 'lucide-react';
 import { auth } from '@/lib/config/firebase';
 import { Card, CardContent } from '@/components/ui/card';
-import { Shield, AlertTriangle, GraduationCap } from 'lucide-react';
 import { UserRole } from '@/types/auth';
 import { auditLogger } from '@/lib/services/audit-logger.service';
 
@@ -18,7 +18,9 @@ interface ClientStudentProtectionProps {
   children: React.ReactNode;
 }
 
-export function ClientStudentProtection({ children }: ClientStudentProtectionProps) {
+export function ClientStudentProtection({
+  children,
+}: ClientStudentProtectionProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -26,19 +28,19 @@ export function ClientStudentProtection({ children }: ClientStudentProtectionPro
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async firebaseUser => {
       setUser(firebaseUser);
-      
+
       if (firebaseUser) {
         try {
           // Get the user's custom claims to check their role
           const idTokenResult = await firebaseUser.getIdTokenResult();
           const claims = idTokenResult.claims;
           const role = claims.role as UserRole;
-          
+
           console.log('Student protection - User claims:', claims);
           setUserRole(role);
-          
+
           if (role === UserRole.STUDENT) {
             setIsAuthorized(true);
             // Log successful access for audit
@@ -51,7 +53,7 @@ export function ClientStudentProtection({ children }: ClientStudentProtectionPro
           } else {
             console.log('Access denied - User is not a student, role:', role);
             setIsAuthorized(false);
-            
+
             // Log unauthorized access attempt
             auditLogger.logUnauthorizedAccess(
               firebaseUser.uid,
@@ -60,7 +62,7 @@ export function ClientStudentProtection({ children }: ClientStudentProtectionPro
               '/dashboard/student',
               UserRole.STUDENT
             );
-            
+
             // Redirect to appropriate dashboard or unauthorized page
             setTimeout(() => {
               if (role === UserRole.TEACHER) {
@@ -88,7 +90,7 @@ export function ClientStudentProtection({ children }: ClientStudentProtectionPro
           router.push('/auth/login?redirect=/dashboard/student');
         }, 2000);
       }
-      
+
       setLoading(false);
     });
 
@@ -115,13 +117,15 @@ export function ClientStudentProtection({ children }: ClientStudentProtectionPro
  */
 function StudentLoadingFallback() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
-      <Card className="w-full max-w-md">
-        <CardContent className="pt-6">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Verifying Access</h3>
-            <p className="text-gray-500">
+    <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center'>
+      <Card className='w-full max-w-md'>
+        <CardContent className='pt-6'>
+          <div className='text-center'>
+            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4'></div>
+            <h3 className='text-lg font-medium text-gray-900 mb-2'>
+              Verifying Access
+            </h3>
+            <p className='text-gray-500'>
               Checking your student permissions...
             </p>
           </div>
@@ -136,18 +140,18 @@ function StudentLoadingFallback() {
  */
 function StudentAuthRequiredFallback() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
-      <Card className="w-full max-w-md">
-        <CardContent className="pt-6">
-          <div className="text-center">
-            <GraduationCap className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Authentication Required</h3>
-            <p className="text-gray-500 mb-4">
+    <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center'>
+      <Card className='w-full max-w-md'>
+        <CardContent className='pt-6'>
+          <div className='text-center'>
+            <GraduationCap className='h-12 w-12 text-blue-400 mx-auto mb-4' />
+            <h3 className='text-lg font-medium text-gray-900 mb-2'>
+              Authentication Required
+            </h3>
+            <p className='text-gray-500 mb-4'>
               You need to be logged in to access the student dashboard.
             </p>
-            <p className="text-sm text-gray-400">
-              Redirecting to login...
-            </p>
+            <p className='text-sm text-gray-400'>Redirecting to login...</p>
           </div>
         </CardContent>
       </Card>
@@ -158,33 +162,37 @@ function StudentAuthRequiredFallback() {
 /**
  * Unauthorized access fallback
  */
-function StudentUnauthorizedFallback({ userRole }: { userRole: UserRole | null }) {
+function StudentUnauthorizedFallback({
+  userRole,
+}: {
+  userRole: UserRole | null;
+}) {
   const getRedirectMessage = () => {
     switch (userRole) {
       case UserRole.TEACHER:
-        return "Redirecting to teacher dashboard...";
+        return 'Redirecting to teacher dashboard...';
       case UserRole.ADMIN:
-        return "Redirecting to admin panel...";
+        return 'Redirecting to admin panel...';
       case UserRole.PENDING_TEACHER:
-        return "Redirecting to application status...";
+        return 'Redirecting to application status...';
       default:
-        return "Student privileges required.";
+        return 'Student privileges required.';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
-      <Card className="w-full max-w-md">
-        <CardContent className="pt-6">
-          <div className="text-center">
-            <AlertTriangle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
-            <p className="text-gray-500 mb-4">
+    <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center'>
+      <Card className='w-full max-w-md'>
+        <CardContent className='pt-6'>
+          <div className='text-center'>
+            <AlertTriangle className='h-12 w-12 text-red-400 mx-auto mb-4' />
+            <h3 className='text-lg font-medium text-gray-900 mb-2'>
+              Access Denied
+            </h3>
+            <p className='text-gray-500 mb-4'>
               You don't have permission to access the student dashboard.
             </p>
-            <p className="text-sm text-gray-400">
-              {getRedirectMessage()}
-            </p>
+            <p className='text-sm text-gray-400'>{getRedirectMessage()}</p>
           </div>
         </CardContent>
       </Card>

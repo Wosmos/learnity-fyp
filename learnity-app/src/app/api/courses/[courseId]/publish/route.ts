@@ -1,7 +1,7 @@
 /**
  * Course Publish API Route
  * POST /api/courses/[courseId]/publish - Publish a course (Teacher only)
- * 
+ *
  * Requirements covered:
  * - 2.1: Validate course has at least one section with one lesson
  * - 2.2: Change status from DRAFT to PUBLISHED
@@ -73,10 +73,7 @@ export async function POST(
     // Publish course (service handles validation and ownership check)
     const course = await courseService.publishCourse(courseId, dbUser.id);
 
-    return createSuccessResponse(
-      course,
-      'Course published successfully'
-    );
+    return createSuccessResponse(course, 'Course published successfully');
   } catch (error) {
     console.error('Error publishing course:', error);
 

@@ -1,23 +1,26 @@
 /**
  * Authentication Context Provider
  * Provides authentication state and methods to React components
+ * OPTIMIZED: Uses centralized profile store to prevent duplicate API calls
  */
 
-"use client";
+'use client';
 
 import React, {
   createContext,
   useContext,
   useEffect,
   useCallback,
-} from "react";
+  useRef,
+} from 'react';
 import {
   User as FirebaseUser,
   onAuthStateChanged,
   signOut,
-} from "firebase/auth";
-import { auth } from "@/lib/config/firebase";
-import { useAuthStore } from "@/lib/stores/auth.store";
+} from 'firebase/auth';
+import { auth } from '@/lib/config/firebase';
+import { useAuthStore } from '@/lib/stores/auth.store';
+import { useProfileStore } from '@/lib/stores/profile.store';
 // Note: roleManager is server-side only, we'll use API calls instead
 import {
   UserRole,
@@ -26,7 +29,7 @@ import {
   UserProfile,
   AuthError,
   AuthErrorCode,
-} from "@/types/auth";
+} from '@/types/auth';
 
 export interface AuthContextValue {
   // State
@@ -81,6 +84,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     hasAnyRole,
   } = useAuthStore();
 
+  // Use centralized profile store
+  const {
+    setProfile: setProfileStore,
+    setLoading: setProfileLoading,
+    clearProfile,
+    isCacheValid,
+  } = useProfileStore();
+
+  // Prevent duplicate fetches
+  const fetchingRef = useRef(false);
+
   /**
    * Refresh user claims from Firebase and sync with store
    */
@@ -95,7 +109,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await user.getIdToken(true);
 
       // Get custom claims from API instead of direct Firebase Admin access
-      const response = await fetch("/api/auth/claims", {
+      const response = await fetch('/api/auth/claims', {
         headers: {
           Authorization: `Bearer ${await user.getIdToken()}`,
         },
@@ -104,21 +118,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const customClaims = response.ok ? await response.json() : null;
 
       setClaims(customClaims);
-      
+
       // Update cache with fresh claims
       if (customClaims) {
-        localStorage.setItem('learnity_user_claims', JSON.stringify({
-          claims: customClaims,
-          timestamp: Date.now()
-        }));
+        localStorage.setItem(
+          'learnity_user_claims',
+          JSON.stringify({
+            uid: user.uid,
+            claims: customClaims,
+            timestamp: Date.now(),
+          })
+        );
       }
-      
+
       updateLastActivity();
     } catch (error: any) {
-      console.error("Failed to refresh claims:", error);
+      console.error('Failed to refresh claims:', error);
       setError({
         code: AuthErrorCode.TOKEN_INVALID,
-        message: "Failed to refresh authentication. Please sign in again.",
+        message: 'Failed to refresh authentication. Please sign in again.',
         details: { originalError: error.message },
       });
     } finally {
@@ -132,21 +150,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = useCallback(async () => {
     try {
       setLoading(true);
-      await signOut(auth);
+
+      // 1. Call client logout (clears session and Firebase)
+      const { clientAuthService } =
+        await import('@/lib/services/client-auth.service');
+      await clientAuthService.logout();
+
+      // 2. Clear stores
       clearAuth();
-      // Clear cached claims on logout
+      clearProfile();
+
+      // 3. Clear all cached data
       localStorage.removeItem('learnity_user_claims');
+      localStorage.removeItem('learnity-auth-storage'); // Zustand persist key
+
+      // 4. Hard redirect to clear everything in memory
+      window.location.href = '/auth/login';
     } catch (error: any) {
-      console.error("Failed to logout:", error);
+      console.error('Failed to logout:', error);
       setError({
         code: AuthErrorCode.INTERNAL_ERROR,
-        message: "Failed to sign out. Please try again.",
+        message: 'Failed to sign out. Please try again.',
         details: { originalError: error.message },
       });
     } finally {
       setLoading(false);
     }
-  }, [setLoading, setError, clearAuth]);
+  }, [setLoading, setError, clearAuth, clearProfile]);
 
   /**
    * Clear current error
@@ -174,7 +204,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         return response.ok ? await response.json() : false;
       } catch (error) {
-        console.error("Failed to validate route access:", error);
+        console.error('Failed to validate route access:', error);
         return false;
       }
     },
@@ -185,7 +215,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * Set up Firebase auth state listener
    */
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async firebaseUser => {
       setLoading(true);
 
       if (firebaseUser) {
@@ -197,10 +227,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (cachedClaims) {
             try {
               const parsed = JSON.parse(cachedClaims);
-              // Check if cache is less than 5 minutes old
-              if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+              // Check if cache is for the same user and is fresh
+              if (
+                parsed.uid === firebaseUser.uid &&
+                parsed.timestamp &&
+                Date.now() - parsed.timestamp < 5 * 60 * 1000
+              ) {
                 setClaims(parsed.claims);
                 setLoading(false); // Show UI immediately with cached data
+              } else if (parsed.uid !== firebaseUser.uid) {
+                // Clear stale cache for different user
+                localStorage.removeItem('learnity_user_claims');
+                clearProfile(); // Clear previous account's profile
               }
             } catch (e) {
               console.warn('Failed to parse cached claims:', e);
@@ -209,45 +247,71 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
           const idToken = await firebaseUser.getIdToken();
 
-          // Parallel fetch: claims, profile, and sync (fire-and-forget)
-          const [claimsResponse, profileResponse] = await Promise.all([
-            fetch("/api/auth/claims", {
+          // Prevent duplicate fetches
+          if (fetchingRef.current) return;
+          fetchingRef.current = true;
+
+          // Check if profile is already cached
+          const profileCached = isCacheValid();
+
+          // Parallel fetch: claims, profile (only if not cached), and sync (fire-and-forget)
+          const fetchPromises: Promise<any>[] = [
+            fetch('/api/auth/claims', {
               headers: { Authorization: `Bearer ${idToken}` },
             }),
-            fetch("/api/auth/profile", {
-              headers: { Authorization: `Bearer ${idToken}` },
-            }),
-            // Fire-and-forget sync - don't wait for it
-            syncUserProfile(firebaseUser).catch(err => 
-              console.warn('Profile sync failed (non-critical):', err)
-            ),
-          ]);
+          ];
+
+          // Only fetch profile if not cached
+          if (!profileCached) {
+            setProfileLoading(true);
+            fetchPromises.push(
+              fetch('/api/auth/profile', {
+                headers: { Authorization: `Bearer ${idToken}` },
+              })
+            );
+          }
+
+          // Fire-and-forget sync - don't wait for it
+          syncUserProfile(firebaseUser).catch(err =>
+            console.warn('Profile sync failed (non-critical):', err)
+          );
+
+          const responses = await Promise.all(fetchPromises);
+          const claimsResponse = responses[0];
+          const profileResponse = profileCached ? null : responses[1];
 
           // Process claims
           if (claimsResponse.ok) {
             const customClaims = await claimsResponse.json();
             setClaims(customClaims);
-            
-            // Cache claims with timestamp
-            localStorage.setItem('learnity_user_claims', JSON.stringify({
-              claims: customClaims,
-              timestamp: Date.now()
-            }));
+
+            // Cache claims with timestamp and UID
+            localStorage.setItem(
+              'learnity_user_claims',
+              JSON.stringify({
+                uid: firebaseUser.uid,
+                claims: customClaims,
+                timestamp: Date.now(),
+              })
+            );
           }
 
-          // Process profile
-          if (profileResponse.ok) {
+          // Process profile - update both stores
+          if (profileResponse?.ok) {
             const userProfile = await profileResponse.json();
             setProfile(userProfile);
+            setProfileStore(userProfile); // Update centralized store
           }
+          setProfileLoading(false);
+          fetchingRef.current = false;
 
           updateLastActivity();
         } catch (error: any) {
-          console.error("Failed to initialize user session:", error);
+          console.error('Failed to initialize user session:', error);
           setError({
             code: AuthErrorCode.INTERNAL_ERROR,
             message:
-              "Failed to initialize session. Please try signing in again.",
+              'Failed to initialize session. Please try signing in again.',
             details: { originalError: error.message },
           });
 
@@ -255,11 +319,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(null);
           setClaims(null);
           setProfile(null);
+          clearProfile(); // Clear centralized profile store
           localStorage.removeItem('learnity_user_claims');
+          fetchingRef.current = false;
         }
       } else {
         // User signed out - clear cache
         clearAuth();
+        clearProfile(); // Clear centralized profile store
         localStorage.removeItem('learnity_user_claims');
       }
 
@@ -284,14 +351,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const syncUserProfile = async (firebaseUser: FirebaseUser) => {
     try {
       const idToken = await firebaseUser.getIdToken();
-      
+
       // Check if profile exists and sync
-      const response = await fetch("/api/auth/sync-profile", {
-        method: "POST",
+      const response = await fetch('/api/auth/sync-profile', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${idToken}`,
-          "X-Firebase-UID": firebaseUser.uid,
+          'X-Firebase-UID': firebaseUser.uid,
         },
         body: JSON.stringify({
           uid: firebaseUser.uid,
@@ -304,18 +371,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             uid: provider.uid,
             displayName: provider.displayName,
             email: provider.email,
-            photoURL: provider.photoURL
-          }))
+            photoURL: provider.photoURL,
+          })),
         }),
       });
 
       if (!response.ok) {
-        console.warn("Failed to sync user profile:", await response.text());
+        console.warn('Failed to sync user profile:', await response.text());
       } else {
-        console.log("✅ User profile synced successfully");
+        console.log('✅ User profile synced successfully');
       }
     } catch (error) {
-      console.error("Failed to sync user profile:", error);
+      console.error('Failed to sync user profile:', error);
       // Don't throw here as we don't want to break the auth flow
     }
   };
@@ -326,16 +393,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     if (!user || !isAuthenticated) return;
 
-    const refreshInterval = setInterval(async () => {
-      try {
-        // Refresh token every 50 minutes (Firebase tokens expire after 1 hour)
-        await user.getIdToken(true);
-        updateLastActivity();
-      } catch (error) {
-        console.error("Failed to refresh token:", error);
-        // Don't set error here as it might be a temporary network issue
-      }
-    }, 50 * 60 * 1000); // 50 minutes
+    const refreshInterval = setInterval(
+      async () => {
+        try {
+          // Refresh token every 50 minutes (Firebase tokens expire after 1 hour)
+          await user.getIdToken(true);
+          updateLastActivity();
+        } catch (error) {
+          console.error('Failed to refresh token:', error);
+          // Don't set error here as it might be a temporary network issue
+        }
+      },
+      50 * 60 * 1000
+    ); // 50 minutes
 
     return () => clearInterval(refreshInterval);
   }, [user, isAuthenticated, updateLastActivity]);
@@ -408,7 +478,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 export const useAuthContext = (): AuthContextValue => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuthContext must be used within an AuthProvider");
+    throw new Error('useAuthContext must be used within an AuthProvider');
   }
   return context;
 };

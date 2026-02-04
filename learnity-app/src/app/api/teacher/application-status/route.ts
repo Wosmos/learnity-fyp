@@ -50,7 +50,10 @@ export interface ApplicationStatusResponse {
 /**
  * Calculate profile completion percentage based on filled fields
  */
-function calculateProfileCompletion(profile: any): { percentage: number; items: ProfileCompletionItem[] } {
+function calculateProfileCompletion(profile: any): {
+  percentage: number;
+  items: ProfileCompletionItem[];
+} {
   const items: ProfileCompletionItem[] = [
     {
       id: 'bio',
@@ -132,7 +135,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Authenticate user (allow pending and rejected teachers too)
     const authResult = await authMiddleware(request, {
-      allowMultipleRoles: [UserRole.TEACHER, UserRole.PENDING_TEACHER, UserRole.REJECTED_TEACHER, UserRole.ADMIN],
+      allowMultipleRoles: [
+        UserRole.TEACHER,
+        UserRole.PENDING_TEACHER,
+        UserRole.REJECTED_TEACHER,
+        UserRole.ADMIN,
+      ],
     });
 
     if (authResult instanceof NextResponse) {
@@ -168,7 +176,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Calculate reapply date (30 days after rejection)
     let reapplyDate: string | null = null;
     let canReapply = false;
-    
+
     if (profile.applicationStatus === 'REJECTED' && profile.reviewedAt) {
       const reapplyDateObj = new Date(profile.reviewedAt);
       reapplyDateObj.setDate(reapplyDateObj.getDate() + 30);
@@ -208,7 +216,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       },
     };
 
-    return createSuccessResponse(response, 'Application status retrieved successfully');
+    return createSuccessResponse(
+      response,
+      'Application status retrieved successfully'
+    );
   } catch (error) {
     console.error('Error fetching application status:', error);
     return createInternalErrorResponse('Failed to fetch application status');

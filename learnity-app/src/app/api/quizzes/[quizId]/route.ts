@@ -3,7 +3,7 @@
  * GET /api/quizzes/[quizId] - Get quiz details (Student)
  * PUT /api/quizzes/[quizId] - Update quiz (Teacher only)
  * DELETE /api/quizzes/[quizId] - Delete quiz (Teacher only)
- * 
+ *
  * Requirements covered:
  * - 6.1: Create multiple-choice quizzes with 2-4 options per question
  * - 6.2: Support explanations for correct answers
@@ -11,6 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 import { quizService } from '@/lib/services/quiz.service';
 import { UpdateQuizSchema } from '@/lib/validators/quiz';
 import { QuizError } from '@/lib/interfaces/quiz.interface';
@@ -24,7 +25,6 @@ import {
   createNotFoundErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { ZodError } from 'zod';
 
 interface RouteParams {
   params: Promise<{ quizId: string }>;
@@ -98,7 +98,7 @@ export async function GET(
       title: quiz.title,
       description: quiz.description,
       passingScore: quiz.passingScore,
-      questions: quiz.questions.map((q) => ({
+      questions: quiz.questions.map(q => ({
         id: q.id,
         question: q.question,
         options: q.options,
@@ -165,11 +165,11 @@ export async function PUT(
     // Validate ownership (admins can bypass)
     if (dbUser.role !== UserRole.ADMIN) {
       const { isOwner, quiz } = await validateQuizOwnership(quizId, dbUser.id);
-      
+
       if (!quiz) {
         return createNotFoundErrorResponse('Quiz');
       }
-      
+
       if (!isOwner) {
         return createErrorResponse(
           'FORBIDDEN',
@@ -260,11 +260,11 @@ export async function DELETE(
     // Validate ownership (admins can bypass)
     if (dbUser.role !== UserRole.ADMIN) {
       const { isOwner, quiz } = await validateQuizOwnership(quizId, dbUser.id);
-      
+
       if (!quiz) {
         return createNotFoundErrorResponse('Quiz');
       }
-      
+
       if (!isOwner) {
         return createErrorResponse(
           'FORBIDDEN',

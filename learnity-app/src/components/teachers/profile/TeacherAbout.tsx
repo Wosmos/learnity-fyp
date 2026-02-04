@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Play } from "lucide-react";
-import { TeacherData } from "./types";
+import { Play } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { TeacherData } from './types';
 
 interface TeacherAboutProps {
   teacher: TeacherData;
@@ -10,21 +10,21 @@ interface TeacherAboutProps {
 
 export function TeacherAbout({ teacher }: TeacherAboutProps) {
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* Video Introduction */}
       {teacher.videoIntroUrl && (
         <Card>
-          <CardContent className="p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-              <Play className="h-6 w-6 mr-2 text-blue-600" />
+          <CardContent className='p-6'>
+            <h2 className='text-2xl font-bold text-gray-900 mb-4 flex items-center'>
+              <Play className='h-6 w-6 mr-2 text-blue-600' />
               Video Introduction
             </h2>
-            <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-900">
+            <div className='relative aspect-video rounded-lg overflow-hidden bg-gray-900'>
               <iframe
-                className="absolute inset-0 w-full h-full"
+                className='absolute inset-0 w-full h-full'
                 src={teacher.videoIntroUrl}
                 title={`${teacher.name} Introduction`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
                 allowFullScreen
               ></iframe>
             </div>
@@ -34,11 +34,11 @@ export function TeacherAbout({ teacher }: TeacherAboutProps) {
 
       {/* About */}
       <Card>
-        <CardContent className="p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+        <CardContent className='p-6'>
+          <h2 className='text-2xl font-bold text-gray-900 mb-4'>
             About {teacher.firstName}
           </h2>
-          <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+          <p className='text-gray-700 leading-relaxed whitespace-pre-line'>
             {teacher.bio}
           </p>
         </CardContent>
@@ -47,11 +47,11 @@ export function TeacherAbout({ teacher }: TeacherAboutProps) {
       {/* Teaching Approach */}
       {teacher.teachingApproach && (
         <Card>
-          <CardContent className="p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <CardContent className='p-6'>
+            <h2 className='text-2xl font-bold text-gray-900 mb-4'>
               Teaching Approach
             </h2>
-            <p className="text-gray-700 leading-relaxed">
+            <p className='text-gray-700 leading-relaxed'>
               {teacher.teachingApproach}
             </p>
           </CardContent>

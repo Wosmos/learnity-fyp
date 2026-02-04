@@ -32,13 +32,13 @@ import {
   getIdTokenResult,
   onIdTokenChanged,
   reload,
-} from "firebase/auth";
-import { auth } from "@/lib/config/firebase";
-import { adminAuth } from "@/lib/config/firebase-admin";
-import { appCheckService } from "@/lib/services/app-check.service";
-import { tokenManager } from "@/lib/services/token-manager.service";
-import { roleManager } from "@/lib/services/role-manager.service";
-import { IFirebaseAuthService } from "@/lib/interfaces/auth";
+} from 'firebase/auth';
+import { auth } from '@/lib/config/firebase';
+import { adminAuth } from '@/lib/config/firebase-admin';
+import { appCheckService } from '@/lib/services/app-check.service';
+import { tokenManager } from '@/lib/services/token-manager.service';
+import { roleManager } from '@/lib/services/role-manager.service';
+import { IFirebaseAuthService } from '@/lib/interfaces/auth';
 import {
   FirebaseAuthResult,
   CustomClaims,
@@ -47,13 +47,13 @@ import {
   UserRole,
   SecurityAction,
   Permission,
-} from "@/types/auth";
+} from '@/types/auth';
 import {
   StudentRegistrationData,
   TeacherRegistrationData,
   LoginData,
   StaticAdminLoginData,
-} from "@/lib/validators/auth";
+} from '@/lib/validators/auth';
 
 export class FirebaseAuthService implements IFirebaseAuthService {
   private googleProvider: GoogleAuthProvider;
@@ -64,12 +64,12 @@ export class FirebaseAuthService implements IFirebaseAuthService {
   constructor() {
     // Initialize OAuth providers
     this.googleProvider = new GoogleAuthProvider();
-    this.googleProvider.addScope("email");
-    this.googleProvider.addScope("profile");
+    this.googleProvider.addScope('email');
+    this.googleProvider.addScope('profile');
 
-    this.microsoftProvider = new OAuthProvider("microsoft.com");
-    this.microsoftProvider.addScope("email");
-    this.microsoftProvider.addScope("profile");
+    this.microsoftProvider = new OAuthProvider('microsoft.com');
+    this.microsoftProvider.addScope('email');
+    this.microsoftProvider.addScope('profile');
 
     // Initialize token refresh monitoring
     this.initializeTokenRefreshMonitoring();
@@ -83,7 +83,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
   ): Promise<FirebaseAuthResult> {
     return this.enhanceRegistrationWithSecurity(
       data,
-      async (registrationData) => {
+      async registrationData => {
         try {
           // Create Firebase Auth account
           const userCredential: UserCredential =
@@ -135,7 +135,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
   ): Promise<FirebaseAuthResult> {
     return this.enhanceRegistrationWithSecurity(
       data,
-      async (registrationData) => {
+      async registrationData => {
         try {
           // Create Firebase Auth account
           const userCredential: UserCredential =
@@ -189,7 +189,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
       const staticAdminPassword = process.env.STATIC_ADMIN_PASSWORD;
 
       if (!staticAdminEmail || !staticAdminPassword) {
-        throw new Error("Static admin credentials not configured");
+        throw new Error('Static admin credentials not configured');
       }
 
       if (
@@ -200,7 +200,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
           success: false,
           error: {
             code: AuthErrorCode.INVALID_CREDENTIALS,
-            message: "Invalid admin credentials",
+            message: 'Invalid admin credentials',
           },
         };
       }
@@ -215,7 +215,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
         );
       } catch (firebaseError: any) {
         // If admin account doesn't exist in Firebase, create it
-        if (firebaseError.code === "auth/user-not-found") {
+        if (firebaseError.code === 'auth/user-not-found') {
           userCredential = await createUserWithEmailAndPassword(
             auth,
             credentials.email,
@@ -259,7 +259,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
    * Login with email and password
    */
   async login(credentials: LoginData): Promise<FirebaseAuthResult> {
-    return this.enhanceLoginWithSecurity(credentials, async (loginData) => {
+    return this.enhanceLoginWithSecurity(credentials, async loginData => {
       try {
         const userCredential: UserCredential = await signInWithEmailAndPassword(
           auth,
@@ -275,7 +275,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
             success: false,
             error: {
               code: AuthErrorCode.EMAIL_NOT_VERIFIED,
-              message: "Please verify your email address before signing in",
+              message: 'Please verify your email address before signing in',
             },
           };
         }
@@ -298,11 +298,11 @@ export class FirebaseAuthService implements IFirebaseAuthService {
    * Social login with Google or Microsoft
    */
   async socialLogin(
-    provider: "google" | "microsoft"
+    provider: 'google' | 'microsoft'
   ): Promise<FirebaseAuthResult> {
     try {
       const authProvider =
-        provider === "google" ? this.googleProvider : this.microsoftProvider;
+        provider === 'google' ? this.googleProvider : this.microsoftProvider;
       const userCredential: UserCredential = await signInWithPopup(
         auth,
         authProvider
@@ -352,7 +352,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
     try {
       const user = auth.currentUser;
       if (!user) {
-        throw new Error("No authenticated user");
+        throw new Error('No authenticated user');
       }
       await firebaseUpdatePassword(user, newPassword);
     } catch (error: any) {
@@ -364,8 +364,8 @@ export class FirebaseAuthService implements IFirebaseAuthService {
    * Get current authenticated user
    */
   async getCurrentUser(): Promise<FirebaseUser | null> {
-    return new Promise((resolve) => {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
+    return new Promise(resolve => {
+      const unsubscribe = onAuthStateChanged(auth, user => {
         unsubscribe();
         resolve(user);
       });
@@ -378,7 +378,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
   async getIdToken(forceRefresh: boolean = false): Promise<string> {
     const user = auth.currentUser;
     if (!user) {
-      throw new Error("No authenticated user");
+      throw new Error('No authenticated user');
     }
 
     // Use token manager for better caching and refresh logic
@@ -446,7 +446,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
    */
   private initializeTokenRefreshMonitoring(): void {
     // Monitor ID token changes and set up automatic refresh
-    onIdTokenChanged(auth, async (user) => {
+    onIdTokenChanged(auth, async user => {
       if (user) {
         await this.setupTokenRefresh(user);
       } else {
@@ -473,12 +473,12 @@ export class FirebaseAuthService implements IFirebaseAuthService {
           try {
             await this.refreshToken();
           } catch (error) {
-            console.error("Automatic token refresh failed:", error);
+            console.error('Automatic token refresh failed:', error);
           }
         }, timeUntilRefresh);
       }
     } catch (error) {
-      console.error("Failed to setup token refresh:", error);
+      console.error('Failed to setup token refresh:', error);
     }
   }
 
@@ -498,7 +498,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
   async refreshToken(): Promise<string> {
     const user = auth.currentUser;
     if (!user) {
-      throw new Error("No authenticated user to refresh token for");
+      throw new Error('No authenticated user to refresh token for');
     }
 
     try {
@@ -520,7 +520,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
   async getTokenWithRefresh(): Promise<string> {
     const user = auth.currentUser;
     if (!user) {
-      throw new Error("No authenticated user");
+      throw new Error('No authenticated user');
     }
 
     try {
@@ -540,7 +540,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
       const validation = await tokenManager.validateToken(idToken);
 
       if (!validation.isValid) {
-        throw new Error(validation.error?.message || "Invalid token");
+        throw new Error(validation.error?.message || 'Invalid token');
       }
 
       return validation.claims;
@@ -596,7 +596,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
   async reloadUserWithClaims(): Promise<void> {
     const user = auth.currentUser;
     if (!user) {
-      throw new Error("No authenticated user");
+      throw new Error('No authenticated user');
     }
 
     try {
@@ -612,7 +612,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
    * Enhanced registration with App Check integration
    */
   private async enhanceRegistrationWithSecurity<
-    T extends StudentRegistrationData | TeacherRegistrationData
+    T extends StudentRegistrationData | TeacherRegistrationData,
   >(
     data: T,
     registrationFn: (data: T) => Promise<FirebaseAuthResult>
@@ -623,14 +623,14 @@ export class FirebaseAuthService implements IFirebaseAuthService {
         SecurityAction.REGISTER
       );
 
-      if (!appCheckResult.success && process.env.NODE_ENV === "production") {
+      if (!appCheckResult.success && process.env.NODE_ENV === 'production') {
         return {
           success: false,
           error: {
             code: AuthErrorCode.SERVICE_UNAVAILABLE,
             message:
               appCheckResult.error ||
-              "Bot protection verification failed. Please try again.",
+              'Bot protection verification failed. Please try again.',
           },
         };
       }
@@ -645,7 +645,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
           error: {
             code: AuthErrorCode.RATE_LIMIT_EXCEEDED,
             message:
-              "Additional verification required. Please complete the captcha.",
+              'Additional verification required. Please complete the captcha.',
           },
         };
       }
@@ -677,7 +677,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
       if (
         credentials.hcaptchaToken &&
         !appCheckResult.success &&
-        process.env.NODE_ENV === "production"
+        process.env.NODE_ENV === 'production'
       ) {
         return {
           success: false,
@@ -685,7 +685,7 @@ export class FirebaseAuthService implements IFirebaseAuthService {
             code: AuthErrorCode.SERVICE_UNAVAILABLE,
             message:
               appCheckResult.error ||
-              "Security verification failed. Please try again.",
+              'Security verification failed. Please try again.',
           },
         };
       }
@@ -705,75 +705,75 @@ export class FirebaseAuthService implements IFirebaseAuthService {
    */
   private mapFirebaseError(error: unknown): AuthError {
     const firebaseError = error as { code?: string; message?: string };
-    const errorCode = firebaseError.code || "unknown";
+    const errorCode = firebaseError.code || 'unknown';
 
     switch (errorCode) {
-      case "auth/user-not-found":
-      case "auth/wrong-password":
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
         return {
           code: AuthErrorCode.INVALID_CREDENTIALS,
-          message: "Invalid email or password",
+          message: 'Invalid email or password',
         };
 
-      case "auth/email-already-in-use":
+      case 'auth/email-already-in-use':
         return {
           code: AuthErrorCode.ACCOUNT_NOT_FOUND,
-          message: "An account with this email already exists",
+          message: 'An account with this email already exists',
         };
 
-      case "auth/weak-password":
+      case 'auth/weak-password':
         return {
           code: AuthErrorCode.WEAK_PASSWORD,
-          message: "Password is too weak",
+          message: 'Password is too weak',
         };
 
-      case "auth/too-many-requests":
+      case 'auth/too-many-requests':
         return {
           code: AuthErrorCode.TOO_MANY_ATTEMPTS,
-          message: "Too many failed attempts. Please try again later.",
+          message: 'Too many failed attempts. Please try again later.',
           retryAfter: 300, // 5 minutes
         };
 
-      case "auth/network-request-failed":
+      case 'auth/network-request-failed':
         return {
           code: AuthErrorCode.SERVICE_UNAVAILABLE,
-          message: "Network error. Please check your connection and try again.",
+          message: 'Network error. Please check your connection and try again.',
         };
 
-      case "auth/invalid-email":
+      case 'auth/invalid-email':
         return {
           code: AuthErrorCode.INVALID_CREDENTIALS,
-          message: "Invalid email address",
+          message: 'Invalid email address',
         };
 
-      case "auth/user-disabled":
+      case 'auth/user-disabled':
         return {
           code: AuthErrorCode.ACCOUNT_LOCKED,
-          message: "This account has been disabled",
+          message: 'This account has been disabled',
         };
 
-      case "auth/id-token-expired":
+      case 'auth/id-token-expired':
         return {
           code: AuthErrorCode.TOKEN_EXPIRED,
-          message: "Your session has expired. Please sign in again.",
+          message: 'Your session has expired. Please sign in again.',
         };
 
-      case "auth/id-token-revoked":
+      case 'auth/id-token-revoked':
         return {
           code: AuthErrorCode.TOKEN_REVOKED,
-          message: "Your session has been revoked. Please sign in again.",
+          message: 'Your session has been revoked. Please sign in again.',
         };
 
-      case "auth/invalid-id-token":
+      case 'auth/invalid-id-token':
         return {
           code: AuthErrorCode.TOKEN_INVALID,
-          message: "Invalid authentication token. Please sign in again.",
+          message: 'Invalid authentication token. Please sign in again.',
         };
 
       default:
         return {
           code: AuthErrorCode.INTERNAL_ERROR,
-          message: firebaseError.message || "An unexpected error occurred",
+          message: firebaseError.message || 'An unexpected error occurred',
         };
     }
   }

@@ -4,10 +4,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { ProfileEnhancementService } from '@/lib/services/profile-enhancement.service';
 import { authenticateApiRequest } from '@/lib/utils/api-auth.utils';
 import { ServiceFactory } from '@/lib/factories/service.factory';
-import { z } from 'zod';
 
 const profileService = new ProfileEnhancementService();
 
@@ -40,10 +40,7 @@ export async function PUT(request: NextRequest) {
     const user = await databaseService.getUserProfile(authResult.uid!);
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Verify user is a student
@@ -71,7 +68,7 @@ export async function PUT(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('Profile enhancement error:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid data', details: error.errors },
@@ -103,10 +100,7 @@ export async function GET(request: NextRequest) {
     const user = await databaseService.getUserProfile(authResult.uid!);
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Get completion data

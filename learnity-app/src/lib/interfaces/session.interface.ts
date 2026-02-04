@@ -4,8 +4,8 @@
  * blacklisting, and device tracking
  */
 
-import { UserRole, Permission, CustomClaims } from '@/types/auth';
 import { JwtPayload } from 'jsonwebtoken';
+import { UserRole, Permission, CustomClaims } from '@/types/auth';
 
 export interface ISessionManagerService {
   // Firebase token management and blacklisting
@@ -15,33 +15,50 @@ export interface ISessionManagerService {
   blacklistAllUserTokens(firebaseUid: string, reason?: string): Promise<void>;
   isFirebaseTokenBlacklisted(idToken: string): Promise<boolean>;
   cleanupExpiredBlacklistedTokens(): Promise<number>;
-  
+
   // Enhanced token pair management
   generateTokenPair(sessionData: CreateSessionData): Promise<TokenPair>;
   validateAccessToken(accessToken: string): Promise<TokenValidationResult>;
   validateRefreshToken(refreshToken: string): Promise<TokenValidationResult>;
   refreshTokenPair(refreshToken: string): Promise<TokenPair>;
-  blacklistTokenPair(accessToken: string, refreshToken: string, reason?: string): Promise<void>;
-  extractAccessTokenPayload(accessToken: string): Promise<AccessTokenPayload | null>;
-  extractRefreshTokenPayload(refreshToken: string): Promise<RefreshTokenPayload | null>;
-  
+  blacklistTokenPair(
+    accessToken: string,
+    refreshToken: string,
+    reason?: string
+  ): Promise<void>;
+  extractAccessTokenPayload(
+    accessToken: string
+  ): Promise<AccessTokenPayload | null>;
+  extractRefreshTokenPayload(
+    refreshToken: string
+  ): Promise<RefreshTokenPayload | null>;
+
   // Session tracking
   createSession(sessionData: CreateSessionData): Promise<UserSession>;
   getSession(sessionId: string): Promise<UserSession | null>;
   getUserSessions(firebaseUid: string): Promise<UserSession[]>;
-  updateSessionActivity(sessionId: string, activity: SessionActivity): Promise<void>;
+  updateSessionActivity(
+    sessionId: string,
+    activity: SessionActivity
+  ): Promise<void>;
   terminateSession(sessionId: string, reason?: string): Promise<void>;
-  terminateAllUserSessions(firebaseUid: string, reason?: string): Promise<number>;
-  
+  terminateAllUserSessions(
+    firebaseUid: string,
+    reason?: string
+  ): Promise<number>;
+
   // Device tracking
   trackDevice(deviceInfo: DeviceInfo): Promise<TrackedDevice>;
   getDeviceHistory(firebaseUid: string): Promise<TrackedDevice[]>;
   isNewDevice(firebaseUid: string, deviceFingerprint: string): Promise<boolean>;
-  
+
   // Session analytics
   getSessionStats(firebaseUid?: string): Promise<SessionStats>;
   getActiveSessionsCount(): Promise<number>;
-  getSessionsByTimeRange(startDate: Date, endDate: Date): Promise<UserSession[]>;
+  getSessionsByTimeRange(
+    startDate: Date,
+    endDate: Date
+  ): Promise<UserSession[]>;
 }
 
 // Core Types - Firebase Auth Integration
@@ -163,7 +180,7 @@ export enum LoginMethod {
   EMAIL_PASSWORD = 'EMAIL_PASSWORD',
   GOOGLE_OAUTH = 'GOOGLE_OAUTH',
   MICROSOFT_OAUTH = 'MICROSOFT_OAUTH',
-  STATIC_ADMIN = 'STATIC_ADMIN'
+  STATIC_ADMIN = 'STATIC_ADMIN',
 }
 
 export enum SessionAction {
@@ -174,14 +191,14 @@ export enum SessionAction {
   PERMISSION_CHECK = 'PERMISSION_CHECK',
   ROUTE_ACCESS = 'ROUTE_ACCESS',
   API_CALL = 'API_CALL',
-  SUSPICIOUS_ACTIVITY = 'SUSPICIOUS_ACTIVITY'
+  SUSPICIOUS_ACTIVITY = 'SUSPICIOUS_ACTIVITY',
 }
 
 export enum DeviceRiskLevel {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',
-  CRITICAL = 'CRITICAL'
+  CRITICAL = 'CRITICAL',
 }
 
 // Blacklist Types
@@ -247,5 +264,5 @@ export enum SessionErrorCode {
   DEVICE_NOT_TRUSTED = 'DEVICE_NOT_TRUSTED',
   SUSPICIOUS_ACTIVITY = 'SUSPICIOUS_ACTIVITY',
   INVALID_REFRESH_TOKEN = 'INVALID_REFRESH_TOKEN',
-  TOKEN_GENERATION_FAILED = 'TOKEN_GENERATION_FAILED'
+  TOKEN_GENERATION_FAILED = 'TOKEN_GENERATION_FAILED',
 }

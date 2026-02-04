@@ -25,7 +25,12 @@ export interface CreateChannelOptions {
 
 export interface IStreamChatService {
   generateUserToken(userId: string): string;
-  createCourseChannel(courseId: string, courseName: string, teacherId: string, studentIds: string[]): Promise<string>;
+  createCourseChannel(
+    courseId: string,
+    courseName: string,
+    teacherId: string,
+    studentIds: string[]
+  ): Promise<string>;
   createDirectMessageChannel(user1Id: string, user2Id: string): Promise<string>;
   addMemberToChannel(channelId: string, userId: string): Promise<void>;
   removeMemberFromChannel(channelId: string, userId: string): Promise<void>;
@@ -92,7 +97,7 @@ class StreamChatService implements IStreamChatService {
   ): Promise<string> {
     const client = this.getClient();
     const channelId = `course_${courseId}`;
-    
+
     // All members including teacher
     const members = Array.from(new Set([teacherId, ...studentIds]));
 
@@ -105,7 +110,7 @@ class StreamChatService implements IStreamChatService {
     await channel.create();
     // Update channel with custom data
     await channel.update({ name: courseName } as Record<string, unknown>);
-    
+
     return channelId;
   }
 
@@ -113,9 +118,12 @@ class StreamChatService implements IStreamChatService {
    * Create a direct message channel between two users
    * Channel ID format: dm_{sortedUserIds}
    */
-  async createDirectMessageChannel(user1Id: string, user2Id: string): Promise<string> {
+  async createDirectMessageChannel(
+    user1Id: string,
+    user2Id: string
+  ): Promise<string> {
     const client = this.getClient();
-    
+
     // Sort IDs to ensure consistent channel ID regardless of who initiates
     const sortedIds = [user1Id, user2Id].sort();
     const channelId = `dm_${sortedIds[0]}_${sortedIds[1]}`;
@@ -140,7 +148,10 @@ class StreamChatService implements IStreamChatService {
   /**
    * Remove a member from a channel (e.g., when student unenrolls)
    */
-  async removeMemberFromChannel(channelId: string, userId: string): Promise<void> {
+  async removeMemberFromChannel(
+    channelId: string,
+    userId: string
+  ): Promise<void> {
     const client = this.getClient();
     const channel = client.channel('messaging', channelId);
     await channel.removeMembers([userId]);

@@ -4,17 +4,13 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import { 
+import {
   AuditLog,
   AuditFilters,
   AuthEvent,
-  SecurityEvent
+  SecurityEvent,
 } from '@/lib/interfaces/auth';
-import { 
-  EventType,
-  SecurityEventType,
-  RiskLevel
-} from '@/types/auth';
+import { EventType, SecurityEventType, RiskLevel } from '@/types/auth';
 
 export interface IAuditService {
   // Enhanced audit logging
@@ -22,17 +18,19 @@ export interface IAuditService {
   logSecurityEvent(event: SecurityEventData): Promise<void>;
   logAdminAction(event: AdminActionData): Promise<void>;
   logSystemEvent(event: SystemEventData): Promise<void>;
-  
+
   // Audit retrieval and analysis
   getAuditLogs(filters: AuditFilters): Promise<PaginatedAuditLogs>;
-  getSecurityEvents(filters: SecurityEventFilters): Promise<PaginatedSecurityEvents>;
+  getSecurityEvents(
+    filters: SecurityEventFilters
+  ): Promise<PaginatedSecurityEvents>;
   getAuditSummary(timeRange: TimeRange): Promise<AuditSummary>;
-  
+
   // Security monitoring
   detectSuspiciousPatterns(timeRange: TimeRange): Promise<SuspiciousPattern[]>;
   generateSecurityReport(timeRange: TimeRange): Promise<SecurityReport>;
   getFailedLoginAnalysis(timeRange: TimeRange): Promise<FailedLoginAnalysis>;
-  
+
   // Automated alerts
   checkForAlerts(): Promise<SecurityAlert[]>;
   createAlert(alert: CreateAlertData): Promise<void>;
@@ -169,7 +167,11 @@ export interface HourlyStats {
 }
 
 export interface SuspiciousPattern {
-  type: 'MULTIPLE_FAILED_LOGINS' | 'UNUSUAL_IP_ACTIVITY' | 'BOT_ACTIVITY' | 'BRUTE_FORCE_ATTACK';
+  type:
+    | 'MULTIPLE_FAILED_LOGINS'
+    | 'UNUSUAL_IP_ACTIVITY'
+    | 'BOT_ACTIVITY'
+    | 'BRUTE_FORCE_ATTACK';
   description: string;
   severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   affectedUsers: string[];
@@ -256,9 +258,9 @@ export class AuditService implements IAuditService {
           metadata: {
             ...event.metadata,
             email: event.email,
-            timestamp: new Date().toISOString()
-          }
-        }
+            timestamp: new Date().toISOString(),
+          },
+        },
       });
 
       // Auto-detect suspicious patterns for failed logins
@@ -287,13 +289,16 @@ export class AuditService implements IAuditService {
           reason: event.reason,
           metadata: {
             ...event.metadata,
-            timestamp: new Date().toISOString()
-          }
-        }
+            timestamp: new Date().toISOString(),
+          },
+        },
       });
 
       // Create alerts for high-risk events
-      if (event.riskLevel === RiskLevel.HIGH || event.riskLevel === RiskLevel.CRITICAL) {
+      if (
+        event.riskLevel === RiskLevel.HIGH ||
+        event.riskLevel === RiskLevel.CRITICAL
+      ) {
         await this.createSecurityAlert(event);
       }
     } catch (error) {
@@ -321,9 +326,9 @@ export class AuditService implements IAuditService {
           metadata: {
             targetUserId: event.targetUserId,
             adminAction: true,
-            timestamp: new Date().toISOString()
-          }
-        }
+            timestamp: new Date().toISOString(),
+          },
+        },
       });
     } catch (error) {
       console.error('Failed to log admin action:', error);
@@ -348,9 +353,9 @@ export class AuditService implements IAuditService {
             ...event.metadata,
             systemEvent: true,
             eventType: event.eventType,
-            timestamp: new Date().toISOString()
-          }
-        }
+            timestamp: new Date().toISOString(),
+          },
+        },
       });
     } catch (error) {
       console.error('Failed to log system event:', error);
@@ -362,7 +367,12 @@ export class AuditService implements IAuditService {
    */
   async getAuditLogs(filters: AuditFilters): Promise<PaginatedAuditLogs> {
     try {
-      const page = Math.max(1, filters.offset ? Math.floor(filters.offset / (filters.limit || 50)) + 1 : 1);
+      const page = Math.max(
+        1,
+        filters.offset
+          ? Math.floor(filters.offset / (filters.limit || 50)) + 1
+          : 1
+      );
       const pageSize = Math.min(100, filters.limit || 50);
       const skip = (page - 1) * pageSize;
 
@@ -390,12 +400,12 @@ export class AuditService implements IAuditService {
                 email: true,
                 firstName: true,
                 lastName: true,
-                role: true
-              }
-            }
-          }
+                role: true,
+              },
+            },
+          },
         }),
-        this.prisma.auditLog.count({ where })
+        this.prisma.auditLog.count({ where }),
       ]);
 
       return {
@@ -406,20 +416,20 @@ export class AuditService implements IAuditService {
           eventType: log.eventType,
           action: log.action,
           resource: log.resource || undefined,
-          oldValues: log.oldValues as Record<string, any> || undefined,
-          newValues: log.newValues as Record<string, any> || undefined,
+          oldValues: (log.oldValues as Record<string, any>) || undefined,
+          newValues: (log.newValues as Record<string, any>) || undefined,
           ipAddress: log.ipAddress,
           userAgent: log.userAgent,
           deviceFingerprint: log.deviceFingerprint || undefined,
           success: log.success,
           errorMessage: log.errorMessage || undefined,
-          metadata: log.metadata as Record<string, any> || undefined,
-          createdAt: log.createdAt
+          metadata: (log.metadata as Record<string, any>) || undefined,
+          createdAt: log.createdAt,
         })),
         total,
         page,
         pageSize,
-        totalPages: Math.ceil(total / pageSize)
+        totalPages: Math.ceil(total / pageSize),
       };
     } catch (error) {
       console.error('Failed to get audit logs:', error);
@@ -428,7 +438,7 @@ export class AuditService implements IAuditService {
         total: 0,
         page: 1,
         pageSize: 50,
-        totalPages: 0
+        totalPages: 0,
       };
     }
   }
@@ -436,9 +446,16 @@ export class AuditService implements IAuditService {
   /**
    * Get paginated security events with user information
    */
-  async getSecurityEvents(filters: SecurityEventFilters): Promise<PaginatedSecurityEvents> {
+  async getSecurityEvents(
+    filters: SecurityEventFilters
+  ): Promise<PaginatedSecurityEvents> {
     try {
-      const page = Math.max(1, filters.offset ? Math.floor(filters.offset / (filters.limit || 50)) + 1 : 1);
+      const page = Math.max(
+        1,
+        filters.offset
+          ? Math.floor(filters.offset / (filters.limit || 50)) + 1
+          : 1
+      );
       const pageSize = Math.min(100, filters.limit || 50);
       const skip = (page - 1) * pageSize;
 
@@ -467,12 +484,12 @@ export class AuditService implements IAuditService {
                 email: true,
                 firstName: true,
                 lastName: true,
-                role: true
-              }
-            }
-          }
+                role: true,
+              },
+            },
+          },
         }),
-        this.prisma.securityEvent.count({ where })
+        this.prisma.securityEvent.count({ where }),
       ]);
 
       return {
@@ -486,19 +503,21 @@ export class AuditService implements IAuditService {
           deviceFingerprint: event.deviceFingerprint,
           blocked: event.blocked,
           reason: event.reason || undefined,
-          metadata: event.metadata as Record<string, any> || undefined,
+          metadata: (event.metadata as Record<string, any>) || undefined,
           createdAt: event.createdAt,
-          user: event.user ? {
-            email: event.user.email,
-            firstName: event.user.firstName,
-            lastName: event.user.lastName,
-            role: event.user.role
-          } : undefined
+          user: event.user
+            ? {
+                email: event.user.email,
+                firstName: event.user.firstName,
+                lastName: event.user.lastName,
+                role: event.user.role,
+              }
+            : undefined,
         })),
         total,
         page,
         pageSize,
-        totalPages: Math.ceil(total / pageSize)
+        totalPages: Math.ceil(total / pageSize),
       };
     } catch (error) {
       console.error('Failed to get security events:', error);
@@ -507,7 +526,7 @@ export class AuditService implements IAuditService {
         total: 0,
         page: 1,
         pageSize: 50,
-        totalPages: 0
+        totalPages: 0,
       };
     }
   }
@@ -526,47 +545,47 @@ export class AuditService implements IAuditService {
         securityEvents,
         topIpAddresses,
         topUserAgents,
-        eventsByHour
+        eventsByHour,
       ] = await Promise.all([
         this.prisma.auditLog.count({
           where: {
-            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
-          }
+            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
+          },
         }),
         this.prisma.auditLog.count({
           where: {
             eventType: EventType.AUTH_LOGIN,
             success: true,
-            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
-          }
+            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
+          },
         }),
         this.prisma.auditLog.count({
           where: {
             eventType: EventType.AUTH_LOGIN,
             success: false,
-            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
-          }
+            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
+          },
         }),
         this.prisma.auditLog.count({
           where: {
             eventType: EventType.AUTH_REGISTER,
-            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
-          }
+            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
+          },
         }),
         this.prisma.auditLog.count({
           where: {
             eventType: EventType.AUTH_PASSWORD_RESET,
-            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
-          }
+            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
+          },
         }),
         this.prisma.securityEvent.count({
           where: {
-            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
-          }
+            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
+          },
         }),
         this.getTopIpAddresses(timeRange),
         this.getTopUserAgents(timeRange),
-        this.getEventsByHour(timeRange)
+        this.getEventsByHour(timeRange),
       ]);
 
       return {
@@ -578,7 +597,7 @@ export class AuditService implements IAuditService {
         securityEvents,
         topIpAddresses,
         topUserAgents,
-        eventsByHour
+        eventsByHour,
       };
     } catch (error) {
       console.error('Failed to generate audit summary:', error);
@@ -591,7 +610,7 @@ export class AuditService implements IAuditService {
         securityEvents: 0,
         topIpAddresses: [],
         topUserAgents: [],
-        eventsByHour: []
+        eventsByHour: [],
       };
     }
   }
@@ -599,7 +618,9 @@ export class AuditService implements IAuditService {
   /**
    * Detect suspicious patterns in authentication data
    */
-  async detectSuspiciousPatterns(timeRange: TimeRange): Promise<SuspiciousPattern[]> {
+  async detectSuspiciousPatterns(
+    timeRange: TimeRange
+  ): Promise<SuspiciousPattern[]> {
     const patterns: SuspiciousPattern[] = [];
 
     try {
@@ -609,22 +630,27 @@ export class AuditService implements IAuditService {
         where: {
           eventType: EventType.AUTH_LOGIN,
           success: false,
-          createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
+          createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
         },
         _count: { ipAddress: true },
-        having: { ipAddress: { _count: { gt: 10 } } }
+        having: { ipAddress: { _count: { gt: 10 } } },
       });
 
       for (const ipGroup of failedLoginsByIp) {
         patterns.push({
           type: 'MULTIPLE_FAILED_LOGINS',
           description: `${ipGroup._count.ipAddress} failed login attempts from IP ${ipGroup.ipAddress}`,
-          severity: ipGroup._count.ipAddress > 50 ? 'CRITICAL' : ipGroup._count.ipAddress > 25 ? 'HIGH' : 'MEDIUM',
+          severity:
+            ipGroup._count.ipAddress > 50
+              ? 'CRITICAL'
+              : ipGroup._count.ipAddress > 25
+                ? 'HIGH'
+                : 'MEDIUM',
           affectedUsers: [],
           ipAddresses: [ipGroup.ipAddress],
           timeRange,
           eventCount: ipGroup._count.ipAddress,
-          metadata: { ipAddress: ipGroup.ipAddress }
+          metadata: { ipAddress: ipGroup.ipAddress },
         });
       }
 
@@ -632,10 +658,10 @@ export class AuditService implements IAuditService {
       const botPatterns = await this.prisma.auditLog.findMany({
         where: {
           userAgent: { contains: 'bot', mode: 'insensitive' },
-          createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
+          createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
         },
         select: { ipAddress: true, userAgent: true },
-        distinct: ['ipAddress', 'userAgent']
+        distinct: ['ipAddress', 'userAgent'],
       });
 
       if (botPatterns.length > 0) {
@@ -647,7 +673,7 @@ export class AuditService implements IAuditService {
           ipAddresses: [...new Set(botPatterns.map(p => p.ipAddress))],
           timeRange,
           eventCount: botPatterns.length,
-          metadata: { botPatterns }
+          metadata: { botPatterns },
         });
       }
 
@@ -666,10 +692,13 @@ export class AuditService implements IAuditService {
       const [summary, suspiciousPatterns, topThreats] = await Promise.all([
         this.getAuditSummary(timeRange),
         this.detectSuspiciousPatterns(timeRange),
-        this.getTopThreats(timeRange)
+        this.getTopThreats(timeRange),
       ]);
 
-      const recommendations = this.generateRecommendations(summary, suspiciousPatterns);
+      const recommendations = this.generateRecommendations(
+        summary,
+        suspiciousPatterns
+      );
 
       return {
         timeRange,
@@ -677,7 +706,7 @@ export class AuditService implements IAuditService {
         suspiciousPatterns,
         topThreats,
         recommendations,
-        generatedAt: new Date()
+        generatedAt: new Date(),
       };
     } catch (error) {
       console.error('Failed to generate security report:', error);
@@ -688,44 +717,58 @@ export class AuditService implements IAuditService {
   /**
    * Analyze failed login attempts
    */
-  async getFailedLoginAnalysis(timeRange: TimeRange): Promise<FailedLoginAnalysis> {
+  async getFailedLoginAnalysis(
+    timeRange: TimeRange
+  ): Promise<FailedLoginAnalysis> {
     try {
       const failedLogins = await this.prisma.auditLog.findMany({
         where: {
           eventType: EventType.AUTH_LOGIN,
           success: false,
-          createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
+          createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
         },
         select: {
           ipAddress: true,
           firebaseUid: true,
           errorMessage: true,
-          createdAt: true
-        }
+          createdAt: true,
+        },
       });
 
       const totalFailedLogins = failedLogins.length;
-      const uniqueIpAddresses = new Set(failedLogins.map(f => f.ipAddress)).size;
-      const uniqueUsers = new Set(failedLogins.filter(f => f.firebaseUid).map(f => f.firebaseUid)).size;
+      const uniqueIpAddresses = new Set(failedLogins.map(f => f.ipAddress))
+        .size;
+      const uniqueUsers = new Set(
+        failedLogins.filter(f => f.firebaseUid).map(f => f.firebaseUid)
+      ).size;
 
       // Analyze failure reasons
-      const failureReasons = failedLogins.reduce((acc, login) => {
-        const reason = login.errorMessage || 'Unknown';
-        acc[reason] = (acc[reason] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const failureReasons = failedLogins.reduce(
+        (acc, login) => {
+          const reason = login.errorMessage || 'Unknown';
+          acc[reason] = (acc[reason] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
 
-      const topFailureReasons: FailureReasonStats[] = Object.entries(failureReasons)
+      const topFailureReasons: FailureReasonStats[] = Object.entries(
+        failureReasons
+      )
         .map(([reason, count]) => ({
           reason,
           count,
-          percentage: (count / totalFailedLogins) * 100
+          percentage: (count / totalFailedLogins) * 100,
         }))
         .sort((a, b) => b.count - a.count)
         .slice(0, 10);
 
       // Generate time distribution and IP analysis
-      const timeDistribution = await this.getEventsByHour(timeRange, EventType.AUTH_LOGIN, false);
+      const timeDistribution = await this.getEventsByHour(
+        timeRange,
+        EventType.AUTH_LOGIN,
+        false
+      );
       const ipAddressAnalysis = await this.getTopIpAddresses(timeRange, false);
 
       return {
@@ -734,7 +777,7 @@ export class AuditService implements IAuditService {
         uniqueUsers,
         topFailureReasons,
         timeDistribution,
-        ipAddressAnalysis
+        ipAddressAnalysis,
       };
     } catch (error) {
       console.error('Failed to analyze failed logins:', error);
@@ -769,14 +812,16 @@ export class AuditService implements IAuditService {
 
   // Private helper methods
 
-  private async checkForSuspiciousLoginActivity(event: AuthenticationEventData): Promise<void> {
+  private async checkForSuspiciousLoginActivity(
+    event: AuthenticationEventData
+  ): Promise<void> {
     const recentFailures = await this.prisma.auditLog.count({
       where: {
         ipAddress: event.ipAddress,
         eventType: EventType.AUTH_LOGIN,
         success: false,
-        createdAt: { gte: new Date(Date.now() - 15 * 60 * 1000) } // Last 15 minutes
-      }
+        createdAt: { gte: new Date(Date.now() - 15 * 60 * 1000) }, // Last 15 minutes
+      },
     });
 
     if (recentFailures >= 5) {
@@ -789,7 +834,7 @@ export class AuditService implements IAuditService {
         deviceFingerprint: event.deviceFingerprint || '',
         blocked: false,
         reason: `${recentFailures} failed login attempts in 15 minutes`,
-        metadata: { failureCount: recentFailures }
+        metadata: { failureCount: recentFailures },
       });
     }
   }
@@ -804,21 +849,24 @@ export class AuditService implements IAuditService {
         ipAddress: event.ipAddress,
         userAgent: event.userAgent,
         firebaseUid: event.firebaseUid,
-        ...event.metadata
-      }
+        ...event.metadata,
+      },
     });
   }
 
-  private async getTopIpAddresses(timeRange: TimeRange, successOnly: boolean = true): Promise<IpAddressStats[]> {
+  private async getTopIpAddresses(
+    timeRange: TimeRange,
+    successOnly: boolean = true
+  ): Promise<IpAddressStats[]> {
     const ipGroups = await this.prisma.auditLog.groupBy({
       by: ['ipAddress'],
       where: {
         createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
-        ...(successOnly ? { success: true } : {})
+        ...(successOnly ? { success: true } : {}),
       },
       _count: { ipAddress: true },
       orderBy: { _count: { ipAddress: 'desc' } },
-      take: 10
+      take: 10,
     });
 
     const ipStats: IpAddressStats[] = [];
@@ -827,43 +875,46 @@ export class AuditService implements IAuditService {
         this.prisma.auditLog.count({
           where: {
             ipAddress: ipGroup.ipAddress,
-            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
-          }
+            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
+          },
         }),
         this.prisma.auditLog.count({
           where: {
             ipAddress: ipGroup.ipAddress,
             success: true,
-            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
-          }
+            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
+          },
         }),
         this.prisma.auditLog.findFirst({
           where: { ipAddress: ipGroup.ipAddress },
           orderBy: { createdAt: 'desc' },
-          select: { createdAt: true }
-        })
+          select: { createdAt: true },
+        }),
       ]);
 
       ipStats.push({
         ipAddress: ipGroup.ipAddress,
         count: totalEvents,
-        successRate: totalEvents > 0 ? (successfulEvents / totalEvents) * 100 : 0,
-        lastSeen: lastEvent?.createdAt || new Date()
+        successRate:
+          totalEvents > 0 ? (successfulEvents / totalEvents) * 100 : 0,
+        lastSeen: lastEvent?.createdAt || new Date(),
       });
     }
 
     return ipStats;
   }
 
-  private async getTopUserAgents(timeRange: TimeRange): Promise<UserAgentStats[]> {
+  private async getTopUserAgents(
+    timeRange: TimeRange
+  ): Promise<UserAgentStats[]> {
     const userAgentGroups = await this.prisma.auditLog.groupBy({
       by: ['userAgent'],
       where: {
-        createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
+        createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
       },
       _count: { userAgent: true },
       orderBy: { _count: { userAgent: 'desc' } },
-      take: 10
+      take: 10,
     });
 
     const userAgentStats: UserAgentStats[] = [];
@@ -873,40 +924,44 @@ export class AuditService implements IAuditService {
           where: {
             userAgent: uaGroup.userAgent,
             firebaseUid: { not: null },
-            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
+            createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
           },
           select: { firebaseUid: true },
-          distinct: ['firebaseUid']
+          distinct: ['firebaseUid'],
         }),
         this.prisma.auditLog.findFirst({
           where: { userAgent: uaGroup.userAgent },
           orderBy: { createdAt: 'desc' },
-          select: { createdAt: true }
-        })
+          select: { createdAt: true },
+        }),
       ]);
 
       userAgentStats.push({
         userAgent: uaGroup.userAgent,
         count: uaGroup._count.userAgent,
         uniqueUsers: uniqueUsers.length,
-        lastSeen: lastEvent?.createdAt || new Date()
+        lastSeen: lastEvent?.createdAt || new Date(),
       });
     }
 
     return userAgentStats;
   }
 
-  private async getEventsByHour(timeRange: TimeRange, eventType?: EventType, successOnly?: boolean): Promise<HourlyStats[]> {
+  private async getEventsByHour(
+    timeRange: TimeRange,
+    eventType?: EventType,
+    successOnly?: boolean
+  ): Promise<HourlyStats[]> {
     const events = await this.prisma.auditLog.findMany({
       where: {
         createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
         ...(eventType ? { eventType } : {}),
-        ...(successOnly !== undefined ? { success: successOnly } : {})
+        ...(successOnly !== undefined ? { success: successOnly } : {}),
       },
       select: {
         createdAt: true,
-        success: true
-      }
+        success: true,
+      },
     });
 
     const hourlyData: Record<string, HourlyStats> = {};
@@ -922,7 +977,7 @@ export class AuditService implements IAuditService {
           date,
           totalEvents: 0,
           successfulEvents: 0,
-          failedEvents: 0
+          failedEvents: 0,
         };
       }
 
@@ -934,9 +989,14 @@ export class AuditService implements IAuditService {
       }
     });
 
-    return Object.values(hourlyData).sort((a, b) => 
-      new Date(`${a.date}T${a.hour.toString().padStart(2, '0')}:00:00`).getTime() - 
-      new Date(`${b.date}T${b.hour.toString().padStart(2, '0')}:00:00`).getTime()
+    return Object.values(hourlyData).sort(
+      (a, b) =>
+        new Date(
+          `${a.date}T${a.hour.toString().padStart(2, '0')}:00:00`
+        ).getTime() -
+        new Date(
+          `${b.date}T${b.hour.toString().padStart(2, '0')}:00:00`
+        ).getTime()
     );
   }
 
@@ -944,50 +1004,61 @@ export class AuditService implements IAuditService {
     const securityEvents = await this.prisma.securityEvent.groupBy({
       by: ['eventType', 'riskLevel'],
       where: {
-        createdAt: { gte: timeRange.startDate, lte: timeRange.endDate }
+        createdAt: { gte: timeRange.startDate, lte: timeRange.endDate },
       },
       _count: { eventType: true },
-      orderBy: { _count: { eventType: 'desc' } }
+      orderBy: { _count: { eventType: 'desc' } },
     });
 
     return securityEvents.map(event => ({
       type: event.eventType,
       count: event._count.eventType,
       severity: event.riskLevel,
-      description: this.getThreatDescription(event.eventType, event.riskLevel)
+      description: this.getThreatDescription(event.eventType, event.riskLevel),
     }));
   }
 
   private getThreatDescription(eventType: string, riskLevel: string): string {
     const descriptions: Record<string, string> = {
-      'SUSPICIOUS_LOGIN': 'Unusual login patterns detected',
-      'RATE_LIMIT_EXCEEDED': 'Rate limiting triggered due to excessive requests',
-      'BOT_DETECTED': 'Automated bot activity identified',
-      'MULTIPLE_FAILED_ATTEMPTS': 'Multiple failed authentication attempts',
-      'NEW_DEVICE_LOGIN': 'Login from unrecognized device',
-      'UNUSUAL_ACTIVITY': 'Anomalous user behavior detected'
+      SUSPICIOUS_LOGIN: 'Unusual login patterns detected',
+      RATE_LIMIT_EXCEEDED: 'Rate limiting triggered due to excessive requests',
+      BOT_DETECTED: 'Automated bot activity identified',
+      MULTIPLE_FAILED_ATTEMPTS: 'Multiple failed authentication attempts',
+      NEW_DEVICE_LOGIN: 'Login from unrecognized device',
+      UNUSUAL_ACTIVITY: 'Anomalous user behavior detected',
     };
 
     return descriptions[eventType] || 'Unknown security event';
   }
 
-  private generateRecommendations(summary: AuditSummary, patterns: SuspiciousPattern[]): string[] {
+  private generateRecommendations(
+    summary: AuditSummary,
+    patterns: SuspiciousPattern[]
+  ): string[] {
     const recommendations: string[] = [];
 
     if (summary.failedLogins > summary.successfulLogins * 0.1) {
-      recommendations.push('High failure rate detected. Consider implementing additional security measures.');
+      recommendations.push(
+        'High failure rate detected. Consider implementing additional security measures.'
+      );
     }
 
     if (patterns.some(p => p.type === 'MULTIPLE_FAILED_LOGINS')) {
-      recommendations.push('Implement progressive rate limiting for failed login attempts.');
+      recommendations.push(
+        'Implement progressive rate limiting for failed login attempts.'
+      );
     }
 
     if (patterns.some(p => p.type === 'BOT_ACTIVITY')) {
-      recommendations.push('Enable CAPTCHA verification for suspicious traffic.');
+      recommendations.push(
+        'Enable CAPTCHA verification for suspicious traffic.'
+      );
     }
 
     if (summary.securityEvents > 100) {
-      recommendations.push('Review security event patterns and consider tightening security policies.');
+      recommendations.push(
+        'Review security event patterns and consider tightening security policies.'
+      );
     }
 
     return recommendations;

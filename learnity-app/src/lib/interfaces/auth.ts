@@ -1,4 +1,4 @@
-import { User as FirebaseUser } from "firebase/auth";
+import { User as FirebaseUser } from 'firebase/auth';
 import {
   UserProfile,
   FirebaseAuthResult,
@@ -8,7 +8,7 @@ import {
   SecurityRequest,
   SecurityAssessment,
   ApplicationStatus,
-} from "@/types/auth";
+} from '@/types/auth';
 import {
   StudentRegistrationData,
   TeacherRegistrationData,
@@ -17,7 +17,7 @@ import {
   StudentProfileEnhancementData,
   TeacherApplicationUpdateData,
   TeacherApprovalData,
-} from "@/lib/validators/auth";
+} from '@/lib/validators/auth';
 
 // Firebase Auth Service Interface
 export interface IFirebaseAuthService {
@@ -30,7 +30,7 @@ export interface IFirebaseAuthService {
 
   // Login methods
   login(credentials: LoginData): Promise<FirebaseAuthResult>;
-  socialLogin(provider: "google" | "microsoft"): Promise<FirebaseAuthResult>;
+  socialLogin(provider: 'google' | 'microsoft'): Promise<FirebaseAuthResult>;
 
   // Account management
   sendEmailVerification(user: FirebaseUser): Promise<void>;
@@ -323,14 +323,14 @@ export interface AuditLog {
 }
 
 export interface DegradedAuthState {
-  mode: "degraded";
+  mode: 'degraded';
   availableFeatures: string[];
   limitations: string[];
   estimatedRecoveryTime?: number;
 }
 
 export interface CachedAuthState {
-  mode: "cached";
+  mode: 'cached';
   lastSyncTime: Date;
   queuedOperations: QueuedOperation[];
   limitations: string[];
@@ -361,11 +361,11 @@ export interface Inconsistency {
 }
 
 export enum FailureType {
-  FIREBASE_DOWNTIME = "FIREBASE_DOWNTIME",
-  NEONDB_DOWNTIME = "NEONDB_DOWNTIME",
-  NETWORK_ISSUE = "NETWORK_ISSUE",
-  RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED",
-  TOKEN_EXPIRED = "TOKEN_EXPIRED",
+  FIREBASE_DOWNTIME = 'FIREBASE_DOWNTIME',
+  NEONDB_DOWNTIME = 'NEONDB_DOWNTIME',
+  NETWORK_ISSUE = 'NETWORK_ISSUE',
+  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
+  TOKEN_EXPIRED = 'TOKEN_EXPIRED',
 }
 
 export interface RecoveryResult {

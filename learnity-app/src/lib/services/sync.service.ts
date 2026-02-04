@@ -1,8 +1,8 @@
 import { User as FirebaseUser } from 'firebase/auth';
 import { prisma } from '@/lib/config/database';
-import { FirebaseAuthService } from './firebase-auth.service';
 import { ISyncService, SyncReport, Inconsistency } from '@/lib/interfaces/auth';
 import { UserRole, CustomClaims, Permission } from '@/types/auth';
+import { FirebaseAuthService } from './firebase-auth.service';
 
 export class SyncService implements ISyncService {
   private firebaseAuthService: FirebaseAuthService;
@@ -18,7 +18,7 @@ export class SyncService implements ISyncService {
     try {
       // Check if user exists in Neon DB
       const existingUser = await prisma.user.findUnique({
-        where: { firebaseUid: firebaseUser.uid }
+        where: { firebaseUid: firebaseUser.uid },
       });
 
       if (existingUser) {
@@ -29,11 +29,13 @@ export class SyncService implements ISyncService {
             email: firebaseUser.email || existingUser.email,
             emailVerified: firebaseUser.emailVerified,
             lastLoginAt: new Date(),
-            updatedAt: new Date()
-          }
+            updatedAt: new Date(),
+          },
         });
       } else {
-        console.warn(`User with Firebase UID ${firebaseUser.uid} not found in Neon DB`);
+        console.warn(
+          `User with Firebase UID ${firebaseUser.uid} not found in Neon DB`
+        );
         // This should not happen in normal flow as users are created during registration
         // But we can handle it gracefully by creating a basic user record
         await this.createBasicUserRecord(firebaseUser);
@@ -55,12 +57,14 @@ export class SyncService implements ISyncService {
         include: {
           studentProfile: true,
           teacherProfile: true,
-          adminProfile: true
-        }
+          adminProfile: true,
+        },
       });
 
       if (!user) {
-        throw new Error(`User with Firebase UID ${firebaseUid} not found in Neon DB`);
+        throw new Error(
+          `User with Firebase UID ${firebaseUid} not found in Neon DB`
+        );
       }
 
       // Determine permissions based on role
@@ -74,7 +78,7 @@ export class SyncService implements ISyncService {
         role: user.role as UserRole,
         permissions,
         profileComplete,
-        emailVerified: user.emailVerified
+        emailVerified: user.emailVerified,
       };
 
       // Update Firebase custom claims
@@ -95,8 +99,8 @@ export class SyncService implements ISyncService {
         where: { firebaseUid },
         data: {
           emailVerified: true,
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       });
 
       // Update Firebase custom claims to reflect verification
@@ -127,8 +131,8 @@ export class SyncService implements ISyncService {
           firebaseUid: true,
           email: true,
           emailVerified: true,
-          role: true
-        }
+          role: true,
+        },
       });
 
       totalUsers = users.length;
@@ -137,7 +141,7 @@ export class SyncService implements ISyncService {
         try {
           // Get Firebase user data
           const firebaseUser = await this.firebaseAuthService.getCurrentUser();
-          
+
           if (!firebaseUser || firebaseUser.uid !== user.firebaseUid) {
             // Skip if not the current user (we can't check other users without admin privileges in client-side)
             continue;
@@ -150,13 +154,13 @@ export class SyncService implements ISyncService {
               field: 'emailVerified',
               firebaseValue: firebaseUser.emailVerified,
               neonDBValue: user.emailVerified,
-              resolved: false
+              resolved: false,
             });
 
             // Auto-resolve by updating Neon DB to match Firebase
             await prisma.user.update({
               where: { firebaseUid: user.firebaseUid },
-              data: { emailVerified: firebaseUser.emailVerified }
+              data: { emailVerified: firebaseUser.emailVerified },
             });
 
             inconsistencies[inconsistencies.length - 1].resolved = true;
@@ -169,13 +173,13 @@ export class SyncService implements ISyncService {
               field: 'email',
               firebaseValue: firebaseUser.email,
               neonDBValue: user.email,
-              resolved: false
+              resolved: false,
             });
 
             // Auto-resolve by updating Neon DB to match Firebase
             await prisma.user.update({
               where: { firebaseUid: user.firebaseUid },
-              data: { email: firebaseUser.email || user.email }
+              data: { email: firebaseUser.email || user.email },
             });
 
             inconsistencies[inconsistencies.length - 1].resolved = true;
@@ -195,7 +199,7 @@ export class SyncService implements ISyncService {
         syncedUsers,
         failedUsers,
         inconsistencies,
-        executionTime
+        executionTime,
       };
     } catch (error) {
       console.error('Error during consistency check:', error);
@@ -206,10 +210,13 @@ export class SyncService implements ISyncService {
   /**
    * Create a basic user record for Firebase users not in Neon DB
    */
-  private async createBasicUserRecord(firebaseUser: FirebaseUser): Promise<void> {
+  private async createBasicUserRecord(
+    firebaseUser: FirebaseUser
+  ): Promise<void> {
     try {
       // Extract name from display name or email
-      const displayName = firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User';
+      const displayName =
+        firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User';
       const nameParts = displayName.split(' ');
       const firstName = nameParts[0] || 'Unknown';
       const lastName = nameParts.slice(1).join(' ') || 'User';
@@ -223,11 +230,13 @@ export class SyncService implements ISyncService {
           role: UserRole.STUDENT, // Default to student
           emailVerified: firebaseUser.emailVerified,
           isActive: true,
-          lastLoginAt: new Date()
-        }
+          lastLoginAt: new Date(),
+        },
       });
 
-      console.log(`Created basic user record for Firebase UID: ${firebaseUser.uid}`);
+      console.log(
+        `Created basic user record for Firebase UID: ${firebaseUser.uid}`
+      );
     } catch (error) {
       console.error('Error creating basic user record:', error);
       throw error;
@@ -244,32 +253,32 @@ export class SyncService implements ISyncService {
           Permission.VIEW_STUDENT_DASHBOARD,
           Permission.JOIN_STUDY_GROUPS,
           Permission.BOOK_TUTORING,
-          Permission.ENHANCE_PROFILE
+          Permission.ENHANCE_PROFILE,
         ];
-      
+
       case UserRole.TEACHER:
         return [
           Permission.VIEW_TEACHER_DASHBOARD,
           Permission.MANAGE_SESSIONS,
           Permission.UPLOAD_CONTENT,
-          Permission.VIEW_STUDENT_PROGRESS
+          Permission.VIEW_STUDENT_PROGRESS,
         ];
-      
+
       case UserRole.PENDING_TEACHER:
         return [
           Permission.VIEW_APPLICATION_STATUS,
-          Permission.UPDATE_APPLICATION
+          Permission.UPDATE_APPLICATION,
         ];
-      
+
       case UserRole.ADMIN:
         return [
           Permission.VIEW_ADMIN_PANEL,
           Permission.MANAGE_USERS,
           Permission.APPROVE_TEACHERS,
           Permission.VIEW_AUDIT_LOGS,
-          Permission.MANAGE_PLATFORM
+          Permission.MANAGE_PLATFORM,
         ];
-      
+
       default:
         return [];
     }
@@ -282,30 +291,38 @@ export class SyncService implements ISyncService {
     // Basic profile is considered complete if user has:
     // - First name, last name, email
     // - Role-specific profile data
-    
+
     const hasBasicInfo = !!(user.firstName && user.lastName && user.email);
-    
+
     if (!hasBasicInfo) return false;
 
     switch (user.role) {
       case UserRole.STUDENT:
-        return !!(user.studentProfile && user.studentProfile.gradeLevel && user.studentProfile.subjects?.length > 0);
-      
+        return !!(
+          user.studentProfile &&
+          user.studentProfile.gradeLevel &&
+          user.studentProfile.subjects?.length > 0
+        );
+
       case UserRole.TEACHER:
-        return !!(user.teacherProfile && 
-                 user.teacherProfile.qualifications?.length > 0 && 
-                 user.teacherProfile.subjects?.length > 0 &&
-                 user.teacherProfile.bio);
-      
+        return !!(
+          user.teacherProfile &&
+          user.teacherProfile.qualifications?.length > 0 &&
+          user.teacherProfile.subjects?.length > 0 &&
+          user.teacherProfile.bio
+        );
+
       case UserRole.PENDING_TEACHER:
-        return !!(user.teacherProfile && 
-                 user.teacherProfile.qualifications?.length > 0 && 
-                 user.teacherProfile.subjects?.length > 0 &&
-                 user.teacherProfile.bio);
-      
+        return !!(
+          user.teacherProfile &&
+          user.teacherProfile.qualifications?.length > 0 &&
+          user.teacherProfile.subjects?.length > 0 &&
+          user.teacherProfile.bio
+        );
+
       case UserRole.ADMIN:
-        return !!(user.adminProfile);
-      
+        return !!user.adminProfile;
+
       default:
         return hasBasicInfo;
     }

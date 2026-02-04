@@ -21,57 +21,66 @@ export function usePrefetch() {
   const router = useRouter();
   const prefetchedRoutes = useRef(new Set<string>());
 
-  const prefetchRoute = useCallback((href: string) => {
-    if (!prefetchedRoutes.current.has(href)) {
-      router.prefetch(href);
-      prefetchedRoutes.current.add(href);
-    }
-  }, [router]);
-
-  const prefetchOnHover = useCallback((href: string, delay: number = 100) => {
-    return {
-      onMouseEnter: () => {
-        setTimeout(() => prefetchRoute(href), delay);
-      },
-    };
-  }, [prefetchRoute]);
-
-  const prefetchOnIntersection = useCallback((
-    href: string, 
-    options: IntersectionObserverInit = { threshold: 0.1 }
-  ) => {
-    return useCallback((node: HTMLElement | null) => {
-      if (!node) return;
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              prefetchRoute(href);
-              observer.disconnect();
-            }
-          });
-        },
-        options
-      );
-
-      observer.observe(node);
-
-      return () => observer.disconnect();
-    }, [href]);
-  }, [prefetchRoute]);
-
-  const prefetchOnIdle = useCallback((href: string) => {
-    useEffect(() => {
-      const prefetch = () => prefetchRoute(href);
-
-      if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(prefetch);
-      } else {
-        setTimeout(prefetch, 1000);
+  const prefetchRoute = useCallback(
+    (href: string) => {
+      if (!prefetchedRoutes.current.has(href)) {
+        router.prefetch(href);
+        prefetchedRoutes.current.add(href);
       }
-    }, [href]);
-  }, [prefetchRoute]);
+    },
+    [router]
+  );
+
+  const prefetchOnHover = useCallback(
+    (href: string, delay: number = 100) => {
+      return {
+        onMouseEnter: () => {
+          setTimeout(() => prefetchRoute(href), delay);
+        },
+      };
+    },
+    [prefetchRoute]
+  );
+
+  const prefetchOnIntersection = useCallback(
+    (href: string, options: IntersectionObserverInit = { threshold: 0.1 }) => {
+      return useCallback(
+        (node: HTMLElement | null) => {
+          if (!node) return;
+
+          const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                prefetchRoute(href);
+                observer.disconnect();
+              }
+            });
+          }, options);
+
+          observer.observe(node);
+
+          return () => observer.disconnect();
+        },
+        [href]
+      );
+    },
+    [prefetchRoute]
+  );
+
+  const prefetchOnIdle = useCallback(
+    (href: string) => {
+      useEffect(() => {
+        const prefetch = () => prefetchRoute(href);
+
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(prefetch);
+        } else {
+          setTimeout(prefetch, 1000);
+        }
+      }, [href]);
+    },
+    [prefetchRoute]
+  );
 
   return {
     prefetchRoute,
@@ -103,14 +112,17 @@ export function useCriticalPrefetch(routes: string[]) {
 export function useSmartPrefetch() {
   const { prefetchOnHover, prefetchOnIntersection } = usePrefetch();
 
-  const createSmartLink = useCallback((href: string, strategy: 'hover' | 'intersection' = 'hover') => {
-    if (strategy === 'hover') {
-      return prefetchOnHover(href);
-    } else {
-      const ref = prefetchOnIntersection(href);
-      return { ref };
-    }
-  }, [prefetchOnHover, prefetchOnIntersection]);
+  const createSmartLink = useCallback(
+    (href: string, strategy: 'hover' | 'intersection' = 'hover') => {
+      if (strategy === 'hover') {
+        return prefetchOnHover(href);
+      } else {
+        const ref = prefetchOnIntersection(href);
+        return { ref };
+      }
+    },
+    [prefetchOnHover, prefetchOnIntersection]
+  );
 
   return { createSmartLink };
 }
@@ -121,20 +133,23 @@ export function useSmartPrefetch() {
 export function useDataPrefetch() {
   const prefetchedData = useRef(new Map<string, any>());
 
-  const prefetchData = useCallback(async (key: string, fetcher: () => Promise<any>) => {
-    if (prefetchedData.current.has(key)) {
-      return prefetchedData.current.get(key);
-    }
+  const prefetchData = useCallback(
+    async (key: string, fetcher: () => Promise<any>) => {
+      if (prefetchedData.current.has(key)) {
+        return prefetchedData.current.get(key);
+      }
 
-    try {
-      const data = await fetcher();
-      prefetchedData.current.set(key, data);
-      return data;
-    } catch (error) {
-      console.error(`Error prefetching data for key: ${key}`, error);
-      return null;
-    }
-  }, []);
+      try {
+        const data = await fetcher();
+        prefetchedData.current.set(key, data);
+        return data;
+      } catch (error) {
+        console.error(`Error prefetching data for key: ${key}`, error);
+        return null;
+      }
+    },
+    []
+  );
 
   const getCachedData = useCallback((key: string) => {
     return prefetchedData.current.get(key);

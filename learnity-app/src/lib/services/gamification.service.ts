@@ -1,7 +1,7 @@
 /**
  * Gamification Service Implementation
  * Handles XP awards, streak tracking, and badge management
- * 
+ *
  * Requirements covered:
  * - 5.4: Award 10 XP points when lesson is completed
  * - 6.7: Award 20 XP bonus points when quiz is passed
@@ -11,7 +11,13 @@
  * - 10.6: Unlock badges after achievements
  */
 
-import { PrismaClient, Badge, BadgeType, XPReason, UserProgress, EnrollmentStatus } from '@prisma/client';
+import {
+  PrismaClient,
+  XPReason,
+  UserProgress,
+  EnrollmentStatus,
+  UserBadge,
+} from '@prisma/client';
 import {
   IGamificationService,
   AwardXPResult,
@@ -27,10 +33,24 @@ import {
 } from '@/lib/interfaces/gamification.interface';
 import { prisma as defaultPrisma } from '@/lib/prisma';
 
+// Badge type keys for the system
+type BadgeTypeKey =
+  | 'FIRST_COURSE_COMPLETE'
+  | 'FIVE_COURSES_COMPLETE'
+  | 'TEN_COURSES_COMPLETE'
+  | 'STREAK_7_DAYS'
+  | 'STREAK_30_DAYS'
+  | 'STREAK_100_DAYS'
+  | 'QUIZ_MASTER'
+  | 'TOP_REVIEWER';
+
 /**
  * Badge metadata for display purposes
  */
-const BADGE_METADATA: Record<BadgeType, { name: string; description: string; icon: string }> = {
+const BADGE_METADATA: Record<
+  BadgeTypeKey,
+  { name: string; description: string; icon: string }
+> = {
   FIRST_COURSE_COMPLETE: {
     name: 'First Steps',
     description: 'Completed your first course',
@@ -105,7 +125,7 @@ export class GamificationService implements IGamificationService {
 
     // Get or create user progress
     const userProgress = await this.getOrCreateUserProgress(userId);
-    
+
     const previousXP = userProgress.totalXP;
     const previousLevel = userProgress.currentLevel;
     const newXP = previousXP + amount;
@@ -148,16 +168,16 @@ export class GamificationService implements IGamificationService {
    */
   async updateStreak(userId: string): Promise<StreakUpdateResult> {
     const userProgress = await this.getOrCreateUserProgress(userId);
-    
+
     const now = new Date();
     const lastActivity = userProgress.lastActivityAt;
-    
+
     const previousStreak = userProgress.currentStreak;
     let currentStreak = previousStreak;
     let streakIncremented = false;
     let streakReset = false;
     let bonusXPAwarded = 0;
-    let badgeAwarded: Badge | undefined;
+    let badgeAwarded: UserBadge | undefined;
 
     if (!lastActivity) {
       // First activity ever - start streak at 1
@@ -167,10 +187,10 @@ export class GamificationService implements IGamificationService {
       // Normalize dates to compare calendar days
       const lastActivityDate = new Date(lastActivity);
       lastActivityDate.setHours(0, 0, 0, 0);
-      
+
       const today = new Date(now);
       today.setHours(0, 0, 0, 0);
-      
+
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
 
@@ -207,15 +227,20 @@ export class GamificationService implements IGamificationService {
       if (currentStreak === 7) {
         bonusXPAwarded = XP_AMOUNTS.STREAK_BONUS_7;
         await this.awardXP(userId, bonusXPAwarded, XPReason.STREAK_BONUS);
-        badgeAwarded = await this.checkAndAwardBadge(userId, BadgeType.STREAK_7_DAYS) || undefined;
+        badgeAwarded =
+          (await this.checkAndAwardBadge(userId, 'STREAK_7_DAYS')) || undefined;
       } else if (currentStreak === 30) {
         bonusXPAwarded = XP_AMOUNTS.STREAK_BONUS_30;
         await this.awardXP(userId, bonusXPAwarded, XPReason.STREAK_BONUS);
-        badgeAwarded = await this.checkAndAwardBadge(userId, BadgeType.STREAK_30_DAYS) || undefined;
+        badgeAwarded =
+          (await this.checkAndAwardBadge(userId, 'STREAK_30_DAYS')) ||
+          undefined;
       } else if (currentStreak === 100) {
         bonusXPAwarded = XP_AMOUNTS.STREAK_BONUS_100;
         await this.awardXP(userId, bonusXPAwarded, XPReason.STREAK_BONUS);
-        badgeAwarded = await this.checkAndAwardBadge(userId, BadgeType.STREAK_100_DAYS) || undefined;
+        badgeAwarded =
+          (await this.checkAndAwardBadge(userId, 'STREAK_100_DAYS')) ||
+          undefined;
       }
     }
 
@@ -234,11 +259,26 @@ export class GamificationService implements IGamificationService {
    * Check and award a badge if criteria is met
    * Requirements: 10.6
    */
-  async checkAndAwardBadge(userId: string, badgeType: BadgeType): Promise<Badge | null> {
+  async checkAndAwardBadge(
+    userId: string,
+    badgeKey: BadgeTypeKey
+  ): Promise<UserBadge | null> {
+    // Find the badge definition
+    const badgeDefinition = await this.prisma.badgeDefinition.findUnique({
+      where: { key: badgeKey },
+    });
+
+    if (!badgeDefinition) {
+      return null; // Badge definition not found
+    }
+
     // Check if badge already earned
-    const existingBadge = await this.prisma.badge.findUnique({
+    const existingBadge = await this.prisma.userBadge.findUnique({
       where: {
-        userId_type: { userId, type: badgeType },
+        userId_badgeDefinitionId: {
+          userId,
+          badgeDefinitionId: badgeDefinition.id,
+        },
       },
     });
 
@@ -247,17 +287,17 @@ export class GamificationService implements IGamificationService {
     }
 
     // Check criteria based on badge type
-    const criteriamet = await this.checkBadgeCriteria(userId, badgeType);
-    
-    if (!criteriamet) {
+    const criteriaMet = await this.checkBadgeCriteria(userId, badgeKey);
+
+    if (!criteriaMet) {
       return null;
     }
 
     // Award the badge
-    const badge = await this.prisma.badge.create({
+    const badge = await this.prisma.userBadge.create({
       data: {
         userId,
-        type: badgeType,
+        badgeDefinitionId: badgeDefinition.id,
       },
     });
 
@@ -270,11 +310,12 @@ export class GamificationService implements IGamificationService {
    */
   async getStudentProgress(userId: string): Promise<GamificationProgress> {
     const userProgress = await this.getOrCreateUserProgress(userId);
-    
-    // Get badges
-    const badges = await this.prisma.badge.findMany({
+
+    // Get badges with definitions
+    const userBadges = await this.prisma.userBadge.findMany({
       where: { userId },
-      orderBy: { unlockedAt: 'desc' },
+      include: { badgeDefinition: true },
+      orderBy: { earnedAt: 'desc' },
     });
 
     // Get recent XP activities (last 10)
@@ -284,19 +325,31 @@ export class GamificationService implements IGamificationService {
       take: 10,
     });
 
-    const recentXPActivities: XPActivitySummary[] = xpActivities.map(activity => ({
-      id: activity.id,
-      amount: activity.amount,
-      reason: activity.reason,
-      sourceId: activity.sourceId,
-      createdAt: activity.createdAt,
+    const recentXPActivities: XPActivitySummary[] = xpActivities.map(
+      activity => ({
+        id: activity.id,
+        amount: activity.amount,
+        reason: activity.reason,
+        sourceId: activity.sourceId,
+        createdAt: activity.createdAt,
+      })
+    );
+
+    // Transform badges to expected format
+    const badges = userBadges.map(ub => ({
+      id: ub.id,
+      type: ub.badgeDefinition.key,
+      unlockedAt: ub.earnedAt,
     }));
 
     return {
       userId,
       totalXP: userProgress.totalXP,
       currentLevel: userProgress.currentLevel,
-      xpToNextLevel: this.calculateXPToNextLevel(userProgress.currentLevel, userProgress.totalXP),
+      xpToNextLevel: this.calculateXPToNextLevel(
+        userProgress.currentLevel,
+        userProgress.totalXP
+      ),
       currentStreak: userProgress.currentStreak,
       longestStreak: userProgress.longestStreak,
       lastActivityAt: userProgress.lastActivityAt,
@@ -336,7 +389,7 @@ export class GamificationService implements IGamificationService {
     // For levels beyond defined thresholds
     const baseXP = LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1];
     const extraLevels = currentLevel - LEVEL_THRESHOLDS.length;
-    const nextLevelXP = baseXP + ((extraLevels + 1) * 5000);
+    const nextLevelXP = baseXP + (extraLevels + 1) * 5000;
     return nextLevelXP - totalXP;
   }
 
@@ -380,15 +433,28 @@ export class GamificationService implements IGamificationService {
    * Get all badges for a user with metadata
    */
   async getUserBadges(userId: string): Promise<BadgeWithMetadata[]> {
-    const badges = await this.prisma.badge.findMany({
+    const userBadges = await this.prisma.userBadge.findMany({
       where: { userId },
-      orderBy: { unlockedAt: 'desc' },
+      include: { badgeDefinition: true },
+      orderBy: { earnedAt: 'desc' },
     });
 
-    return badges.map(badge => ({
-      badge,
-      ...BADGE_METADATA[badge.type],
-    }));
+    return userBadges.map(ub => {
+      const key = ub.badgeDefinition.key as BadgeTypeKey;
+      const metadata = BADGE_METADATA[key] || {
+        name: ub.badgeDefinition.name,
+        description: ub.badgeDefinition.description,
+        icon: ub.badgeDefinition.icon,
+      };
+      return {
+        badge: {
+          id: ub.id,
+          type: key,
+          unlockedAt: ub.earnedAt,
+        },
+        ...metadata,
+      };
+    });
   }
 
   // ============================================
@@ -399,32 +465,59 @@ export class GamificationService implements IGamificationService {
    * Check if badge criteria is met
    * @private
    */
-  private async checkBadgeCriteria(userId: string, badgeType: BadgeType): Promise<boolean> {
-    switch (badgeType) {
-      case BadgeType.FIRST_COURSE_COMPLETE:
-        return this.checkCoursesCompleted(userId, BADGE_CRITERIA.FIRST_COURSE_COMPLETE.coursesCompleted);
-      
-      case BadgeType.FIVE_COURSES_COMPLETE:
-        return this.checkCoursesCompleted(userId, BADGE_CRITERIA.FIVE_COURSES_COMPLETE.coursesCompleted);
-      
-      case BadgeType.TEN_COURSES_COMPLETE:
-        return this.checkCoursesCompleted(userId, BADGE_CRITERIA.TEN_COURSES_COMPLETE.coursesCompleted);
-      
-      case BadgeType.STREAK_7_DAYS:
-        return this.checkStreakDays(userId, BADGE_CRITERIA.STREAK_7_DAYS.streakDays);
-      
-      case BadgeType.STREAK_30_DAYS:
-        return this.checkStreakDays(userId, BADGE_CRITERIA.STREAK_30_DAYS.streakDays);
-      
-      case BadgeType.STREAK_100_DAYS:
-        return this.checkStreakDays(userId, BADGE_CRITERIA.STREAK_100_DAYS.streakDays);
-      
-      case BadgeType.QUIZ_MASTER:
-        return this.checkQuizzesPassed(userId, BADGE_CRITERIA.QUIZ_MASTER.quizzesPassed);
-      
-      case BadgeType.TOP_REVIEWER:
-        return this.checkReviewsWritten(userId, BADGE_CRITERIA.TOP_REVIEWER.reviewsWritten);
-      
+  private async checkBadgeCriteria(
+    userId: string,
+    badgeKey: BadgeTypeKey
+  ): Promise<boolean> {
+    switch (badgeKey) {
+      case 'FIRST_COURSE_COMPLETE':
+        return this.checkCoursesCompleted(
+          userId,
+          BADGE_CRITERIA.FIRST_COURSE_COMPLETE.coursesCompleted
+        );
+
+      case 'FIVE_COURSES_COMPLETE':
+        return this.checkCoursesCompleted(
+          userId,
+          BADGE_CRITERIA.FIVE_COURSES_COMPLETE.coursesCompleted
+        );
+
+      case 'TEN_COURSES_COMPLETE':
+        return this.checkCoursesCompleted(
+          userId,
+          BADGE_CRITERIA.TEN_COURSES_COMPLETE.coursesCompleted
+        );
+
+      case 'STREAK_7_DAYS':
+        return this.checkStreakDays(
+          userId,
+          BADGE_CRITERIA.STREAK_7_DAYS.streakDays
+        );
+
+      case 'STREAK_30_DAYS':
+        return this.checkStreakDays(
+          userId,
+          BADGE_CRITERIA.STREAK_30_DAYS.streakDays
+        );
+
+      case 'STREAK_100_DAYS':
+        return this.checkStreakDays(
+          userId,
+          BADGE_CRITERIA.STREAK_100_DAYS.streakDays
+        );
+
+      case 'QUIZ_MASTER':
+        return this.checkQuizzesPassed(
+          userId,
+          BADGE_CRITERIA.QUIZ_MASTER.quizzesPassed
+        );
+
+      case 'TOP_REVIEWER':
+        return this.checkReviewsWritten(
+          userId,
+          BADGE_CRITERIA.TOP_REVIEWER.reviewsWritten
+        );
+
       default:
         return false;
     }
@@ -434,7 +527,10 @@ export class GamificationService implements IGamificationService {
    * Check if user has completed required number of courses
    * @private
    */
-  private async checkCoursesCompleted(userId: string, requiredCount: number): Promise<boolean> {
+  private async checkCoursesCompleted(
+    userId: string,
+    requiredCount: number
+  ): Promise<boolean> {
     const completedCount = await this.prisma.enrollment.count({
       where: {
         studentId: userId,
@@ -448,7 +544,10 @@ export class GamificationService implements IGamificationService {
    * Check if user has achieved required streak days
    * @private
    */
-  private async checkStreakDays(userId: string, requiredDays: number): Promise<boolean> {
+  private async checkStreakDays(
+    userId: string,
+    requiredDays: number
+  ): Promise<boolean> {
     const userProgress = await this.prisma.userProgress.findUnique({
       where: { userId },
     });
@@ -459,7 +558,10 @@ export class GamificationService implements IGamificationService {
    * Check if user has passed required number of quizzes
    * @private
    */
-  private async checkQuizzesPassed(userId: string, requiredCount: number): Promise<boolean> {
+  private async checkQuizzesPassed(
+    userId: string,
+    requiredCount: number
+  ): Promise<boolean> {
     // Count unique quizzes passed (not total attempts)
     const passedQuizzes = await this.prisma.quizAttempt.findMany({
       where: {
@@ -475,7 +577,10 @@ export class GamificationService implements IGamificationService {
    * Check if user has written required number of reviews
    * @private
    */
-  private async checkReviewsWritten(userId: string, requiredCount: number): Promise<boolean> {
+  private async checkReviewsWritten(
+    userId: string,
+    requiredCount: number
+  ): Promise<boolean> {
     const reviewCount = await this.prisma.review.count({
       where: {
         studentId: userId,

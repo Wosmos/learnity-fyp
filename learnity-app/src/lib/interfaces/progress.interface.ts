@@ -1,7 +1,7 @@
 /**
  * Progress Service Interface
  * Defines the contract for progress tracking operations
- * 
+ *
  * Requirements covered:
  * - 5.3: Track video watch progress and mark lesson complete when 90% watched
  * - 5.4: Award XP points when lesson is completed
@@ -131,7 +131,10 @@ export interface IProgressService {
    * @returns Result with XP awarded and updated progress
    * Requirements: 5.4, 5.5, 7.5
    */
-  markLessonComplete(studentId: string, lessonId: string): Promise<MarkCompleteResult>;
+  markLessonComplete(
+    studentId: string,
+    lessonId: string
+  ): Promise<MarkCompleteResult>;
 
   /**
    * Get lesson progress for a student
@@ -139,7 +142,10 @@ export interface IProgressService {
    * @param lessonId - The lesson ID
    * @returns The lesson progress or null
    */
-  getLessonProgress(studentId: string, lessonId: string): Promise<LessonProgress | null>;
+  getLessonProgress(
+    studentId: string,
+    lessonId: string
+  ): Promise<LessonProgress | null>;
 
   /**
    * Get overall course progress for a student
@@ -148,7 +154,10 @@ export interface IProgressService {
    * @returns Course progress summary
    * Requirements: 7.1
    */
-  getCourseProgress(studentId: string, courseId: string): Promise<CourseProgress>;
+  getCourseProgress(
+    studentId: string,
+    courseId: string
+  ): Promise<CourseProgress>;
 
   /**
    * Get section progress percentage
@@ -175,7 +184,10 @@ export interface IProgressService {
    * @returns Next lesson to watch
    * Requirements: 5.7
    */
-  getNextLesson(studentId: string, courseId: string): Promise<NextLessonRecommendation>;
+  getNextLesson(
+    studentId: string,
+    courseId: string
+  ): Promise<NextLessonRecommendation>;
 
   /**
    * Get total time spent on a course
@@ -203,7 +215,7 @@ export enum ProgressErrorCode {
   SECTION_LOCKED = 'SECTION_LOCKED',
   ALREADY_COMPLETED = 'ALREADY_COMPLETED',
   INVALID_PROGRESS = 'INVALID_PROGRESS',
-  
+
   // Authorization errors
   UNAUTHORIZED = 'UNAUTHORIZED',
   FORBIDDEN = 'FORBIDDEN',

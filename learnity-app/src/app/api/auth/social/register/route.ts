@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const firebaseUid = request.headers.get('X-Firebase-UID');
-    
+
     if (!firebaseUid) {
       return NextResponse.json(
         { error: 'Firebase UID is required' },
@@ -20,15 +20,15 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Creating social user profile for:', body.email);
-    
+
     // Initialize database service
     const databaseService = new DatabaseService();
-    
+
     // Split name into first/last
     const names = body.name.split(' ');
     const firstName = names[0] || '';
     const lastName = names.slice(1).join(' ') || '';
-    
+
     // Create user profile in Neon DB
     const userProfile = await databaseService.createUserProfile(firebaseUid, {
       email: body.email,
@@ -43,16 +43,16 @@ export async function POST(request: NextRequest) {
         learningGoals: [],
         interests: [],
         studyPreferences: [],
-        profileCompletionPercentage: 20
-      }
+        profileCompletionPercentage: 20,
+      },
     });
 
     console.log('✅ Social user profile created:', userProfile.id);
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    return NextResponse.json({
+      success: true,
       message: 'Social user profile created',
-      userId: userProfile.id
+      userId: userProfile.id,
     });
   } catch (error: any) {
     console.error('❌ Social registration failed:', error);

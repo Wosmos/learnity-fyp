@@ -31,10 +31,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Get user from database
     const dbUser = await prisma.user.findUnique({
       where: { firebaseUid: user.firebaseUid },
-      select: { 
-        id: true, 
-        firstName: true, 
-        lastName: true, 
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
         profilePicture: true,
         role: true,
       },
@@ -50,7 +50,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         id: dbUser.id,
         name: `${dbUser.firstName} ${dbUser.lastName}`,
         image: dbUser.profilePicture || undefined,
-        role: dbUser.role === 'TEACHER' ? 'teacher' : dbUser.role === 'ADMIN' ? 'admin' : 'student',
+        role:
+          dbUser.role === 'TEACHER'
+            ? 'teacher'
+            : dbUser.role === 'ADMIN'
+              ? 'admin'
+              : 'student',
       });
     } catch (error) {
       console.error('Failed to upsert user in GetStream:', error);
@@ -60,11 +65,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Generate token
     const token = streamChatService.generateUserToken(dbUser.id);
 
-    return createSuccessResponse({
-      token,
-      userId: dbUser.id,
-      apiKey: process.env.NEXT_PUBLIC_STREAM_API_KEY,
-    }, 'Chat token generated successfully');
+    return createSuccessResponse(
+      {
+        token,
+        userId: dbUser.id,
+        apiKey: process.env.NEXT_PUBLIC_STREAM_API_KEY,
+      },
+      'Chat token generated successfully'
+    );
   } catch (error) {
     console.error('Error generating chat token:', error);
     return createInternalErrorResponse('Failed to generate chat token');

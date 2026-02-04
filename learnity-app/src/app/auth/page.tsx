@@ -17,18 +17,21 @@ export default function AuthPage() {
     login,
     socialLogin,
     requestPasswordReset,
-    resetPassword
+    resetPassword,
   } = useAuthService();
 
   const handlePasswordResetRequest = async (email: string) => {
     await requestPasswordReset({ email, hcaptchaToken: '' });
   };
 
-  const handlePasswordReset = async (data: { password: string; token: string }) => {
-    await resetPassword({ 
-      password: data.password, 
-      confirmPassword: data.password, 
-      token: data.token 
+  const handlePasswordReset = async (data: {
+    password: string;
+    token: string;
+  }) => {
+    await resetPassword({
+      password: data.password,
+      confirmPassword: data.password,
+      token: data.token,
     });
   };
 

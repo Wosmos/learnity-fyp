@@ -1,6 +1,6 @@
 /**
  * Course Management System Validators
- * 
+ *
  * This file re-exports all course management related validation schemas
  * for convenient importing throughout the application.
  */

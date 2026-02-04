@@ -31,11 +31,11 @@ export interface RequireRolesProps extends PermissionGateProps {
 /**
  * Component that renders children only if user has required permission
  */
-export function RequirePermission({ 
-  permission, 
-  children, 
+export function RequirePermission({
+  permission,
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: RequirePermissionProps) {
   const { loading: authLoading } = useAuth();
   const hasPermission = usePermission(permission);
@@ -54,11 +54,11 @@ export function RequirePermission({
 /**
  * Component that renders children only if user has required role
  */
-export function RequireRole({ 
-  role, 
-  children, 
+export function RequireRole({
+  role,
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: RequireRoleProps) {
   const { loading: authLoading } = useAuth();
   const hasRole = useRole(role);
@@ -77,12 +77,12 @@ export function RequireRole({
 /**
  * Component that renders children only if user has any of the required roles
  */
-export function RequireRoles({ 
-  roles, 
+export function RequireRoles({
+  roles,
   requireAll = false,
-  children, 
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: RequireRolesProps) {
   const { loading: authLoading, claims } = useAuth();
 
@@ -94,7 +94,7 @@ export function RequireRoles({
     return <>{fallback}</>;
   }
 
-  const hasAccess = requireAll 
+  const hasAccess = requireAll
     ? roles.every(role => claims.role === role) // This doesn't make sense for single role, but kept for API consistency
     : roles.includes(claims.role);
 
@@ -108,17 +108,13 @@ export function RequireRoles({
 /**
  * Component that renders children only for admin users
  */
-export function AdminOnly({ 
-  children, 
+export function AdminOnly({
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: PermissionGateProps) {
   return (
-    <RequireRole 
-      role={UserRole.ADMIN} 
-      fallback={fallback}
-      loading={loading}
-    >
+    <RequireRole role={UserRole.ADMIN} fallback={fallback} loading={loading}>
       {children}
     </RequireRole>
   );
@@ -127,14 +123,14 @@ export function AdminOnly({
 /**
  * Component that renders children only for teacher users (including admins)
  */
-export function TeacherOnly({ 
-  children, 
+export function TeacherOnly({
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: PermissionGateProps) {
   return (
-    <RequireRoles 
-      roles={[UserRole.TEACHER, UserRole.ADMIN]} 
+    <RequireRoles
+      roles={[UserRole.TEACHER, UserRole.ADMIN]}
       fallback={fallback}
       loading={loading}
     >
@@ -146,17 +142,13 @@ export function TeacherOnly({
 /**
  * Component that renders children only for student users
  */
-export function StudentOnly({ 
-  children, 
+export function StudentOnly({
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: PermissionGateProps) {
   return (
-    <RequireRole 
-      role={UserRole.STUDENT} 
-      fallback={fallback}
-      loading={loading}
-    >
+    <RequireRole role={UserRole.STUDENT} fallback={fallback} loading={loading}>
       {children}
     </RequireRole>
   );
@@ -165,14 +157,14 @@ export function StudentOnly({
 /**
  * Component that renders children only for pending teacher users
  */
-export function PendingTeacherOnly({ 
-  children, 
+export function PendingTeacherOnly({
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: PermissionGateProps) {
   return (
-    <RequireRole 
-      role={UserRole.PENDING_TEACHER} 
+    <RequireRole
+      role={UserRole.PENDING_TEACHER}
       fallback={fallback}
       loading={loading}
     >
@@ -184,10 +176,10 @@ export function PendingTeacherOnly({
 /**
  * Component that renders children only for authenticated users
  */
-export function AuthenticatedOnly({ 
-  children, 
+export function AuthenticatedOnly({
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: PermissionGateProps) {
   const { user, loading: authLoading } = useAuth();
 
@@ -205,10 +197,10 @@ export function AuthenticatedOnly({
 /**
  * Component that renders children only for unauthenticated users
  */
-export function UnauthenticatedOnly({ 
-  children, 
+export function UnauthenticatedOnly({
+  children,
   fallback = null,
-  loading = null 
+  loading = null,
 }: PermissionGateProps) {
   const { user, loading: authLoading } = useAuth();
 
@@ -233,11 +225,11 @@ export function withPermission<P extends object>(
 ) {
   return function PermissionWrappedComponent(props: P) {
     const hasPermission = usePermission(permission);
-    
+
     if (!hasPermission) {
       return FallbackComponent ? <FallbackComponent {...props} /> : null;
     }
-    
+
     return <Component {...props} />;
   };
 }
@@ -252,11 +244,11 @@ export function withRole<P extends object>(
 ) {
   return function RoleWrappedComponent(props: P) {
     const hasRole = useRole(role);
-    
+
     if (!hasRole) {
       return FallbackComponent ? <FallbackComponent {...props} /> : null;
     }
-    
+
     return <Component {...props} />;
   };
 }
@@ -280,11 +272,11 @@ export function withTeacherRole<P extends object>(
 ) {
   return function TeacherWrappedComponent(props: P) {
     const isTeacher = useRoles([UserRole.TEACHER, UserRole.ADMIN]);
-    
+
     if (!isTeacher) {
       return FallbackComponent ? <FallbackComponent {...props} /> : null;
     }
-    
+
     return <Component {...props} />;
   };
 }

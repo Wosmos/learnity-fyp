@@ -4,7 +4,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withAdminApiAuth, createApiSuccessResponse, createApiErrorResponse, validateMethod } from '@/lib/utils/api-auth.utils';
+import {
+  withAdminApiAuth,
+  createApiSuccessResponse,
+  createApiErrorResponse,
+  validateMethod,
+} from '@/lib/utils/api-auth.utils';
 import { DatabaseService } from '@/lib/services/database.service';
 import { AuthErrorCode, ApplicationStatus } from '@/types/auth';
 
@@ -14,17 +19,22 @@ const databaseService = new DatabaseService();
  * GET /api/admin/teachers/applications
  * Get all teacher applications with optional status filter
  */
-async function handleGetApplications(request: NextRequest, user: any): Promise<NextResponse> {
+async function handleGetApplications(
+  request: NextRequest,
+  user: any
+): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status') as ApplicationStatus | null;
 
-    const applications = await databaseService.getTeacherApplications(status || undefined);
+    const applications = await databaseService.getTeacherApplications(
+      status || undefined
+    );
 
     return createApiSuccessResponse(
       {
         applications,
-        total: applications.length
+        total: applications.length,
       },
       'Teacher applications retrieved successfully'
     );
@@ -48,7 +58,7 @@ async function handler(request: NextRequest, user: any): Promise<NextResponse> {
   switch (request.method) {
     case 'GET':
       return handleGetApplications(request, user);
-    
+
     default:
       return createApiErrorResponse(
         AuthErrorCode.INTERNAL_ERROR,

@@ -8,10 +8,6 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Play,
   CheckCircle,
@@ -21,6 +17,16 @@ import {
   AlertCircle,
   ArrowLeft,
 } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -49,7 +55,6 @@ interface Quiz {
   passingScore: number;
   questions: QuizQuestion[];
 }
-
 
 interface Lesson {
   id: string;
@@ -106,12 +111,12 @@ export default function CoursePlayerPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<CourseProgress | null>(null);
-  
+
   // Current lesson state
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
-  
+
   // Quiz state
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
@@ -128,7 +133,7 @@ export default function CoursePlayerPage() {
     }>;
   } | null>(null);
   const [isSubmittingQuiz, setIsSubmittingQuiz] = useState(false);
-  
+
   // Completion dialog state
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [completionData, setCompletionData] = useState<{
@@ -137,7 +142,7 @@ export default function CoursePlayerPage() {
     streakIncreased?: boolean;
     courseCompleted?: boolean;
   } | null>(null);
-  
+
   // XP celebration state
   const [showXPCelebration, setShowXPCelebration] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
@@ -154,7 +159,7 @@ export default function CoursePlayerPage() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await authenticatedFetch(`/api/courses/${courseId}`);
       if (!response.ok) {
         const errorData = await response.json();
@@ -182,7 +187,9 @@ export default function CoursePlayerPage() {
   const fetchProgress = useCallback(async () => {
     if (!user) return;
     try {
-      const response = await authenticatedFetch(`/api/courses/${courseId}/progress`);
+      const response = await authenticatedFetch(
+        `/api/courses/${courseId}/progress`
+      );
       if (response.ok) {
         const data = await response.json();
         setProgress(data.data || data);
@@ -199,25 +206,30 @@ export default function CoursePlayerPage() {
     }
   }, [authLoading, fetchCourse, fetchProgress]);
 
-
   // Update video progress
-  const handleProgressUpdate = useCallback(async (watchedSeconds: number, lastPosition: number) => {
-    if (!currentLesson) return;
-    
-    try {
-      await authenticatedFetch(`/api/lessons/${currentLesson.id}/progress`, {
-        method: 'POST',
-        body: JSON.stringify({ watchedSeconds, lastPosition }),
-      });
-    } catch (err) {
-      console.error('Failed to update progress:', err);
-    }
-  }, [currentLesson, authenticatedFetch]);
+  const handleProgressUpdate = useCallback(
+    async (watchedSeconds: number, lastPosition: number) => {
+      if (!currentLesson) return;
+
+      try {
+        await authenticatedFetch(`/api/lessons/${currentLesson.id}/progress`, {
+          method: 'POST',
+          body: JSON.stringify({ watchedSeconds, lastPosition }),
+        });
+      } catch (err) {
+        console.error('Failed to update progress:', err);
+      }
+    },
+    [currentLesson, authenticatedFetch]
+  );
 
   // Check if lesson is completed
-  const isLessonCompleted = useCallback((lessonId: string) => {
-    return progress?.completedLessons?.includes(lessonId) || false;
-  }, [progress]);
+  const isLessonCompleted = useCallback(
+    (lessonId: string) => {
+      return progress?.completedLessons?.includes(lessonId) || false;
+    },
+    [progress]
+  );
 
   // Handle auto-complete from video player
   const handleAutoComplete = useCallback(async () => {
@@ -228,20 +240,23 @@ export default function CoursePlayerPage() {
   // Mark lesson complete
   const markLessonComplete = async (lessonId: string) => {
     try {
-      const response = await authenticatedFetch(`/api/lessons/${lessonId}/complete`, {
-        method: 'POST',
-      });
+      const response = await authenticatedFetch(
+        `/api/lessons/${lessonId}/complete`,
+        {
+          method: 'POST',
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
         const result = data.data || data;
-        
+
         // Show XP celebration
         if (result.xpAwarded) {
           setXpEarned(result.xpAwarded);
           setShowXPCelebration(true);
         }
-        
+
         // Set completion data for dialog
         setCompletionData({
           xpEarned: result.xpAwarded || 10,
@@ -249,21 +264,24 @@ export default function CoursePlayerPage() {
           streakIncreased: result.newStreak > 1,
           courseCompleted: result.courseCompleted,
         });
-        
+
         // Show completion dialog
         setShowCompleteDialog(true);
-        
+
         // Refresh progress
         fetchProgress();
-        
-        toast({ title: 'Lesson Complete!', description: `+${result.xpAwarded || 10} XP earned` });
+
+        toast({
+          title: 'Lesson Complete!',
+          description: `+${result.xpAwarded || 10} XP earned`,
+        });
       }
     } catch (err) {
       console.error('Failed to mark lesson complete:', err);
-      toast({ 
-        title: 'Error', 
-        description: 'Failed to mark lesson complete', 
-        variant: 'destructive' 
+      toast({
+        title: 'Error',
+        description: 'Failed to mark lesson complete',
+        variant: 'destructive',
       });
     }
   };
@@ -287,13 +305,13 @@ export default function CoursePlayerPage() {
   const goToNextLesson = () => {
     if (!course) return;
     const currentSection = course.sections[currentSectionIndex];
-    
+
     if (currentLessonIndex < currentSection.lessons.length - 1) {
       goToLesson(currentSectionIndex, currentLessonIndex + 1);
     } else if (currentSectionIndex < course.sections.length - 1) {
       goToLesson(currentSectionIndex + 1, 0);
     }
-    
+
     setShowCompleteDialog(false);
   };
 
@@ -308,7 +326,9 @@ export default function CoursePlayerPage() {
   };
 
   // Get lesson progress data
-  const getLessonProgress = (lessonId: string): LessonProgressData | undefined => {
+  const getLessonProgress = (
+    lessonId: string
+  ): LessonProgressData | undefined => {
     return progress?.lessonProgress?.find(p => p.lessonId === lessonId);
   };
 
@@ -330,10 +350,13 @@ export default function CoursePlayerPage() {
 
     try {
       setIsSubmittingQuiz(true);
-      const response = await authenticatedFetch(`/api/quizzes/${quiz.id}/submit`, {
-        method: 'POST',
-        body: JSON.stringify({ answers, timeTaken: 0 }),
-      });
+      const response = await authenticatedFetch(
+        `/api/quizzes/${quiz.id}/submit`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ answers, timeTaken: 0 }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -342,7 +365,7 @@ export default function CoursePlayerPage() {
 
       const data = await response.json();
       const result = data.data || data;
-      
+
       setQuizResult({
         score: result.score,
         passed: result.passed,
@@ -360,7 +383,8 @@ export default function CoursePlayerPage() {
     } catch (err) {
       toast({
         title: 'Error',
-        description: err instanceof Error ? err.message : 'Failed to submit quiz',
+        description:
+          err instanceof Error ? err.message : 'Failed to submit quiz',
         variant: 'destructive',
       });
     } finally {
@@ -379,7 +403,7 @@ export default function CoursePlayerPage() {
   const getNextLessonTitle = (): string | undefined => {
     if (!course) return undefined;
     const currentSection = course.sections[currentSectionIndex];
-    
+
     if (currentLessonIndex < currentSection.lessons.length - 1) {
       return currentSection.lessons[currentLessonIndex + 1].title;
     } else if (currentSectionIndex < course.sections.length - 1) {
@@ -388,50 +412,53 @@ export default function CoursePlayerPage() {
     return undefined;
   };
 
-
   // Loading state
   if (authLoading || isLoading) {
     return (
-        <div className="min-h-screen bg-slate-900">
-          <div className="flex">
-            <div className="flex-1 p-4">
-              <Skeleton className="aspect-video w-full bg-slate-800" />
-            </div>
-            <div className="w-80 bg-slate-800 p-4">
-              <Skeleton className="h-8 w-full mb-4" />
-              <Skeleton className="h-32 w-full" />
-            </div>
+      <div className='min-h-screen bg-slate-900'>
+        <div className='flex'>
+          <div className='flex-1 p-4'>
+            <Skeleton className='aspect-video w-full bg-slate-800' />
+          </div>
+          <div className='w-80 bg-slate-800 p-4'>
+            <Skeleton className='h-8 w-full mb-4' />
+            <Skeleton className='h-32 w-full' />
           </div>
         </div>
+      </div>
     );
   }
 
   // Error state
   if (error || !course) {
     return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-          <Card className="w-full max-w-md">
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-              <p className="text-red-600 mb-4">{error || 'Course not found'}</p>
-              <Button variant="outline" onClick={() => router.back()}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Go Back
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+      <div className='min-h-screen bg-slate-50 flex items-center justify-center'>
+        <Card className='w-full max-w-md'>
+          <CardContent className='flex flex-col items-center justify-center py-12'>
+            <AlertCircle className='h-12 w-12 text-red-500 mb-4' />
+            <p className='text-red-600 mb-4'>{error || 'Course not found'}</p>
+            <Button variant='outline' onClick={() => router.back()}>
+              <ArrowLeft className='h-4 w-4 mr-2' />
+              Go Back
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   // Prepare data for components
-  const videoId = currentLesson?.youtubeUrl 
-    ? extractYouTubeId(currentLesson.youtubeUrl) 
+  const videoId = currentLesson?.youtubeUrl
+    ? extractYouTubeId(currentLesson.youtubeUrl)
     : currentLesson?.youtubeId;
-  const totalLessons = course.sections.reduce((sum, s) => sum + s.lessons.length, 0);
+  const totalLessons = course.sections.reduce(
+    (sum, s) => sum + s.lessons.length,
+    0
+  );
   const completedCount = progress?.completedLessons?.length || 0;
-  const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
-  
+  const progressPercent =
+    totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
   // Convert sections for LessonSidebar
   const sidebarSections: SectionItem[] = course.sections.map(s => ({
     id: s.id,
@@ -446,14 +473,18 @@ export default function CoursePlayerPage() {
       order: l.order,
     })),
   }));
-  
+
   const completedLessonIds = new Set(progress?.completedLessons || []);
-  const currentLessonProgress = currentLesson ? getLessonProgress(currentLesson.id) : undefined;
+  const currentLessonProgress = currentLesson
+    ? getLessonProgress(currentLesson.id)
+    : undefined;
 
   // Check if at first/last lesson
   const isFirstLesson = currentSectionIndex === 0 && currentLessonIndex === 0;
-  const isLastLesson = currentSectionIndex === course.sections.length - 1 &&
-    currentLessonIndex === course.sections[currentSectionIndex].lessons.length - 1;
+  const isLastLesson =
+    currentSectionIndex === course.sections.length - 1 &&
+    currentLessonIndex ===
+      course.sections[currentSectionIndex].lessons.length - 1;
 
   return (
     <>
@@ -492,13 +523,17 @@ export default function CoursePlayerPage() {
         onPrevious={goToPrevLesson}
         onNext={goToNextLesson}
         controls={
-          currentLesson && !isLessonCompleted(currentLesson.id) && currentLesson.type === 'VIDEO' ? (
+          currentLesson &&
+          !isLessonCompleted(currentLesson.id) &&
+          currentLesson.type === 'VIDEO' ? (
             <Button
-              onClick={() => currentLesson && markLessonComplete(currentLesson.id)}
-              className="bg-green-600 hover:bg-green-700"
+              onClick={() =>
+                currentLesson && markLessonComplete(currentLesson.id)
+              }
+              className='bg-green-600 hover:bg-green-700'
             >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Mark Complete</span>
+              <CheckCircle className='h-4 w-4 mr-2' />
+              <span className='hidden sm:inline'>Mark Complete</span>
             </Button>
           ) : null
         }
@@ -523,7 +558,7 @@ export default function CoursePlayerPage() {
             quizResult={quizResult}
             isSubmitting={isSubmittingQuiz}
             onStartQuiz={() => setShowQuiz(true)}
-            onAnswerSelect={(questionId, optionIndex) => 
+            onAnswerSelect={(questionId, optionIndex) =>
               setQuizAnswers({ ...quizAnswers, [questionId]: optionIndex })
             }
             onSubmit={submitQuiz}
@@ -538,11 +573,11 @@ export default function CoursePlayerPage() {
             lastPosition={currentLessonProgress?.lastPosition}
             onProgressUpdate={handleProgressUpdate}
             onAutoComplete={handleAutoComplete}
-            className="w-full h-full"
+            className='w-full h-full'
           />
         ) : (
-          <div className="text-center text-slate-400">
-            <AlertCircle className="h-16 w-16 mx-auto mb-4 opacity-50" />
+          <div className='text-center text-slate-400'>
+            <AlertCircle className='h-16 w-16 mx-auto mb-4 opacity-50' />
             <p>No video available for this lesson</p>
           </div>
         )}
@@ -550,7 +585,6 @@ export default function CoursePlayerPage() {
     </>
   );
 }
-
 
 // Quiz Content Component
 interface QuizContentProps {
@@ -592,16 +626,23 @@ function QuizContent({
 }: QuizContentProps) {
   if (!showQuiz) {
     return (
-      <div className="w-full max-w-3xl p-6">
-        <Card className="bg-slate-800 border-slate-700">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <HelpCircle className="h-16 w-16 text-purple-400 mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">{lesson.title}</h2>
-            <p className="text-slate-400 mb-6">
-              {lesson.quiz?.questions.length || 0} questions • Pass: {lesson.quiz?.passingScore || 70}%
+      <div className='w-full max-w-3xl p-6'>
+        <Card className='bg-slate-800 border-slate-700'>
+          <CardContent className='flex flex-col items-center justify-center py-12'>
+            <HelpCircle className='h-16 w-16 text-purple-400 mb-4' />
+            <h2 className='text-2xl font-bold text-white mb-2'>
+              {lesson.title}
+            </h2>
+            <p className='text-slate-400 mb-6'>
+              {lesson.quiz?.questions.length || 0} questions • Pass:{' '}
+              {lesson.quiz?.passingScore || 70}%
             </p>
-            <Button onClick={onStartQuiz} size="lg" className="bg-purple-600 hover:bg-purple-700">
-              <Play className="h-5 w-5 mr-2" />
+            <Button
+              onClick={onStartQuiz}
+              size='lg'
+              className='bg-purple-600 hover:bg-purple-700'
+            >
+              <Play className='h-5 w-5 mr-2' />
               Start Quiz
             </Button>
           </CardContent>
@@ -612,60 +653,78 @@ function QuizContent({
 
   if (quizSubmitted && quizResult) {
     return (
-      <div className="w-full max-w-3xl p-6">
-        <Card className="bg-slate-800 border-slate-700">
-          <CardContent className="py-8">
-            <div className="text-center mb-6">
+      <div className='w-full max-w-3xl p-6'>
+        <Card className='bg-slate-800 border-slate-700'>
+          <CardContent className='py-8'>
+            <div className='text-center mb-6'>
               {quizResult.passed ? (
                 <>
-                  <Trophy className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-green-400">Quiz Passed!</h2>
+                  <Trophy className='h-16 w-16 text-yellow-400 mx-auto mb-4' />
+                  <h2 className='text-2xl font-bold text-green-400'>
+                    Quiz Passed!
+                  </h2>
                 </>
               ) : (
                 <>
-                  <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-red-400">Quiz Failed</h2>
+                  <AlertCircle className='h-16 w-16 text-red-400 mx-auto mb-4' />
+                  <h2 className='text-2xl font-bold text-red-400'>
+                    Quiz Failed
+                  </h2>
                 </>
               )}
-              <p className="text-4xl font-bold text-white mt-4">{quizResult.score}%</p>
+              <p className='text-4xl font-bold text-white mt-4'>
+                {quizResult.score}%
+              </p>
               {quizResult.xpAwarded && (
-                <Badge className="mt-2 bg-yellow-500">+{quizResult.xpAwarded} XP</Badge>
+                <Badge className='mt-2 bg-yellow-500'>
+                  +{quizResult.xpAwarded} XP
+                </Badge>
               )}
             </div>
 
             {/* Answer Review */}
-            <div className="space-y-4 mt-6">
-              <h3 className="text-lg font-semibold text-white">Review Answers</h3>
+            <div className='space-y-4 mt-6'>
+              <h3 className='text-lg font-semibold text-white'>
+                Review Answers
+              </h3>
               {lesson.quiz?.questions.map((q, idx) => {
-                const result = quizResult.answerResults.find(r => r.questionId === q.id);
+                const result = quizResult.answerResults.find(
+                  r => r.questionId === q.id
+                );
                 return (
-                  <div key={q.id} className={`p-4 rounded-lg ${result?.isCorrect ? 'bg-green-900/30' : 'bg-red-900/30'}`}>
-                    <p className="text-white font-medium mb-2">{idx + 1}. {q.question}</p>
-                    <p className="text-sm text-slate-300">
+                  <div
+                    key={q.id}
+                    className={`p-4 rounded-lg ${result?.isCorrect ? 'bg-green-900/30' : 'bg-red-900/30'}`}
+                  >
+                    <p className='text-white font-medium mb-2'>
+                      {idx + 1}. {q.question}
+                    </p>
+                    <p className='text-sm text-slate-300'>
                       Your answer: {q.options[quizAnswers[q.id]]}
                       {!result?.isCorrect && (
-                        <span className="text-green-400 ml-2">
-                          (Correct: {q.options[result?.correctOptionIndex || 0]})
+                        <span className='text-green-400 ml-2'>
+                          (Correct: {q.options[result?.correctOptionIndex || 0]}
+                          )
                         </span>
                       )}
                     </p>
                     {result?.explanation && (
-                      <p className="text-sm text-slate-400 mt-2 italic">{result.explanation}</p>
+                      <p className='text-sm text-slate-400 mt-2 italic'>
+                        {result.explanation}
+                      </p>
                     )}
                   </div>
                 );
               })}
             </div>
 
-            <div className="flex gap-4 mt-6 justify-center">
+            <div className='flex gap-4 mt-6 justify-center'>
               {!quizResult.passed && (
-                <Button onClick={onRetry} variant="outline">
+                <Button onClick={onRetry} variant='outline'>
                   Try Again
                 </Button>
               )}
-              <Button onClick={onNextLesson}>
-                Next Lesson
-              </Button>
+              <Button onClick={onNextLesson}>Next Lesson</Button>
             </div>
           </CardContent>
         </Card>
@@ -674,19 +733,21 @@ function QuizContent({
   }
 
   return (
-    <div className="w-full max-w-3xl p-6">
-      <Card className="bg-slate-800 border-slate-700 max-h-[70vh] overflow-y-auto">
+    <div className='w-full max-w-3xl p-6'>
+      <Card className='bg-slate-800 border-slate-700 max-h-[70vh] overflow-y-auto'>
         <CardHeader>
-          <CardTitle className="text-white">{lesson.title}</CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardTitle className='text-white'>{lesson.title}</CardTitle>
+          <CardDescription className='text-slate-400'>
             Answer all questions to complete the quiz
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className='space-y-6'>
           {lesson.quiz?.questions.map((q, idx) => (
-            <div key={q.id} className="space-y-3">
-              <p className="text-white font-medium">{idx + 1}. {q.question}</p>
-              <div className="space-y-2">
+            <div key={q.id} className='space-y-3'>
+              <p className='text-white font-medium'>
+                {idx + 1}. {q.question}
+              </p>
+              <div className='space-y-2'>
                 {q.options.map((opt, optIdx) => (
                   <button
                     key={optIdx}
@@ -697,21 +758,23 @@ function QuizContent({
                         : 'border-slate-600 hover:border-slate-500 text-slate-300'
                     }`}
                   >
-                    <span className="font-medium mr-2">{String.fromCharCode(65 + optIdx)}.</span>
+                    <span className='font-medium mr-2'>
+                      {String.fromCharCode(65 + optIdx)}.
+                    </span>
                     {opt}
                   </button>
                 ))}
               </div>
             </div>
           ))}
-          <Button 
-            onClick={onSubmit} 
+          <Button
+            onClick={onSubmit}
             disabled={isSubmitting}
-            className="w-full bg-purple-600 hover:bg-purple-700"
+            className='w-full bg-purple-600 hover:bg-purple-700'
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className='h-4 w-4 mr-2 animate-spin' />
                 Submitting...
               </>
             ) : (

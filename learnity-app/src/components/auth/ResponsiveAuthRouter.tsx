@@ -3,30 +3,30 @@
  * Automatically serves mobile or desktop authentication components based on device
  */
 
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { StudentRegistrationData, LoginData } from "@/lib/validators/auth";
-import { QuickTeacherRegistrationData } from "@/lib/validators/quick-teacher-registration";
-import { useAuthStore } from "@/lib/stores/auth.store";
+import React, { useState, useEffect } from 'react';
+import { StudentRegistrationData, LoginData } from '@/lib/validators/auth';
+import { QuickTeacherRegistrationData } from '@/lib/validators/quick-teacher-registration';
+import { useAuthStore } from '@/lib/stores/auth.store';
 
 // Unified responsive components
-import LoginForm from "./LoginForm";
-import RegistrationFlow from "./RegistrationFlow";
-import PasswordResetRequestForm from "./PasswordResetRequestForm";
-import PasswordResetForm from "./PasswordResetForm";
+import LoginForm from './LoginForm';
+import RegistrationFlow from './RegistrationFlow';
+import PasswordResetRequestForm from './PasswordResetRequestForm';
+import PasswordResetForm from './PasswordResetForm';
 
 export interface ResponsiveAuthRouterProps {
   // Authentication handlers
   onLogin: (data: LoginData) => Promise<void>;
   onStudentRegister: (data: StudentRegistrationData) => Promise<void>;
   onTeacherRegister: (data: QuickTeacherRegistrationData) => Promise<void>;
-  onSocialLogin: (provider: "google" | "microsoft") => Promise<void>;
+  onSocialLogin: (provider: 'google' | 'microsoft') => Promise<void>;
   onPasswordResetRequest: (email: string) => Promise<void>;
   onPasswordReset: (data: { password: string; token: string }) => Promise<void>;
 
   // Navigation
-  initialView?: "login" | "register" | "forgot-password" | "reset-password";
+  initialView?: 'login' | 'register' | 'forgot-password' | 'reset-password';
   resetToken?: string;
 
   // Configuration
@@ -34,7 +34,7 @@ export interface ResponsiveAuthRouterProps {
   className?: string;
 }
 
-type AuthView = "login" | "register" | "forgot-password" | "reset-password";
+type AuthView = 'login' | 'register' | 'forgot-password' | 'reset-password';
 
 export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
   onLogin,
@@ -43,10 +43,10 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
   onSocialLogin,
   onPasswordResetRequest,
   onPasswordReset,
-  initialView = "login",
+  initialView = 'login',
   resetToken,
   requireCaptcha = false,
-  className = "",
+  className = '',
 }) => {
   const [currentView, setCurrentView] = useState<AuthView>(initialView);
   const [isMobile, setIsMobile] = useState(false);
@@ -68,9 +68,9 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
     };
 
     checkMobile();
-    window.addEventListener("resize", checkMobile);
+    window.addEventListener('resize', checkMobile);
 
-    return () => window.removeEventListener("resize", checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // Handle navigation between views
@@ -91,15 +91,15 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
     token: string;
   }) => {
     await onPasswordReset({ password: data.password, token: data.token });
-    setCurrentView("login");
+    setCurrentView('login');
   };
 
   // Don't render until we know if it's mobile
   if (!isClient) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
-        <div className="animate-pulse">
-          <div className="w-8 h-8 bg-slate-600 rounded-full"></div>
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center'>
+        <div className='animate-pulse'>
+          <div className='w-8 h-8 bg-slate-600 rounded-full'></div>
         </div>
       </div>
     );
@@ -108,13 +108,13 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
   // Mobile components (now using unified responsive components)
   if (isMobile) {
     switch (currentView) {
-      case "login":
+      case 'login':
         return (
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+          <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4'>
             <LoginForm
               onSubmit={onLogin}
-              onForgotPassword={() => handleViewChange("forgot-password")}
-              onSignUp={() => handleViewChange("register")}
+              onForgotPassword={() => handleViewChange('forgot-password')}
+              onSignUp={() => handleViewChange('register')}
               onSocialLogin={onSocialLogin}
               requireCaptcha={requireCaptcha}
               className={className}
@@ -122,43 +122,43 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
           </div>
         );
 
-      case "register":
+      case 'register':
         return (
           <RegistrationFlow
             onStudentRegister={onStudentRegister}
             onTeacherRegister={onTeacherRegister}
-            onBackToLogin={() => handleViewChange("login")}
+            onBackToLogin={() => handleViewChange('login')}
             className={className}
           />
         );
 
-      case "forgot-password":
+      case 'forgot-password':
         return (
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+          <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4'>
             <PasswordResetRequestForm
               onSubmit={handlePasswordResetRequest}
-              onBackToLogin={() => handleViewChange("login")}
+              onBackToLogin={() => handleViewChange('login')}
               className={className}
             />
           </div>
         );
 
-      case "reset-password":
+      case 'reset-password':
         return (
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+          <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4'>
             {resetToken ? (
               <PasswordResetForm
                 token={resetToken}
                 onSubmit={handlePasswordReset}
-                onBackToLogin={() => handleViewChange("login")}
+                onBackToLogin={() => handleViewChange('login')}
                 className={className}
               />
             ) : (
-              <div className="text-center">
-                <p className="text-red-600">Invalid or missing reset token</p>
+              <div className='text-center'>
+                <p className='text-red-600'>Invalid or missing reset token</p>
                 <button
-                  onClick={() => handleViewChange("login")}
-                  className="text-blue-600 hover:text-blue-700 underline mt-2"
+                  onClick={() => handleViewChange('login')}
+                  className='text-blue-600 hover:text-blue-700 underline mt-2'
                 >
                   Back to Login
                 </button>
@@ -174,13 +174,13 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
 
   // Desktop components
   switch (currentView) {
-    case "login":
+    case 'login':
       return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+        <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4'>
           <LoginForm
             onSubmit={onLogin}
-            onForgotPassword={() => handleViewChange("forgot-password")}
-            onSignUp={() => handleViewChange("register")}
+            onForgotPassword={() => handleViewChange('forgot-password')}
+            onSignUp={() => handleViewChange('register')}
             onSocialLogin={onSocialLogin}
             requireCaptcha={requireCaptcha}
             className={className}
@@ -188,7 +188,7 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
         </div>
       );
 
-    case "register":
+    case 'register':
       return (
         <RegistrationFlow
           onStudentRegister={onStudentRegister}
@@ -197,33 +197,33 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
         />
       );
 
-    case "forgot-password":
+    case 'forgot-password':
       return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+        <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4'>
           <PasswordResetRequestForm
             onSubmit={handlePasswordResetRequest}
-            onBackToLogin={() => handleViewChange("login")}
+            onBackToLogin={() => handleViewChange('login')}
             className={className}
           />
         </div>
       );
 
-    case "reset-password":
+    case 'reset-password':
       return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+        <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4'>
           {resetToken ? (
             <PasswordResetForm
               token={resetToken}
               onSubmit={handlePasswordReset}
-              onBackToLogin={() => handleViewChange("login")}
+              onBackToLogin={() => handleViewChange('login')}
               className={className}
             />
           ) : (
-            <div className="text-center">
-              <p className="text-red-600">Invalid or missing reset token</p>
+            <div className='text-center'>
+              <p className='text-red-600'>Invalid or missing reset token</p>
               <button
-                onClick={() => handleViewChange("login")}
-                className="text-blue-600 hover:text-blue-700 underline mt-2"
+                onClick={() => handleViewChange('login')}
+                className='text-blue-600 hover:text-blue-700 underline mt-2'
               >
                 Back to Login
               </button>

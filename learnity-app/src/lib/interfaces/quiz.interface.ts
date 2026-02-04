@@ -1,7 +1,7 @@
 /**
  * Quiz Service Interface
  * Defines the contract for quiz management operations
- * 
+ *
  * Requirements covered:
  * - 6.1: Create multiple-choice quizzes with 2-4 options per question
  * - 6.2: Support explanations for correct answers
@@ -15,9 +15,9 @@
  */
 
 import { Quiz, Question, QuizAttempt } from '@prisma/client';
-import { 
-  CreateQuizData, 
-  UpdateQuizData, 
+import {
+  CreateQuizData,
+  UpdateQuizData,
   QuizAnswerData,
   CreateQuestionData,
   UpdateQuestionData,
@@ -155,7 +155,10 @@ export interface IQuizService {
    * @returns The best attempt or null
    * Requirements: 6.8
    */
-  getBestAttempt(studentId: string, quizId: string): Promise<QuizAttempt | null>;
+  getBestAttempt(
+    studentId: string,
+    quizId: string
+  ): Promise<QuizAttempt | null>;
 
   /**
    * Get quiz statistics for a student
@@ -179,7 +182,10 @@ export interface IQuizService {
    * @param data - Question update data
    * @returns The updated question
    */
-  updateQuestion(questionId: string, data: UpdateQuestionData): Promise<Question>;
+  updateQuestion(
+    questionId: string,
+    data: UpdateQuestionData
+  ): Promise<Question>;
 
   /**
    * Delete a question
@@ -210,7 +216,7 @@ export enum QuizErrorCode {
   TOO_FEW_OPTIONS = 'TOO_FEW_OPTIONS',
   TOO_MANY_OPTIONS = 'TOO_MANY_OPTIONS',
   INVALID_CORRECT_INDEX = 'INVALID_CORRECT_INDEX',
-  
+
   // Business logic errors
   QUIZ_NOT_FOUND = 'QUIZ_NOT_FOUND',
   QUESTION_NOT_FOUND = 'QUESTION_NOT_FOUND',
@@ -219,7 +225,7 @@ export enum QuizErrorCode {
   NOT_ENROLLED = 'NOT_ENROLLED',
   MISSING_ANSWERS = 'MISSING_ANSWERS',
   DUPLICATE_ANSWERS = 'DUPLICATE_ANSWERS',
-  
+
   // Authorization errors
   UNAUTHORIZED = 'UNAUTHORIZED',
   FORBIDDEN = 'FORBIDDEN',

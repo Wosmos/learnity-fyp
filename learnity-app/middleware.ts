@@ -4,7 +4,7 @@
  * Handles role-based authorization for all protected routes
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
 // Define route access rules with role requirements
 const ROUTE_CONFIG = {
@@ -34,11 +34,7 @@ const ROUTE_CONFIG = {
     PENDING_TEACHER: ['/dashboard/teacher/pending'],
   },
   // Protected routes (any authenticated user)
-  authenticated: [
-    '/dashboard',
-    '/profile',
-    '/onboarding',
-  ],
+  authenticated: ['/dashboard', '/profile', '/onboarding'],
 } as const;
 
 type UserRole = 'STUDENT' | 'TEACHER' | 'ADMIN' | 'PENDING_TEACHER';
@@ -46,15 +42,16 @@ type UserRole = 'STUDENT' | 'TEACHER' | 'ADMIN' | 'PENDING_TEACHER';
 /**
  * Verify Firebase session token and extract user claims
  */
-async function verifyAuth(request: NextRequest): Promise<{ 
-  authenticated: boolean; 
+async function verifyAuth(request: NextRequest): Promise<{
+  authenticated: boolean;
   role?: UserRole;
   userId?: string;
 }> {
   try {
     // Check for session cookie (set by Firebase Auth)
-    const sessionCookie = request.cookies.get('session')?.value || 
-                         request.cookies.get('__session')?.value;
+    const sessionCookie =
+      request.cookies.get('session')?.value ||
+      request.cookies.get('__session')?.value;
 
     if (!sessionCookie) {
       return { authenticated: false };
@@ -74,15 +71,18 @@ async function verifyAuth(request: NextRequest): Promise<{
  * Check if path matches any route pattern
  */
 function matchesRoute(pathname: string, routes: readonly string[]): boolean {
-  return routes.some(route => 
-    pathname === route || pathname.startsWith(`${route}/`)
+  return routes.some(
+    route => pathname === route || pathname.startsWith(`${route}/`)
   );
 }
 
 /**
  * Check if path matches any public pattern
  */
-function matchesPublicPattern(pathname: string, patterns: readonly RegExp[]): boolean {
+function matchesPublicPattern(
+  pathname: string,
+  patterns: readonly RegExp[]
+): boolean {
   return patterns.some(pattern => pattern.test(pathname));
 }
 

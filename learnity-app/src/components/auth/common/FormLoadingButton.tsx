@@ -6,8 +6,8 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface FormLoadingButtonProps {
   isLoading: boolean;
@@ -15,7 +15,13 @@ interface FormLoadingButtonProps {
   children: React.ReactNode;
   loadingText?: string;
   type?: 'button' | 'submit' | 'reset';
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  variant?:
+    | 'default'
+    | 'destructive'
+    | 'outline'
+    | 'secondary'
+    | 'ghost'
+    | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
   onClick?: () => void;
@@ -30,7 +36,7 @@ export function FormLoadingButton({
   variant = 'default',
   size = 'default',
   className = '',
-  onClick
+  onClick,
 }: FormLoadingButtonProps) {
   return (
     <Button
@@ -41,8 +47,8 @@ export function FormLoadingButton({
       className={`${className} ${isLoading ? 'cursor-not-allowed' : ''}`}
       onClick={onClick}
     >
-      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      {isLoading ? (loadingText || 'Loading...') : children}
+      {isLoading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+      {isLoading ? loadingText || 'Loading...' : children}
     </Button>
   );
 }

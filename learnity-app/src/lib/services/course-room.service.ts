@@ -36,8 +36,16 @@ class CourseRoomService implements ICourseRoomService {
   /**
    * Create a course room with both chat channel and video room
    */
-  async createCourseRoom(options: CreateCourseRoomOptions): Promise<CourseRoomData> {
-    const { courseId, courseName, teacherId, enableChat = true, enableVideo = true } = options;
+  async createCourseRoom(
+    options: CreateCourseRoomOptions
+  ): Promise<CourseRoomData> {
+    const {
+      courseId,
+      courseName,
+      teacherId,
+      enableChat = true,
+      enableVideo = true,
+    } = options;
 
     // Check if room already exists
     const existingRoom = await prisma.courseRoom.findUnique({
@@ -56,7 +64,9 @@ class CourseRoomService implements ICourseRoomService {
       where: { courseId, status: 'ACTIVE' },
       select: { studentId: true },
     });
-    const studentIds = enrollments.map((e: { studentId: string }) => e.studentId);
+    const studentIds = enrollments.map(
+      (e: { studentId: string }) => e.studentId
+    );
 
     // Create GetStream chat channel
     if (enableChat) {
@@ -116,7 +126,7 @@ class CourseRoomService implements ICourseRoomService {
    */
   async addStudentToRoom(courseId: string, studentId: string): Promise<void> {
     const room = await this.getCourseRoom(courseId);
-    
+
     if (!room) {
       console.warn(`No room found for course ${courseId}`);
       return;
@@ -125,7 +135,10 @@ class CourseRoomService implements ICourseRoomService {
     // Add to GetStream channel
     if (room.streamChannelId && room.chatEnabled) {
       try {
-        await streamChatService.addMemberToChannel(room.streamChannelId, studentId);
+        await streamChatService.addMemberToChannel(
+          room.streamChannelId,
+          studentId
+        );
       } catch (error) {
         console.error('Failed to add student to chat channel:', error);
       }
@@ -135,9 +148,12 @@ class CourseRoomService implements ICourseRoomService {
   /**
    * Remove a student from the course room (called on unenrollment)
    */
-  async removeStudentFromRoom(courseId: string, studentId: string): Promise<void> {
+  async removeStudentFromRoom(
+    courseId: string,
+    studentId: string
+  ): Promise<void> {
     const room = await this.getCourseRoom(courseId);
-    
+
     if (!room) {
       return;
     }
@@ -145,7 +161,10 @@ class CourseRoomService implements ICourseRoomService {
     // Remove from GetStream channel
     if (room.streamChannelId && room.chatEnabled) {
       try {
-        await streamChatService.removeMemberFromChannel(room.streamChannelId, studentId);
+        await streamChatService.removeMemberFromChannel(
+          room.streamChannelId,
+          studentId
+        );
       } catch (error) {
         console.error('Failed to remove student from chat channel:', error);
       }
@@ -157,7 +176,7 @@ class CourseRoomService implements ICourseRoomService {
    */
   async deleteCourseRoom(courseId: string): Promise<void> {
     const room = await this.getCourseRoom(courseId);
-    
+
     if (!room) {
       return;
     }
@@ -192,7 +211,7 @@ class CourseRoomService implements ICourseRoomService {
    */
   async ensureRoomExists(courseId: string): Promise<CourseRoomData> {
     const existingRoom = await this.getCourseRoom(courseId);
-    
+
     // Get course details (needed for both new and existing rooms)
     const course = await prisma.course.findUnique({
       where: { id: courseId },
@@ -246,7 +265,9 @@ class CourseRoomService implements ICourseRoomService {
           where: { courseId, status: 'ACTIVE' },
           select: { studentId: true },
         });
-        const studentIds = enrollments.map((e: { studentId: string }) => e.studentId);
+        const studentIds = enrollments.map(
+          (e: { studentId: string }) => e.studentId
+        );
 
         streamChannelId = await streamChatService.createCourseChannel(
           courseId,
@@ -256,7 +277,9 @@ class CourseRoomService implements ICourseRoomService {
         );
         chatEnabled = true;
         needsUpdate = true;
-        console.log(`Created GetStream channel for course ${courseId}: ${streamChannelId}`);
+        console.log(
+          `Created GetStream channel for course ${courseId}: ${streamChannelId}`
+        );
       } catch (error) {
         console.error('Failed to create GetStream channel:', error);
         // Keep chat disabled if creation fails
@@ -288,7 +311,7 @@ class CourseRoomService implements ICourseRoomService {
    */
   async ensureUserInRoom(courseId: string, userId: string): Promise<void> {
     const room = await this.getCourseRoom(courseId);
-    
+
     if (!room || !room.chatEnabled || !room.streamChannelId) {
       return;
     }
@@ -298,7 +321,10 @@ class CourseRoomService implements ICourseRoomService {
       // or cheaper to just call than query first.
       await streamChatService.addMemberToChannel(room.streamChannelId, userId);
     } catch (error) {
-      console.error(`Failed to ensure user ${userId} is in room ${courseId}:`, error);
+      console.error(
+        `Failed to ensure user ${userId} is in room ${courseId}:`,
+        error
+      );
     }
   }
 }

@@ -3,8 +3,8 @@
  * Handles video room creation, auth tokens, and session management
  */
 
-import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
+import jwt from 'jsonwebtoken';
 
 // Types
 export interface HMSRoomConfig {
@@ -111,7 +111,7 @@ class HMSVideoService implements IHMSVideoService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${managementToken}`,
+        Authorization: `Bearer ${managementToken}`,
       },
       body: JSON.stringify({
         name: config.name,
@@ -137,7 +137,7 @@ class HMSVideoService implements IHMSVideoService {
 
     const response = await fetch(`${this.baseUrl}/rooms/${roomId}`, {
       headers: {
-        'Authorization': `Bearer ${managementToken}`,
+        Authorization: `Bearer ${managementToken}`,
       },
     });
 
@@ -163,7 +163,7 @@ class HMSVideoService implements IHMSVideoService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${managementToken}`,
+        Authorization: `Bearer ${managementToken}`,
       },
       body: JSON.stringify({ enabled: false }),
     });
@@ -184,7 +184,7 @@ class HMSVideoService implements IHMSVideoService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${managementToken}`,
+        Authorization: `Bearer ${managementToken}`,
       },
       body: JSON.stringify({ enabled: true }),
     });
@@ -201,11 +201,14 @@ class HMSVideoService implements IHMSVideoService {
   async getActiveSessions(roomId: string): Promise<any[]> {
     const managementToken = this.generateManagementToken();
 
-    const response = await fetch(`${this.baseUrl}/sessions?room_id=${roomId}&active=true`, {
-      headers: {
-        'Authorization': `Bearer ${managementToken}`,
-      },
-    });
+    const response = await fetch(
+      `${this.baseUrl}/sessions?room_id=${roomId}&active=true`,
+      {
+        headers: {
+          Authorization: `Bearer ${managementToken}`,
+        },
+      }
+    );
 
     if (!response.ok) {
       return [];
@@ -225,7 +228,7 @@ class HMSVideoService implements IHMSVideoService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${managementToken}`,
+        Authorization: `Bearer ${managementToken}`,
       },
       body: JSON.stringify({
         reason: reason || 'Session ended by host',

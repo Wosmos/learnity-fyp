@@ -4,8 +4,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { EnrollmentStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { BadgeType, EnrollmentStatus } from '@prisma/client';
 import { authMiddleware } from '@/lib/middleware/auth.middleware';
 import {
   createSuccessResponse,
@@ -13,8 +13,31 @@ import {
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
 
+// Badge type keys
+type BadgeTypeKey =
+  | 'FIRST_COURSE_COMPLETE'
+  | 'FIVE_COURSES_COMPLETE'
+  | 'TEN_COURSES_COMPLETE'
+  | 'STREAK_7_DAYS'
+  | 'STREAK_30_DAYS'
+  | 'STREAK_100_DAYS'
+  | 'QUIZ_MASTER'
+  | 'TOP_REVIEWER';
+
 // Achievement definitions with metadata
-const ACHIEVEMENT_DEFINITIONS = {
+const ACHIEVEMENT_DEFINITIONS: Record<
+  BadgeTypeKey,
+  {
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    category: string;
+    xpReward: number;
+    rarity: string;
+    criteria: { type: string; target: number };
+  }
+> = {
   // Learning Milestones
   FIRST_COURSE_COMPLETE: {
     id: 'FIRST_COURSE_COMPLETE',
@@ -46,7 +69,7 @@ const ACHIEVEMENT_DEFINITIONS = {
     rarity: 'rare',
     criteria: { type: 'courses_completed', target: 10 },
   },
-  
+
   // Streak Achievements
   STREAK_7_DAYS: {
     id: 'STREAK_7_DAYS',
@@ -78,7 +101,7 @@ const ACHIEVEMENT_DEFINITIONS = {
     rarity: 'legendary',
     criteria: { type: 'streak_days', target: 100 },
   },
-  
+
   // Quiz Achievements
   QUIZ_MASTER: {
     id: 'QUIZ_MASTER',
@@ -90,7 +113,7 @@ const ACHIEVEMENT_DEFINITIONS = {
     rarity: 'epic',
     criteria: { type: 'quizzes_passed', target: 50 },
   },
-  
+
   // Community Achievements
   TOP_REVIEWER: {
     id: 'TOP_REVIEWER',
@@ -102,12 +125,14 @@ const ACHIEVEMENT_DEFINITIONS = {
     rarity: 'uncommon',
     criteria: { type: 'reviews_written', target: 10 },
   },
-} as const;
+};
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    // Authenticate user
-    const authResult = await authMiddleware(request);
+    // Authenticate user - Allow unverified users to see their own achievements
+    const authResult = await authMiddleware(request, {
+      skipEmailVerification: true,
+    });
 
     if (authResult instanceof NextResponse) {
       return authResult;
@@ -133,66 +158,72 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const userId = dbUser.id;
 
     // Get user's earned badges
-    const earnedBadges = await prisma.badge.findMany({
+    const earnedBadges = await prisma.userBadge.findMany({
       where: { userId },
+      include: { badgeDefinition: true },
     });
-    const earnedBadgeTypes = new Set(earnedBadges.map(b => b.type));
+    const earnedBadgeKeys = new Set(
+      earnedBadges.map(b => b.badgeDefinition.key)
+    );
 
     // Get user stats for progress calculation
-    const [
-      completedCourses,
-      userProgress,
-      passedQuizzes,
-      reviewsWritten,
-    ] = await Promise.all([
-      prisma.enrollment.count({
-        where: { studentId: userId, status: EnrollmentStatus.COMPLETED },
-      }),
-      prisma.userProgress.findUnique({ where: { userId } }),
-      prisma.quizAttempt.findMany({
-        where: { studentId: userId, passed: true },
-        distinct: ['quizId'],
-      }),
-      prisma.review.count({ where: { studentId: userId } }),
-    ]);
+    const [completedCourses, userProgress, passedQuizzes, reviewsWritten] =
+      await Promise.all([
+        prisma.enrollment.count({
+          where: { studentId: userId, status: EnrollmentStatus.COMPLETED },
+        }),
+        prisma.userProgress.findUnique({ where: { userId } }),
+        prisma.quizAttempt.findMany({
+          where: { studentId: userId, passed: true },
+          distinct: ['quizId'],
+        }),
+        prisma.review.count({ where: { studentId: userId } }),
+      ]);
 
     // Calculate progress for each achievement
-    const achievements = Object.entries(ACHIEVEMENT_DEFINITIONS).map(([key, def]) => {
-      const badgeType = key as BadgeType;
-      const earnedBadge = earnedBadges.find(b => b.type === badgeType);
-      const unlocked = earnedBadgeTypes.has(badgeType);
-      
-      // Calculate current progress
-      let currentProgress = 0;
-      switch (def.criteria.type) {
-        case 'courses_completed':
-          currentProgress = completedCourses;
-          break;
-        case 'streak_days':
-          currentProgress = Math.max(
-            userProgress?.currentStreak || 0,
-            userProgress?.longestStreak || 0
-          );
-          break;
-        case 'quizzes_passed':
-          currentProgress = passedQuizzes.length;
-          break;
-        case 'reviews_written':
-          currentProgress = reviewsWritten;
-          break;
-      }
+    const achievements = Object.entries(ACHIEVEMENT_DEFINITIONS).map(
+      ([key, def]) => {
+        const badgeKey = key as BadgeTypeKey;
+        const earnedBadge = earnedBadges.find(
+          b => b.badgeDefinition.key === badgeKey
+        );
+        const unlocked = earnedBadgeKeys.has(badgeKey);
 
-      return {
-        ...def,
-        unlocked,
-        unlockedAt: earnedBadge?.unlockedAt || null,
-        progress: {
-          current: Math.min(currentProgress, def.criteria.target),
-          target: def.criteria.target,
-          percentage: Math.min(100, Math.round((currentProgress / def.criteria.target) * 100)),
-        },
-      };
-    });
+        // Calculate current progress
+        let currentProgress = 0;
+        switch (def.criteria.type) {
+          case 'courses_completed':
+            currentProgress = completedCourses;
+            break;
+          case 'streak_days':
+            currentProgress = Math.max(
+              userProgress?.currentStreak || 0,
+              userProgress?.longestStreak || 0
+            );
+            break;
+          case 'quizzes_passed':
+            currentProgress = passedQuizzes.length;
+            break;
+          case 'reviews_written':
+            currentProgress = reviewsWritten;
+            break;
+        }
+
+        return {
+          ...def,
+          unlocked,
+          unlockedAt: earnedBadge?.earnedAt || null,
+          progress: {
+            current: Math.min(currentProgress, def.criteria.target),
+            target: def.criteria.target,
+            percentage: Math.min(
+              100,
+              Math.round((currentProgress / def.criteria.target) * 100)
+            ),
+          },
+        };
+      }
+    );
 
     // Group by category
     const achievementsByCategory = {
@@ -216,7 +247,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         total: totalAchievements,
         unlocked: unlockedCount,
         locked: totalAchievements - unlockedCount,
-        completionPercentage: Math.round((unlockedCount / totalAchievements) * 100),
+        completionPercentage: Math.round(
+          (unlockedCount / totalAchievements) * 100
+        ),
         totalXPEarned: totalXPFromAchievements,
       },
     });

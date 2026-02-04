@@ -4,26 +4,23 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import { 
+import {
   ISecurityService,
   HCaptchaResult,
   LoginAttempt,
   SecurityEvent,
   AuthEvent,
   AuditFilters,
-  AuditLog
+  AuditLog,
 } from '@/lib/interfaces/auth';
 import { generateDeviceFingerprint } from '@/lib/utils/device-fingerprint';
-import { 
-  SecurityRequest,
-  SecurityAssessment
-} from '@/types/auth';
-import { 
-  RiskLevel, 
-  SecurityAction, 
-  SecurityEventType, 
+import { SecurityRequest, SecurityAssessment } from '@/types/auth';
+import {
+  RiskLevel,
+  SecurityAction,
+  SecurityEventType,
   EventType,
-  AuthErrorCode 
+  AuthErrorCode,
 } from '@/types/auth';
 import { hCaptchaService } from '@/lib/services/hcaptcha.service';
 import { appCheckService } from '@/lib/services/app-check.service';
@@ -31,17 +28,17 @@ import { appCheckService } from '@/lib/services/app-check.service';
 export class SecurityService implements ISecurityService {
   private prisma: PrismaClient;
   private readonly RATE_LIMIT_WINDOWS = {
-    immediate: 5 * 60 * 1000,    // 5 minutes
-    short: 15 * 60 * 1000,       // 15 minutes
-    medium: 60 * 60 * 1000,      // 1 hour
-    long: 24 * 60 * 60 * 1000    // 24 hours
+    immediate: 5 * 60 * 1000, // 5 minutes
+    short: 15 * 60 * 1000, // 15 minutes
+    medium: 60 * 60 * 1000, // 1 hour
+    long: 24 * 60 * 60 * 1000, // 24 hours
   };
 
   private readonly RATE_LIMIT_THRESHOLDS = {
     immediate: { ip: 3, email: 2, device: 2 },
     short: { ip: 8, email: 5, device: 5 },
     medium: { ip: 15, email: 8, device: 10 },
-    long: { ip: 25, email: 12, device: 15 }
+    long: { ip: 25, email: 12, device: 15 },
   };
 
   constructor() {
@@ -67,12 +64,15 @@ export class SecurityService implements ISecurityService {
    * Verify hCaptcha token (delegated to HCaptchaService)
    */
   async verifyHCaptcha(token: string, action: string): Promise<HCaptchaResult> {
-    const result = await hCaptchaService.verifyTokenWithValidation(token, action);
+    const result = await hCaptchaService.verifyTokenWithValidation(
+      token,
+      action
+    );
     return {
       success: result.success,
       challenge_ts: result.result?.challenge_ts || new Date().toISOString(),
       hostname: result.result?.hostname || 'unknown',
-      error_codes: result.success ? undefined : ['verification-failed']
+      error_codes: result.success ? undefined : ['verification-failed'],
     };
   }
 
@@ -86,7 +86,7 @@ export class SecurityService implements ISecurityService {
         immediate: new Date(now.getTime() - this.RATE_LIMIT_WINDOWS.immediate),
         short: new Date(now.getTime() - this.RATE_LIMIT_WINDOWS.short),
         medium: new Date(now.getTime() - this.RATE_LIMIT_WINDOWS.medium),
-        long: new Date(now.getTime() - this.RATE_LIMIT_WINDOWS.long)
+        long: new Date(now.getTime() - this.RATE_LIMIT_WINDOWS.long),
       };
 
       // Parallel analysis for performance
@@ -95,13 +95,15 @@ export class SecurityService implements ISecurityService {
         deviceAnalysis,
         userAnalysis,
         securityEvents,
-        patternAnalysis
+        patternAnalysis,
       ] = await Promise.all([
         this.analyzeIPAddress(request.ipAddress, timeWindows),
         this.analyzeDevice(request.deviceFingerprint, timeWindows),
-        request.firebaseUid ? this.analyzeUser(request.firebaseUid, timeWindows) : Promise.resolve(null),
+        request.firebaseUid
+          ? this.analyzeUser(request.firebaseUid, timeWindows)
+          : Promise.resolve(null),
         this.getRecentSecurityEvents(request.ipAddress, timeWindows.medium),
-        this.analyzeRequestPatterns(request)
+        this.analyzeRequestPatterns(request),
       ]);
 
       // Determine risk level based on multiple factors
@@ -109,7 +111,7 @@ export class SecurityService implements ISecurityService {
         ipAnalysis.riskLevel,
         deviceAnalysis.riskLevel,
         userAnalysis?.riskLevel || RiskLevel.LOW,
-        patternAnalysis.riskLevel
+        patternAnalysis.riskLevel,
       ];
 
       const highestRisk = this.getHighestRiskLevel(riskFactors);
@@ -118,10 +120,13 @@ export class SecurityService implements ISecurityService {
 
       // Compile blocked reasons
       if (ipAnalysis.blocked) blockedReasons.push(...ipAnalysis.reasons);
-      if (deviceAnalysis.blocked) blockedReasons.push(...deviceAnalysis.reasons);
+      if (deviceAnalysis.blocked)
+        blockedReasons.push(...deviceAnalysis.reasons);
       if (userAnalysis?.blocked) blockedReasons.push(...userAnalysis.reasons);
-      if (patternAnalysis.blocked) blockedReasons.push(...patternAnalysis.reasons);
-      if (securityEvents.length > 0) blockedReasons.push(`${securityEvents.length} recent security events`);
+      if (patternAnalysis.blocked)
+        blockedReasons.push(...patternAnalysis.reasons);
+      if (securityEvents.length > 0)
+        blockedReasons.push(`${securityEvents.length} recent security events`);
 
       // Determine allowed actions based on risk level
       switch (highestRisk) {
@@ -129,7 +134,10 @@ export class SecurityService implements ISecurityService {
           allowedActions.push(...Object.values(SecurityAction));
           break;
         case RiskLevel.MEDIUM:
-          allowedActions.push(SecurityAction.LOGIN, SecurityAction.PROFILE_UPDATE);
+          allowedActions.push(
+            SecurityAction.LOGIN,
+            SecurityAction.PROFILE_UPDATE
+          );
           break;
         case RiskLevel.HIGH:
           allowedActions.push(SecurityAction.LOGIN); // Only login with additional verification
@@ -142,11 +150,11 @@ export class SecurityService implements ISecurityService {
       return {
         riskLevel: highestRisk,
         requiresAdditionalVerification: highestRisk >= RiskLevel.MEDIUM,
-        requiresCaptcha: highestRisk >= RiskLevel.MEDIUM || blockedReasons.length > 0,
+        requiresCaptcha:
+          highestRisk >= RiskLevel.MEDIUM || blockedReasons.length > 0,
         blockedReasons,
-        allowedActions
+        allowedActions,
       };
-
     } catch (error) {
       console.error('Security analysis failed:', error);
       // Fail secure - return high risk assessment
@@ -155,7 +163,7 @@ export class SecurityService implements ISecurityService {
         requiresAdditionalVerification: true,
         requiresCaptcha: true,
         blockedReasons: ['Security analysis failed'],
-        allowedActions: [SecurityAction.LOGIN]
+        allowedActions: [SecurityAction.LOGIN],
       };
     }
   }
@@ -164,20 +172,25 @@ export class SecurityService implements ISecurityService {
    * Generate device fingerprint with enhanced entropy
    */
   generateDeviceFingerprint(request: Request): string {
-    return generateDeviceFingerprint(request, { hashLength: 24, enhancedEntropy: true });
+    return generateDeviceFingerprint(request, {
+      hashLength: 24,
+      enhancedEntropy: true,
+    });
   }
 
   /**
    * Analyze login attempt for comprehensive security assessment
    */
-  async analyzeLoginAttempt(attempt: LoginAttempt): Promise<SecurityAssessment> {
+  async analyzeLoginAttempt(
+    attempt: LoginAttempt
+  ): Promise<SecurityAssessment> {
     const securityRequest: SecurityRequest = {
       ipAddress: attempt.ipAddress,
       userAgent: attempt.userAgent,
       deviceFingerprint: attempt.deviceFingerprint,
       timestamp: attempt.timestamp,
       action: SecurityAction.LOGIN,
-      firebaseUid: attempt.firebaseUid
+      firebaseUid: attempt.firebaseUid,
     };
 
     const assessment = await this.analyzeRequest(securityRequest);
@@ -185,7 +198,12 @@ export class SecurityService implements ISecurityService {
     // Additional login-specific analysis
     if (attempt.success === false && attempt.errorCode) {
       // Increase risk for specific error patterns
-      if ([AuthErrorCode.INVALID_CREDENTIALS, AuthErrorCode.ACCOUNT_NOT_FOUND].includes(attempt.errorCode as AuthErrorCode)) {
+      if (
+        [
+          AuthErrorCode.INVALID_CREDENTIALS,
+          AuthErrorCode.ACCOUNT_NOT_FOUND,
+        ].includes(attempt.errorCode as AuthErrorCode)
+      ) {
         assessment.riskLevel = this.increaseRiskLevel(assessment.riskLevel);
         assessment.requiresCaptcha = true;
       }
@@ -197,7 +215,10 @@ export class SecurityService implements ISecurityService {
   /**
    * Flag suspicious activity and create security event
    */
-  async flagSuspiciousActivity(firebaseUid: string, activity: SecurityEvent): Promise<void> {
+  async flagSuspiciousActivity(
+    firebaseUid: string,
+    activity: SecurityEvent
+  ): Promise<void> {
     try {
       await this.prisma.securityEvent.create({
         data: {
@@ -209,8 +230,8 @@ export class SecurityService implements ISecurityService {
           deviceFingerprint: activity.deviceFingerprint,
           blocked: activity.blocked,
           reason: activity.reason,
-          metadata: activity.metadata || {}
-        }
+          metadata: activity.metadata || {},
+        },
       });
 
       // Auto-escalate critical events
@@ -240,8 +261,8 @@ export class SecurityService implements ISecurityService {
           deviceFingerprint: event.deviceFingerprint,
           success: event.success,
           errorMessage: event.errorMessage,
-          metadata: event.metadata || {}
-        }
+          metadata: event.metadata || {},
+        },
       });
     } catch (error) {
       console.error('Failed to log auth event:', error);
@@ -276,7 +297,7 @@ export class SecurityService implements ISecurityService {
         where,
         orderBy: { createdAt: 'desc' },
         take: filters.limit || 100,
-        skip: filters.offset || 0
+        skip: filters.offset || 0,
       });
 
       return auditLogs.map(log => ({
@@ -286,15 +307,15 @@ export class SecurityService implements ISecurityService {
         eventType: log.eventType,
         action: log.action,
         resource: log.resource || undefined,
-        oldValues: log.oldValues as Record<string, any> || undefined,
-        newValues: log.newValues as Record<string, any> || undefined,
+        oldValues: (log.oldValues as Record<string, any>) || undefined,
+        newValues: (log.newValues as Record<string, any>) || undefined,
         ipAddress: log.ipAddress,
         userAgent: log.userAgent,
         deviceFingerprint: log.deviceFingerprint || undefined,
         success: log.success,
         errorMessage: log.errorMessage || undefined,
-        metadata: log.metadata as Record<string, any> || undefined,
-        createdAt: log.createdAt
+        metadata: (log.metadata as Record<string, any>) || undefined,
+        createdAt: log.createdAt,
       }));
     } catch (error) {
       console.error('Failed to get audit logs:', error);
@@ -304,45 +325,49 @@ export class SecurityService implements ISecurityService {
 
   // Private helper methods
 
-  private async analyzeIPAddress(ipAddress: string, timeWindows: any): Promise<{
+  private async analyzeIPAddress(
+    ipAddress: string,
+    timeWindows: any
+  ): Promise<{
     riskLevel: RiskLevel;
     blocked: boolean;
     reasons: string[];
   }> {
-    const [immediateFailures, shortFailures, mediumFailures, longFailures] = await Promise.all([
-      this.prisma.auditLog.count({
-        where: {
-          ipAddress,
-          eventType: EventType.AUTH_LOGIN,
-          success: false,
-          createdAt: { gte: timeWindows.immediate }
-        }
-      }),
-      this.prisma.auditLog.count({
-        where: {
-          ipAddress,
-          eventType: EventType.AUTH_LOGIN,
-          success: false,
-          createdAt: { gte: timeWindows.short }
-        }
-      }),
-      this.prisma.auditLog.count({
-        where: {
-          ipAddress,
-          eventType: EventType.AUTH_LOGIN,
-          success: false,
-          createdAt: { gte: timeWindows.medium }
-        }
-      }),
-      this.prisma.auditLog.count({
-        where: {
-          ipAddress,
-          eventType: EventType.AUTH_LOGIN,
-          success: false,
-          createdAt: { gte: timeWindows.long }
-        }
-      })
-    ]);
+    const [immediateFailures, shortFailures, mediumFailures, longFailures] =
+      await Promise.all([
+        this.prisma.auditLog.count({
+          where: {
+            ipAddress,
+            eventType: EventType.AUTH_LOGIN,
+            success: false,
+            createdAt: { gte: timeWindows.immediate },
+          },
+        }),
+        this.prisma.auditLog.count({
+          where: {
+            ipAddress,
+            eventType: EventType.AUTH_LOGIN,
+            success: false,
+            createdAt: { gte: timeWindows.short },
+          },
+        }),
+        this.prisma.auditLog.count({
+          where: {
+            ipAddress,
+            eventType: EventType.AUTH_LOGIN,
+            success: false,
+            createdAt: { gte: timeWindows.medium },
+          },
+        }),
+        this.prisma.auditLog.count({
+          where: {
+            ipAddress,
+            eventType: EventType.AUTH_LOGIN,
+            success: false,
+            createdAt: { gte: timeWindows.long },
+          },
+        }),
+      ]);
 
     const reasons: string[] = [];
     let riskLevel = RiskLevel.LOW;
@@ -367,7 +392,10 @@ export class SecurityService implements ISecurityService {
     return { riskLevel, blocked, reasons };
   }
 
-  private async analyzeDevice(deviceFingerprint: string, timeWindows: any): Promise<{
+  private async analyzeDevice(
+    deviceFingerprint: string,
+    timeWindows: any
+  ): Promise<{
     riskLevel: RiskLevel;
     blocked: boolean;
     reasons: string[];
@@ -377,8 +405,8 @@ export class SecurityService implements ISecurityService {
         deviceFingerprint,
         eventType: EventType.AUTH_LOGIN,
         success: false,
-        createdAt: { gte: timeWindows.medium }
-      }
+        createdAt: { gte: timeWindows.medium },
+      },
     });
 
     const reasons: string[] = [];
@@ -397,7 +425,10 @@ export class SecurityService implements ISecurityService {
     return { riskLevel, blocked, reasons };
   }
 
-  private async analyzeUser(firebaseUid: string, timeWindows: any): Promise<{
+  private async analyzeUser(
+    firebaseUid: string,
+    timeWindows: any
+  ): Promise<{
     riskLevel: RiskLevel;
     blocked: boolean;
     reasons: string[];
@@ -407,8 +438,8 @@ export class SecurityService implements ISecurityService {
         firebaseUid,
         eventType: EventType.AUTH_LOGIN,
         success: false,
-        createdAt: { gte: timeWindows.short }
-      }
+        createdAt: { gte: timeWindows.short },
+      },
     });
 
     const reasons: string[] = [];
@@ -439,7 +470,14 @@ export class SecurityService implements ISecurityService {
     let blocked = false;
 
     // Check for bot indicators
-    const botIndicators = ['bot', 'crawler', 'spider', 'scraper', 'curl', 'wget'];
+    const botIndicators = [
+      'bot',
+      'crawler',
+      'spider',
+      'scraper',
+      'curl',
+      'wget',
+    ];
     if (botIndicators.some(indicator => userAgent.includes(indicator))) {
       riskLevel = RiskLevel.HIGH;
       blocked = true;
@@ -455,41 +493,58 @@ export class SecurityService implements ISecurityService {
     return { riskLevel, blocked, reasons };
   }
 
-  private async getRecentSecurityEvents(ipAddress: string, since: Date): Promise<unknown[]> {
+  private async getRecentSecurityEvents(
+    ipAddress: string,
+    since: Date
+  ): Promise<unknown[]> {
     return await this.prisma.securityEvent.findMany({
       where: {
         ipAddress,
-        createdAt: { gte: since }
+        createdAt: { gte: since },
       },
       orderBy: { createdAt: 'desc' },
-      take: 10
+      take: 10,
     });
   }
 
   private getHighestRiskLevel(riskLevels: RiskLevel[]): RiskLevel {
-    const riskOrder = [RiskLevel.LOW, RiskLevel.MEDIUM, RiskLevel.HIGH, RiskLevel.CRITICAL];
+    const riskOrder = [
+      RiskLevel.LOW,
+      RiskLevel.MEDIUM,
+      RiskLevel.HIGH,
+      RiskLevel.CRITICAL,
+    ];
     return riskLevels.reduce((highest, current) => {
-      return riskOrder.indexOf(current) > riskOrder.indexOf(highest) ? current : highest;
+      return riskOrder.indexOf(current) > riskOrder.indexOf(highest)
+        ? current
+        : highest;
     }, RiskLevel.LOW);
   }
 
   private increaseRiskLevel(currentLevel: RiskLevel): RiskLevel {
     switch (currentLevel) {
-      case RiskLevel.LOW: return RiskLevel.MEDIUM;
-      case RiskLevel.MEDIUM: return RiskLevel.HIGH;
-      case RiskLevel.HIGH: return RiskLevel.CRITICAL;
-      default: return currentLevel;
+      case RiskLevel.LOW:
+        return RiskLevel.MEDIUM;
+      case RiskLevel.MEDIUM:
+        return RiskLevel.HIGH;
+      case RiskLevel.HIGH:
+        return RiskLevel.CRITICAL;
+      default:
+        return currentLevel;
     }
   }
 
-  private async escalateCriticalEvent(firebaseUid: string, event: SecurityEvent): Promise<void> {
+  private async escalateCriticalEvent(
+    firebaseUid: string,
+    event: SecurityEvent
+  ): Promise<void> {
     // Log critical event escalation
     console.error('CRITICAL SECURITY EVENT:', {
       firebaseUid,
       event: event.type,
       ipAddress: event.ipAddress,
       reason: event.reason,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     // In production, this could trigger alerts, notifications, etc.

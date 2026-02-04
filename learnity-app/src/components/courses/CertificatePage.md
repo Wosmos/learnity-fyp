@@ -13,6 +13,7 @@ The `CertificatePage` component displays a professional certificate of completio
 ## Features
 
 ### Certificate Display
+
 - Professional certificate layout with decorative elements
 - Student name prominently displayed
 - Course title and description
@@ -22,12 +23,14 @@ The `CertificatePage` component displays a professional certificate of completio
 - Verification note
 
 ### Download Functionality
+
 - Download certificate as PDF
 - Automatic filename generation
 - Loading state during download
 - Error handling with toast notifications
 
 ### Share Options
+
 - Copy verification link
 - Share on Twitter
 - Share on LinkedIn
@@ -49,11 +52,11 @@ function MyCertificatePage() {
 
   return (
     <CertificatePage
-      certificateId="CERT-12345678-ABCD"
-      studentName="John Doe"
-      courseTitle="Introduction to React"
-      courseDescription="Learn the fundamentals of React"
-      difficulty="BEGINNER"
+      certificateId='CERT-12345678-ABCD'
+      studentName='John Doe'
+      courseTitle='Introduction to React'
+      courseDescription='Learn the fundamentals of React'
+      difficulty='BEGINNER'
       issuedAt={new Date()}
       onDownload={handleDownload}
       isDownloading={false}
@@ -73,11 +76,11 @@ import { CertificatePageClient } from './CertificatePageClient';
 export default function CertificateViewPage() {
   return (
     <CertificatePageClient
-      certificateId="CERT-12345678-ABCD"
-      studentName="John Doe"
-      courseTitle="Introduction to React"
-      courseDescription="Learn the fundamentals of React"
-      difficulty="BEGINNER"
+      certificateId='CERT-12345678-ABCD'
+      studentName='John Doe'
+      courseTitle='Introduction to React'
+      courseDescription='Learn the fundamentals of React'
+      difficulty='BEGINNER'
       issuedAt={new Date()}
     />
   );
@@ -88,17 +91,17 @@ export default function CertificateViewPage() {
 
 ### CertificatePageProps
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `certificateId` | `string` | Yes | Unique certificate identifier |
-| `studentName` | `string` | Yes | Full name of the student |
-| `courseTitle` | `string` | Yes | Title of the completed course |
-| `courseDescription` | `string` | No | Course description |
-| `difficulty` | `"BEGINNER" \| "INTERMEDIATE" \| "ADVANCED"` | Yes | Course difficulty level |
-| `issuedAt` | `Date` | Yes | Certificate issue date |
-| `className` | `string` | No | Additional CSS classes |
-| `onDownload` | `() => void` | No | Download button click handler |
-| `isDownloading` | `boolean` | No | Download loading state |
+| Prop                | Type                                         | Required | Description                   |
+| ------------------- | -------------------------------------------- | -------- | ----------------------------- |
+| `certificateId`     | `string`                                     | Yes      | Unique certificate identifier |
+| `studentName`       | `string`                                     | Yes      | Full name of the student      |
+| `courseTitle`       | `string`                                     | Yes      | Title of the completed course |
+| `courseDescription` | `string`                                     | No       | Course description            |
+| `difficulty`        | `"BEGINNER" \| "INTERMEDIATE" \| "ADVANCED"` | Yes      | Course difficulty level       |
+| `issuedAt`          | `Date`                                       | Yes      | Certificate issue date        |
+| `className`         | `string`                                     | No       | Additional CSS classes        |
+| `onDownload`        | `() => void`                                 | No       | Download button click handler |
+| `isDownloading`     | `boolean`                                    | No       | Download loading state        |
 
 ## API Integration
 
@@ -110,6 +113,7 @@ The component integrates with the following API endpoints:
 ## Styling
 
 The component uses:
+
 - Tailwind CSS for styling
 - shadcn/ui components (Card, Button, Badge, etc.)
 - Lucide React icons

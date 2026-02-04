@@ -2,7 +2,7 @@
  * Course Reviews API Routes
  * POST /api/courses/[courseId]/reviews - Create a review for a course
  * GET /api/courses/[courseId]/reviews - Get all reviews for a course
- * 
+ *
  * Requirements covered:
  * - 8.1: Review eligibility (50% progress required)
  * - 8.2: Rating 1-5 with optional comment (10-500 chars)
@@ -13,12 +13,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { reviewService } from '@/lib/services/review.service';
 import { ReviewError } from '@/lib/interfaces/review.interface';
 import { authMiddleware } from '@/lib/middleware/auth.middleware';
 import { UserRole } from '@/types/auth';
 import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
 import {
   createSuccessResponse,
   createErrorResponse,
@@ -34,11 +34,13 @@ interface RouteParams {
  * Schema for creating a review (without courseId since it comes from URL)
  */
 const CreateReviewBodySchema = z.object({
-  rating: z.number()
+  rating: z
+    .number()
     .int('Rating must be an integer')
     .min(1, 'Rating must be at least 1 star')
     .max(5, 'Rating cannot exceed 5 stars'),
-  comment: z.string()
+  comment: z
+    .string()
     .min(10, 'Comment must be at least 10 characters')
     .max(500, 'Comment must be less than 500 characters')
     .trim()

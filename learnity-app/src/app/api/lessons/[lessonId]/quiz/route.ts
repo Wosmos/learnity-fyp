@@ -1,13 +1,14 @@
 /**
  * Quiz Creation API Route
  * POST /api/lessons/[lessonId]/quiz - Create a quiz for a lesson (Teacher only)
- * 
+ *
  * Requirements covered:
  * - 6.1: Create multiple-choice quizzes with 2-4 options per question
  * - 6.2: Support explanations for correct answers
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 import { quizService } from '@/lib/services/quiz.service';
 import { lessonService } from '@/lib/services/lesson.service';
 import { CreateQuizSchema } from '@/lib/validators/quiz';
@@ -22,7 +23,6 @@ import {
   createNotFoundErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { ZodError } from 'zod';
 
 interface RouteParams {
   params: Promise<{ lessonId: string }>;
@@ -101,7 +101,12 @@ export async function POST(
     // Create quiz
     const quiz = await quizService.createQuiz(validatedData);
 
-    return createSuccessResponse(quiz, 'Quiz created successfully', undefined, 201);
+    return createSuccessResponse(
+      quiz,
+      'Quiz created successfully',
+      undefined,
+      201
+    );
   } catch (error) {
     console.error('Error creating quiz:', error);
 

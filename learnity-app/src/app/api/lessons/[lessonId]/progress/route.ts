@@ -2,7 +2,7 @@
  * Lesson Progress API Route
  * POST /api/lessons/[lessonId]/progress - Update video watch progress
  * GET /api/lessons/[lessonId]/progress - Get lesson progress
- * 
+ *
  * Requirements covered:
  * - 5.3: Track video watch progress and mark lesson complete when 90% watched
  * - 5.6: Remember last watched position and resume
@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { ZodError } from 'zod';
 import { progressService } from '@/lib/services/progress.service';
 import { ProgressError } from '@/lib/interfaces/progress.interface';
 import { authMiddleware } from '@/lib/middleware/auth.middleware';
@@ -21,7 +22,6 @@ import {
   createValidationErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { ZodError } from 'zod';
 
 interface RouteParams {
   params: Promise<{ lessonId: string }>;
@@ -171,7 +171,10 @@ export async function GET(
     }
 
     // Get lesson progress
-    const progress = await progressService.getLessonProgress(dbUser.id, lessonId);
+    const progress = await progressService.getLessonProgress(
+      dbUser.id,
+      lessonId
+    );
 
     return createSuccessResponse(
       progress,

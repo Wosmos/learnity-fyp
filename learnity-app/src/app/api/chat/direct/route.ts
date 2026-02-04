@@ -43,19 +43,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Get all DM channels where user is a participant
     const channels = await prisma.directMessageChannel.findMany({
       where: {
-        OR: [
-          { user1Id: dbUser.id },
-          { user2Id: dbUser.id },
-        ],
+        OR: [{ user1Id: dbUser.id }, { user2Id: dbUser.id }],
       },
       orderBy: { lastMessageAt: 'desc' },
     });
 
     // Enrich with other user's details
     const enrichedChannels = await Promise.all(
-      channels.map(async (channel) => {
-        const otherUserId = channel.user1Id === dbUser.id ? channel.user2Id : channel.user1Id;
-        
+      channels.map(async channel => {
+        const otherUserId =
+          channel.user1Id === dbUser.id ? channel.user2Id : channel.user1Id;
+
         const otherUser = await prisma.user.findUnique({
           where: { id: otherUserId },
           select: {
@@ -72,23 +70,30 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           streamChannelId: channel.streamChannelId,
           lastMessageAt: channel.lastMessageAt,
           createdAt: channel.createdAt,
-          otherUser: otherUser ? {
-            id: otherUser.id,
-            name: `${otherUser.firstName} ${otherUser.lastName}`,
-            profilePicture: otherUser.profilePicture,
-            role: otherUser.role,
-          } : null,
+          otherUser: otherUser
+            ? {
+                id: otherUser.id,
+                name: `${otherUser.firstName} ${otherUser.lastName}`,
+                profilePicture: otherUser.profilePicture,
+                role: otherUser.role,
+              }
+            : null,
         };
       })
     );
 
-    return createSuccessResponse({
-      channels: enrichedChannels,
-      total: enrichedChannels.length,
-    }, 'Direct message channels retrieved successfully');
+    return createSuccessResponse(
+      {
+        channels: enrichedChannels,
+        total: enrichedChannels.length,
+      },
+      'Direct message channels retrieved successfully'
+    );
   } catch (error) {
     console.error('Error fetching DM channels:', error);
-    return createInternalErrorResponse('Failed to fetch direct message channels');
+    return createInternalErrorResponse(
+      'Failed to fetch direct message channels'
+    );
   }
 }
 
@@ -113,7 +118,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { userId: targetUserId } = body;
 
     if (!targetUserId) {
-      return createErrorResponse('VALIDATION_ERROR', 'userId is required', undefined, 400);
+      return createErrorResponse(
+        'VALIDATION_ERROR',
+        'userId is required',
+        undefined,
+        400
+      );
     }
 
     // Get current user from database
@@ -128,13 +138,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Can't message yourself
     if (dbUser.id === targetUserId) {
-      return createErrorResponse('VALIDATION_ERROR', 'Cannot create a channel with yourself', undefined, 400);
+      return createErrorResponse(
+        'VALIDATION_ERROR',
+        'Cannot create a channel with yourself',
+        undefined,
+        400
+      );
     }
 
     // Verify target user exists
     const targetUser = await prisma.user.findUnique({
       where: { id: targetUserId },
-      select: { id: true, firstName: true, lastName: true, role: true, profilePicture: true },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        profilePicture: true,
+      },
     });
 
     if (!targetUser) {
@@ -143,7 +164,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Check if channel already exists (sort IDs for consistent lookup)
     const sortedIds = [dbUser.id, targetUserId].sort();
-    
+
     const existingChannel = await prisma.directMessageChannel.findFirst({
       where: {
         user1Id: sortedIds[0],
@@ -152,23 +173,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
     if (existingChannel) {
-      return createSuccessResponse({
-        id: existingChannel.id,
-        streamChannelId: existingChannel.streamChannelId,
-        isNew: false,
-        otherUser: {
-          id: targetUser.id,
-          name: `${targetUser.firstName} ${targetUser.lastName}`,
-          profilePicture: targetUser.profilePicture,
-          role: targetUser.role,
+      return createSuccessResponse(
+        {
+          id: existingChannel.id,
+          streamChannelId: existingChannel.streamChannelId,
+          isNew: false,
+          otherUser: {
+            id: targetUser.id,
+            name: `${targetUser.firstName} ${targetUser.lastName}`,
+            profilePicture: targetUser.profilePicture,
+            role: targetUser.role,
+          },
         },
-      }, 'Direct message channel already exists');
+        'Direct message channel already exists'
+      );
     }
 
     // Create GetStream channel
     let streamChannelId: string;
     try {
-      streamChannelId = await streamChatService.createDirectMessageChannel(dbUser.id, targetUserId);
+      streamChannelId = await streamChatService.createDirectMessageChannel(
+        dbUser.id,
+        targetUserId
+      );
     } catch (error) {
       console.error('Failed to create GetStream DM channel:', error);
       return createInternalErrorResponse('Failed to create chat channel');
@@ -183,19 +210,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
-    return createSuccessResponse({
-      id: channel.id,
-      streamChannelId: channel.streamChannelId,
-      isNew: true,
-      otherUser: {
-        id: targetUser.id,
-        name: `${targetUser.firstName} ${targetUser.lastName}`,
-        profilePicture: targetUser.profilePicture,
-        role: targetUser.role,
+    return createSuccessResponse(
+      {
+        id: channel.id,
+        streamChannelId: channel.streamChannelId,
+        isNew: true,
+        otherUser: {
+          id: targetUser.id,
+          name: `${targetUser.firstName} ${targetUser.lastName}`,
+          profilePicture: targetUser.profilePicture,
+          role: targetUser.role,
+        },
       },
-    }, 'Direct message channel created successfully');
+      'Direct message channel created successfully'
+    );
   } catch (error) {
     console.error('Error creating DM channel:', error);
-    return createInternalErrorResponse('Failed to create direct message channel');
+    return createInternalErrorResponse(
+      'Failed to create direct message channel'
+    );
   }
 }

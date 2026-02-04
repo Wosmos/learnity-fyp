@@ -1,5 +1,5 @@
-import { AdminRoute } from '@/components/auth';
 import { Metadata } from 'next';
+import { AdminRoute } from '@/components/auth';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard - Learnity',

@@ -32,7 +32,7 @@ export interface UserProfile {
   lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;
-  
+
   // Role-specific data
   studentProfile?: StudentProfile;
   teacherProfile?: TeacherProfile;
@@ -80,7 +80,7 @@ export enum UserRole {
   TEACHER = 'TEACHER',
   ADMIN = 'ADMIN',
   PENDING_TEACHER = 'PENDING_TEACHER',
-  REJECTED_TEACHER = 'REJECTED_TEACHER'
+  REJECTED_TEACHER = 'REJECTED_TEACHER',
 }
 
 export enum Permission {
@@ -89,29 +89,29 @@ export enum Permission {
   JOIN_STUDY_GROUPS = 'join:study_groups',
   BOOK_TUTORING = 'book:tutoring',
   ENHANCE_PROFILE = 'enhance:profile',
-  
+
   // Teacher permissions
   VIEW_TEACHER_DASHBOARD = 'view:teacher_dashboard',
   MANAGE_SESSIONS = 'manage:sessions',
   UPLOAD_CONTENT = 'upload:content',
   VIEW_STUDENT_PROGRESS = 'view:student_progress',
-  
+
   // Pending teacher permissions
   VIEW_APPLICATION_STATUS = 'view:application_status',
   UPDATE_APPLICATION = 'update:application',
-  
+
   // Admin permissions
   VIEW_ADMIN_PANEL = 'view:admin_panel',
   MANAGE_USERS = 'manage:users',
   APPROVE_TEACHERS = 'approve:teachers',
   VIEW_AUDIT_LOGS = 'view:audit_logs',
-  MANAGE_PLATFORM = 'manage:platform'
+  MANAGE_PLATFORM = 'manage:platform',
 }
 
 export enum ApplicationStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED'
+  REJECTED = 'REJECTED',
 }
 
 export enum AuthErrorCode {
@@ -120,34 +120,34 @@ export enum AuthErrorCode {
   ACCOUNT_NOT_FOUND = 'ACCOUNT_NOT_FOUND',
   EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED',
   ACCOUNT_LOCKED = 'ACCOUNT_LOCKED',
-  
+
   // Password errors
   WEAK_PASSWORD = 'WEAK_PASSWORD',
   PASSWORD_REUSED = 'PASSWORD_REUSED',
   INVALID_RESET_TOKEN = 'INVALID_RESET_TOKEN',
-  
+
   // Rate limiting
   TOO_MANY_ATTEMPTS = 'TOO_MANY_ATTEMPTS',
   RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
-  
+
   // MFA errors
   INVALID_MFA_CODE = 'INVALID_MFA_CODE',
   MFA_REQUIRED = 'MFA_REQUIRED',
   MFA_SETUP_REQUIRED = 'MFA_SETUP_REQUIRED',
-  
+
   // Role/Permission errors
   INSUFFICIENT_PERMISSIONS = 'INSUFFICIENT_PERMISSIONS',
   ROLE_NOT_APPROVED = 'ROLE_NOT_APPROVED',
   INVALID_INVITE_CODE = 'INVALID_INVITE_CODE',
-  
+
   // Token errors
   TOKEN_EXPIRED = 'TOKEN_EXPIRED',
   TOKEN_INVALID = 'TOKEN_INVALID',
   TOKEN_REVOKED = 'TOKEN_REVOKED',
-  
+
   // System errors
   SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
-  INTERNAL_ERROR = 'INTERNAL_ERROR'
+  INTERNAL_ERROR = 'INTERNAL_ERROR',
 }
 
 export interface AuthError {
@@ -180,14 +180,14 @@ export enum SecurityAction {
   REGISTER = 'REGISTER',
   PASSWORD_RESET = 'PASSWORD_RESET',
   PROFILE_UPDATE = 'PROFILE_UPDATE',
-  TEACHER_APPLICATION = 'TEACHER_APPLICATION'
+  TEACHER_APPLICATION = 'TEACHER_APPLICATION',
 }
 
 export enum RiskLevel {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',
-  CRITICAL = 'CRITICAL'
+  CRITICAL = 'CRITICAL',
 }
 
 export enum EventType {
@@ -201,7 +201,7 @@ export enum EventType {
   TEACHER_APPLICATION_SUBMIT = 'TEACHER_APPLICATION_SUBMIT',
   TEACHER_APPLICATION_APPROVE = 'TEACHER_APPLICATION_APPROVE',
   TEACHER_APPLICATION_REJECT = 'TEACHER_APPLICATION_REJECT',
-  ADMIN_ACTION = 'ADMIN_ACTION'
+  ADMIN_ACTION = 'ADMIN_ACTION',
 }
 
 export enum SecurityEventType {
@@ -210,5 +210,5 @@ export enum SecurityEventType {
   BOT_DETECTED = 'BOT_DETECTED',
   MULTIPLE_FAILED_ATTEMPTS = 'MULTIPLE_FAILED_ATTEMPTS',
   NEW_DEVICE_LOGIN = 'NEW_DEVICE_LOGIN',
-  UNUSUAL_ACTIVITY = 'UNUSUAL_ACTIVITY'
+  UNUSUAL_ACTIVITY = 'UNUSUAL_ACTIVITY',
 }

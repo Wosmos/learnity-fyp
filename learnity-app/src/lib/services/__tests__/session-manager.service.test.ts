@@ -3,39 +3,39 @@
  * Tests for comprehensive session management with token pairs, blacklisting, and device tracking
  */
 
-import { SessionManagerService } from "../session-manager.service";
-import { UserRole, Permission } from "@/types/auth";
-import { LoginMethod } from "@/lib/interfaces/session.interface";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
+import { UserRole, Permission } from '@/types/auth';
+import { LoginMethod } from '@/lib/interfaces/session.interface';
+import { SessionManagerService } from '../session-manager.service';
 
 // Mock dependencies
-jest.mock("@/lib/config/firebase-admin");
-jest.mock("../security.service");
+jest.mock('@/lib/config/firebase-admin');
+jest.mock('../security.service');
 
 // Skip these tests for now as they require complex mocking setup
 // TODO: Implement proper mocking for session manager tests
-describe.skip("SessionManagerService", () => {
+describe.skip('SessionManagerService', () => {
   let sessionManager: SessionManagerService;
   let mockPrisma: jest.Mocked<PrismaClient>;
 
   const mockSessionData = {
-    firebaseUid: "test-firebase-uid",
+    firebaseUid: 'test-firebase-uid',
     deviceInfo: {
-      fingerprint: "test-device-fingerprint",
-      platform: "web",
-      browser: "Chrome",
-      browserVersion: "120.0",
-      os: "Windows",
-      osVersion: "11",
-      screenResolution: "1920x1080",
-      timezone: "UTC",
-      language: "en-US",
+      fingerprint: 'test-device-fingerprint',
+      platform: 'web',
+      browser: 'Chrome',
+      browserVersion: '120.0',
+      os: 'Windows',
+      osVersion: '11',
+      screenResolution: '1920x1080',
+      timezone: 'UTC',
+      language: 'en-US',
       isMobile: false,
       isTablet: false,
       isDesktop: true,
     },
-    ipAddress: "192.168.1.1",
-    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    ipAddress: '192.168.1.1',
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     claims: {
       role: UserRole.STUDENT,
       permissions: [Permission.VIEW_STUDENT_DASHBOARD],
@@ -64,21 +64,21 @@ describe.skip("SessionManagerService", () => {
     jest.clearAllMocks();
   });
 
-  describe("Token Pair Generation", () => {
-    it("should generate valid access and refresh token pair", async () => {
+  describe('Token Pair Generation', () => {
+    it('should generate valid access and refresh token pair', async () => {
       const tokenPair = await sessionManager.generateTokenPair(mockSessionData);
 
-      expect(tokenPair).toHaveProperty("accessToken");
-      expect(tokenPair).toHaveProperty("refreshToken");
-      expect(tokenPair).toHaveProperty("accessTokenExpiresAt");
-      expect(tokenPair).toHaveProperty("refreshTokenExpiresAt");
-      expect(typeof tokenPair.accessToken).toBe("string");
-      expect(typeof tokenPair.refreshToken).toBe("string");
+      expect(tokenPair).toHaveProperty('accessToken');
+      expect(tokenPair).toHaveProperty('refreshToken');
+      expect(tokenPair).toHaveProperty('accessTokenExpiresAt');
+      expect(tokenPair).toHaveProperty('refreshTokenExpiresAt');
+      expect(typeof tokenPair.accessToken).toBe('string');
+      expect(typeof tokenPair.refreshToken).toBe('string');
       expect(tokenPair.accessTokenExpiresAt).toBeInstanceOf(Date);
       expect(tokenPair.refreshTokenExpiresAt).toBeInstanceOf(Date);
     });
 
-    it("should generate tokens with correct expiration times", async () => {
+    it('should generate tokens with correct expiration times', async () => {
       const beforeGeneration = new Date();
       const tokenPair = await sessionManager.generateTokenPair(mockSessionData);
 
@@ -96,8 +96,8 @@ describe.skip("SessionManagerService", () => {
     });
   });
 
-  describe("Token Validation", () => {
-    it("should validate valid access token", async () => {
+  describe('Token Validation', () => {
+    it('should validate valid access token', async () => {
       const tokenPair = await sessionManager.generateTokenPair(mockSessionData);
       const validation = await sessionManager.validateAccessToken(
         tokenPair.accessToken
@@ -111,7 +111,7 @@ describe.skip("SessionManagerService", () => {
       expect(validation.payload?.role).toBe(mockSessionData.claims.role);
     });
 
-    it("should validate valid refresh token", async () => {
+    it('should validate valid refresh token', async () => {
       const tokenPair = await sessionManager.generateTokenPair(mockSessionData);
       const validation = await sessionManager.validateRefreshToken(
         tokenPair.refreshToken
@@ -122,27 +122,25 @@ describe.skip("SessionManagerService", () => {
       expect(validation.isBlacklisted).toBe(false);
     });
 
-    it("should reject invalid access token", async () => {
-      const validation = await sessionManager.validateAccessToken(
-        "invalid-token"
-      );
+    it('should reject invalid access token', async () => {
+      const validation =
+        await sessionManager.validateAccessToken('invalid-token');
 
       expect(validation.isValid).toBe(false);
       expect(validation.error).toBeDefined();
     });
 
-    it("should reject invalid refresh token", async () => {
-      const validation = await sessionManager.validateRefreshToken(
-        "invalid-token"
-      );
+    it('should reject invalid refresh token', async () => {
+      const validation =
+        await sessionManager.validateRefreshToken('invalid-token');
 
       expect(validation.isValid).toBe(false);
       expect(validation.error).toBeDefined();
     });
   });
 
-  describe("Token Payload Extraction", () => {
-    it("should extract access token payload correctly", async () => {
+  describe('Token Payload Extraction', () => {
+    it('should extract access token payload correctly', async () => {
       const tokenPair = await sessionManager.generateTokenPair(mockSessionData);
       const payload = await sessionManager.extractAccessTokenPayload(
         tokenPair.accessToken
@@ -156,10 +154,10 @@ describe.skip("SessionManagerService", () => {
         mockSessionData.deviceInfo.fingerprint
       );
       expect(payload?.ipAddress).toBe(mockSessionData.ipAddress);
-      expect(payload?.tokenType).toBe("access");
+      expect(payload?.tokenType).toBe('access');
     });
 
-    it("should extract refresh token payload correctly", async () => {
+    it('should extract refresh token payload correctly', async () => {
       const tokenPair = await sessionManager.generateTokenPair(mockSessionData);
       const payload = await sessionManager.extractRefreshTokenPayload(
         tokenPair.refreshToken
@@ -170,30 +168,28 @@ describe.skip("SessionManagerService", () => {
       expect(payload?.deviceFingerprint).toBe(
         mockSessionData.deviceInfo.fingerprint
       );
-      expect(payload?.tokenType).toBe("refresh");
+      expect(payload?.tokenType).toBe('refresh');
     });
 
-    it("should return null for invalid tokens", async () => {
-      const accessPayload = await sessionManager.extractAccessTokenPayload(
-        "invalid-token"
-      );
-      const refreshPayload = await sessionManager.extractRefreshTokenPayload(
-        "invalid-token"
-      );
+    it('should return null for invalid tokens', async () => {
+      const accessPayload =
+        await sessionManager.extractAccessTokenPayload('invalid-token');
+      const refreshPayload =
+        await sessionManager.extractRefreshTokenPayload('invalid-token');
 
       expect(accessPayload).toBeNull();
       expect(refreshPayload).toBeNull();
     });
   });
 
-  describe("Token Blacklisting", () => {
-    it("should blacklist token pair successfully", async () => {
+  describe('Token Blacklisting', () => {
+    it('should blacklist token pair successfully', async () => {
       const tokenPair = await sessionManager.generateTokenPair(mockSessionData);
 
       await sessionManager.blacklistTokenPair(
         tokenPair.accessToken,
         tokenPair.refreshToken,
-        "Test blacklisting"
+        'Test blacklisting'
       );
 
       const accessValidation = await sessionManager.validateAccessToken(
@@ -207,13 +203,13 @@ describe.skip("SessionManagerService", () => {
       expect(refreshValidation.isBlacklisted).toBe(true);
     });
 
-    it("should prevent use of blacklisted tokens", async () => {
+    it('should prevent use of blacklisted tokens', async () => {
       const tokenPair = await sessionManager.generateTokenPair(mockSessionData);
 
       await sessionManager.blacklistTokenPair(
         tokenPair.accessToken,
         tokenPair.refreshToken,
-        "Test blacklisting"
+        'Test blacklisting'
       );
 
       const accessValidation = await sessionManager.validateAccessToken(
@@ -228,8 +224,8 @@ describe.skip("SessionManagerService", () => {
     });
   });
 
-  describe("Session Management", () => {
-    it("should create session successfully", async () => {
+  describe('Session Management', () => {
+    it('should create session successfully', async () => {
       const session = await sessionManager.createSession(mockSessionData);
 
       expect(session).toBeDefined();
@@ -242,10 +238,9 @@ describe.skip("SessionManagerService", () => {
       expect(session.isActive).toBe(true);
     });
 
-    it("should retrieve session by ID", async () => {
-      const createdSession = await sessionManager.createSession(
-        mockSessionData
-      );
+    it('should retrieve session by ID', async () => {
+      const createdSession =
+        await sessionManager.createSession(mockSessionData);
       const retrievedSession = await sessionManager.getSession(
         createdSession.id
       );
@@ -255,13 +250,13 @@ describe.skip("SessionManagerService", () => {
       expect(retrievedSession?.firebaseUid).toBe(mockSessionData.firebaseUid);
     });
 
-    it("should get user sessions", async () => {
+    it('should get user sessions', async () => {
       await sessionManager.createSession(mockSessionData);
       await sessionManager.createSession({
         ...mockSessionData,
         deviceInfo: {
           ...mockSessionData.deviceInfo,
-          fingerprint: "different-device",
+          fingerprint: 'different-device',
         },
       });
 
@@ -271,31 +266,31 @@ describe.skip("SessionManagerService", () => {
 
       expect(sessions).toHaveLength(2);
       expect(
-        sessions.every((s) => s.firebaseUid === mockSessionData.firebaseUid)
+        sessions.every(s => s.firebaseUid === mockSessionData.firebaseUid)
       ).toBe(true);
     });
 
-    it("should terminate session", async () => {
+    it('should terminate session', async () => {
       const session = await sessionManager.createSession(mockSessionData);
-      await sessionManager.terminateSession(session.id, "Test termination");
+      await sessionManager.terminateSession(session.id, 'Test termination');
 
       const retrievedSession = await sessionManager.getSession(session.id);
       expect(retrievedSession).toBeNull();
     });
 
-    it("should terminate all user sessions", async () => {
+    it('should terminate all user sessions', async () => {
       await sessionManager.createSession(mockSessionData);
       await sessionManager.createSession({
         ...mockSessionData,
         deviceInfo: {
           ...mockSessionData.deviceInfo,
-          fingerprint: "different-device",
+          fingerprint: 'different-device',
         },
       });
 
       const terminatedCount = await sessionManager.terminateAllUserSessions(
         mockSessionData.firebaseUid,
-        "Test bulk termination"
+        'Test bulk termination'
       );
 
       expect(terminatedCount).toBe(2);
@@ -307,8 +302,8 @@ describe.skip("SessionManagerService", () => {
     });
   });
 
-  describe("Device Tracking", () => {
-    it("should track device information", async () => {
+  describe('Device Tracking', () => {
+    it('should track device information', async () => {
       const trackedDevice = await sessionManager.trackDevice(
         mockSessionData.deviceInfo
       );
@@ -322,25 +317,25 @@ describe.skip("SessionManagerService", () => {
       expect(trackedDevice.sessionCount).toBe(1);
     });
 
-    it("should identify new devices", async () => {
+    it('should identify new devices', async () => {
       const isNew = await sessionManager.isNewDevice(
         mockSessionData.firebaseUid,
-        "new-device-fingerprint"
+        'new-device-fingerprint'
       );
 
       expect(isNew).toBe(true);
     });
   });
 
-  describe("Session Analytics", () => {
-    it("should provide session statistics", async () => {
+  describe('Session Analytics', () => {
+    it('should provide session statistics', async () => {
       await sessionManager.createSession(mockSessionData);
       await sessionManager.createSession({
         ...mockSessionData,
-        firebaseUid: "different-user",
+        firebaseUid: 'different-user',
         deviceInfo: {
           ...mockSessionData.deviceInfo,
-          fingerprint: "different-device",
+          fingerprint: 'different-device',
         },
       });
 
@@ -353,7 +348,7 @@ describe.skip("SessionManagerService", () => {
       expect(Array.isArray(stats.topDeviceTypes)).toBe(true);
     });
 
-    it("should get active sessions count", async () => {
+    it('should get active sessions count', async () => {
       await sessionManager.createSession(mockSessionData);
       const count = await sessionManager.getActiveSessionsCount();
 
@@ -361,13 +356,13 @@ describe.skip("SessionManagerService", () => {
     });
   });
 
-  describe("Cleanup Operations", () => {
-    it("should cleanup expired blacklisted tokens", async () => {
+  describe('Cleanup Operations', () => {
+    it('should cleanup expired blacklisted tokens', async () => {
       const tokenPair = await sessionManager.generateTokenPair(mockSessionData);
       await sessionManager.blacklistTokenPair(
         tokenPair.accessToken,
         tokenPair.refreshToken,
-        "Test cleanup"
+        'Test cleanup'
       );
 
       const cleanedCount =
@@ -378,11 +373,11 @@ describe.skip("SessionManagerService", () => {
     });
   });
 
-  describe("Error Handling", () => {
-    it("should handle invalid session data gracefully", async () => {
+  describe('Error Handling', () => {
+    it('should handle invalid session data gracefully', async () => {
       const invalidSessionData = {
         ...mockSessionData,
-        firebaseUid: "", // Invalid empty UID
+        firebaseUid: '', // Invalid empty UID
       };
 
       await expect(
@@ -390,9 +385,9 @@ describe.skip("SessionManagerService", () => {
       ).rejects.toThrow();
     });
 
-    it("should handle non-existent session retrieval", async () => {
+    it('should handle non-existent session retrieval', async () => {
       const session = await sessionManager.getSession(
-        "non-existent-session-id"
+        'non-existent-session-id'
       );
       expect(session).toBeNull();
     });
