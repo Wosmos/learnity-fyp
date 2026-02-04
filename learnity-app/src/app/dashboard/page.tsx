@@ -24,6 +24,11 @@ export default function DashboardPage() {
       return;
     }
 
+    if (!user.emailVerified) {
+      router.replace('/auth/verify-email');
+      return;
+    }
+
     if (claims?.role) {
       // Redirect to role-specific dashboard
       const dashboardRoute = getDashboardRoute(claims.role);

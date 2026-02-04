@@ -302,6 +302,8 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
                   href={
                     role === 'teacher'
                       ? '/dashboard/teacher/profile/enhance'
+                      : role === 'student'
+                      ? '/dashboard/student/profile/enhance'
                       : '/profile/enhance'
                   }
                 >
@@ -324,37 +326,6 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
           </DropdownMenu>
         </div>
       </div>
-
-      {/* Mobile Stats Bar */}
-      {/* {showStats && stats && (
-        <div className="md:hidden border-t border-slate-100 bg-slate-50/50 backdrop-blur-sm overflow-x-auto no-scrollbar">
-          <div className="flex items-center justify-around py-2.5 px-4 min-w-[320px]">
-            {stats.streak !== undefined && stats.streak > 0 && (
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-1 text-orange-600">
-                  <FlameIcon className="h-4 w-4" />
-                  <span className="font-bold text-sm">{stats.streak}</span>
-                </div>
-                <span className="text-[10px] text-slate-500 font-medium">Streak</span>
-              </div>
-            )}
-            <div className="w-px h-6 bg-slate-200" />
-            {stats.xpPoints !== undefined && (
-              <div className="flex flex-col items-center">
-                <span className="font-bold text-sm text-indigo-600">{stats.xpPoints.toLocaleString()}</span>
-                <span className="text-[10px] text-slate-500 font-medium">Total XP</span>
-              </div>
-            )}
-            <div className="w-px h-6 bg-slate-200" />
-            {stats.studyTime && (
-              <div className="flex flex-col items-center">
-                <span className="font-bold text-sm text-slate-700">{stats.studyTime}</span>
-                <span className="text-[10px] text-slate-500 font-medium">Time</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )} */}
     </header>
   );
 }

@@ -48,9 +48,10 @@ import { useAuthStore } from '@/lib/stores/auth.store';
 import { useToast } from '@/hooks/use-toast';
 import { formatErrorForDisplay } from '@/lib/utils/error-messages';
 import MobileAuthLayout from './MobileAuthLayout';
-import router from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export interface LoginFormProps {
+
   onSubmit: (data: LoginData) => Promise<void>;
   onForgotPassword: () => void;
   onSignUp: () => void;
@@ -82,6 +83,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
   const { error, setError } = useAuthStore();
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
@@ -324,30 +326,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             variant='nova'
             className='flex-1'
             onClick={() => router.push('/auth/register/student')}
-            >
+          >
             Become a Student
             <ChevronRight className='h-4 w-4 ml-2' />
           </Button>
         </div>
-        {/* <Button
-          type="button"
-          variant="nova"
-          className="w-full"
-          onClick={() => handleSocialLogin("microsoft")}
-          disabled={!!socialLoading || isSubmitting}
-        >
-          {socialLoading === "microsoft" ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
-              <path fill="#F25022" d="M1 1h10v10H1z" />
-              <path fill="#00A4EF" d="M13 1h10v10H13z" />
-              <path fill="#7FBA00" d="M1 13h10v10H1z" />
-              <path fill="#FFB900" d="M13 13h10v10H13z" />
-            </svg>
-          )}
-          Continue with Microsoft
-        </Button> */}
       </div>
 
       {/* Divider */}

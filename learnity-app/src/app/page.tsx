@@ -286,14 +286,14 @@ export default async function Home() {
 
                 <div className='text-center '>
                   <Link href='/teachers' className='inline-block group '>
-                    <button className='h-14 px-10 border border-slate-200 hover:border-slate-950 rounded-full flex items-center gap-4 transition-all duration-300 active:scale-95 bg-white hover:bg-slate-950 group-hover:cursor-pointer'>
+                    <button className='h-14 px-10 border border-slate-200 hover:border-slate-950 rounded-xl flex items-center gap-4 transition-all duration-300 active:scale-95 bg-white hover:bg-slate-950 group-hover:cursor-pointer'>
                       {/* Label - Swaps color on hover */}
                       <span className='text-[11px] font-black uppercase tracking-[0.2em] text-slate-600 group-hover:text-white transition-colors duration-300 group-hover:cursor-pointer'>
                         View All Tutors
                       </span>
 
                       {/* Icon - Circular frame that scales and colors */}
-                      <div className='flex items-center justify-center w-7 h-7 rounded-full bg-slate-50 group-hover:bg-white/10 transition-all duration-300'>
+                      <div className='flex items-center justify-center w-7 h-7 rounded-xl bg-slate-50 group-hover:bg-white/10 transition-all duration-300'>
                         <ArrowRight className='h-3.5 w-3.5 text-slate-900 group-hover:text-slate-950 transition-transform group-hover:translate-x-0.5' />
                       </div>
                     </button>

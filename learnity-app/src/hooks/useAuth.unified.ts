@@ -209,8 +209,21 @@ export function useAuth(): UseAuthReturn {
     try {
       await auth.signOut();
       store.clearAuth();
+
+      // Clear profile store as well
+      const { useProfileStore } = await import('@/lib/stores/profile.store');
+      useProfileStore.getState().clearProfile();
+
+      // Clear cache
+      localStorage.removeItem('learnity_user_claims');
+      localStorage.removeItem('learnity-auth-storage');
+
+      // Force reload to clear memory
+      window.location.href = '/auth/login';
     } catch (error: any) {
       console.error('[useAuth] Failed to logout:', error);
+      // Still try to force login page if signout fails
+      window.location.href = '/auth/login';
     }
   }, [store]);
 

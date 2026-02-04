@@ -21,19 +21,26 @@ export const dynamic = 'force-dynamic';
 
 function LoginPageContent() {
   const { login, socialLogin } = useAuthService();
-  const { isAuthenticated, claims } = useClientAuth();
+  const { isAuthenticated, claims, user } = useClientAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/dashboard';
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated && claims?.role) {
-      // Redirect to role-specific dashboard or the requested redirect URL
-      const defaultDashboard = getDashboardRoute(claims.role);
-      router.push(redirectTo === '/dashboard' ? defaultDashboard : redirectTo);
+    if (isAuthenticated) {
+      if (user && !user.emailVerified) {
+        router.push('/auth/verify-email');
+        return;
+      }
+
+      if (claims?.role) {
+        // Redirect to role-specific dashboard or the requested redirect URL
+        const defaultDashboard = getDashboardRoute(claims.role);
+        router.push(redirectTo === '/dashboard' ? defaultDashboard : redirectTo);
+      }
     }
-  }, [isAuthenticated, claims, router, redirectTo]);
+  }, [isAuthenticated, user, claims, router, redirectTo]);
 
   const handleForgotPassword = () => {
     router.push('/auth/forgot-password');

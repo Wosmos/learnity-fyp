@@ -45,6 +45,13 @@ export function ProtectedRoute({
       return;
     }
 
+    // Email not verified - redirect to verification page
+    if (!user.emailVerified) {
+      console.log('Email not verified, redirecting to verification page');
+      router.replace('/auth/verify-email');
+      return;
+    }
+
     // No claims yet - wait for them
     if (!claims?.role) {
       console.warn('User authenticated but no role claims found');

@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, CheckCircle } from 'lucide-react';
 import { QuickTeacherRegistrationForm } from '@/components/auth/QuickTeacherRegistrationForm';
 import { useAuthService } from '@/hooks/useAuthService';
 import { AuthProvider } from '@/components/auth/AuthProvider';
@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 
 export default function TeacherRegisterPage() {
   const { registerQuickTeacher } = useAuthService();
-  const { setSelectedRole, setRegistrationStep } = useAuthStore();
+  const { setSelectedRole, setRegistrationStep, registrationStep } = useAuthStore();
   const router = useRouter();
 
   // Set teacher role and form step on mount
@@ -46,14 +46,6 @@ export default function TeacherRegisterPage() {
         <LedtSideSection
           title='Inspire the Next Generation'
           subtitle='Share your knowledge, mentor motivated students, and build your professional teaching portfolio.'
-          statCount='5k+'
-          statLabel='Active Mentors'
-          testimonial={{
-            quote:
-              'Teaching on Learnity has allowed me to reach students globally with a flexible schedule.',
-            author: 'David M.',
-            role: 'Senior Math Tutor',
-          }}
         />
 
         {/* Right Side - Registration Form */}
@@ -82,12 +74,40 @@ export default function TeacherRegisterPage() {
           </div>
 
           <div className='w-full max-w-[800px] mx-auto my-auto'>
-            <QuickTeacherRegistrationForm
-              onSubmit={handleTeacherSubmit}
-              onBack={handleBack}
-              variant='simple'
-              className='bg-transparent'
-            />
+            {registrationStep === 'verification' ? (
+              <div className="py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="bg-white rounded-3xl p-8 text-center space-y-6 shadow-xl border border-slate-100 max-w-[580px] mx-auto">
+                  <div className="w-20 h-20 bg-green-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-green-200 rotate-3">
+                    <CheckCircle className="h-10 w-10 text-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-bold text-slate-900 italic uppercase tracking-tight">Application Submitted!</h3>
+                    <p className="text-slate-500 font-medium">
+                      Thank you for applying! Please check your email to verify your account. Our team will review your application within 2-3 business days.
+                    </p>
+                  </div>
+                  <div className="pt-4">
+                    <Button
+                      variant="default"
+                      className="w-full h-12 bg-slate-900 hover:bg-black text-white font-bold uppercase italic tracking-wider transition-all active:scale-[0.98] rounded-xl"
+                      onClick={() => router.push('/auth/login')}
+                    >
+                      I've verified my email
+                    </Button>
+                    <p className="text-xs text-slate-400 mt-4">
+                      Didn't receive it? <button className="text-blue-600 hover:underline font-semibold" onClick={() => window.location.reload()}>Click here to refresh</button>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <QuickTeacherRegistrationForm
+                onSubmit={handleTeacherSubmit}
+                onBack={handleBack}
+                variant='simple'
+                className='bg-transparent'
+              />
+            )}
           </div>
         </div>
       </div>

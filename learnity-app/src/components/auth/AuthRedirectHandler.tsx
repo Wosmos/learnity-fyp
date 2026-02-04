@@ -16,6 +16,11 @@ export function AuthRedirectHandler() {
   useEffect(() => {
     // Only redirect if user is authenticated and not loading
     if (!isLoading && isAuthenticated && user && claims) {
+      // If email is not verified, we DON'T redirect from landing page
+      // They can still browse public routes. Middleware will catch them
+      // if they try to access protected routes.
+      if (!user.emailVerified) return;
+
       // Determine redirect based on user role
       const role = claims.role;
 

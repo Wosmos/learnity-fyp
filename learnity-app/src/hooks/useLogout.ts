@@ -78,7 +78,11 @@ export const useLogout = (): LogoutHook => {
         // Clear all auth state
         clearAuth();
 
-        // Clear any cached data
+        // Clear profile state to prevent account leakage
+        const { useProfileStore } = await import('@/lib/stores/profile.store');
+        useProfileStore.getState().clearProfile();
+
+        // Clear all cached data
         if (typeof window !== 'undefined') {
           // Clear localStorage items related to auth
           const keysToRemove = Object.keys(localStorage).filter(
@@ -105,6 +109,9 @@ export const useLogout = (): LogoutHook => {
               document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
             }
           });
+
+          // Perform a hard redirect to clear all in-memory state
+          window.location.href = '/auth/login';
         }
       } catch (error: any) {
         console.error('Logout failed:', error);
@@ -118,8 +125,11 @@ export const useLogout = (): LogoutHook => {
         setError(authError);
         setStoreError(authError);
 
-        // Even if logout fails, clear local state
+        // Even if logout fails, clear local state and force redirect
         clearAuth();
+        if (typeof window !== 'undefined') {
+          window.location.href = '/auth/login';
+        }
       } finally {
         setIsLoggingOut(false);
       }

@@ -103,7 +103,7 @@ export default function DemoPage() {
   const renderComponent = () => {
     switch (currentComponent) {
       case 'role-selection':
-        return <RoleSelection onRoleSelect={mockHandlers.onRoleSelect} />;
+        return <RoleSelection />;
 
       case 'login-desktop':
         return (

@@ -8,6 +8,7 @@ import React from 'react';
 import Link from 'next/link';
 import { GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Logo from '../ui/logo';
 
 export interface FooterLink {
   label: string;
@@ -62,6 +63,8 @@ const defaultSections: FooterSection[] = [
       { label: 'About Us', href: '/about' },
       { label: 'Our Teachers', href: '/teachers' },
       { label: 'Contact', href: '/about' },
+      { label: 'Terms of Service', href: '/terms' },
+      { label: 'Privacy Policy', href: '/privacy' },
     ],
   },
 ];
@@ -106,10 +109,7 @@ export function Footer({
             {/* Brand */}
             {showBrand && (
               <div className='flex items-center space-x-3'>
-                <div className='p-1.5 bg-slate-600 rounded-lg flex items-center justify-center'>
-                  <img src='/logo.svg' alt='Learnity' className='h-5 w-5' />
-                </div>
-                <span className='font-bold text-gray-900'>Learnity</span>
+                <Logo showText={true} textColor='text-slate-950' bgClass='bg-black' />
               </div>
             )}
 

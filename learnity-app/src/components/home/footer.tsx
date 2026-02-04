@@ -1,5 +1,6 @@
 import { GraduationCap } from 'lucide-react';
 import Link from 'next/link';
+import Logo from '../ui/logo';
 
 const footer = () => {
   return (
@@ -111,6 +112,18 @@ const footer = () => {
               >
                 System Status
               </Link>
+              <Link
+                href='/terms'
+                className='block text-sm text-gray-600 hover:text-blue-600 transition-colors'
+              >
+                Terms of Service
+              </Link>
+              <Link
+                href='/privacy'
+                className='block text-sm text-gray-600 hover:text-blue-600 transition-colors'
+              >
+                Privacy Policy
+              </Link>
             </div>
           </div>
         </div>
@@ -118,15 +131,10 @@ const footer = () => {
         {/* Bottom Bar */}
         <div className='pt-8 border-t border-gray-200'>
           <div className='flex flex-col md:flex-row items-center justify-between gap-4'>
-            <div className='flex items-center space-x-3'>
-              <div className='p-1.5 bg-slate-600 rounded-lg'>
-                <GraduationCap className='h-5 w-5 text-white' />
-              </div>
-              <span className='font-bold text-gray-900'>Learnity</span>
-            </div>
+            <Logo showText={true} textColor='text-slate-950' />
 
             <div className='text-sm text-gray-600 text-center md:text-left'>
-              © 2024 Learnity. All rights reserved.
+              © 2026 Learnity. All rights reserved.
             </div>
 
             <div className='flex items-center space-x-2'>

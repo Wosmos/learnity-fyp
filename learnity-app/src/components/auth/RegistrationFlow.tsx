@@ -8,6 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, Check } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { UserRole } from '@/types/auth';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { StudentRegistrationData } from '@/lib/validators/auth';
@@ -38,11 +39,6 @@ const STEPS = [
     title: 'Registration',
     description: 'Create your account',
   },
-  {
-    id: 'verification',
-    title: 'Verify Your Email',
-    description: 'Check your email to complete setup',
-  },
 ];
 
 export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
@@ -59,6 +55,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
     setSelectedRole,
   } = useAuthStore();
 
+  const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
@@ -81,7 +78,6 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
   const getCurrentStepIndex = () => {
     if (registrationStep === 'role-selection') return 0;
     if (registrationStep === 'form') return 1;
-    if (registrationStep === 'verification') return 2;
     return 0;
   };
 
@@ -102,7 +98,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
   const handleStudentSubmit = async (data: StudentRegistrationData) => {
     try {
       await onStudentRegister(data);
-      setRegistrationStep('verification');
+      router.push('/auth/verify-email');
     } catch (error) {
       // Error handling is done in the form component
       throw error;
@@ -112,7 +108,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
   const handleTeacherSubmit = async (data: QuickTeacherRegistrationData) => {
     try {
       await onTeacherRegister(data);
-      setRegistrationStep('verification');
+      router.push('/auth/verify-email');
     } catch (error) {
       // Error handling is done in the form component
       throw error;
@@ -216,21 +212,19 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
               {STEPS.map((step, index) => (
                 <div
                   key={step.id}
-                  className={`flex items-center space-x-2 ${
-                    index <= currentStepIndex
-                      ? 'text-blue-600'
-                      : 'text-gray-400'
-                  }`}
+                  className={`flex items-center space-x-2 ${index <= currentStepIndex
+                    ? 'text-blue-600'
+                    : 'text-gray-400'
+                    }`}
                 >
                   <div
                     className={`
                       w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium
-                      ${
-                        index < currentStepIndex
-                          ? 'bg-slate-600 text-white'
-                          : index === currentStepIndex
-                            ? 'bg-slate-100 text-blue-600 border-2 border-blue-600'
-                            : 'bg-gray-100 text-gray-400'
+                      ${index < currentStepIndex
+                        ? 'bg-slate-600 text-white'
+                        : index === currentStepIndex
+                          ? 'bg-slate-100 text-blue-600 border-2 border-blue-600'
+                          : 'bg-gray-100 text-gray-400'
                       }
                     `}
                   >
@@ -254,8 +248,6 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
         <div className='max-w-4xl mx-auto'>
           {registrationStep === 'role-selection' && (
             <RoleSelection
-              onRoleSelect={handleRoleSelect}
-              className={isSimple ? 'p-0' : ''}
             />
           )}
 
@@ -275,22 +267,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
             />
           )}
 
-          {registrationStep === 'verification' && (
-            <EmailVerificationPending
-              userRole={selectedRole}
-              onResendVerification={async () => {
-                // TODO: Implement resend verification
-              }}
-              onBackToLogin={() => {
-                if (onBackToLogin) {
-                  onBackToLogin();
-                } else {
-                  setRegistrationStep('role-selection');
-                  setSelectedRole(null);
-                }
-              }}
-            />
-          )}
+
         </div>
 
         {/* Mobile Quick Actions - keeping them as is, they only show on mobile */}
@@ -333,13 +310,8 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
                 {currentStepIndex === 0 &&
                   'Choose the role that best describes how you want to use Learnity.'}
                 {currentStepIndex === 1 &&
-                  selectedRole === UserRole.STUDENT &&
-                  'Make sure to use a valid email address for account verification.'}
-                {currentStepIndex === 1 &&
                   selectedRole === UserRole.TEACHER &&
                   'Upload clear, high-quality documents for faster application review.'}
-                {currentStepIndex === 2 &&
-                  "Check your spam folder if you don't see the verification email."}
               </p>
             </div>
 

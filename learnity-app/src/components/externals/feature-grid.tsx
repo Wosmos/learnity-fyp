@@ -120,11 +120,12 @@ export function FeatureGrid({
                   className={cn(
                     'w-14 h-14 rounded-2xl flex items-center justify-center border transition-transform duration-500 '
                   )}
-                ></div>
-
-                <div className='w-10 h-10 flex items-center justify-center rounded-xl bg-slate-950 text-white transition-transform group-hover:scale-110 '>
-                  {Icon ? <Icon className={cn('w-7 h-7')} /> : item.iconElement}
+                >
+                  <div className='w-10 h-10 flex items-center justify-center rounded-xl bg-slate-950 text-white transition-transform group-hover:scale-110 '>
+                    {Icon ? <Icon className={cn('w-7 h-7')} /> : item.iconElement}
+                  </div>
                 </div>
+
                 {/* Text Content */}
                 <div className='space-y-2'>
                   <h3 className='text-xl font-black uppercase italic tracking-tight text-slate-900'>

@@ -27,6 +27,7 @@ import {
   Video,
   Award,
   Heart,
+  Link,
 } from 'lucide-react';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import {
@@ -2463,26 +2464,29 @@ export const TeacherRegistrationForm: React.FC<
                             <div className='space-y-1 leading-none'>
                               <FormLabel className='text-sm font-normal'>
                                 I agree to the{' '}
-                                <button
+                                <Link
+                                  href='/terms'
                                   type='button'
                                   className='text-green-600 hover:text-green-700 underline'
                                 >
                                   Terms of Service
-                                </button>
+                                </Link>
                                 ,{' '}
-                                <button
+                                <Link
+                                  href='/privacy'
                                   type='button'
                                   className='text-green-600 hover:text-green-700 underline'
                                 >
                                   Privacy Policy
-                                </button>
-                                , and{' '}
-                                <button
+                                </Link>
+                                {/* , and{' '} */}
+                                {/* <Link
+                                  href='/teacher-guidelines'
                                   type='button'
                                   className='text-green-600 hover:text-green-700 underline'
                                 >
                                   Teacher Guidelines
-                                </button>
+                                </Link> */}
                               </FormLabel>
                               <FormMessage />
                             </div>

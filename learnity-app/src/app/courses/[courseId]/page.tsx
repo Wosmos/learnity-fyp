@@ -143,26 +143,26 @@ async function AsyncCourseDetail({
 
   return (
     <>
-      {/* SSR HERO SECTION */}
-      <section className='bg-white border-b border-slate-50 relative overflow-hidden'>
-        <div className='absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-indigo-50/20 to-transparent pointer-events-none' />
-        <div className='max-w-7xl mx-auto px-6 py-12 lg:py-24 relative z-10'>
-          <div className='grid grid-cols-1 lg:grid-cols-2 gap-20 items-center'>
-            <div className='space-y-10'>
-              <div className='flex flex-wrap gap-3'>
-                <Badge className='bg-indigo-600 hover:bg-indigo-700 text-white border-0 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em]'>
+      {/* SSR HERO SECTION - Redesigned for Onyx Elegance */}
+      <section className='bg-slate-50/50 border-b border-slate-100 relative overflow-hidden'>
+        <div className='absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-indigo-50/10 to-transparent pointer-events-none' />
+        <div className='max-w-7xl mx-auto px-6 py-12 lg:py-20 relative z-10'>
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-16 items-center'>
+            <div className='space-y-8'>
+              <div className='flex flex-wrap gap-2'>
+                <Badge className='bg-indigo-600 hover:bg-indigo-700 text-white border-0 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider'>
                   {course.category?.name}
                 </Badge>
                 <Badge
                   variant='outline'
-                  className='border-slate-200 text-slate-400 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em]'
+                  className='bg-white border-slate-200 text-slate-500 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider'
                 >
                   {course.difficulty}
                 </Badge>
               </div>
 
               <div className='space-y-4'>
-                <h1 className='text-5xl md:text-7xl font-black text-slate-900 leading-[0.9] tracking-tighter italic uppercase'>
+                <h1 className='text-4xl md:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight'>
                   {course.title.split(' ').map((word: string, i: number) => (
                     <span
                       key={i}
@@ -172,49 +172,55 @@ async function AsyncCourseDetail({
                     </span>
                   ))}
                 </h1>
-                <p className='text-slate-500 font-medium text-lg max-w-lg leading-relaxed'>
-                  {course.description.slice(0, 200)}...
+                <p className='text-slate-600 font-medium text-lg max-w-lg leading-relaxed opacity-80'>
+                  {course.description.slice(0, 180)}...
                 </p>
               </div>
 
-              <div className='flex flex-wrap items-center gap-x-12 gap-y-6'>
-                <div className='flex items-center gap-3'>
-                  <Star className='h-6 w-6 fill-amber-400 text-amber-400' />
+              <div className='flex flex-wrap items-center gap-x-10 gap-y-4 text-slate-500'>
+                <div className='flex items-center gap-2.5'>
+                  <div className='h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center'>
+                    <Star className='h-5 w-5 fill-amber-400 text-amber-400' />
+                  </div>
                   <div>
-                    <span className='text-2xl font-black italic tracking-tighter text-slate-900 leading-none block'>
+                    <span className='text-xl font-bold text-slate-900 leading-none block'>
                       {Number(course.averageRating).toFixed(1)}
                     </span>
-                    <span className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>
-                      {course.reviewCount} Reports
+                    <span className='text-[10px] font-bold text-slate-400 uppercase tracking-wider'>
+                      {course.reviewCount} Reviews
                     </span>
                   </div>
                 </div>
-                <div className='flex items-center gap-3'>
-                  <Users className='h-6 w-6 text-slate-300' />
+                <div className='flex items-center gap-2.5'>
+                  <div className='h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center'>
+                    <Users className='h-5 w-5 text-slate-500' />
+                  </div>
                   <div>
-                    <span className='text-2xl font-black italic tracking-tighter text-slate-900 leading-none block'>
+                    <span className='text-xl font-bold text-slate-900 leading-none block'>
                       {course.enrollmentCount}
                     </span>
-                    <span className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>
-                      Students
+                    <span className='text-[10px] font-bold text-slate-400 uppercase tracking-wider'>
+                      Enrolled
                     </span>
                   </div>
                 </div>
-                <div className='flex items-center gap-3'>
-                  <Clock className='h-6 w-6 text-slate-300' />
+                <div className='flex items-center gap-2.5'>
+                  <div className='h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center'>
+                    <Clock className='h-5 w-5 text-slate-500' />
+                  </div>
                   <div>
-                    <span className='text-2xl font-black italic tracking-tighter text-slate-900 leading-none block'>
+                    <span className='text-xl font-bold text-slate-900 leading-none block'>
                       {course.estimatedDuration}
                     </span>
-                    <span className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>
-                      Course Length
+                    <span className='text-[10px] font-bold text-slate-400 uppercase tracking-wider'>
+                      Duration
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className='flex items-center gap-5 p-3 pr-8 rounded-full bg-slate-50 border border-slate-100 w-max shadow-sm'>
-                <div className='h-14 w-14 rounded-full overflow-hidden border-4 border-white shadow-md relative bg-slate-200'>
+              <div className='flex items-center gap-4 p-2 pr-6 rounded-2xl bg-white border border-slate-100 w-max shadow-sm'>
+                <div className='h-12 w-12 rounded-xl overflow-hidden border-2 border-white shadow-sm relative bg-slate-100'>
                   {course.teacher.avatarUrl ? (
                     <Image
                       src={course.teacher.avatarUrl}
@@ -223,23 +229,23 @@ async function AsyncCourseDetail({
                       className='object-cover'
                     />
                   ) : (
-                    <div className='h-full w-full flex items-center justify-center text-slate-400 font-black text-xl'>
+                    <div className='h-full w-full flex items-center justify-center text-slate-400 font-bold text-lg'>
                       {course.teacher.name[0]}
                     </div>
                   )}
                 </div>
                 <div className='flex flex-col'>
-                  <span className='text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none mb-1'>
-                    Your Teacher
+                  <span className='text-[9px] font-bold text-indigo-500 uppercase tracking-widest leading-none mb-1'>
+                    Expert Mentor
                   </span>
-                  <span className='text-lg font-black text-slate-900 tracking-tight'>
+                  <span className='text-md font-bold text-slate-900 tracking-tight'>
                     {course.teacher.name}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className='relative aspect-square lg:aspect-video rounded-[4rem] overflow-hidden shadow-2xl shadow-indigo-100 border-[12px] border-white ring-1 ring-slate-100 group'>
+            <div className='relative aspect-square lg:aspect-[4/3] rounded-[3rem] overflow-hidden shadow-2xl shadow-indigo-100/50 border-8 border-white ring-1 ring-slate-100 group'>
               {course.thumbnailUrl ? (
                 <Image
                   src={course.thumbnailUrl}
@@ -252,13 +258,13 @@ async function AsyncCourseDetail({
                   <Users className='h-20 w-20 text-indigo-500/20' />
                 </div>
               )}
-              <div className='absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-40' />
+              <div className='absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-60' />
             </div>
           </div>
         </div>
       </section>
 
-      <section className='max-w-7xl mx-auto px-6 py-20'>
+      <section className='max-w-7xl mx-auto px-6 py-12 lg:py-20'>
         <CourseDetailClient course={course} initialReviews={reviews} />
       </section>
     </>

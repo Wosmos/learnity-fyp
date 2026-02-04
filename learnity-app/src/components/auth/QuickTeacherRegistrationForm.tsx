@@ -15,6 +15,7 @@ import {
   EyeOff,
   ArrowLeft,
   ArrowRight,
+  ChevronLeft,
   Loader2,
   User,
   GraduationCap,
@@ -285,11 +286,10 @@ export const QuickTeacherRegistrationForm: React.FC<
 
       toast({
         title: 'Application Submitted! 🎉',
-        description: 'Welcome to Learnity! Redirecting to your dashboard...',
+        description: 'Welcome to Learnity! Please verify your email to complete your setup.',
       });
 
-      // Redirect to dashboard after successful registration
-      window.location.href = '/dashboard';
+      setRegistrationStep('verification');
     } catch (error: unknown) {
       console.error('Registration failed:', error);
       const errorMessage =
@@ -329,14 +329,25 @@ export const QuickTeacherRegistrationForm: React.FC<
           {isSimple ? (
             /* Simple Header */
             <div className='space-y-4'>
-              <div className='space-y-1 flex items-center justify-between '>
-                <h1 className='text-2xl font-bold tracking-tight'>
+              <div className='flex items-center justify-between'>
+                <div className='text-sm font-medium text-slate-500'>
+                  Step {currentStep} of {steps.length}
+                </div>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  onClick={handleBack}
+                  className='text-slate-500 hover:text-slate-900'
+                >
+                  <ChevronLeft className='h-4 w-4 mr-2' />
+                  Back
+                </Button>
+              </div>
+
+              <div className='space-y-1'>
+                <h1 className='text-2xl font-black italic uppercase tracking-tighter'>
                   Become a Teacher
                 </h1>
-                {/* <p className="text-muted-foreground">{currentStepData?.description}</p> */}
-                <span className='text-sm text-muted-foreground'>
-                  Step {currentStep} of {steps.length}
-                </span>
               </div>
 
               <div className='space-y-2'>
@@ -357,7 +368,7 @@ export const QuickTeacherRegistrationForm: React.FC<
                   onClick={handleBack}
                   className='text-gray-600 hover:text-gray-800'
                 >
-                  <ArrowLeft className='h-4 w-4 mr-2' />
+                  <ChevronLeft className='h-4 w-4 mr-2' />
                   Back
                 </Button>
                 <div className='text-sm text-gray-500'>
@@ -402,13 +413,12 @@ export const QuickTeacherRegistrationForm: React.FC<
                         <div
                           className={`
                           w-10 h-10 rounded-full flex items-center justify-center transition-all
-                          ${
-                            isCompleted
+                          ${isCompleted
                               ? 'bg-green-500 text-white'
                               : isCurrent
                                 ? 'bg-slate-500 text-white'
                                 : 'bg-gray-200 text-gray-500'
-                          }
+                            }
                         `}
                         >
                           {isCompleted ? (
@@ -418,13 +428,12 @@ export const QuickTeacherRegistrationForm: React.FC<
                           )}
                         </div>
                         <span
-                          className={`text-xs font-medium ${
-                            isCurrent
-                              ? 'text-blue-600'
-                              : isCompleted
-                                ? 'text-green-600'
-                                : 'text-gray-500'
-                          }`}
+                          className={`text-xs font-medium ${isCurrent
+                            ? 'text-blue-600'
+                            : isCompleted
+                              ? 'text-green-600'
+                              : 'text-gray-500'
+                            }`}
                         >
                           {step.title}
                         </span>
@@ -1084,12 +1093,11 @@ export const QuickTeacherRegistrationForm: React.FC<
                 <Button
                   type='button'
                   variant='outline'
-                  onClick={handlePrevious}
-                  disabled={currentStep === 1}
+                  onClick={currentStep === 1 ? handleBack : handlePrevious}
                   className='flex items-center gap-2'
                 >
-                  <ArrowLeft className='h-4 w-4' />
-                  Previous
+                  <ChevronLeft className='h-4 w-4' />
+                  {currentStep === 1 ? 'Back to Roles' : 'Previous'}
                 </Button>
 
                 {currentStep < steps.length ? (

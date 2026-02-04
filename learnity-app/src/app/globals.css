@@ -163,11 +163,13 @@ a {
 
   body {
     @apply bg-background text-foreground;
-    font-display: swap; /* Improve font loading performance */
+    font-display: swap;
+    /* Improve font loading performance */
   }
 
   /* Reduce motion for users who prefer it */
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -179,6 +181,7 @@ a {
 }
 
 @layer utilities {
+
   /* Essential utilities only */
   .transition-smooth {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);

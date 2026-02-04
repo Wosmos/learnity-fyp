@@ -20,6 +20,7 @@ export interface AuthState {
   claims: CustomClaims | null;
   profile: UserProfile | null;
   isAuthenticated: boolean;
+  isEmailVerified: boolean;
   isLoading: boolean;
   error: AuthError | null;
 
@@ -65,6 +66,7 @@ const initialState: AuthState = {
   claims: null,
   profile: null,
   isAuthenticated: false,
+  isEmailVerified: false,
   isLoading: true,
   error: null,
   registrationStep: 'role-selection',
@@ -83,6 +85,7 @@ export const useAuthStore = create<AuthStore>()(
         set(state => ({
           user,
           isAuthenticated: !!user,
+          isEmailVerified: user?.emailVerified || false,
           lastActivity: user ? new Date() : null,
         }));
       },
@@ -128,6 +131,7 @@ export const useAuthStore = create<AuthStore>()(
           claims: null,
           profile: null,
           isAuthenticated: false,
+          isEmailVerified: false,
           error: null,
           sessionExpiry: null,
           lastActivity: null,

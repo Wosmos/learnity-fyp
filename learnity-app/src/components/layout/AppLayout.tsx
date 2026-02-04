@@ -94,6 +94,9 @@ export function AppLayout({
         }
       };
       fetchProfileData();
+    } else if (!loading && !isAuthenticated) {
+      // Clear profile data when user is not authenticated
+      setProfileData(null);
     }
   }, [loading, isAuthenticated, api]);
 
@@ -183,7 +186,7 @@ export function AppLayout({
                 {/* Desktop Nav */}
                 {!hideNavigationLinks && (
                   <nav className='hidden md:flex items-center gap-1'>
-                    {isAuthenticated && showNavigation && (
+                    {isAuthenticated && user?.emailVerified && showNavigation && (
                       <Link href={dashboardRoute}>
                         <Button
                           variant='ghost'
@@ -191,7 +194,7 @@ export function AppLayout({
                           className={cn(
                             'text-slate-600 hover:text-slate-900',
                             pathname === dashboardRoute &&
-                              'bg-slate-100/50 text-slate-900'
+                            'bg-slate-100/50 text-slate-900'
                           )}
                         >
                           Dashboard
@@ -206,7 +209,7 @@ export function AppLayout({
                           className={cn(
                             'text-slate-600 hover:text-slate-900',
                             pathname === link.href &&
-                              'bg-slate-100/50 text-slate-900'
+                            'bg-slate-100/50 text-slate-900'
                           )}
                         >
                           {link.label}
@@ -219,7 +222,7 @@ export function AppLayout({
 
               {/* User Menu / Auth */}
               <div className='flex items-center gap-3'>
-                {isAuthenticated ? (
+                {isAuthenticated && user?.emailVerified ? (
                   <>
                     <Button
                       variant='ghost'
@@ -345,7 +348,7 @@ export function AppLayout({
                 className='md:hidden absolute top-full left-0 right-0 bg-white border-b border-slate-200 shadow-xl'
               >
                 <div className='px-4 py-6 space-y-6'>
-                  {isAuthenticated && (
+                  {isAuthenticated && user?.emailVerified && (
                     <div className='flex items-center gap-4 p-4 bg-slate-50 rounded-2xl'>
                       <Avatar className='h-12 w-12 border-2 border-white shadow-sm'>
                         <AvatarImage src={profileData?.profilePicture || ''} />
@@ -369,7 +372,7 @@ export function AppLayout({
                   )}
 
                   <div className='grid gap-2'>
-                    {isAuthenticated && (
+                    {isAuthenticated && user?.emailVerified && (
                       <Link
                         href={dashboardRoute}
                         onClick={() => setIsMobileMenuOpen(false)}
@@ -444,16 +447,22 @@ export function AppLayout({
 
 // Higher Order Components for protected layouts
 export function AuthenticatedLayout({ children, ...props }: AppLayoutProps) {
-  const { isAuthenticated, loading } = useClientAuth();
+  const { user, isAuthenticated, loading } = useClientAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) router.push('/auth/login');
-  }, [loading, isAuthenticated, router]);
+    if (!loading) {
+      if (!isAuthenticated) {
+        router.push('/auth/login');
+      } else if (!user?.emailVerified) {
+        router.push('/auth/verify-email');
+      }
+    }
+  }, [loading, isAuthenticated, user?.emailVerified, router]);
 
   return (
     <AppLayout {...props}>
-      {!loading && isAuthenticated ? children : null}
+      {!loading && isAuthenticated && user?.emailVerified ? children : null}
     </AppLayout>
   );
 }

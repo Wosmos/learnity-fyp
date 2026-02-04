@@ -1,154 +1,129 @@
 'use client';
 
 import {
-  Shield,
-  CheckCircle,
-  Users,
-  BookOpen,
-  Clock,
-  TrendingUp,
-  Globe,
-  Calendar,
-  MessageCircle,
+  ShieldCheck,
+  Globe2,
+  CheckCircle2,
+  CalendarCheck,
+  Flame,
+  Zap
 } from 'lucide-react';
-import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { TeacherData } from './types';
+import { SimilarTeachers } from './SimilarTeachers';
 
 interface TeacherSidebarProps {
   teacher: TeacherData;
 }
 
 export function TeacherSidebar({ teacher }: TeacherSidebarProps) {
+  const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
   return (
-    <div className='space-y-6'>
-      {/* Trust Badges */}
+    <div className='flex flex-col gap-5 sticky top-6'>
+
+      {/* 1. Identity Card: Professional Minimalist */}
       {teacher.trustBadges.length > 0 && (
-        <Card className='bg-gradient-to-br from-green-50 to-emerald-50 border-green-200'>
-          <CardContent className='p-6'>
-            <div className='flex items-center gap-2 mb-4'>
-              <Shield className='h-5 w-5 text-green-600' />
-              <h3 className='text-lg font-bold text-gray-900'>
-                Trust & Safety
-              </h3>
+        <div className='p-5 bg-white border border-slate-100 rounded-xl shadow-sm'>
+          <div className='flex items-center gap-3 mb-4'>
+            <div className='flex items-center justify-center h-8 w-8 bg-emerald-50 rounded-lg'>
+              <ShieldCheck className='h-4 w-4 text-emerald-600' />
             </div>
-            <div className='space-y-2'>
-              {teacher.trustBadges.map((badge, index) => (
-                <div
-                  key={index}
-                  className='flex items-center gap-2 p-2 bg-white rounded-lg'
-                >
-                  <CheckCircle className='h-4 w-4 text-green-600 flex-shrink-0' />
-                  <span className='text-sm text-gray-700'>{badge}</span>
-                </div>
-              ))}
+            <div>
+              <h3 className='text-[9px] font-black uppercase tracking-widest text-slate-400 leading-none mb-1'>Identity</h3>
+              <p className='text-xs font-bold text-slate-900'>Verified Mentor</p>
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Quick Stats */}
-      <Card className='border-2 border-blue-100'>
-        <CardContent className='p-6'>
-          <h3 className='text-lg font-bold text-gray-900 mb-4'>Quick Stats</h3>
-          <div className='space-y-4'>
-            <div className='flex justify-between items-center'>
-              <span className='text-gray-600'>Lessons Completed</span>
-              <span className='font-bold text-gray-900'>
-                {teacher.lessonsCompleted}+
-              </span>
-            </div>
-            <div className='flex justify-between items-center'>
-              <span className='text-gray-600'>Active Students</span>
-              <span className='font-bold text-gray-900'>
-                {teacher.activeStudents}
-              </span>
-            </div>
-            <div className='flex justify-between items-center'>
-              <span className='text-gray-600'>Response Time</span>
-              <span className='font-bold text-gray-900'>
-                {teacher.responseTime}
-              </span>
-            </div>
-            <div className='flex justify-between items-center'>
-              <span className='text-gray-600'>Teaching Style</span>
-              <span className='font-bold text-gray-900'>
-                {teacher.teachingStyle}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Languages */}
-      <Card>
-        <CardContent className='p-6'>
-          <div className='flex items-center gap-2 mb-4'>
-            <Globe className='h-5 w-5 text-blue-600' />
-            <h3 className='text-lg font-bold text-gray-900'>Languages</h3>
           </div>
           <div className='space-y-2'>
-            {teacher.languages.map((language, index) => (
-              <div key={index} className='flex items-center gap-2'>
-                <div className='w-2 h-2 bg-slate-600 rounded-full'></div>
-                <span className='text-gray-700'>{language}</span>
+            {teacher.trustBadges.map((badge, i) => (
+              <div key={i} className='flex items-center gap-2 text-[11px] font-medium text-slate-500'>
+                <CheckCircle2 className='h-3 w-3 text-emerald-500' />
+                {badge}
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      )}
 
-      {/* Availability */}
-      <Card>
-        <CardContent className='p-6'>
-          <div className='flex items-center gap-2 mb-4'>
-            <Calendar className='h-5 w-5 text-green-600' />
-            <h3 className='text-lg font-bold text-gray-900'>Availability</h3>
+      {/* 2. Availability: Emerald Tech Card */}
+      <div className='bg-slate-950 rounded-xl p-6 text-white relative overflow-hidden'>
+        {/* Subtle Background Icon */}
+        <Zap className='absolute -bottom-4 -right-4 w-20 h-20 text-emerald-500 opacity-[0.03] rotate-12' />
+
+        <div className='relative z-10'>
+          <div className='flex justify-between items-start mb-6'>
+            <div className='space-y-1'>
+              <div className='flex items-center gap-1.5'>
+                <Flame className='h-3.5 w-3.5 text-orange-500 animate-pulse' />
+                <span className='text-[9px] font-black uppercase tracking-[0.2em] text-emerald-500/80'>Availability</span>
+              </div>
+              <h4 className='text-lg font-bold tracking-tight'>Weekly Slots</h4>
+            </div>
+            <div className='flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 rounded-md'>
+              <div className='h-1 w-1 rounded-full bg-emerald-500 animate-ping' />
+              <span className='text-[9px] font-bold text-slate-300 uppercase'>Live</span>
+            </div>
           </div>
-          <div className='space-y-3'>
-            <div>
-              <div className='text-sm text-gray-500 mb-2'>Available Days</div>
-              <div className='flex flex-wrap gap-2'>
-                {teacher.availableDays.map((day, index) => (
-                  <Badge key={index} variant='outline' className='text-xs'>
+
+          {/* Availability Grid - Smaller Typography */}
+          <div className='grid grid-cols-7 gap-4 mb-6'>
+            {days.map((day, i) => {
+              const isAvailable = teacher.availableDays.some(d => d.startsWith(dayNames[i]));
+              return (
+                <div key={i} className='flex flex-col items-center gap-2'>
+                  <span className={`text-[8px] font-black ${isAvailable ? 'text-slate-200' : 'text-slate-700'}`}>
                     {day}
-                  </Badge>
-                ))}
-              </div>
+                  </span>
+                  <div
+                    className={`w-full aspect-[2/3] rounded-md transition-all duration-300 border ${isAvailable
+                        ? 'bg-emerald-500 border-emerald-400/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                        : 'bg-slate-900 border-slate-800'
+                      }`}
+                  >
+                    {isAvailable && (
+                      <div className='flex flex-col items-center justify-center h-full gap-1 opacity-30'>
+                        <div className='w-0.5 h-0.5 rounded-full bg-white' />
+                        <div className='w-0.5 h-0.5 rounded-full bg-white' />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Footer Footer Info */}
+          <div className='space-y-3 pt-4 border-t border-white/5'>
+            <div className='flex items-center justify-between text-[10px]'>
+              <span className='text-slate-500 font-bold uppercase tracking-tighter italic flex items-center gap-1'>
+                <Zap className='h-3 w-3 text-emerald-400' />
+                High Booking Rate
+              </span>
+              <span className='text-slate-400 flex items-center gap-1 font-medium'>
+                <Globe2 className='h-2.5 w-2.5' />
+                UTC+5
+              </span>
             </div>
-            <div>
-              <div className='text-sm text-gray-500 mb-2'>Preferred Times</div>
-              <div className='flex flex-wrap gap-2'>
-                {teacher.preferredTimes.map((time, index) => (
-                  <Badge key={index} variant='outline' className='text-xs'>
-                    {time}
-                  </Badge>
+
+            {/* Response Time Pill */}
+            <div className='bg-emerald-500/5 border border-emerald-500/10 rounded-lg p-2.5 flex items-center justify-between'>
+              <p className='text-[10px] font-bold text-slate-400'>
+                Response <span className='text-emerald-400 ml-1'>~{teacher.responseTime}</span>
+              </p>
+              <div className='flex -space-x-1'>
+                {[1, 2].map(i => (
+                  <div key={i} className='h-3.5 w-3.5 rounded-full border border-slate-950 bg-slate-800' />
                 ))}
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* CTA Card */}
-      <Card className='bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200'>
-        <CardContent className='p-6 text-center'>
-          <MessageCircle className='h-12 w-12 text-blue-600 mx-auto mb-4' />
-          <h3 className='text-lg font-bold text-gray-900 mb-2'>
-            Ready to Start?
-          </h3>
-          <p className='text-sm text-gray-600 mb-4'>
-            Book your first lesson with {teacher.firstName} today
-          </p>
-          <Link href='/auth/register/student'>
-            <Button variant='gradient' className='w-full'>
-              Get Started
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+      <SimilarTeachers
+        teacherId={teacher.id}
+        subjects={teacher.subjects}
+        teacherName={teacher.name}
+      />
     </div>
   );
 }

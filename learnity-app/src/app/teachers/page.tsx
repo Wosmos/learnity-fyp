@@ -19,7 +19,7 @@ import { TeachersGrid } from '@/components/teachers/TeachersGrid';
 import { Button } from '@/components/ui/button';
 import { PlatformStatsWithSuspense } from '@/components/shared/PlatformStats';
 import { prefetchTeachersPage } from '@/lib/services/prefetch.service';
-import { Hero, SectionHeader } from '@/components/externals';
+import { CTA, Hero, SectionHeader } from '@/components/externals';
 import { cn } from '@/lib/utils';
 
 export const metadata = {
@@ -68,130 +68,12 @@ export default async function TeachersPage() {
             }
           />
 
-          {/* Top Rated Teachers Preview */}
-          {teachersData?.topRatedTeachers &&
-            teachersData.topRatedTeachers.length > 0 && (
-              <section className='py-20 relative overflow-hidden'>
-                {/* Decorative Background Element */}
-                <div className='absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-50/30 rounded-full blur-[120px] -z-10' />
-
-                <div className='container mx-auto px-6'>
-                  <SectionHeader
-                    title='Top Rated'
-                    highlightWord='Mentors'
-                    description='Access the highest-rated educators in our network, verified for elite-level instruction.'
-                  />
-
-                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto'>
-                    {teachersData?.topRatedTeachers
-                      ?.slice(0, 6)
-                      .map((teacher, index) => (
-                        <div
-                          key={teacher.id}
-                          className='group relative bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_60px_-15px_rgba(79,70,229,0.15)] transition-all duration-500 hover:-translate-y-3'
-                        >
-                          {/* Status Overlay */}
-                          <div className='absolute top-6 right-8 flex items-center gap-1.5'>
-                            <span className='w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse' />
-                            <span className='text-[9px] font-black uppercase tracking-widest text-slate-400'>
-                              Online
-                            </span>
-                          </div>
-
-                          <div className='text-center'>
-                            {/* Avatar Hex-Frame */}
-                            <div className='relative w-28 h-28 mx-auto mb-6'>
-                              <div className='absolute inset-0 bg-indigo-600 rounded-[2rem] rotate-6 group-hover:rotate-12 transition-transform duration-500 opacity-10' />
-                              <div className='relative w-full h-full bg-slate-900 rounded-[2rem] flex items-center justify-center text-white font-black text-3xl italic overflow-hidden border-4 border-white shadow-xl'>
-                                {teacher.profilePicture ||
-                                teacher.teacherProfile?.profilePicture ? (
-                                  <img
-                                    src={
-                                      (teacher.profilePicture ||
-                                        teacher.teacherProfile
-                                          ?.profilePicture) as string
-                                    }
-                                    alt={`${teacher.firstName} ${teacher.lastName}`}
-                                    className='absolute inset-0 w-full h-full object-cover grayscale-[0.5] group-hover:grayscale-0 transition-all duration-500'
-                                  />
-                                ) : (
-                                  <span className='z-10'>
-                                    {teacher.firstName[0]}
-                                    {teacher.lastName[0]}
-                                  </span>
-                                )}
-                                {/* Subtle Gradient Overlay */}
-                                <div className='absolute inset-0 bg-gradient-to-br from-indigo-500/40 to-transparent pointer-events-none' />
-                              </div>
-                            </div>
-
-                            {/* Name & Title */}
-                            <h3 className='font-black text-slate-900 text-xl uppercase italic tracking-tighter leading-none mb-2'>
-                              {teacher.firstName} {teacher.lastName}
-                            </h3>
-
-                            <div className='flex flex-wrap justify-center gap-1 mb-6'>
-                              {teacher.teacherProfile?.subjects
-                                ?.slice(0, 2)
-                                .map(s => (
-                                  <span
-                                    key={s}
-                                    className='text-[10px] font-bold uppercase tracking-tighter px-2.5 py-1 bg-slate-50 text-slate-500 rounded-lg border border-slate-100'
-                                  >
-                                    {s}
-                                  </span>
-                                ))}
-                            </div>
-
-                            {/* Tactical Metrics Grid */}
-                            <div className='grid grid-cols-2 gap-2 mb-6'>
-                              <div className='bg-slate-50/80 rounded-2xl p-3 border border-slate-100/50'>
-                                <div className='flex items-center justify-center text-amber-500 mb-1'>
-                                  <Star className='w-3 h-3 fill-current mr-1' />
-                                  <span className='text-xs font-black'>
-                                    {Number(
-                                      teacher.teacherProfile?.rating || 0
-                                    ).toFixed(1)}
-                                  </span>
-                                </div>
-                                <p className='text-[8px] font-black uppercase tracking-widest text-slate-400'>
-                                  Rating
-                                </p>
-                              </div>
-                              <div className='bg-slate-50/80 rounded-2xl p-3 border border-slate-100/50'>
-                                <div className='flex items-center justify-center text-indigo-600 mb-1'>
-                                  <BookOpen className='w-3 h-3 mr-1' />
-                                  <span className='text-xs font-black'>
-                                    {teacher.teacherProfile?.lessonsCompleted ||
-                                      0}
-                                  </span>
-                                </div>
-                                <p className='text-[8px] font-black uppercase tracking-widest text-slate-400'>
-                                  Sessions
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Bio Line-clamp */}
-                            <p className='text-[11px] font-medium text-slate-500 leading-relaxed italic mb-6 line-clamp-2'>
-                              "
-                              {teacher.teacherProfile?.bio ||
-                                'Certified specialist in advanced linguistic protocols and rapid fluency.'}
-                              "
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </section>
-            )}
 
           {/* All Teachers Grid */}
           <section className='py-20 bg-gray-50'>
             <div className='container mx-auto px-4'>
               <SectionHeader
-                title='All'
+                title='Our'
                 highlightWord='Teachers'
                 description='Browse our complete selection of qualified tutors across various subjects.'
               />
@@ -313,6 +195,21 @@ export default async function TeachersPage() {
               </div>
             </div>
           </section>
+          {/* CTA Section */}
+          <CTA
+            title='Ready to start learning?'
+            description='Join thousands of active learners and connect with expert tutors today. Your learning journey starts here.'
+            primaryAction={{
+              label: 'Find your tutor',
+              href: '/teachers',
+              variant: 'ctaSecondary',
+            }}
+            secondaryAction={{
+              label: 'Become a Tutors',
+              href: '/auth/register/teacher',
+              variant: 'outline',
+            }}
+          />
         </div>
       </div>
     </PublicLayout>

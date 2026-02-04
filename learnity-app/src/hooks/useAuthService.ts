@@ -142,6 +142,14 @@ export const useAuthService = (): AuthServiceHooks => {
       try {
         const result = await clientAuthService.login(data);
         if (result.success && result.user) {
+          // Check for email verification
+          if (!result.user.emailVerified) {
+            setUser(result.user);
+            throw {
+              code: AuthErrorCode.EMAIL_NOT_VERIFIED,
+              message: 'Your email address is not verified. Please verify your email to access your account.',
+            };
+          }
           setUser(result.user);
           // Claims will be set by the auth provider
         } else {
@@ -164,6 +172,14 @@ export const useAuthService = (): AuthServiceHooks => {
       try {
         const result = await clientAuthService.socialLogin(provider);
         if (result.success && result.user) {
+          // Check for email verification
+          if (!result.user.emailVerified) {
+            setUser(result.user);
+            throw {
+              code: AuthErrorCode.EMAIL_NOT_VERIFIED,
+              message: 'Your email address is not verified. Please verify your email to access your account.',
+            };
+          }
           setUser(result.user);
           // Claims will be set by the auth provider
         } else {

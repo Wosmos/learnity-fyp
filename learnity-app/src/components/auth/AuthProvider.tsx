@@ -161,8 +161,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       clearProfile();
 
       // 3. Clear all cached data
-      localStorage.removeItem('learnity_user_claims');
-      localStorage.removeItem('learnity-auth-storage'); // Zustand persist key
+      if (typeof window !== 'undefined') {
+        // Clear all learnity/firebase/auth related items from localStorage
+        const keysToRemove = Object.keys(localStorage).filter(
+          key =>
+            key.startsWith('learnity-') ||
+            key.startsWith('firebase-') ||
+            key.startsWith('auth-')
+        );
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+
+        // Clear specific known keys just in case
+        localStorage.removeItem('learnity_user_claims');
+        localStorage.removeItem('learnity-auth-storage');
+
+        // Clear sessionStorage
+        sessionStorage.clear();
+
+        // Clear any auth-related cookies
+        document.cookie.split(';').forEach(cookie => {
+          const eqPos = cookie.indexOf('=');
+          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+          if (
+            name.includes('auth') ||
+            name.includes('session') ||
+            name.includes('token')
+          ) {
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+          }
+        });
+      }
 
       // 4. Hard redirect to clear everything in memory
       window.location.href = '/auth/login';
@@ -495,9 +523,8 @@ export const withAuth = <P extends object>(
     </AuthProvider>
   );
 
-  WrappedComponent.displayName = `withAuth(${
-    Component.displayName || Component.name
-  })`;
+  WrappedComponent.displayName = `withAuth(${Component.displayName || Component.name
+    })`;
   return WrappedComponent;
 };
 
