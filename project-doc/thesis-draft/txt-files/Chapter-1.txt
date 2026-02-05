@@ -1,0 +1,68 @@
+PROJECT OVERVIEW********** 
+In the era of Science and technology everything is evolving at a rapid pace including the 
+department of education e- learning has evolved to website and mobile applications which make 
+ease for the students learning where schools and colleges are limited and quality of education is 
+not good. International platforms like coursea and khan academy covers an audience of 
+international students. That said, there are no dedicated platform for the students of Pakistan, 
+especially in the province of Sindh. There are youtube, and whatsapp groups but those are 
+inconsistent and don't cover a huge part of the courses taught in school. There is a need for an 
+online learning platform which is engineered to cater the education of the Sindh Board 
+curriculum.This platform facilitates both the teachers providing their expertise and the student 
+using the platform to avail those expertise.Educators can offer students high quality 
+syllabus-aligned instruction regardless of their city or rural location. This project solves their 
+problem by providing a localized tutoring platform which gives them proper guidelines 
+ABSTRACT: 
+Students have been facing problems in the online learning space due to the absence of a 
+platform that covers the Sindh Board Curriculum. This project, “LEARNITY” solves this problem 
+by providing students a platform that is focused on delivering dedicated courses and education 
+which are aligned with the curriculum of Sindh which makes learning smart and hassle-free. 
+Learnity is designed to facilitate and build a direct connection between the subject specialist and 
+student. Once a student registers on the website, he/she select courses of their own choice and 
+start learning. Teachers also register on the website and offer student courses of their specialty, 
+teacher are ranked based on their performance and teaching expertise. This project will also 
+help with collaborative learning 
+The role of the administrator is that he/she will have full access of website and be able to 
+access user data, control information between teachers and students, check profiles for errors 
+and bugs, and supervise the system to ensure the safety of user data. 
+INTRODUCTION 
+The educational department in Pakistan, especially in the province of Sindh, there is a need for 
+an e-learning platform because most of the students today learn through online courses and 
+material available on the internet, which gives them a huge advantage when compared to other 
+entities and schools. While international platforms like Khan Academy and Coursera provide 
+digital learning, they differ from the local education in Sindh, and are built for an international 
+audience; even most of the e-learning platforms in Pakistan are focused on O-level studies and 
+higher education. This has resulted in a gap where students of Sindh, from grades 1 to 12, do 
+not have a digital platform that meets their board requirements. 
+Currently, the current state of affairs, where the lack of consistency in tools such as WhatsApp 
+and YouTube has brought to the fore the need for a more organized and role-specific web 
+service, has been addressed by this project, which is a localized tutoring website, and aims to 
+fill this gap by providing a platform for teachers and students from various cities and rural areas 
+of the province to connect. Through the provision of a “side” networked to the Sindh Board 
+curriculum, this website enables teachers to utilize their knowledge and students to continue 
+their education with complete guidance. 
+OBJECTIVES 
+The main aim of this study is to develop a localized web-based tutoring system specifically 
+designed and developed for the students and teachers of the Sindh province. 
+To accomplish the main objective, the following specific objectives have been set: 
+To Develop a Centralized Resource Hub: To develop a system that enables students to easily 
+access Sindh Board-compatible learning resources, study notes, and academic notifications in 
+one centralized location 
+.To Facilitate Remote Tutoring: To develop a system that enables a digital space for teachers 
+and students from different cities to interact for online learning, thereby overcoming the 
+geographical constraints of a conventional school. 
+To Streamline Academic Management: To develop a system that enables automated 
+management of assignments, course timetables, and student performance, which were 
+previously managed manually. 
+To Enable Teacher Monetization: To develop a system that enables a secure platform for 
+qualified teachers to monetize their knowledge and receive payment for their courses. 
+To Improve Learning Flexibility: To develop a system that enables quality education to be 
+accessible to students in both urban and rural Sindh through an intuitive web-based interface. 
+SCOPE 
+The scope of Learnity is to provide an e-learning platform specifically designed for the Sindh 
+Board curriculum from Grade 1 to 12, where students and teachers can make accounts to 
+interact with syllabus-aligned courses and video lectures. The platform have responsive web 
+and Android-based interface. The teachers are empowered to manage their own specialized 
+study materials and monetize their courses, while the students are able to access the study 
+materials, participate in quizzes, and attend live classes. Additionally, the system is made for 
+collaborative learning with chats, comments, and discussion forums that enable effective 
+communication between teachers and students regardless of their location. 

@@ -5,7 +5,7 @@ import { ChevronLeft } from 'lucide-react';
 import { RegistrationFlow } from '@/components/auth';
 import { useAuthService } from '@/hooks/useAuthService';
 import { AuthProvider } from '@/components/auth/AuthProvider';
-import LedtSideSection from '@/components/auth/LedtSideSection';
+import LeftSideSection from '@/components/auth/LeftSideSection';
 import { Button } from '@/components/ui/button';
 
 export default function RegisterPage() {
@@ -15,7 +15,7 @@ export default function RegisterPage() {
     <AuthProvider>
       <div className='min-h-screen bg-slate-50 lg:flex'>
         {/* Left Side - Branding (Desktop Only) */}
-        <LedtSideSection />
+        <LeftSideSection />
 
         {/* Right Side - Registration Flow */}
         <div className='flex-1 flex flex-col p-4 sm:p-8 lg:p-12 bg-white lg:bg-transparent overflow-y-auto h-screen relative'>

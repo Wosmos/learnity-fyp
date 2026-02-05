@@ -338,7 +338,7 @@ export default async function Home() {
                 variant: 'ctaSecondary',
               }}
               secondaryAction={{
-                label: 'Become a Tutors',
+                label: 'Become a Tutor',
                 href: '/auth/register/teacher',
                 variant: 'outline',
               }}

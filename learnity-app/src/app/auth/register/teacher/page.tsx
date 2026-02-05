@@ -10,7 +10,7 @@ import { AuthProvider } from '@/components/auth/AuthProvider';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { UserRole } from '@/types/auth';
 import { QuickTeacherRegistrationData } from '@/lib/validators/quick-teacher-registration';
-import LedtSideSection from '@/components/auth/LedtSideSection';
+import LeftSideSection from '@/components/auth/LeftSideSection';
 import { Button } from '@/components/ui/button';
 
 export default function TeacherRegisterPage() {
@@ -43,7 +43,7 @@ export default function TeacherRegisterPage() {
     <AuthProvider>
       <div className='min-h-screen bg-slate-50 lg:flex'>
         {/* Left Side - Branding (Desktop Only) */}
-        <LedtSideSection
+        <LeftSideSection
           title='Inspire the Next Generation'
           subtitle='Share your knowledge, mentor motivated students, and build your professional teaching portfolio.'
         />

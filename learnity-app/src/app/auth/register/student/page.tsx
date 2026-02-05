@@ -10,7 +10,7 @@ import { AuthProvider } from '@/components/auth/AuthProvider';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { UserRole } from '@/types/auth';
 import { StudentRegistrationData } from '@/lib/validators/auth';
-import LedtSideSection from '@/components/auth/LedtSideSection';
+import LeftSideSection from '@/components/auth/LeftSideSection';
 import { Button } from '@/components/ui/button';
 
 export default function StudentRegisterPage() {
@@ -38,7 +38,7 @@ export default function StudentRegisterPage() {
       <div className='min-h-screen bg-white lg:flex'>
 
         {/* Branding - Static Left Side */}
-        <LedtSideSection />
+        <LeftSideSection />
 
         {/* Right Side - Functional Area */}
         <div className='flex-1 flex flex-col min-h-screen relative bg-slate-50/50 lg:bg-white'>

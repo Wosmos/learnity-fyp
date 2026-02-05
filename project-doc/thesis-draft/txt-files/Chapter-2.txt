@@ -1,0 +1,142 @@
+CHAPTER 2: BACKGROUND AND LITERATURE REVIEW 
+2.1 Introduction 
+Learnity is a web application e-learning platform especially designed for Pakistani 
+students to get education online from the best tutors out there, according to their 
+particular board curriculum. Learnity enables students to select tutors of their 
+convenience and can interact with teachers through daily tasks assigned by teachers, 
+and parents can track their progress reports with the help of our gamification system. 
+Tutors can set their own prices, enabling tutors to not only earn but also teach from their 
+place. 
+2.2 Online Tutoring and Educational Technology 
+2.2.1 Evolution of Online Education 
+Online education has come a long way in past years, from being a mere content 
+delivery platform to an advanced interactive platform. This fast development of 
+technology allowed the students and tutors to interact and share information through 
+their device.Not only this our online tutoring technology is still progressing, integrating 
+video conferencing, resource sharing, interactive whiteboards, and adaptive learning 
+systems. 
+In modern life,tutoring platforms have become an essential component of the modern 
+learner’s life. It is also beneficial for struggling students who lack in studies due to lack 
+of focus , in online tutoring they can control the video according to their pace.  
+2.2.2 Market Growth and Demand 
+The global online tutoring services market has seen significant growth, with a value of 
+$7.69 billion in 2022 and a compound annual growth rate of 14.9% from 2023 to 2030. 
+This is due to increasing use of smart devices and also the COVID-19 pandemic had 
+also increased the consumption of online education. 
+2.2.3 Key Features of Effective Online Tutoring Platforms 
+Some important elements that makes online tutoring platforms successful are virtual 
+whiteboards, gamification system, video conferencing, and other collaborative tools. 
+Accessibility elements like, language support, hearing and visual accessibility and 
+compatibility with devices ensure that the platforms covers a wide range of users. 
+Data security and privacy is taken care of by encryption of communication, safe and 
+authorized storage of data, strict privacy policies, and authentication techniques for 
+users. Some websites or platforms are also using the combination of AI and machine 
+learning to offer personalized learning based on the learning style  of each individual 
+student. 
+2.3 Peer-to-Peer Learning 
+Peer-to-peer learning, also referred to as collective or group besed or shared  learning, 
+in which students of same batch assist each other in gaining knowledge and skills. The 
+idea of peer learning has been around from old times to improve literacy and healthy 
+competition among students. 
+Modern studies have widely verified the advantages of peer learning. Research has 
+shown that the process of teaching others about recently acquired knowledge helps 
+individuals to better memorization of things. 
+2.3.1 Benefits of Peer Instruction 
+Peer instruction is effective for learning, the answers and confidence levels of students 
+before and after peer discussion were analyzed in several classes. The results showed 
+that peer discussion of questions increased accuracy in all classes and grades. 
+Peer instruction supports learning in several ways. First, it produces new knowledge 
+through the process of explanation and perspective sharing. Second, peer instruction 
+enhances metacognition by encouraging more thorough checks of the coherence of 
+answers. Third, social processes aid students in monitoring and regulating their 
+cognition more effectively than self-explanation. Studies have shown that people 
+actively participating in peer learning activities are one and a half times more likely to 
+successfully finish their studies and pass exams than those who are passive consumers 
+of content. 
+2.4 Web Technologies for Educational Platforms 
+2.4.1 Technologies used in Web Development 
+Frontend: Next.js, Tailwind CSS. 
+Backend: Node.js, Nest.js(Typescript). 
+Database: Neon Database(PostgreSQL), MongoDB Atlas, Firebase. 
+Design Tool: Figma + Stitch. 
+Version Control: GitHub, GitHub Actions(CI/CD). 
+Deployment: Vercel (frontend), AWS (backend). 
+Other tools: VS Code, Postman, JWT, Bcrypt. 
+2.4.2 Creating Dynamic and Interactive Websites 
+Dynamic websites are different from static websites in terms of their interactivity, 
+dynamic content and content consumption by users . Node.js allows programmers to 
+create server-side application that can handle user input, data manipulation, and 
+requests from user. Dynamic websites are perfect fit for educational website that 
+requires personalized user experience, safe & authorize login, and content 
+recommendations according to data provided by user. 
+Modern web development emphasizes on responsive design to ensure users best 
+experience on any device. Responsive web design techniques uses flexible design, 
+media queries, and adaptive images to design user interfaces that are smooth on 
+computers, tablets, and smartphones. Responsive design are useful for an educational 
+website because users may access the website using different devices depending on 
+their convenience. 
+2.4.3 Security Considerations 
+Security is a major concern in web application development, especially in educational 
+websites that deal with private user data and process financial transactions. Security 
+best practices include the use of strong authentication systems, the verification and 
+validation of all user input to avoid SQL injection attacks, strong access control to user, 
+and the encryption of sensitive data. 
+2.5 Intelligent Tutoring Systems and Adaptive Learning 
+2.5.1 Artificial Intelligence in Education 
+Intelligent Tutoring Systems (ITS) are computer programs that encourage human tutors 
+by providing personalized learning and feedback to students. ITS have been shown to 
+increase students' performance by some ratio compared to conventional learning 
+approaches. ITS use artificial intelligence technologies like machine learning to provide 
+students with interactive and personalized learning experiences. 
+AI-based ITS differ from conventional tutoring approaches is that they provide cdynamic 
+learning curriculam that adjust to students' performance, real-time feedback systems, 
+gamification system to track reports and interactive learning. 
+2.5.2 Personalization and Adaptive Learning 
+Personalization in educational technology is the process of adapting learning to the 
+individual requirements, individual preferences, and individual `s learning style. Adaptive 
+learning systems use data from student performance or record and provides 
+personalized learning materials, and guide students the areas where they require extra 
+effort or learning. 
+2.6 Challenges and Considerations 
+2.6.1 Digital Divide and Accessibility 
+Although there are great numberof benefits of online tutoring platforms but the digital 
+divide is still a major hurdle. Students belonging to lower-income classes or living in 
+rural areas may not have regular access to high speed internet connectivity, computers, 
+phones or quiet study space or environment that are suitable for online tutoring. These 
+reason can cause  increase of gap in education instead of reducing it. 
+To overcome these issues, Plans or techniques such as optimizing platforms for 
+low-bandwidth connectivity, consumption of UI friendly design for students using 
+smartphones, allowing offline access to notes or materials , and collaborating with local 
+organizations to provide access points in rural areas. Otherwise, online tutoring may 
+lead to educational inequality. 
+2.6.2 Maintaining Engagement and Social Connection 
+Online learning platforms can also be unpleasant even when video conferencing and 
+messaging options are available, especially for younger learners who can greatly 
+benefit from direct human interaction. Conventional teaching approaches can also 
+encourage better student-teacher relationships than online interactions. Problems 
+include the sense of recognizing that student is getting  bored or zoning out between the 
+lecture, limiting our regular conventional learning can cause health risks associated with 
+prolonged screen time and procrastination. 
+Online tutoring platforms therefore must include functionality that encourages 
+engagement and interaction, such as interactive learning exercises and activities, 
+opportunities for group work, and mechanisms for question answer between the 
+lectures, as well as breaks to avoid fatigue. Combining both approaches is the best way 
+to strengthen the learning and social life. 
+2.7 Related Work and Existing Platforms 
+There are a number of established platforms that offer reference for the development of 
+Learnity. Preply, a popular online tutoring marketplace, allows students to be matched 
+with tutors for a variety of subjects and languages, using advanced matching 
+algorithms, video conferencing tools, and scheduling systems. 
+Other platforms are international and their target audience are mostly Cambridge 
+students but our Learnity platform enables student from all boards in Pakistan to select 
+courses according to their particular board curriculum right now we are only focusing on 
+Sindh province. 
+2.8 Summary 
+The summary is that online tutoring systems are a major and ever-growing area in 
+educational technology.The concept of peer-to-peer learning, along with advancements 
+in web technology and artificial intelligence, provides flexible, affordable and curriculum 
+dependent education. Learnity is developed to make learning easy by connecting 
+students and tutors online. The main objective of learnity is to provide a local web based 
+platform for the students and teachers of Sindh province of Pakistan. Learnity platform 
+to facilitate remote tutoring, to improve learning flexibility and to enable teacher 
+monetization. 

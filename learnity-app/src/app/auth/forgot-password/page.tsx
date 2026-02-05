@@ -13,7 +13,7 @@ import { PasswordResetRequestForm } from '@/components/auth';
 import { useAuthService } from '@/hooks/useAuthService';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { Button } from '@/components/ui/button';
-import LedtSideSection from '@/components/auth/LedtSideSection';
+import LeftSideSection from '@/components/auth/LeftSideSection';
 
 export default function ForgotPasswordPage() {
   const { requestPasswordReset } = useAuthService();
@@ -33,7 +33,7 @@ export default function ForgotPasswordPage() {
   return (
     <AuthProvider>
       <div className='min-h-screen w-full flex'>
-        <LedtSideSection />
+        <LeftSideSection />
 
         {/* Right Panel */}
         <div className='w-full lg:w-1/2 bg-white flex flex-col justify-center items-center p-8 lg:p-12 relative'>

@@ -15,7 +15,7 @@ import { useClientAuth } from '@/hooks/useClientAuth';
 import { AuthDebugInfo } from '@/components/debug/AuthDebugInfo';
 import { getDashboardRoute } from '@/lib/utils/auth-redirect.utils';
 import { Button } from '@/components/ui/button';
-import LedtSideSection from '@/components/auth/LedtSideSection';
+import LeftSideSection from '@/components/auth/LeftSideSection';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,7 +67,7 @@ function LoginPageContent() {
   return (
     <div className='min-h-screen w-full flex'>
       {/* Left Panel - Branding & Visuals (Hidden on mobile) */}
-      <LedtSideSection />
+      <LeftSideSection />
 
       {/* Right Panel - Login Form */}
       <div className='w-full lg:w-1/2 bg-white flex flex-col justify-center items-center p-8 lg:p-12 relative'>
