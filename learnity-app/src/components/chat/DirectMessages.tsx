@@ -50,9 +50,14 @@ interface DMChannel {
 interface DirectMessagesProps {
   className?: string;
   onClose?: () => void;
+  initialOtherUserId?: string;
 }
 
-export function DirectMessages({ className, onClose }: DirectMessagesProps) {
+export function DirectMessages({
+  className,
+  onClose,
+  initialOtherUserId,
+}: DirectMessagesProps) {
   const { user } = useAuthStore();
   const { client, isConnected, isLoading: clientLoading } = useChatClient();
 
@@ -79,7 +84,12 @@ export function DirectMessages({ className, onClose }: DirectMessagesProps) {
 
         if (response.ok) {
           const data = await response.json();
-          setChannels(data.data.channels || []);
+          const channelList = data.data.channels || [];
+          setChannels(channelList);
+
+          if (initialOtherUserId) {
+            handleInitialUser(initialOtherUserId, channelList, token);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch DM channels:', error);
@@ -89,7 +99,66 @@ export function DirectMessages({ className, onClose }: DirectMessagesProps) {
     };
 
     fetchChannels();
-  }, [user]);
+  }, [user]); // Removed initialOtherUserId from deps to prevent loop if it changes, though usually it's stable.
+
+  // Helper to handle initial selection or creation
+  const handleInitialUser = async (
+    targetUserId: string,
+    currentChannels: DMChannel[],
+    token: string
+  ) => {
+    // 1. Check if channel already exists locally
+    const existing = currentChannels.find(
+      c => c.otherUser?.id === targetUserId
+    );
+
+    if (existing) {
+      handleSelectChannel(existing);
+      return;
+    }
+
+    // 2. If not, create it via API
+    try {
+      const res = await fetch('/api/chat/direct', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId: targetUserId }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const newChannel = data.data;
+        // Add to list and select
+        setChannels(prev => [newChannel, ...prev]);
+
+        // We need to wait for client to be ready? client is dependency of handleInitialUser via closure if used there?
+        // Actually handleSelectChannel uses `client`.
+        // If client is not ready, this might fail.
+        // We should probably useEffect on `isConnected` to trigger this too if pending.
+      }
+    } catch (err) {
+      console.error('Error creating initial chat:', err);
+    }
+  };
+
+  // Effect to sync selection when client becomes ready or channel is added
+  useEffect(() => {
+    if (!client || !isConnected || !initialOtherUserId) return;
+
+    // Attempt to find the channel corresponding to initialOtherUserId
+    // This is a bit tricky because we need the streamChannelId.
+    // We rely on `channels` state being populated.
+
+    if (channels.length > 0 && !selectedChannel) {
+      const target = channels.find(c => c.otherUser?.id === initialOtherUserId);
+      if (target) {
+        handleSelectChannel(target);
+      }
+    }
+  }, [client, isConnected, channels, initialOtherUserId]);
 
   // Select a channel
   const handleSelectChannel = async (dmChannel: DMChannel) => {
@@ -116,7 +185,7 @@ export function DirectMessages({ className, onClose }: DirectMessagesProps) {
       <Card className={className}>
         <CardContent className='flex flex-col items-center justify-center h-96 gap-4'>
           <Loader2 className='h-8 w-8 animate-spin text-indigo-600' />
-          <p className='text-slate-500'>Loading messages...</p>
+          <p className='text-slate-500'>Loading conversations...</p>
         </CardContent>
       </Card>
     );
@@ -125,8 +194,10 @@ export function DirectMessages({ className, onClose }: DirectMessagesProps) {
   // Channel list view
   if (!selectedChannel) {
     return (
-      <Card className={cn('overflow-hidden', className)}>
-        <CardHeader className='border-b bg-slate-50/50 py-3'>
+      <Card
+        className={cn('overflow-hidden flex flex-col h-[600px]', className)}
+      >
+        <CardHeader className='border-b bg-slate-50/50 py-3 shrink-0'>
           <div className='flex items-center justify-between'>
             <CardTitle className='text-lg flex items-center gap-2'>
               <MessageCircle className='h-5 w-5 text-indigo-600' />
@@ -135,9 +206,9 @@ export function DirectMessages({ className, onClose }: DirectMessagesProps) {
             <Badge variant='secondary'>{channels.length}</Badge>
           </div>
         </CardHeader>
-        <CardContent className='p-0'>
+        <CardContent className='p-0 flex-1 flex flex-col min-h-0'>
           {/* Search */}
-          <div className='p-3 border-b'>
+          <div className='p-3 border-b shrink-0'>
             <div className='relative'>
               <Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400' />
               <Input
@@ -150,11 +221,11 @@ export function DirectMessages({ className, onClose }: DirectMessagesProps) {
           </div>
 
           {/* Channel list */}
-          <ScrollArea className='h-[400px]'>
+          <ScrollArea className='flex-1'>
             {filteredChannels.length === 0 ? (
               <div className='flex flex-col items-center justify-center h-64 gap-3 text-slate-500'>
                 <MessageCircle className='h-10 w-10 text-slate-300' />
-                <p className='text-sm'>No conversations yet</p>
+                <p className='text-sm'>No conversations found</p>
               </div>
             ) : (
               <div className='divide-y'>
@@ -187,7 +258,7 @@ export function DirectMessages({ className, onClose }: DirectMessagesProps) {
                       <p className='text-xs text-slate-500'>
                         {channel.lastMessageAt
                           ? new Date(channel.lastMessageAt).toLocaleDateString()
-                          : 'No messages yet'}
+                          : 'Start a conversation'}
                       </p>
                     </div>
                   </button>
@@ -202,8 +273,8 @@ export function DirectMessages({ className, onClose }: DirectMessagesProps) {
 
   // Chat view
   return (
-    <Card className={cn('overflow-hidden', className)}>
-      <CardHeader className='border-b bg-slate-50/50 py-3'>
+    <Card className={cn('overflow-hidden flex flex-col h-[600px]', className)}>
+      <CardHeader className='border-b bg-slate-50/50 py-3 shrink-0'>
         <div className='flex items-center gap-3'>
           <Button
             variant='ghost'
@@ -234,7 +305,7 @@ export function DirectMessages({ className, onClose }: DirectMessagesProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className='p-0 h-[450px]'>
+      <CardContent className='p-0 flex-1 min-h-0 relative'>
         {client ? (
           <Chat client={client} theme='str-chat__theme-light'>
             <Channel channel={selectedChannel}>

@@ -71,7 +71,7 @@ const LeftSideSection = ({
             <span>Top-rated education platform</span>
           </div>
           
-          <h1 className="text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-slate-500 italic uppercase">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-slate-500 italic uppercase">
             {title}
           </h1>
 

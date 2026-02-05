@@ -33,6 +33,7 @@ import {
   Play,
   Lock,
   Layers,
+  MessageCircle,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -77,6 +78,7 @@ export interface SidebarConfig {
 const teacherNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard/teacher', icon: Home },
   { label: 'My Courses', href: '/dashboard/teacher/courses', icon: BookOpen },
+  { label: 'Chat', href: '/Chat', icon: MessageCircle },
   {
     label: 'Create Course',
     href: '/dashboard/teacher/courses/new',
@@ -90,7 +92,8 @@ const teacherNavItems: NavItem[] = [
 const studentNavItems: NavItem[] = [
   { label: 'Home', href: '/dashboard/student', icon: Home },
   { label: 'Courses', href: '/dashboard/student/courses', icon: BookOpen },
-  { label: 'Browse', href: '/dashboard/student/public-cources', icon: Search },
+  { label: 'Browse Courses', href: '/dashboard/student/public-cources', icon: Search },
+  { label: 'Chat', href: '/Chat', icon: MessageCircle },
   {
     label: 'Progress',
     href: '/dashboard/student/progress',
