@@ -1,26 +1,28 @@
-Chapter 3: ANALYSIS AND DESIGN
+Chapter 2: ANALYSIS AND DESIGN
 
-3.1 INTRODUCTION
+2.1 INTRODUCTION
 Before determining the final architecture, we conducted a thorough analysis of the requirements. "Learnity" is not just a content repository; it is a complex social learning platform. This chapter documents the system's design using standard UML diagrams, including Use Case, Entity Relationship, Activity, and Sequence diagrams. These diagrams served as the blueprint for our development process.
 
-3.2 SYSTEM REQUIREMENTS
+2.2 SYSTEM REQUIREMENTS
 We categorized our requirement into functional (what the user can do) and non-functional (how the system behaves).
 
-**3.2.1 Functional Requirements**
-*   **User Management:** Secure registration/login via Email & Google OAuth (NextAuth).
-*   **Course Delivery:** Hierarchical structure (Course > Section > Lesson) with video playback.
-*   **Gamification Engine:** Real-time XP tracking, daily streaks, and level progression logic.
-*   **Real-Time Communications:**
-    *   **Chat:** Persistent, channel-based chat for each course.
-    *   **Video:** Live, low-latency (<50ms) classroom streaming.
-*   **Monetization:** Payment verification workflow (uploading receipts for admin approval) + simulated gateway.
+**2.2.1 Functional Requirements**
 
-**3.2.2 Non-Functional Requirements**
-*   **Scalability:** Must handle 1000+ concurrent connections (via Serverless Actions).
-*   **Availability:** 99.9% uptime (via Vercel Edge Network).
-*   **Data Integrity:** ACID compliance for all financial and academic records (PostgreSQL).
+- **User Management:** Secure registration/login via Email & Google OAuth (NextAuth).
+- **Course Delivery:** Hierarchical structure (Course > Section > Lesson) with video playback.
+- **Gamification Engine:** Real-time XP tracking, daily streaks, and level progression logic.
+- **Real-Time Communications:**
+  - **Chat:** Persistent, channel-based chat for each course.
+  - **Video:** Live, low-latency (<50ms) classroom streaming.
+- **Monetization:** Payment verification workflow (uploading receipts for admin approval) + simulated gateway.
 
-3.3 USE CASE MODELING
+**2.2.2 Non-Functional Requirements**
+
+- **Scalability:** Must handle 1000+ concurrent connections (via Serverless Actions).
+- **Availability:** 99.9% uptime (via Vercel Edge Network).
+- **Data Integrity:** ACID compliance for all financial and academic records (PostgreSQL).
+
+2.3 USE CASE MODELING
 The Use Case diagram below illustrates the comprehensive interaction between the primary actors (Student, Teacher, Admin) and the system.
 
 ```mermaid
@@ -32,7 +34,7 @@ usecaseDiagram
     package "Learnity Eco-System" {
         usecase "Register/Login" as UC1
         usecase "Manage Profile" as UC_Profile
-        
+
         package "Course Module" {
             usecase "Browse/Filter Courses" as UC_Browse
             usecase "Purchase Course" as UC_Buy
@@ -61,7 +63,7 @@ usecaseDiagram
     Student --> UC_Watch
     Student --> UC_Quiz
     Student --> UC_Chat
-    
+
     Teacher --> UC_Create
     Teacher --> UC_Live
     Teacher --> UC_Review
@@ -77,7 +79,7 @@ usecaseDiagram
     UC_Create ..> UC_Verify : <<requires>>
 ```
 
-3.4 DATA MODELING (ERD)
+2.4 DATA MODELING (ERD)
 The database schema is the backbone of our application. We used a normalized Relational Database (PostgreSQL) to ensure data consistency.
 
 ```mermaid
@@ -92,7 +94,7 @@ erDiagram
 
     Course ||--|{ Section : "contains"
     Section ||--|{ Lesson : "contains"
-    
+
     Course ||--o{ Enrollment : "has"
     Course ||--o{ ChatChannel : "has one"
 
@@ -139,10 +141,10 @@ erDiagram
     }
 ```
 
-3.5 PROCESS MODELING: ACTIVITY DIAGRAMS
+2.5 PROCESS MODELING: ACTIVITY DIAGRAMS
 To understand the flow of operations for different users, we designed detailed activity diagrams.
 
-**3.5.1 Student Workflow (Enrollment to Learning)**
+**2.5.1 Student Workflow (Enrollment to Learning)**
 This depicts the student's journey from finding a course to earning XP.
 
 ```mermaid
@@ -151,7 +153,7 @@ stateDiagram-v2
     Login --> Browse_Catalog
     Browse_Catalog --> Filter_Subjects : Select Grade/Subject
     Filter_Subjects --> Select_Course
-    
+
     state Enrollment_Process {
         Select_Course --> Payment_Required
         Payment_Required --> Upload_Screenshot : Manual Payment
@@ -168,18 +170,18 @@ stateDiagram-v2
         Earn_XP --> Update_Leaderboard
         Update_Leaderboard --> Watch_Video : Next Lesson
     }
-    
+
     Learning_Loop --> [*]
 ```
 
-**3.5.2 Teacher Workflow (Verification & Creation)**
+**2.5.2 Teacher Workflow (Verification & Creation)**
 This shows how a user upgrades to a teacher and publishes content.
 
 ```mermaid
 stateDiagram-v2
     [*] --> Register_User
     Register_User --> Request_Teacher_Access
-    
+
     state Verification_Process {
         Request_Teacher_Access --> Upload_Degree
         Upload_Degree --> Pending_Admin_Review
@@ -192,31 +194,31 @@ stateDiagram-v2
         Create_Course_Draft --> Add_Sections
         Add_Sections --> Add_Lessons
         Add_Lessons --> Publish_Course
-        
+
         Publish_Course --> Live_Session_Manager
         Live_Session_Manager --> Start_Video_Stream
         Start_Video_Stream --> Moderate_Chat
     }
-    
+
     Rejected --> [*]
     Moderate_Chat --> End_Session
     End_Session --> [*]
 ```
 
-**3.5.3 Admin Workflow (System Governance)**
+**2.5.3 Admin Workflow (System Governance)**
 The admin is the gatekeeper. This diagram covers their moderation duties.
 
 ```mermaid
 stateDiagram-v2
     [*] --> Admin_Dashboard
-    
+
     state User_Management {
         Admin_Dashboard --> Review_Teacher_Requests
         Review_Teacher_Requests --> Check_Documents
         Check_Documents --> Approve_Teacher
         Check_Documents --> Reject_Teacher
     }
-    
+
     state Financial_Management {
         Admin_Dashboard --> View_Payment_Queue
         View_Payment_Queue --> Validate_Screenshots
@@ -229,8 +231,13 @@ stateDiagram-v2
     Unlock_Student_Course --> Admin_Dashboard
 ```
 
-3.6 SYSTEM ARCHITECTURE
+2.6 SYSTEM ARCHITECTURE
 Our architecture follows the "Modular Monolith" pattern using the T3 Stack principles.
+
+1.  **Presentation Layer:** React Server Components (RSC) for optimized rendering.
+2.  **Application Layer:** Server Actions managing business logic and authorization.
+3.  **Data Layer:** Prisma Client connecting to a Serverless Postgres pool.
+4.  **Edge Services:** Specialized APIs for heavy lifting (Video/Chat).
 
 ```mermaid
 graph TD
@@ -259,13 +266,13 @@ graph TD
     UI -->|JSON/RPC| API
     UI -->|WebSocket| Stream
     UI -->|UDP/WebRTC| HMS
-    
+
     API -->|Authenticate| Auth
     API -->|Validation| Prisma
     API -->|Store Images| Upload
-    
+
     Prisma -->|Query/Transaction| Postgres
 ```
 
-3.7 SUMMARY
-This chapter detailed the structural blueprint of Learnity. The ERD ensures we have a data structure that prevents academic fraud, while the multiple Activity diagrams confirm we have accounted for all user journeys.
+2.7 SUMMARY
+This chapter detailed the structural blueprint of Learnity. The ERD ensures we have a data structure that prevents academic fraud, while the multiple Activity diagrams confirm we have accounted for all user journeys—from the student's first quiz to the teacher's first live stream. These designs guided the implementation.

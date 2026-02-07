@@ -1,0 +1,54 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor Student
+actor Teacher
+actor Admin
+
+rectangle "Learnity Eco-System" {
+    usecase "Register/Login" as UC1
+    usecase "Manage Profile" as UC_Profile
+    
+    package "Course Module" {
+        usecase "Browse/Filter Courses" as UC_Browse
+        usecase "Purchase Course" as UC_Buy
+        usecase "Watch Lessons" as UC_Watch
+        usecase "Take Quiz" as UC_Quiz
+    }
+
+    package "Teaching Module" {
+        usecase "Create Course Content" as UC_Create
+        usecase "Start Live Class" as UC_Live
+        usecase "Review Assignments" as UC_Review
+        usecase "Request Verification" as UC_Verify
+    }
+
+    package "Admin Module" {
+        usecase "Approve Teacher" as UC_Approve
+        usecase "Verify Payments" as UC_PayVerify
+        usecase "System Analytics" as UC_Analytics
+    }
+
+    usecase "Chat in Classroom" as UC_Chat
+}
+
+Student --> UC_Browse
+Student --> UC_Buy
+Student --> UC_Watch
+Student --> UC_Quiz
+Student --> UC_Chat
+
+Teacher --> UC_Create
+Teacher --> UC_Live
+Teacher --> UC_Review
+Teacher --> UC_Verify
+Teacher --> UC_Chat
+
+Admin --> UC_Approve
+Admin --> UC_PayVerify
+Admin --> UC_Analytics
+
+UC_Buy ..> UC1 : <<include>>
+UC_Create ..> UC_Verify : <<requires>>
+@enduml
