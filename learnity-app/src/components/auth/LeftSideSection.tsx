@@ -1,7 +1,4 @@
-'use client';
-
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { Star, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '../ui/logo';
@@ -20,87 +17,72 @@ const LeftSideSection = ({
   return (
     <div
       className={cn(
-        'hidden lg:flex w-1/2 bg-[#020617] relative overflow-hidden flex-col justify-between p-16 text-white border-r border-white/5',
+        'relative flex flex-col justify-between overflow-hidden bg-[#020617] p-8 md:p-12 lg:p-16 text-white border-b lg:border-b-0 lg:border-r border-white/5 w-full lg:w-1/2 min-h-[60vh] lg:min-h-screen ',
         className
       )}
     >
-      {/* --- Animated Background Elements --- */}
-      <div className="absolute inset-0 z-0">
-        {/* Animated Blob 1 */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            x: [0, 30, 0],
-            y: [0, 50, 0],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-20 -left-20 w-[600px] h-[600px] rounded-full bg-blue-600/20 blur-[120px]"
-        />
-        
-        {/* Animated Blob 2 */}
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            x: [0, -40, 0],
-            y: [0, -20, 0],
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-500/15 blur-[100px]"
-        />
+      {/* --- CSS-Only Background Elements --- */}
+      <div className='absolute inset-0 z-0 pointer-events-none'>
+        {/* Animated Blob 1 - Pulse & Float */}
+        <div className='absolute -top-20 -left-20 w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full bg-blue-600/10 blur-[80px] md:blur-[120px] animate-pulse' />
 
-        {/* Subtle Moving Grid */}
-        <motion.div 
-          initial={{ backgroundPosition: "0 0" }}
-          animate={{ backgroundPosition: "40px 40px" }}
-          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] brightness-100 contrast-150"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+        {/* Animated Blob 2 - Subtle Glow */}
+        <div className='absolute bottom-[-10%] right-[-10%] w-[250px] md:w-[500px] h-[250px] md:h-[500px] rounded-full bg-indigo-500/10 blur-[60px] md:blur-[100px] animate-bounce [animation-duration:10s]' />
+
+        {/* Grainy Noise & Grid - Standard CSS */}
+        <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+        <div className='absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]' />
       </div>
 
       {/* --- Content Layers --- */}
-      
-      {/* Header/Logo */}
-      <Logo showText={true} />
+      <div className='relative z-10'>
+        <Logo showText={true} />
+      </div>
 
-      {/* Main Hero Content */}
-      <div className="relative z-10 max-w-xl">
-        <div className="space-y-8">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium">
-            <Star className="w-4 h-4 fill-current" />
+      <div className='relative z-10 max-w-xl my-12 lg:my-0'>
+        <div className='space-y-6 md:space-y-8'>
+          <div className='inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs md:text-sm font-medium w-fit'>
+            <Star className='w-3.5 h-3.5 md:w-4 h-4 fill-current' />
             <span>Top-rated education platform</span>
           </div>
-          
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-slate-500 italic uppercase">
+
+          <h1 className='text-2xl lg:text-4xl xl:text-5xl font-black leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-slate-500 italic uppercase'>
             {title}
           </h1>
 
-          <p className="text-xl text-slate-400 leading-relaxed font-medium max-w-md">
+          <p className='text-base md:text-lg lg:text-xl text-slate-400 leading-relaxed font-medium max-w-md'>
             {subtitle}
           </p>
 
-          {/* Social Proof / Trust Badges */}
-          <div className="pt-8 flex flex-wrap gap-6 border-t border-white/5">
-            <div className="flex items-center space-x-2">
-              <div className="flex -space-x-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-10 h-10 rounded-full border-2 border-[#020617] bg-slate-800 flex items-center justify-center text-xs font-bold ring-1 ring-white/10">
-                    <Users className="w-4 h-4" />
+          {/* Social Proof */}
+          <div className='pt-6 md:pt-8 flex flex-wrap gap-6 border-t border-white/5'>
+            <div className='flex items-center space-x-3'>
+              <div className='flex -space-x-3'>
+                {[1, 2, 3].map(i => (
+                  <div
+                    key={i}
+                    className='w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-[#020617] bg-slate-800 flex items-center justify-center ring-1 ring-white/10'
+                  >
+                    <Users className='w-3 h-3 md:w-4 h-4' />
                   </div>
                 ))}
               </div>
-               <div className="text-sm">
-                <p className="font-bold text-white">Verified Mentors</p>
-                <p className="text-slate-500 text-xs">Industry experts only</p>
+              <div className='text-sm'>
+                <p className='font-bold text-white leading-tight'>
+                  Verified Mentors
+                </p>
+                <p className='text-slate-500 text-[10px] md:text-xs'>
+                  Industry experts only
+                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Footer Quote / Note */}
-      <div className="relative z-10 pt-10">
-        <p className="text-sm text-slate-500 font-medium">
+      {/* Footer Note */}
+      <div className='relative z-10 pt-6'>
+        <p className='text-[10px] md:text-xs lg:text-sm text-slate-600 font-medium'>
           © 2026 Learnity Inc. All rights reserved.
         </p>
       </div>

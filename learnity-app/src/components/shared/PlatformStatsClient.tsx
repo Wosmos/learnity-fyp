@@ -69,7 +69,6 @@ export function PlatformStatsClient({
           title={stat.title}
           value={stat.value}
           trendValue={stat.trendValue}
-          trendLabel={stat.trendLabel}
           icon={stat.icon}
         />
       ))}

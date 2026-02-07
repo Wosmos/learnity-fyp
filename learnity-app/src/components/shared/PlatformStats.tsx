@@ -144,7 +144,6 @@ export async function PlatformStats({
           title={stat.title}
           value={stat.value}
           trendValue={stat.trendValue}
-          trendLabel={stat.trendLabel}
           icon={stat.icon}
         />
       ))}

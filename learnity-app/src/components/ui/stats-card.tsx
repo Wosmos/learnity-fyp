@@ -1,12 +1,11 @@
 import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type CardVariant = 'glassy' | 'modern' | 'primary' | 'secondary';
+type CardVariant = 'onyx' | 'glass' | 'snow';
 
 interface MetricCardProps {
   title: string;
   value: string | number;
-  trendLabel?: string;
   trendValue?: string;
   isTrendUp?: boolean;
   variant?: CardVariant;
@@ -17,155 +16,96 @@ interface MetricCardProps {
 export function MetricCard({
   title,
   value,
-  trendLabel,
   trendValue,
   isTrendUp = true,
-  variant = 'modern',
+  variant = 'snow',
   icon: Icon,
   className,
 }: MetricCardProps) {
   const variants = {
-    glassy:
-      'bg-white/40 backdrop-blur-xl border border-white/40 shadow-xl shadow-indigo-500/5 text-slate-900',
-    modern:
-      'bg-white border-none shadow-xl shadow-slate-200/60 text-slate-900 hover:shadow-indigo-100',
-    primary: 'bg-indigo-600 text-white shadow-xl shadow-indigo-200 border-none',
-    secondary:
-      'bg-slate-900 text-white shadow-xl shadow-slate-900/20 border-none',
-  };
-
-  const iconColors = {
-    glassy: 'bg-indigo-500/10 text-indigo-600',
-    modern: 'bg-slate-50 text-indigo-600',
-    primary: 'bg-white/20 text-white',
-    secondary: 'bg-white/10 text-indigo-400',
+    // Deep Onyx: High contrast, dark mode luxury
+    onyx: 'bg-[#0A0A0B] text-white ring-1 ring-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)]',
+    // Apple Glass: Soft transparency, light mode depth
+    glass: 'bg-white/70 backdrop-blur-xl ring-1 ring-black/[0.05] text-slate-900 shadow-[0_4px_24px_rgba(0,0,0,0.04)]',
+    // Pure Snow: Clean, structured modernism
+    snow: 'bg-white ring-1 ring-slate-200 text-slate-900 shadow-sm hover:shadow-md',
   };
 
   return (
     <div
       className={cn(
-        // Layout: Vertical flex column to force "squarish" height
-        // Mobile: min-h-[150px] ensures it looks like a widget even if empty
-        'relative p-5 rounded-2xl md:rounded-3xl transition-all duration-500 group overflow-hidden flex flex-col justify-between h-full min-h-[150px] md:min-h-0',
-        'active:scale-95 md:active:scale-100 transition-transform', // Mobile touch feedback
+        'relative p-5 rounded-[24px] transition-all duration-300 group select-none overflow-hidden',
+        'flex flex-col justify-between min-h-[160px]',
+        'active:scale-[0.98] tap-highlight-transparent', 
         variants[variant],
         className
       )}
     >
-      {/* 1. DECORATIVE NOISE */}
-      <div className='absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay'>
-        <svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'>
-          <filter id='noise'>
-            <feTurbulence
-              type='fractalNoise'
-              baseFrequency='0.65'
-              numOctaves='3'
-              stitchTiles='stitch'
-            />
-          </filter>
-          <rect width='100%' height='100%' filter='url(#noise)' />
-        </svg>
+      {/* Top Row: Icon and Title */}
+      <div className="flex items-start justify-between">
+        <div
+          className={cn(
+            'flex items-center justify-center h-10 w-10 rounded-2xl transition-all duration-500',
+            variant === 'onyx' 
+              ? 'bg-white/5 text-white ring-1 ring-white/10' 
+              : 'bg-slate-100 text-slate-900 ring-1 ring-black/[0.03]'
+          )}
+        >
+          <Icon size={20} strokeWidth={2.2} className="group-hover:scale-110 transition-transform" />
+        </div>
+        
+        <p className={cn(
+          'text-[10px] font-black uppercase tracking-[0.15em] leading-none pt-1',
+          variant === 'onyx' ? 'text-slate-500' : 'text-slate-400'
+        )}>
+          {title}
+        </p>
       </div>
 
-      <div className='relative z-10 flex flex-col h-full justify-between gap-4'>
-        {/* HEADER: Icon Left, Title Right (Native Widget Style) */}
-        <div className='flex items-start justify-between'>
-          <div
-            className={cn(
-              'h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm',
-              iconColors[variant]
-            )}
-          >
-            <Icon className='h-5 w-5 md:h-6 md:w-6' />
-          </div>
-          <p
-            className={cn(
-              'text-[10px] font-black uppercase tracking-[0.2em] opacity-60 text-right mt-1 max-w-[60%] leading-tight',
-              variant === 'primary' || variant === 'secondary'
-                ? 'text-white/80'
-                : 'text-slate-400'
-            )}
-          >
-            {title}
-          </p>
-        </div>
+      {/* Bottom Content Stack */}
+      <div className="space-y-3">
+        {/* Value with Fluid Typography */}
+        <h3 className="text-3xl md:text-4xl font-black italic uppercase tracking-tighter leading-none">
+          {value}
+        </h3>
 
-        {/* MAIN CONTENT: Value & Graph */}
-        <div>
-          {/* Value */}
-          <h3 className='text-3xl md:text-4xl font-black tracking-tighter leading-none mb-3'>
-            {value}
-          </h3>
-
-          {/* Footer: Trend + Graph */}
-          <div className='flex items-end justify-between'>
-            {/* Trend Badge */}
-            <div className='flex flex-col md:flex-row md:items-center gap-1 md:gap-2'>
-              <div
-                className={cn(
-                  'flex items-center w-fit gap-0.5 px-1.5 py-0.5 md:px-2 rounded-md md:rounded-full text-[9px] md:text-[10px] font-black uppercase',
-                  isTrendUp
-                    ? 'bg-emerald-500/10 text-emerald-500'
-                    : 'bg-rose-500/10 text-rose-500'
-                )}
-              >
-                {isTrendUp ? (
-                  <TrendingUp className='h-3 w-3' />
-                ) : (
-                  <TrendingDown className='h-3 w-3' />
-                )}
-                {trendValue}
-              </div>
-              <span
-                className={cn(
-                  'hidden md:block text-[10px] font-bold uppercase tracking-tight opacity-50',
-                  variant === 'primary' || variant === 'secondary'
-                    ? 'text-white'
-                    : 'text-slate-500'
-                )}
-              >
-                {trendLabel}
-              </span>
+        {/* Trend & Micro-graph Container */}
+        <div className="flex items-center justify-between gap-4">
+          {trendValue && (
+            <div className={cn(
+              'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-tight',
+              isTrendUp 
+                ? 'bg-emerald-500/10 text-emerald-500 ring-1 ring-emerald-500/20' 
+                : 'bg-rose-500/10 text-rose-500 ring-1 ring-rose-500/20'
+            )}>
+              {isTrendUp ? <TrendingUp size={12} strokeWidth={3} /> : <TrendingDown size={12} strokeWidth={3} />}
+              <span>{trendValue}</span>
             </div>
+          )}
 
-            {/* Sparkline (Visible on Mobile & Desktop) */}
-            <div className='w-12 md:w-20 h-6 md:h-10 opacity-60 group-hover:opacity-100 transition-opacity'>
-              <svg
-                viewBox='0 0 100 40'
-                className='w-full h-full overflow-visible'
-              >
-                <path
-                  d={
-                    isTrendUp
-                      ? 'M0 35 Q 25 35, 40 20 T 70 25 T 100 5'
-                      : 'M0 5 Q 25 5, 40 20 T 70 15 T 100 35'
-                  }
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='5'
-                  strokeLinecap='round'
-                  className={isTrendUp ? 'text-emerald-500' : 'text-rose-500'}
-                />
-                {/* Dot only on Desktop to save mobile visual noise */}
-                <circle
-                  cx='100'
-                  cy={isTrendUp ? '5' : '35'}
-                  r='3'
-                  fill='currentColor'
-                  className={cn(
-                    'hidden md:block animate-ping',
-                    isTrendUp ? 'text-emerald-400' : 'text-rose-400'
-                  )}
-                />
-              </svg>
-            </div>
+          {/* Clean Vector Sparkline */}
+          <div className="w-16 h-6 opacity-40 group-hover:opacity-100 transition-opacity">
+            <svg viewBox="0 0 100 40" className="w-full h-full">
+              <path
+                d={isTrendUp 
+                  ? "M 0 35 L 20 25 L 40 30 L 60 10 L 80 15 L 100 0" 
+                  : "M 0 5 L 20 15 L 40 10 L 60 25 L 80 20 L 100 40"
+                }
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={isTrendUp ? 'text-emerald-500' : 'text-rose-500'}
+              />
+            </svg>
           </div>
         </div>
       </div>
 
-      {/* 3. HOVER GLOW EFFECT (Desktop Only) */}
-      {(variant === 'modern' || variant === 'glassy') && (
-        <div className='hidden md:block absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-all duration-700' />
+      {/* Subtle Glow Overlay (Onyx Variant Only) */}
+      {variant === 'onyx' && (
+        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent pointer-events-none" />
       )}
     </div>
   );

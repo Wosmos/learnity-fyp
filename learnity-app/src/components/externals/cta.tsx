@@ -35,7 +35,7 @@ export function CTA({
       <div className='max-w-7xl mx-auto'>
         <div
           className={cn(
-            'relative rounded-3xl px-10 py-8 md:p-24 overflow-hidden transition-all duration-700 border',
+            'relative rounded-xl px-10 py-8 overflow-hidden transition-all duration-700 border',
             isDark
               ? 'bg-slate-950 border-white/5 text-white'
               : 'bg-white border-slate-100 text-slate-900 shadow-2xl shadow-slate-200/50'

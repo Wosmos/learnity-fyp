@@ -1,8 +1,5 @@
-/**
- * Tactical Section Header - Onyx Morphic Edition
- * Features: Forced break highlighting, SVG rough underline, and monospaced protocols.
- */
 'use client';
+
 import React from 'react';
 import { cn } from '@/lib/utils';
 
@@ -37,71 +34,43 @@ export function SectionHeader({
   return (
     <div
       className={cn(
-        'mb-16 md:mb-24 relative',
-        centered && 'text-center flex flex-col items-center',
+        'relative mb-10 sm:mb-14 md:mb-18 lg:mb-20',
+        centered && 'flex flex-col items-center text-center',
         className
       )}
     >
-      {/* 1. Protocol Subtitle */}
       {subtitle && (
-        <div className='flex items-center gap-3 mb-6 group'>
-          <div className='h-[1px] w-8 bg-indigo-500/30 group-hover:w-12 transition-all duration-500' />
-          <p className='text-[10px] md:text-xs font-mono font-black text-indigo-600 uppercase tracking-[0.4em]'>
+        <div className="mb-3 flex items-center gap-2 sm:mb-4">
+          <div className="h-px w-5 bg-indigo-500/25 sm:w-7" />
+          <p className="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-indigo-600 sm:text-[10px] md:text-xs">
             {subtitle}
           </p>
-          <div className='h-[1px] w-8 bg-indigo-500/30 group-hover:w-12 transition-all duration-500' />
+          <div className="h-px w-5 bg-indigo-500/25 sm:w-7" />
         </div>
       )}
 
-      {/* 2. Title with Forced Break & Rough Underline */}
-      <h2
-        className={cn(
-          'text-5xl md:text-8xl font-black uppercase italic tracking-tighter leading-[0.8] text-slate-950',
-          'relative inline-block'
-        )}
-      >
-        <span className='block'>{title}</span>
-
+      <h2 className="text-[clamp(1.75rem,5.5vw,4.5rem)] font-extrabold uppercase italic leading-[0.9] tracking-tighter text-slate-950">
+        {title}
         {highlightWord && (
-          <span className='relative inline-block mt-2 py-2 not-italic'>
-            <span className='text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-500'>
+          <>
+            <br className="hidden sm:block" />{' '}
+            <span className="bg-gradient-to-r from-indigo-600 to-purple-500 bg-clip-text not-italic text-transparent">
               {highlightWord}
             </span>
-          </span>
+          </>
         )}
       </h2>
 
-      {/* 3. Description */}
       {description && (
         <p
           className={cn(
-            'mt-10 text-sm md:text-base font-bold text-slate-500 uppercase tracking-[0.1em] leading-relaxed italic opacity-80',
+            'mt-4 text-xs leading-relaxed text-slate-500 sm:mt-6 sm:text-sm md:mt-8 md:text-base',
             centered && maxWidthClasses[maxWidth]
           )}
         >
           {description}
         </p>
       )}
-
-      {/* 4. Background Ghost Text */}
-      <div className='absolute -top-12 left-1/2 -translate-x-1/2 opacity-[0.02] pointer-events-none select-none -z-10'>
-        <span className='text-[12rem] font-black italic uppercase tracking-tighter'>
-          {title.split(' ')[0]}
-        </span>
-      </div>
-
-      <style jsx>{`
-        .path-draw {
-          stroke-dasharray: 400;
-          stroke-dashoffset: 400;
-          animation: draw 1.5s ease-out forwards;
-        }
-        @keyframes draw {
-          to {
-            stroke-dashoffset: 0;
-          }
-        }
-      `}</style>
     </div>
   );
 }

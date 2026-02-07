@@ -1,12 +1,6 @@
-/**
- * Learnity Landing Page - Server-Side Optimized
- * Fast-loading server component with prefetching and dynamic stats
- */
-
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight, CheckCircle, Star } from 'lucide-react';
 import { PublicLayout } from '@/components/layout/AppLayout';
-import { Button } from '@/components/ui/button';
 import { StepCard } from '@/components/landing/StepCard';
 import {
   Hero,
@@ -51,7 +45,7 @@ export default async function Home() {
             {/* Hero Section */}
             <Hero
               badge={{
-                text: 'Now with Advanced Security & Audit Logging',
+                text: 'Learn Smarter with Learnity',
                 showPulse: true,
               }}
               title={
@@ -90,7 +84,7 @@ export default async function Home() {
                       number={step.number}
                       title={step.title}
                       description={step.description}
-                      color={step.color as 'blue' | 'purple' | 'green'}
+                      // variant={step.color as 'blue' | 'purple' | 'green'}
                     />
                   ))}
                 </div>
@@ -301,32 +295,6 @@ export default async function Home() {
                 </div>
               </div>
             </section>
-
-            {/* Trust Indicators */}
-            {/* <section className="mb-20">
-              <div className="glass-card p-12 rounded-2xl">
-                <SectionHeader
-                  title="Enterprise-Grade"
-                  highlightWord='Security & Reliability'
-                  description="Built with security-first architecture and comprehensive audit logging"
-                  maxWidth="4xl"
-                />
-                <FeatureGrid
-                  items={TRUST_INDICATORS.map((indicator) => ({
-                    iconElement: (
-                      <div className={`p-4 bg-linear-to-br ${indicator.gradient} rounded-xl shadow-lg`}>
-                        <indicator.icon className="h-8 w-8 text-white" />
-                      </div>
-                    ),
-                    title: indicator.title,
-                    description: indicator.description,
-                    className: 'bg-transparent border-0 shadow-none',
-                  }))}
-                  columns={4}
-                  variant="minimal"
-                />
-              </div>
-            </section> */}
 
             {/* CTA Section */}
             <CTA

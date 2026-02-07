@@ -64,117 +64,117 @@ export function Hero({
   return (
     <section
       className={cn(
-        'relative min-h-[70vh] flex items-center justify-center pt-16 pb-10 overflow-hidden',
+        'relative flex min-h-[60svh] items-center justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-20 md:min-h-[70svh] md:py-24 lg:py-32',
         className
       )}
     >
-      {/* 1. Enhanced Background: Added Mesh Gradients for depth */}
+      {/* Background */}
       {background === 'gradient' && (
-        <div className='absolute inset-0 -z-10 pointer-events-none'>
-          <div className='absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/10 blur-[120px] animate-pulse' />
-          <div className='absolute bottom-[-5%] right-[-5%] w-[30%] h-[30%] rounded-full bg-purple-400/10 blur-[100px]' />
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -left-[10%] -top-[10%] h-[40%] w-[40%] rounded-full bg-blue-400/8 blur-[100px] sm:blur-[120px]" />
+          <div className="absolute -bottom-[5%] -right-[5%] h-[30%] w-[30%] rounded-full bg-purple-400/8 blur-[80px] sm:blur-[100px]" />
           <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03] [mask-image:linear-gradient(to_bottom,white,transparent)]" />
         </div>
       )}
 
-      <div className='container relative z-10 mx-auto px-6'>
+      <div className="container relative z-10 mx-auto w-full">
         <div
           className={cn(
-            'mx-auto transition-all duration-700 ease-out',
+            'mx-auto',
             centered ? 'text-center' : 'text-left',
             maxWidthClasses[maxWidth]
           )}
         >
-          {/* 2. Badge: Refined glassmorphism and tighter typography */}
+          {/* Badge */}
           {badge && (
             <div
               className={cn(
-                'mb-8 animate-in fade-in slide-in-from-bottom-6 duration-1000',
+                'mb-6 sm:mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700',
                 centered && 'flex justify-center'
               )}
             >
               <Badge
                 className={cn(
-                  'group flex items-center gap-2.5 px-4 py-1.5 border-blue-200/40 bg-slate-900 text-blue-50 backdrop-blur-md shadow-sm transition-all hover:bg-slate-950 hover:shadow-md cursor-default rounded-full border',
+                  'inline-flex items-center gap-2 rounded-full border border-slate-200/60 bg-slate-900 px-3.5 py-1.5 text-blue-50 shadow-sm backdrop-blur-md ',
                   badge.className
                 )}
               >
                 {badge.showPulse && (
-                  <span className='relative flex h-2 w-2'>
-                    <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75'></span>
-                    <span className='relative inline-flex rounded-full h-2 w-2 bg-blue-500'></span>
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-blue-500" />
                   </span>
                 )}
-                <span className='text-xs font-semibold tracking-wide uppercase'>
+                <span className="text-[8px] sm:text-[11px] font-semibold uppercase tracking-wider">
                   {badge.text}
                 </span>
               </Badge>
             </div>
           )}
 
-          {/* 3. Title & Subtitle: Improved tracking and line-height */}
-          <div className='space-y-4 font-black uppercase italic tracking-tight text-slate-900 mb-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150'>
+          {/* Title block */}
+          <div className="mb-6 space-y-3 sm:mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both delay-100">
             {subtitle && (
-              <p className='text-blue-600 font-bold tracking-[0.2em] uppercase text-xs md:text-sm'>
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600 sm:text-xs md:text-sm">
                 {subtitle}
               </p>
             )}
             <TitleComponent
               className={cn(
-                'text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tighter leading-[1.05] text-slate-900',
-                centered ? 'mx-auto' : ''
+                'text-[clamp(2rem,6vw,5.5rem)] font-extrabold uppercase italic leading-[1.05] tracking-tighter text-slate-900',
+                centered && 'mx-auto'
               )}
             >
               {title}
             </TitleComponent>
           </div>
 
-          {/* 4. Description: Better contrast and max-width for readability */}
+          {/* Description */}
           {description && (
             <p
               className={cn(
-                'text-lg md:text-xl text-slate-500 mb-12 leading-relaxed font-medium',
+                'mb-8 text-base leading-relaxed text-slate-500 sm:mb-10 sm:text-lg md:text-xl',
                 centered ? 'mx-auto max-w-2xl' : 'max-w-xl',
-                'animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300'
+                'animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both delay-200'
               )}
             >
               {description}
             </p>
           )}
 
-          {/* 5. Actions: Smooth hover states and standard Apple button sizing */}
+          {/* Actions */}
           {(primaryAction || secondaryAction) && (
             <div
               className={cn(
-                'flex flex-col sm:flex-row gap-4 items-center mb-16',
-                centered ? 'justify-center' : 'justify-start',
-                'animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500'
+                'mb-10 flex flex-col gap-3 sm:flex-row sm:gap-4 md:mb-14',
+                centered ? 'items-center justify-center' : 'items-start justify-start',
+                'animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both delay-300'
               )}
             >
               {primaryAction && (
-                <Link href={primaryAction.href} className='w-full sm:w-auto'>
+                <Link href={primaryAction.href} className="w-full sm:w-auto">
                   <Button
-                    size='lg'
-                    className='w-full sm:w-auto h-14 px-8 text-base rounded-2xl bg-slate-900 hover:bg-slate-800 text-white shadow-xl shadow-slate-200 transition-all hover:-translate-y-0.5 active:scale-95 font-bold'
+                    size="lg"
+                    className="h-12 w-full rounded-xl bg-slate-900 px-7 text-sm font-bold text-white shadow-lg shadow-slate-900/10 transition-all hover:-translate-y-0.5 hover:bg-slate-800 active:scale-[0.98] sm:h-13 sm:w-auto sm:rounded-2xl sm:px-8 sm:text-base"
                   >
                     {primaryAction.label}
                     {primaryAction.icon ? (
-                      <primaryAction.icon className='ml-2 h-5 w-5 opacity-80' />
+                      <primaryAction.icon className="ml-2 h-4 w-4 opacity-80 sm:h-5 sm:w-5" />
                     ) : (
-                      <ArrowRight className='ml-2 h-5 w-5 opacity-80' />
+                      <ArrowRight className="ml-2 h-4 w-4 opacity-80 sm:h-5 sm:w-5" />
                     )}
                   </Button>
                 </Link>
               )}
               {secondaryAction && (
-                <Link href={secondaryAction.href} className='w-full sm:w-auto'>
+                <Link href={secondaryAction.href} className="w-full sm:w-auto">
                   <Button
-                    variant='ghost'
-                    className='w-full sm:w-auto h-14 px-8 text-base rounded-2xl border border-slate-200 bg-white/50 backdrop-blur-sm hover:bg-slate-950 hover:border-slate-300 transition-all font-bold'
+                    variant="ghost"
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-white/60 px-7 text-sm font-bold backdrop-blur-sm transition-all hover:bg-slate-50 sm:h-13 sm:w-auto sm:rounded-2xl sm:px-8 sm:text-base"
                   >
                     {secondaryAction.label}
                     {secondaryAction.icon && (
-                      <secondaryAction.icon className='ml-2 h-5 w-5 opacity-60' />
+                      <secondaryAction.icon className="ml-2 h-4 w-4 opacity-60 sm:h-5 sm:w-5" />
                     )}
                   </Button>
                 </Link>
@@ -182,17 +182,16 @@ export function Hero({
             </div>
           )}
 
-          {/* 6. Stats & Children: Added soft containers */}
+          {/* Stats */}
           {stats && (
-            <div className='animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-700'>
-              <div className='inline-block p-1 rounded-3xl bg-slate-50/50 border border-slate-100 backdrop-blur-sm'>
-                {stats}
-              </div>
+            <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both delay-500">
+              {stats}
             </div>
           )}
 
+          {/* Children */}
           {children && (
-            <div className='mt-8 animate-in fade-in duration-1000 delay-1000'>
+            <div className="mt-6 sm:mt-8 animate-in fade-in duration-700 fill-mode-both delay-700">
               {children}
             </div>
           )}
