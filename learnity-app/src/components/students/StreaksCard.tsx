@@ -5,12 +5,53 @@ import { motion } from 'framer-motion';
 import { Zap, Flame, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export function EliteStreakCard() {
-  // Desktop: 35 days (5 weeks)
-  const desktopActivity = Array.from({ length: 35 }, (_, i) => ({
-    active: i > 28,
-    level: i > 28 ? 4 : Math.floor(Math.random() * 3),
-  }));
+interface EliteStreakCardProps {
+  currentStreak?: number;
+  activityData?: { date: Date; xp: number }[];
+}
+
+export function EliteStreakCard({
+  currentStreak = 0,
+  activityData = [],
+}: EliteStreakCardProps) {
+  // Process activity data for heatmap
+  const desktopActivity = React.useMemo(() => {
+    // Ensure we have 35 days of data (5 weeks)
+    // If activityData provided is less, we pad with empty days or use what we have?
+    // Expecting activityData to be sorted by date (handled by service)
+
+    // Create map for easy lookup
+    const xpMap = new Map<string, number>();
+    activityData.forEach(d => {
+      const dateStr = new Date(d.date).toISOString().split('T')[0];
+      xpMap.set(dateStr, d.xp);
+    });
+
+    const days = [];
+    const today = new Date();
+    // Start from 34 days ago
+    for (let i = 34; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const xp = xpMap.get(dateStr) || 0;
+
+      // Calculate level based on XP (0-4)
+      let level = 0;
+      if (xp > 0) level = 1;
+      if (xp > 50) level = 2;
+      if (xp > 100) level = 3;
+      if (xp > 200) level = 4;
+
+      days.push({
+        date: d,
+        xp,
+        level,
+        active: xp > 0,
+      });
+    }
+    return days;
+  }, [activityData]);
 
   // Mobile: Last 7 days only
   const mobileActivity = desktopActivity.slice(-7);
@@ -39,14 +80,14 @@ export function EliteStreakCard() {
             <div>
               <div className='flex items-baseline gap-1'>
                 <span className='text-2xl font-black text-white tracking-tighter'>
-                  7
+                  {currentStreak}
                 </span>
                 <span className='text-[10px] font-bold text-orange-500 uppercase tracking-widest'>
                   Days
                 </span>
               </div>
               <p className='text-[10px] text-slate-500 font-medium -mt-1'>
-                Top 5% Consistency
+                Keep it up!
               </p>
             </div>
           </div>
@@ -98,7 +139,7 @@ export function EliteStreakCard() {
                   Focus Momentum
                 </h3>
                 <p className='text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1'>
-                  Status: Elite
+                  Status: {currentStreak > 7 ? 'On Fire' : 'Active'}
                 </p>
               </div>
             </div>
@@ -106,7 +147,7 @@ export function EliteStreakCard() {
             <div className='text-right'>
               <div className='flex items-baseline justify-end gap-1'>
                 <span className='text-3xl font-black text-white tracking-tighter'>
-                  7
+                  {currentStreak}
                 </span>
                 <span className='text-[10px] font-black text-orange-500 uppercase tracking-widest'>
                   Day Streak

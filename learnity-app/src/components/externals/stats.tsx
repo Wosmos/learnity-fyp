@@ -64,7 +64,6 @@ export function Stats({
             title={stat.label}
             value={stat.value.toString()}
             trendValue=''
-            trendLabel=''
             icon={stat.icon || BarChart3} // Provide default icon if none specified
             className='border-0 shadow-sm'
           />

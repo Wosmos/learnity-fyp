@@ -7,6 +7,7 @@
 
 import React, { useState, useCallback } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -413,12 +414,13 @@ export const QuickTeacherRegistrationForm: React.FC<
                         <div
                           className={`
                           w-10 h-10 rounded-full flex items-center justify-center transition-all
-                          ${isCompleted
+                          ${
+                            isCompleted
                               ? 'bg-green-500 text-white'
                               : isCurrent
                                 ? 'bg-slate-500 text-white'
                                 : 'bg-gray-200 text-gray-500'
-                            }
+                          }
                         `}
                         >
                           {isCompleted ? (
@@ -429,11 +431,11 @@ export const QuickTeacherRegistrationForm: React.FC<
                         </div>
                         <span
                           className={`text-xs font-medium ${isCurrent
-                            ? 'text-blue-600'
-                            : isCompleted
-                              ? 'text-green-600'
-                              : 'text-gray-500'
-                            }`}
+                              ? 'text-blue-600'
+                              : isCompleted
+                                ? 'text-green-600'
+                                : 'text-gray-500'
+                          }`}
                         >
                           {step.title}
                         </span>
@@ -1032,31 +1034,32 @@ export const QuickTeacherRegistrationForm: React.FC<
                       name='agreeToTerms'
                       render={({ field }) => (
                         <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
+                           <div className='space-y-1 leading-none'>
+                            <FormLabel className='text-sm font-normal'>
+                              I agree to the{' '}
+                              <Link
+                                href='/terms'
+                                className='text-green-600 hover:text-green-700 underline'
+                              >
+                                Terms of Service
+                              </Link>{' '}
+                              and{' '}
+                              <Link
+                                href='/privacy'
+                                className='text-green-600 hover:text-green-700 underline'
+                              >
+                                Privacy Policy
+                              </Link>
+                            </FormLabel>
+                            <FormMessage />
+                          </div>
                           <FormControl>
                             <Checkbox
                               checked={field.value}
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>
-                          <div className='space-y-1 leading-none'>
-                            <FormLabel className='text-sm font-normal'>
-                              I agree to the{' '}
-                              <button
-                                type='button'
-                                className='text-green-600 hover:text-green-700 underline'
-                              >
-                                Terms of Service
-                              </button>{' '}
-                              and{' '}
-                              <button
-                                type='button'
-                                className='text-green-600 hover:text-green-700 underline'
-                              >
-                                Privacy Policy
-                              </button>
-                            </FormLabel>
-                            <FormMessage />
-                          </div>
+                         
                         </FormItem>
                       )}
                     />

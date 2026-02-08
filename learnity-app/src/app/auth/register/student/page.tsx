@@ -81,17 +81,6 @@ export default function StudentRegisterPage() {
           {/* 2. Main Form Content Area */}
           <main className='flex-1 flex flex-col justify-center px-6 py-10'>
             <div className='w-full max-w-[580px] mx-auto'>
-
-              {/* Contextual Header (Improved UX) */}
-              {registrationStep !== 'verification' && (
-                <div className="mb-8 hidden lg:block">
-                  <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
-                    Student Registration
-                  </h2>
-                  <p className="text-slate-500 mt-1">Join the community and start your learning journey.</p>
-                </div>
-              )}
-
               <div className="bg-white lg:bg-transparent p-6 md:p-0 rounded-3xl shadow-sm lg:shadow-none border border-slate-100 lg:border-none">
                 {registrationStep === 'verification' ? (
                   <div className="py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

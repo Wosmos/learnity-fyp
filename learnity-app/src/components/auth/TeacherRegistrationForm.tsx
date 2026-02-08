@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,7 +28,7 @@ import {
   Video,
   Award,
   Heart,
-  Link,
+  Link as LinkIcon,
 } from 'lucide-react';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import {
@@ -2466,7 +2467,6 @@ export const TeacherRegistrationForm: React.FC<
                                 I agree to the{' '}
                                 <Link
                                   href='/terms'
-                                  type='button'
                                   className='text-green-600 hover:text-green-700 underline'
                                 >
                                   Terms of Service
@@ -2474,7 +2474,6 @@ export const TeacherRegistrationForm: React.FC<
                                 ,{' '}
                                 <Link
                                   href='/privacy'
-                                  type='button'
                                   className='text-green-600 hover:text-green-700 underline'
                                 >
                                   Privacy Policy

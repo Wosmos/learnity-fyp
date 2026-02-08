@@ -263,11 +263,9 @@ export default function StudentDashboard() {
             {metricData.map((metric, index) => (
               <MetricCard
                 key={index}
-                variant='secondary'
                 title={metric.title}
                 value={metric.value}
                 trendValue={metric.trendValue}
-                trendLabel={metric.trendLabel}
                 isTrendUp={metric.isTrendUp}
                 icon={metric.icon}
               />

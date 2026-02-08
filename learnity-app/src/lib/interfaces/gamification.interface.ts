@@ -11,7 +11,16 @@
  * - 10.6: Unlock badges after achievements
  */
 
-import { XPReason, UserProgress, UserBadge } from '@prisma/client';
+import {
+  XPReason,
+  UserProgress,
+  UserBadge,
+  Quest,
+  UserQuest,
+  QuestType,
+  QuestFrequency,
+  QuestStatus,
+} from '@prisma/client';
 
 // Badge type for the simplified badge object
 export interface Badge {
@@ -106,6 +115,7 @@ export interface GamificationProgress {
   lastActivityAt: Date | null;
   badges: Badge[];
   recentXPActivities: XPActivitySummary[];
+  dailyActivity: { date: Date; xp: number }[];
 }
 
 /**
@@ -127,6 +137,79 @@ export interface BadgeWithMetadata {
   name: string;
   description: string;
   icon: string;
+}
+
+// ============================================
+// LEADERBOARD TYPES
+// ============================================
+
+/**
+ * Leaderboard entry for ranking display
+ */
+export interface LeaderboardEntry {
+  rank: number;
+  userId: string;
+  userName: string;
+  profilePicture?: string;
+  totalXP: number;
+  level: number;
+  badgeCount: number;
+  isCurrentUser?: boolean;
+}
+
+/**
+ * Leaderboard response with pagination
+ */
+export interface LeaderboardResponse {
+  entries: LeaderboardEntry[];
+  currentUserRank?: number;
+  totalUsers: number;
+}
+
+// ============================================
+// QUEST TYPES
+// ============================================
+
+/**
+ * Quest with user progress details
+ */
+export interface UserQuestWithDetails {
+  id: string;
+  quest: {
+    id: string;
+    key: string;
+    title: string;
+    description: string;
+    type: QuestType;
+    frequency: QuestFrequency;
+    targetValue: number;
+    xpReward: number;
+    badgeReward?: string | null;
+  };
+  currentProgress: number;
+  status: QuestStatus;
+  progressPercentage: number;
+  startedAt: Date;
+  completedAt?: Date | null;
+  timeRemaining?: number; // milliseconds until reset
+}
+
+/**
+ * Result of completing a quest
+ */
+export interface CompletedQuest {
+  questId: string;
+  questTitle: string;
+  xpAwarded: number;
+  badgeAwarded?: string;
+}
+
+/**
+ * Quest progress update result
+ */
+export interface QuestProgressResult {
+  updatedQuests: UserQuestWithDetails[];
+  completedQuests: CompletedQuest[];
 }
 
 // ============================================
@@ -210,6 +293,89 @@ export interface IGamificationService {
    * @returns Array of badges with metadata
    */
   getUserBadges(userId: string): Promise<BadgeWithMetadata[]>;
+
+  // ============================================
+  // QUEST METHODS
+  // ============================================
+
+  /**
+   * Update quest progress when activities happen
+   * @param userId - The user ID
+   * @param questType - Type of quest to update
+   * @param increment - Amount to increment (default 1)
+   * @returns Quest progress result with any completed quests
+   */
+  updateQuestProgress(
+    userId: string,
+    questType: QuestType,
+    increment?: number
+  ): Promise<QuestProgressResult>;
+
+  /**
+   * Get active quests for user with progress
+   * @param userId - The user ID
+   * @returns Array of quests with progress details
+   */
+  getActiveQuests(userId: string): Promise<UserQuestWithDetails[]>;
+
+  /**
+   * Reset expired daily/weekly quests
+   * @param userId - The user ID
+   */
+  resetExpiredQuests(userId: string): Promise<void>;
+
+  // ============================================
+  // LEADERBOARD METHODS
+  // ============================================
+
+  /**
+   * Get global XP leaderboard
+   * @param limit - Maximum entries to return (default 10)
+   * @param userId - Optional current user ID to include their rank
+   * @returns Leaderboard response with entries
+   */
+  getGlobalLeaderboard(
+    limit?: number,
+    userId?: string
+  ): Promise<LeaderboardResponse>;
+
+  /**
+   * Get course-specific leaderboard
+   * @param courseId - Course ID
+   * @param limit - Maximum entries (default 10)
+   * @param userId - Optional current user ID
+   * @returns Leaderboard response for the course
+   */
+  getCourseLeaderboard(
+    courseId: string,
+    limit?: number,
+    userId?: string
+  ): Promise<LeaderboardResponse>;
+
+  /**
+   * Get user's rank in global leaderboard
+   * @param userId - The user ID
+   * @returns Rank and total users
+   */
+  getUserRank(userId: string): Promise<{ rank: number; total: number }>;
+
+  // ============================================
+  // DAILY LOGIN
+  // ============================================
+
+  /**
+   * Award daily login XP (only once per calendar day)
+   * @param userId - The user ID
+   * @returns XP result if awarded, null if already claimed today
+   */
+  awardDailyLoginXP(userId: string): Promise<AwardXPResult | null>;
+
+  /**
+   * Check all relevant badges after an action
+   * @param userId - The user ID
+   * @returns Array of newly awarded badges
+   */
+  checkAllBadges(userId: string): Promise<UserBadge[]>;
 }
 
 // ============================================

@@ -72,3 +72,33 @@ This document outlines the pending features, tasks, and implementation plans for
 - **Documentation**: API documentation for mobile app developers (if applicable).
 - **Testing**: End-to-end testing for the complete User -> Enrol -> Complete Lesson flow.
 - **Mobile Optimization**: Verify chat and classroom experience on mobile browsers.
+- **Testing**: End-to-end testing for the complete User -> Enrol -> Complete Lesson flow.
+
+## 4. Gamification & Engagement (Updated)
+**Objective**: Enhance user retention through XP, streaks, and leaderboards.
+
+### Current Status (Frontend & Backend)
+- **Gamification Service**: Implemented `GamificationService` with XP keys, Streak logic, and Badge awards.
+- **XP & Levels**: Backend calculates levels based on XP thresholds. Frontend displays progress.
+- **Streaks**:
+  - Backend: `updateStreak` logic handles daily streaks and resets.
+  - Frontend: `EliteStreakCard` now visualizes 35-day activity history (heatmap).
+- **Achievements/Badges**:
+  - Backend: `checkAndAwardBadge` logic exists.
+  - Frontend: `AchievementsPage` updated to show real data.
+
+### Pending / To-Do
+1.  **Background Jobs**:
+    - **Daily Streak Maintenance**: Currently streaks update on user activity. A cron job (using Vercel Cron or Inngest) is recommended to identify "missed" days for data analysis, though the current "on-activity" check is sufficient for user-facing features.
+    - **Leaderboard Caching**: `getGlobalLeaderboard` is real-time. For scale, implement Redis caching with 1-5 minute TTL.
+2.  **XP Sources**:
+    - Navbar now displays real XP/Streak (removed placeholders).
+    - Ensure `CourseCompletion` and `QuizPass` events correctly trigger `awardXP`.
+3.  **UI Localization**:
+    - Removed "sci-fi" jargon (Protocol, Manifest, Sync) from Achievements page to make it more friendly for the target audience.
+
+## 5. Thesis Alignment (Chapter 6)
+- **Results Verification**:
+  - The gamification implementation aligns with Chapter 6 results ("Engagement is driven by gamification...").
+  - The "Western" language issue in UI has been addressed to better fit the local context as per "Project Overview".
+

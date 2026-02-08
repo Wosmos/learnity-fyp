@@ -23,6 +23,8 @@ import { Button } from '../ui/button';
 import { Progress } from '../ui/progress';
 import { EliteStreakCard } from './StreaksCard';
 import HighLights from './HighLights';
+import { QuestTracker } from '@/components/gamification/QuestTracker';
+import { Leaderboard } from '@/components/gamification/Leaderboard';
 
 function SideBar() {
   return (
@@ -83,6 +85,27 @@ function SideBar() {
       {/* 3. ACHIEVEMENTS - DIGITAL TROPHY CASE */}
       <section>
         <HighLights />
+      </section>
+
+      {/* 4. ACTIVE QUESTS - DAILY CHALLENGES */}
+      <section>
+        <QuestTracker
+          compact
+          limit={3}
+          frequency="daily"
+          showViewAll
+          onViewAll={() => (window.location.href = '/dashboard/student/achievements')}
+        />
+      </section>
+
+      {/* 5. LEADERBOARD - COMPETITIVE ELEMENT */}
+      <section>
+        <Leaderboard
+          compact
+          limit={5}
+          showViewAll
+          onViewAll={() => (window.location.href = '/dashboard/student/achievements')}
+        />
       </section>
     </div>
   );

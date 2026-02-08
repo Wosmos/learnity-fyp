@@ -21,6 +21,7 @@ import {
   LessonProgress,
   EnrollmentStatus,
   XPReason,
+  QuestType,
 } from '@prisma/client';
 import {
   IProgressService,
@@ -34,6 +35,8 @@ import {
   ProgressErrorCode,
 } from '@/lib/interfaces/progress.interface';
 import { prisma as defaultPrisma } from '@/lib/prisma';
+import { gamificationService } from '@/lib/services/gamification.service';
+import { XP_AMOUNTS } from '@/lib/interfaces/gamification.interface';
 
 /** Completion threshold - lesson is auto-completed when 90% watched */
 const COMPLETION_THRESHOLD = 0.9;
@@ -894,6 +897,7 @@ export class ProgressService implements IProgressService {
 
   /**
    * Check if course is completed (all lessons done, all quizzes passed)
+   * Enhanced with gamification integration
    * @private
    */
   private async checkCourseCompletion(
@@ -955,6 +959,15 @@ export class ProgressService implements IProgressService {
       }
     }
 
+    // Check if already completed (avoid duplicate rewards)
+    const enrollment = await this.prisma.enrollment.findUnique({
+      where: {
+        studentId_courseId: { studentId, courseId },
+      },
+    });
+
+    const wasAlreadyCompleted = enrollment?.status === EnrollmentStatus.COMPLETED;
+
     // Mark enrollment as completed
     await this.prisma.enrollment.update({
       where: {
@@ -967,7 +980,85 @@ export class ProgressService implements IProgressService {
       },
     });
 
+    // === GAMIFICATION INTEGRATION ===
+    // Only award rewards if this is the first completion
+    if (!wasAlreadyCompleted) {
+      try {
+        // 1. Award course completion XP
+        await gamificationService.awardXP(
+          studentId,
+          XP_AMOUNTS.COURSE_COMPLETE,
+          XPReason.COURSE_COMPLETE,
+          courseId
+        );
+
+        // 2. Update quest progress for course completion
+        await gamificationService.updateQuestProgress(
+          studentId,
+          QuestType.COURSE_ENROLLMENT // Using enrollment quest type for completion tracking
+        );
+
+        // 3. Check and award all relevant badges
+        await gamificationService.checkAllBadges(studentId);
+
+        // 4. Create certificate if not exists
+        await this.createCertificateIfNotExists(studentId, courseId);
+      } catch (error) {
+        // Log error but don't fail the completion
+        console.error('[checkCourseCompletion] Gamification error:', error);
+      }
+    }
+
     return true;
+  }
+
+  /**
+   * Create certificate for completed course if not already exists
+   * @private
+   */
+  private async createCertificateIfNotExists(
+    studentId: string,
+    courseId: string
+  ): Promise<void> {
+    // Check if certificate already exists
+    const existingCertificate = await this.prisma.certificate.findUnique({
+      where: {
+        studentId_courseId: { studentId, courseId },
+      },
+    });
+
+    if (existingCertificate) {
+      return;
+    }
+
+    // Generate unique certificate ID
+    const certificateId = this.generateCertificateId();
+
+    // Create certificate
+    await this.prisma.certificate.create({
+      data: {
+        studentId,
+        courseId,
+        certificateId,
+      },
+    });
+  }
+
+  /**
+   * Generate unique certificate ID
+   * @private
+   */
+  private generateCertificateId(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const segments = [];
+    for (let i = 0; i < 3; i++) {
+      let segment = '';
+      for (let j = 0; j < 4; j++) {
+        segment += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      segments.push(segment);
+    }
+    return segments.join('-'); // Format: XXXX-XXXX-XXXX
   }
 }
 

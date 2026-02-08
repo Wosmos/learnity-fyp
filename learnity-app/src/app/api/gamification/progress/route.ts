@@ -57,35 +57,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       _count: true,
     });
 
-    // Get weekly XP activity (last 7 days)
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-    const weeklyActivity = await prisma.xPActivity.findMany({
-      where: {
-        userId,
-        createdAt: { gte: sevenDaysAgo },
-      },
-      orderBy: { createdAt: 'asc' },
-    });
-
-    // Group by day for chart - ensure all 7 days are represented
-    const dailyXP: Record<string, number> = {};
-    const today = new Date();
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
-      dailyXP[dateStr] = 0;
-    }
-
-    weeklyActivity.forEach(activity => {
-      const day = activity.createdAt.toISOString().split('T')[0];
-      if (dailyXP[day] !== undefined) {
-        dailyXP[day] += activity.amount;
-      }
-    });
-
     return createSuccessResponse({
       ...progress,
       badgesWithMetadata,
@@ -94,7 +65,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         totalXP: item._sum.amount || 0,
         count: item._count,
       })),
-      weeklyXP: Object.entries(dailyXP).map(([date, xp]) => ({ date, xp })),
     });
   } catch (error) {
     console.error('[GET /api/gamification/progress] Error:', error);

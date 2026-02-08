@@ -288,7 +288,6 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
           title='Total Events'
           value={stats.summary.totalEvents.toLocaleString()}
           trendValue=''
-          trendLabel=''
           icon={Eye}
         />
 
@@ -296,7 +295,6 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
           title='Success Rate'
           value={`${successRate.toFixed(1)}%`}
           trendValue=''
-          trendLabel=''
           icon={Shield}
         />
 
@@ -304,7 +302,6 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
           title='Failed Logins'
           value={stats.summary.failedLogins.toLocaleString()}
           trendValue=''
-          trendLabel=''
           icon={AlertTriangle}
         />
 
@@ -312,7 +309,6 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
           title='Security Events'
           value={stats.summary.securityEvents.toLocaleString()}
           trendValue=''
-          trendLabel=''
           icon={Ban}
         />
       </div>

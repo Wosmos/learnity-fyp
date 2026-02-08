@@ -17,7 +17,7 @@ const LeftSideSection = ({
   return (
     <div
       className={cn(
-        'relative flex flex-col justify-between overflow-hidden bg-[#020617] p-8 md:p-12 lg:p-16 text-white border-b lg:border-b-0 lg:border-r border-white/5 w-full lg:w-1/2 min-h-[60vh] lg:min-h-screen ',
+        'relative flex flex-col justify-between overflow-hidden bg-[#020617] p-8 md:p-12 lg:p-16 text-white border-b lg:border-b-0 lg:border-r border-white/5 w-full lg:w-1/2 min-h-[60vh] lg:h-screen lg:sticky lg:top-0',
         className
       )}
     >
@@ -41,16 +41,16 @@ const LeftSideSection = ({
 
       <div className='relative z-10 max-w-xl my-12 lg:my-0'>
         <div className='space-y-6 md:space-y-8'>
-          <div className='inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs md:text-sm font-medium w-fit'>
+          <div className='inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[6px] md:text-xs font-medium w-fit'>
             <Star className='w-3.5 h-3.5 md:w-4 h-4 fill-current' />
             <span>Top-rated education platform</span>
           </div>
 
-          <h1 className='text-2xl lg:text-4xl xl:text-5xl font-black leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-slate-500 italic uppercase'>
+          <h1 className='text-xl lg:text-4xl xl:text-5xl font-black leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-slate-500 italic uppercase'>
             {title}
           </h1>
 
-          <p className='text-base md:text-lg lg:text-xl text-slate-400 leading-relaxed font-medium max-w-md'>
+          <p className='text-base md:text-md  text-slate-400 leading-relaxed font-medium max-w-md'>
             {subtitle}
           </p>
 

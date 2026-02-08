@@ -34,6 +34,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { EliteStreakCard } from '@/components/students/StreaksCard';
+import { QuestTracker } from '@/components/gamification/QuestTracker';
+import { Leaderboard } from '@/components/gamification/Leaderboard';
 
 interface Achievement {
   id: string;
@@ -67,7 +69,7 @@ interface GamificationData {
     icon: string;
   }>;
   xpBreakdown: Array<{ reason: string; totalXP: number; count: number }>;
-  weeklyXP: Array<{ date: string; xp: number }>;
+  dailyActivity: Array<{ date: Date; xp: number }>;
   recentXPActivities: Array<{
     id: string;
     amount: number;
@@ -339,8 +341,9 @@ export default function AchievementsPage() {
           activeCategory as keyof typeof aData.achievementsByCategory
         ] || [];
 
-  // Get max XP for chart
-  const maxWeeklyXP = Math.max(...(gData?.weeklyXP?.map(d => d.xp) || [1]), 1);
+  // Get max XP for chart (last 7 days)
+  const last7Days = gData?.dailyActivity?.slice(-7) || [];
+  const maxWeeklyXP = Math.max(...(last7Days.map(d => d.xp) || [1]), 1);
 
   return (
     <div className='flex-1 bg-slate-50 min-h-screen'>
@@ -427,8 +430,7 @@ export default function AchievementsPage() {
 
                       <div className='hidden md:block text-right'>
                         <div className='px-3 py-1 rounded-md bg-slate-900 border border-slate-800 text-[10px] font-black text-slate-400 uppercase tracking-widest'>
-                          Status:{' '}
-                          <span className='text-emerald-500'>Optimizing</span>
+                          <span className='text-emerald-500'>Active</span>
                         </div>
                       </div>
                     </div>
@@ -439,12 +441,12 @@ export default function AchievementsPage() {
                         <div className='flex items-center gap-2'>
                           <Zap className='h-3 w-3 text-amber-400 fill-amber-400' />
                           <span className='text-[10px] font-black uppercase tracking-widest text-slate-400'>
-                            Next Protocol: Lvl {(gData?.currentLevel || 1) + 1}
+                            Level {(gData?.currentLevel || 1) + 1}
                           </span>
                         </div>
                         <span className='text-[10px] font-black text-amber-400 uppercase tracking-tighter bg-amber-400/10 px-2 py-0.5 rounded'>
-                          -{gData?.xpToNextLevel?.toLocaleString() || 0} XP to
-                          Sync
+                          {gData?.xpToNextLevel?.toLocaleString() || 0} XP to
+                          Next Level
                         </span>
                       </div>
 
@@ -473,7 +475,10 @@ export default function AchievementsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <EliteStreakCard />
+            <EliteStreakCard
+              currentStreak={gData?.currentStreak}
+              activityData={gData?.dailyActivity}
+            />
           </motion.div>
         </section>
 
@@ -562,16 +567,16 @@ export default function AchievementsPage() {
               </CardHeader>
               <CardContent className='pt-4'>
                 <div className='flex items-end justify-between gap-2 h-32'>
-                  {(gData?.weeklyXP || []).map((day, i) => {
+                  {(last7Days || []).map((day, i) => {
                     const height =
                       day.xp > 0
                         ? Math.max(15, (day.xp / maxWeeklyXP) * 100)
                         : 5;
-                    const isToday = i === (gData?.weeklyXP?.length || 0) - 1;
+                    const isToday = i === (last7Days.length || 0) - 1;
 
                     return (
                       <div
-                        key={day.date}
+                        key={i}
                         className='flex-1 flex flex-col items-center gap-2'
                       >
                         <span className='text-xs font-bold text-slate-600'>
@@ -609,6 +614,27 @@ export default function AchievementsPage() {
           </motion.div>
         </section>
 
+        {/* Quests & Leaderboard Section */}
+        <section className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+          {/* Active Quests */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+          >
+            <QuestTracker className='h-full' />
+          </motion.div>
+
+          {/* Leaderboard */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Leaderboard limit={8} className='h-full' />
+          </motion.div>
+        </section>
+
         {/* Recent Activity */}
         {gData?.recentXPActivities && gData.recentXPActivities.length > 0 && (
           <motion.section
@@ -625,20 +651,20 @@ export default function AchievementsPage() {
                     </div>
                     <div>
                       <CardTitle className='text-sm font-black uppercase tracking-[0.2em] text-slate-900'>
-                        System{' '}
+                        Activity
                         <span className='text-slate-400 font-light italic'>
                           Logs
                         </span>
                       </CardTitle>
                       <p className='text-[9px] font-bold text-slate-400 uppercase tracking-tighter'>
-                        Real-time Experience Inflow
+                        Latest Updates
                       </p>
                     </div>
                   </div>
                   <div className='flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-50 border border-slate-100'>
                     <div className='h-1 w-1 rounded-full bg-emerald-500 animate-pulse' />
                     <span className='text-[9px] font-black text-slate-500 uppercase tracking-widest'>
-                      Active Sync
+                      Recent Activity
                     </span>
                   </div>
                 </div>
@@ -710,7 +736,7 @@ export default function AchievementsPage() {
 
                 {/* Action Footer */}
                 <button className='w-full mt-6 py-3 rounded-xl border border-dashed border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:bg-slate-50 hover:text-slate-600 transition-all'>
-                  View Full Activity Manifest
+                  View Full History
                 </button>
               </CardContent>
             </Card>
@@ -733,7 +759,7 @@ export default function AchievementsPage() {
                   </span>
                 </h2>
                 <p className='text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1'>
-                  System Milestone Tracking // Active
+                  Milestones // Active
                 </p>
               </div>
             </div>

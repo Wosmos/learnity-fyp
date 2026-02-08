@@ -142,6 +142,41 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
     }
   }, [authLoading, user, api]);
 
+  // Fetch gamification stats for students
+  useEffect(() => {
+    if (
+      !authLoading &&
+      user &&
+      role === 'student' &&
+      showStats &&
+      !stats?.xpPoints
+    ) {
+      const fetchStats = async () => {
+        try {
+          const response = await api.get('/api/gamification/progress');
+          if (response?.data) {
+            // We can't update props directly, but we can store this in local state
+            // However, the component expects stats via config.
+            // A better approach is to have a state that merges config.stats with fetched stats
+            setFetchedStats({
+              xpPoints: response.data.totalXP,
+              streak: response.data.currentStreak,
+              studyTime: '2h', // Placeholder or calculation from sessions
+            });
+          }
+        } catch (error) {
+          console.error('Failed to fetch gamification stats:', error);
+        }
+      };
+      fetchStats();
+    }
+  }, [authLoading, user, role, showStats, api, stats]);
+
+  const [fetchedStats, setFetchedStats] = useState<NavbarStats | null>(null);
+
+  // Use fetched stats if available, otherwise use config stats
+  const displayStats = fetchedStats ? { ...stats, ...fetchedStats } : stats;
+
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() || 'U';
   };
@@ -162,9 +197,9 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
         <div className='flex items-center gap-3 flex-1 md:hidden' />
 
         {/* Center/Right: Gamification Stats (Student Context) */}
-        {showStats && stats && (
+        {showStats && displayStats && (
           <div className='hidden md:flex items-center gap-3'>
-            {stats.studyTime && (
+            {displayStats.studyTime && (
               <div
                 className='group relative flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-white border border-transparent hover:border-slate-200 hover:shadow-sm transition-all duration-300 cursor-default'
                 title='Time spent learning today'
@@ -173,12 +208,12 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
                   <Clock className='h-3.5 w-3.5 text-slate-600 group-hover:text-blue-600 transition-colors' />
                 </div>
                 <span className='text-sm font-semibold text-slate-600 group-hover:text-slate-900'>
-                  {stats.studyTime}
+                  {displayStats.studyTime}
                 </span>
               </div>
             )}
 
-            {stats.xpPoints !== undefined && (
+            {displayStats.xpPoints !== undefined && (
               <div
                 className='group relative flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-white border border-transparent hover:border-indigo-100 hover:shadow-sm hover:shadow-indigo-100/50 transition-all duration-300 cursor-default'
                 title='Total Experience Points'
@@ -187,7 +222,7 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
                   <Zap className='h-3.5 w-3.5 text-slate-600 group-hover:text-indigo-600 group-hover:fill-indigo-600 transition-all duration-300' />
                 </div>
                 <span className='text-sm font-bold bg-gradient-to-r from-slate-700 to-slate-900 group-hover:from-indigo-600 group-hover:to-purple-600 bg-clip-text text-transparent transition-all'>
-                  {stats.xpPoints.toLocaleString()}{' '}
+                  {displayStats.xpPoints.toLocaleString()}{' '}
                   <span className='text-xs font-medium text-slate-400 group-hover:text-indigo-400'>
                     XP
                   </span>
@@ -195,7 +230,7 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
               </div>
             )}
 
-            {stats.streak !== undefined && stats.streak > 0 && (
+            {displayStats.streak !== undefined && displayStats.streak > 0 && (
               <div
                 className='group relative flex items-center gap-2 pr-4 pl-3 py-1.5 rounded-full bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 hover:from-orange-100 hover:via-amber-100 hover:to-yellow-100 border border-orange-100 hover:border-orange-200 hover:shadow-md hover:shadow-orange-100 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer'
                 title='Current Learning Streak'
@@ -205,7 +240,7 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
                 </div>
                 <div className='flex flex-col items-start leading-none -space-y-0.5'>
                   <span className='text-xs font-bold text-orange-700'>
-                    {stats.streak} Day
+                    {displayStats.streak} Day
                   </span>
                   <span className='text-[10px] font-medium text-orange-600/80 uppercase tracking-wide'>
                     Streak
@@ -303,8 +338,8 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
                     role === 'teacher'
                       ? '/dashboard/teacher/profile/enhance'
                       : role === 'student'
-                      ? '/dashboard/student/profile/enhance'
-                      : '/profile/enhance'
+                        ? '/dashboard/student/profile/enhance'
+                        : '/profile/enhance'
                   }
                 >
                   <User className='mr-2 h-4 w-4 text-slate-500' />

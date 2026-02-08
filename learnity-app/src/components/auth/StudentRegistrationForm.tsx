@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { GraduationCap, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
@@ -153,17 +154,6 @@ export const StudentRegistrationForm: React.FC<
       <div className={`w-full max-w-2xl mx-auto ${className}`}>
         <div className='space-y-6'>
           <div className='space-y-2 text-center lg:text-left'>
-            {/* Back Button for simple variant if needed, or rely on external navigation */}
-            <Button
-              variant='ghost'
-              size='sm'
-              onClick={handleBack}
-              className='text-gray-600 hover:text-gray-900 pl-0 -ml-3'
-            >
-              <ArrowLeft className='h-4 w-4 mr-2' />
-              Back
-            </Button>
-
             <h1 className='text-3xl font-bold tracking-tight'>
               Student Registration
             </h1>
@@ -410,19 +400,19 @@ export const StudentRegistrationForm: React.FC<
                       <div className='space-y-1 leading-none'>
                         <FormLabel className='text-sm font-normal'>
                           I agree to the{' '}
-                          <button
-                            type='button'
+                          <Link
+                            href='/terms'
                             className='text-blue-600 hover:text-blue-700 underline'
                           >
                             Terms of Service
-                          </button>{' '}
+                          </Link>{' '}
                           and{' '}
-                          <button
-                            type='button'
+                          <Link
+                            href='/privacy'
                             className='text-blue-600 hover:text-blue-700 underline'
                           >
                             Privacy Policy
-                          </button>
+                          </Link>
                         </FormLabel>
                         <FormMessage />
                       </div>
@@ -752,19 +742,19 @@ export const StudentRegistrationForm: React.FC<
                       <div className='space-y-1 leading-none'>
                         <FormLabel className='text-sm font-normal'>
                           I agree to the{' '}
-                          <button
-                            type='button'
+                          <Link
+                            href='/terms'
                             className='text-blue-600 hover:text-blue-700 underline'
                           >
                             Terms of Service
-                          </button>{' '}
+                          </Link>{' '}
                           and{' '}
-                          <button
-                            type='button'
+                          <Link
+                            href='/privacy'
                             className='text-blue-600 hover:text-blue-700 underline'
                           >
                             Privacy Policy
-                          </button>
+                          </Link>
                         </FormLabel>
                         <FormMessage />
                       </div>

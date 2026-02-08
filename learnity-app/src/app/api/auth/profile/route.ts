@@ -12,6 +12,7 @@ import {
   createNotFoundErrorResponse,
   withErrorHandling,
 } from '@/lib/utils/api-response.utils';
+import { gamificationService } from '@/lib/services/gamification.service';
 
 // Cache profile data for 5 minutes on client side
 const CACHE_MAX_AGE = 300; // 5 minutes
@@ -86,6 +87,13 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     profileData,
     'Profile retrieved successfully'
   );
+
+  // Award daily login XP (non-blocking, don't fail profile request)
+  if (userProfile.role === 'STUDENT') {
+    gamificationService.awardDailyLoginXP(userProfile.id).catch(err => {
+      console.error('[Profile API] Daily login XP error (non-blocking):', err);
+    });
+  }
 
   // Add cache headers - private cache for authenticated data
   response.headers.set(
