@@ -11,6 +11,7 @@ import {
   type CourseFiltersState,
   type Category,
 } from '@/components/courses';
+import { CompactPagination } from '@/components/shared/CompactPagination';
 import { cn } from '@/lib/utils';
 
 interface CourseData {
@@ -162,7 +163,7 @@ export default function CourseCatalogClient({
               value={searchQuery}
               onChange={setSearchQuery}
               placeholder='Search courses...'
-              className='w-full h-14 pl-14 pr-6 bg-slate-50 border-none rounded-2xl text-sm'
+              className='w-full h-14 pl-14 pr-6 bg-slate-50 border-none rounded-xl text-sm'
               debounceMs={0} // We handle debounce locally for URL stability
             />
           </div>
@@ -215,44 +216,79 @@ export default function CourseCatalogClient({
       </div>
 
       <div className='flex flex-col gap-10 min-h-[600px]'>
-        <div className='flex items-center justify-between px-2'>
-          <div className='space-y-1'>
-            <h3 className='text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]'>
-              Course Catalog
-            </h3>
-            <p className='text-sm font-bold text-slate-800'>
-              Found {initialTotal} courses{' '}
-              {searchQuery && <span>matching "{searchQuery}"</span>}
+        <div className='flex items-end justify-between px-2'>
+          <div className='space-y-2'>
+            <div className='flex items-center gap-2'>
+              <div className='h-1 w-8 bg-indigo-600 rounded-full' />
+              <h3 className='text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]'>
+                Course Catalog
+              </h3>
+            </div>
+            <h2 className='text-3xl font-black text-slate-900 tracking-tighter uppercase italic leading-none'>
+              {searchQuery ? (
+                <>
+                  Searching for{' '}
+                  <span className='text-indigo-600'>"{searchQuery}"</span>
+                </>
+              ) : (
+                <>
+                  Available <span className='text-indigo-600'>Programs</span>
+                </>
+              )}
+            </h2>
+            <p className='text-xs font-bold text-slate-400'>
+              Discover <span className='text-slate-900'>{initialTotal}</span>{' '}
+              curated courses professionaly designed for your success.
             </p>
           </div>
-          {currentPage > 1 && (
-            <span className='text-xs font-black text-indigo-600 uppercase tracking-widest'>
-              Page {currentPage}
-            </span>
+
+          {initialTotalPages > 1 && (
+            <CompactPagination
+              currentPage={currentPage}
+              totalPages={initialTotalPages}
+              onPageChange={handlePageChange}
+              className='hidden md:flex'
+            />
           )}
         </div>
 
         {initialCourses.length === 0 ? (
-          <div className='bg-slate-50 rounded-[3rem] py-32 text-center border-2 border-dashed border-slate-100 opacity-60'>
-            <h3 className='text-xl font-black text-slate-900 uppercase'>
+          <div className='bg-slate-50 rounded-[1.3rem] py-32 text-center border-2 border-dashed border-slate-200/50 opacity-60'>
+            <div className='mb-6 opacity-20'>
+              <Search className='h-12 w-12 mx-auto text-slate-400' />
+            </div>
+            <h3 className='text-xl font-black text-slate-900 uppercase italic'>
               No courses found
             </h3>
-            <p className='text-slate-400 text-sm mt-2'>
-              Try adjusting your filters or search terms.
+            <p className='text-slate-400 text-sm mt-2 font-medium'>
+              We couldn't find any courses matching your specific criteria.
             </p>
+            <Button
+              variant='outline'
+              className='mt-8 rounded-xl font-black text-xs uppercase'
+              onClick={() => {
+                setSearchQuery('');
+                handleFiltersChange({
+                  sortBy: 'popular',
+                });
+              }}
+            >
+              Clear All Filters
+            </Button>
           </div>
         ) : (
           <div
             className={cn(
+              'relative rounded-[3rem] transition-all duration-500',
               viewMode === 'grid'
-                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8'
-                : 'flex flex-col gap-4 max-w-5xl mx-auto w-full'
+                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-8'
+                : 'flex flex-col gap-4 max-w-7xl mx-auto w-full'
             )}
           >
-            {initialCourses.map(course => (
+            {initialCourses.map((course, idx) => (
               <div
                 key={course.id}
-                className='transition-transform duration-300 hover:scale-[1.01]'
+                className='transition-all duration-500 hover:translate-y-[-4px]'
               >
                 <CourseCard
                   id={course.id}
@@ -277,19 +313,14 @@ export default function CourseCatalogClient({
           </div>
         )}
 
-        {/* Simple Pagination */}
+        {/* Bottom Pagination for Mobile & Desktop Backup */}
         {initialTotalPages > 1 && (
-          <div className='flex justify-center gap-2 mt-20'>
-            {Array.from({ length: initialTotalPages }).map((_, i) => (
-              <Button
-                key={i}
-                variant={currentPage === i + 1 ? 'default' : 'outline'}
-                onClick={() => handlePageChange(i + 1)}
-                className='rounded-xl font-black text-xs h-12 w-12'
-              >
-                {i + 1}
-              </Button>
-            ))}
+          <div className='flex justify-center mt-10 border-t border-slate-50 pt-10'>
+            <CompactPagination
+              currentPage={currentPage}
+              totalPages={initialTotalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
         )}
       </div>

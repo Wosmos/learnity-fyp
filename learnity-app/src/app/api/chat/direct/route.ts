@@ -17,7 +17,7 @@ import {
 
 /**
  * GET /api/chat/direct
- * Get all direct message channels for the authenticated user
+ * Get all chat channels (DMs and Group Chats) for the authenticated user
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -40,17 +40,27 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       return createAuthErrorResponse('User not found in database');
     }
 
-    // Get all DM channels where user is a participant
-    const channels = await prisma.directMessageChannel.findMany({
+    // 1. Get all DM channels
+    const dmChannels = await prisma.directMessageChannel.findMany({
       where: {
         OR: [{ user1Id: dbUser.id }, { user2Id: dbUser.id }],
       },
       orderBy: { lastMessageAt: 'desc' },
     });
 
-    // Enrich with other user's details
-    const enrichedChannels = await Promise.all(
-      channels.map(async channel => {
+    // 2. Get all Teacher Group Chats (as teacher or member)
+    const teacherGroupChats = await prisma.teacherGroupChat.findMany({
+      where: {
+        OR: [
+          { teacherId: dbUser.id },
+          { members: { some: { studentId: dbUser.id } } },
+        ],
+      },
+    });
+
+    // Enrich DMs
+    const enrichedDMs = await Promise.all(
+      dmChannels.map(async channel => {
         const otherUserId =
           channel.user1Id === dbUser.id ? channel.user2Id : channel.user1Id;
 
@@ -70,6 +80,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           streamChannelId: channel.streamChannelId,
           lastMessageAt: channel.lastMessageAt,
           createdAt: channel.createdAt,
+          type: 'dm',
           otherUser: otherUser
             ? {
                 id: otherUser.id,
@@ -82,18 +93,35 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       })
     );
 
+    // Map Group Chats
+    const enrichedGroups = teacherGroupChats.map(chat => ({
+      id: chat.id,
+      streamChannelId: chat.streamChannelId,
+      lastMessageAt: null, // We don't track this yet in DB for groups
+      createdAt: chat.createdAt,
+      type: 'group',
+      name: chat.name,
+      description: chat.description,
+      otherUser: null,
+    }));
+
+    // Merge and sort
+    const allChannels = [...enrichedDMs, ...enrichedGroups].sort((a, b) => {
+      const dateA = a.lastMessageAt || a.createdAt;
+      const dateB = b.lastMessageAt || b.createdAt;
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
+    });
+
     return createSuccessResponse(
       {
-        channels: enrichedChannels,
-        total: enrichedChannels.length,
+        channels: allChannels,
+        total: allChannels.length,
       },
-      'Direct message channels retrieved successfully'
+      'Chat channels retrieved successfully'
     );
   } catch (error) {
-    console.error('Error fetching DM channels:', error);
-    return createInternalErrorResponse(
-      'Failed to fetch direct message channels'
-    );
+    console.error('Error fetching chat channels:', error);
+    return createInternalErrorResponse('Failed to fetch chat channels');
   }
 }
 

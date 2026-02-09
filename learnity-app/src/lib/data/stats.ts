@@ -6,6 +6,7 @@
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/config/database';
+import { serializeData } from '@/lib/utils';
 
 export interface PlatformStats {
   activeLearners: number;
@@ -371,11 +372,11 @@ export const prefetchCoursesData = cache(async () => {
       }),
     ]);
 
-    return {
+    return serializeData({
       featuredCourses,
       categories,
       topTeachers,
-    };
+    });
   } catch (error) {
     console.error('Error prefetching courses data:', error);
     return {
@@ -457,11 +458,11 @@ export const prefetchTeachersData = cache(async () => {
       new Set(subjects.flatMap(profile => profile.subjects))
     ).sort();
 
-    return {
+    return serializeData({
       teachers: allTeachers,
       subjects: uniqueSubjects,
       stats: teacherStats,
-    };
+    });
   } catch (error) {
     console.error('Error prefetching teachers data:', error);
     return {

@@ -131,18 +131,18 @@ export function CourseCard({
       <Card
         className={cn(
           courseCardVariants({ size }),
-          'bg-white border-slate-100 rounded-[2rem] p-3 transition-all duration-500',
-          'hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] hover:border-indigo-200',
+          'bg-white border-slate-100/50 rounded-[2.5rem] p-3 transition-all duration-700',
+          'hover:shadow-[0_32px_84px_-20px_rgba(79,70,229,0.15)] hover:border-indigo-200/50 hover:-translate-y-1',
           className
         )}
       >
         {/* THUMBNAIL TERMINAL */}
         <div
           className={cn(
-            'relative rounded-[1.5rem] overflow-hidden bg-slate-100',
+            'relative rounded-[2rem] overflow-hidden bg-slate-100 shadow-inner',
             size === 'grid'
               ? 'aspect-[16/10] w-full'
-              : 'w-full md:w-64 h-48 shrink-0'
+              : 'w-full md:w-80 h-56 shrink-0'
           )}
         >
           <Image
@@ -154,16 +154,24 @@ export function CourseCard({
           />
 
           {/* HUD OVERLAYS */}
-          <div className='absolute top-3 left-3 flex gap-2'>
+          <div className='absolute top-4 left-4 flex flex-col gap-2'>
             <div
               className={cn(
-                'px-3 py-1 rounded-lg border backdrop-blur-md text-[9px] font-black uppercase tracking-widest',
+                'px-4 py-1.5 rounded-xl border backdrop-blur-xl text-[9px] font-black uppercase tracking-[0.2em] shadow-lg',
                 diff.bg,
                 diff.color
               )}
             >
               {diff.label}
             </div>
+
+            {(createdAt || updatedAt) &&
+              new Date(createdAt || updatedAt!).getTime() >
+                Date.now() - 7 * 24 * 60 * 60 * 1000 && (
+                <div className='w-fit px-4 py-1.5 bg-indigo-600 text-white rounded-xl text-[9px] font-black uppercase tracking-[0.2em] shadow-lg shadow-indigo-200 animate-pulse'>
+                  NEW RELEASE
+                </div>
+              )}
           </div>
 
           <div className='absolute top-3 right-3'>

@@ -17,7 +17,7 @@ const LeftSideSection = ({
   return (
     <div
       className={cn(
-        'relative flex flex-col justify-between overflow-hidden bg-[#020617] p-8 md:p-12 lg:p-16 text-white border-b lg:border-b-0 lg:border-r border-white/5 w-full lg:w-1/2 min-h-[60vh] lg:h-screen lg:sticky lg:top-0',
+        'hidden relative md:flex flex-col justify-between overflow-hidden bg-[#020617] p-8 md:p-12 lg:p-16 text-white border-b lg:border-b-0 lg:border-r border-white/5 w-full lg:w-1/2 min-h-[60vh] lg:h-screen lg:sticky lg:top-0',
         className
       )}
     >

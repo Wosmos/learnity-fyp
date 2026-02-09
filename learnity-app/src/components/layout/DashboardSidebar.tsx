@@ -78,7 +78,7 @@ export interface SidebarConfig {
 const teacherNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard/teacher', icon: Home },
   { label: 'My Courses', href: '/dashboard/teacher/courses', icon: BookOpen },
-  { label: 'Chat', href: '/Chat', icon: MessageCircle },
+  { label: 'Chat', href: '/messages', icon: MessageCircle },
   {
     label: 'Create Course',
     href: '/dashboard/teacher/courses/new',
@@ -92,8 +92,12 @@ const teacherNavItems: NavItem[] = [
 const studentNavItems: NavItem[] = [
   { label: 'Home', href: '/dashboard/student', icon: Home },
   { label: 'Courses', href: '/dashboard/student/courses', icon: BookOpen },
-  { label: 'Browse Courses', href: '/dashboard/student/public-cources', icon: Search },
-  { label: 'Chat', href: '/Chat', icon: MessageCircle },
+  {
+    label: 'Browse Courses',
+    href: '/dashboard/student/public-cources',
+    icon: Search,
+  },
+  { label: 'Chat', href: '/messages', icon: MessageCircle },
   {
     label: 'Progress',
     href: '/dashboard/student/progress',
@@ -115,7 +119,6 @@ const adminNavItems: NavItem[] = [
   },
   { label: 'Demo Tools', href: '/admin/demo', icon: Play },
   { label: 'Auth Debug', href: '/admin/auth-test', icon: Lock },
-
 ];
 
 export const teacherSidebarConfig: SidebarConfig = {

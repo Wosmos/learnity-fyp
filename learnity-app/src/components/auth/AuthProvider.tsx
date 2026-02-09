@@ -165,15 +165,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Clear all learnity/firebase/auth related items from localStorage
         const keysToRemove = Object.keys(localStorage).filter(
           key =>
-            key.startsWith('learnity-') ||
-            key.startsWith('firebase-') ||
-            key.startsWith('auth-')
+            key.toLowerCase().includes('learnity') ||
+            key.toLowerCase().includes('firebase') ||
+            key.toLowerCase().includes('auth-')
         );
         keysToRemove.forEach(key => localStorage.removeItem(key));
-
-        // Clear specific known keys just in case
-        localStorage.removeItem('learnity_user_claims');
-        localStorage.removeItem('learnity-auth-storage');
 
         // Clear sessionStorage
         sessionStorage.clear();
@@ -181,11 +177,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Clear any auth-related cookies
         document.cookie.split(';').forEach(cookie => {
           const eqPos = cookie.indexOf('=');
-          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+          const name =
+            eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
           if (
             name.includes('auth') ||
             name.includes('session') ||
-            name.includes('token')
+            name.includes('token') ||
+            name.includes('learnity')
           ) {
             document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
           }
@@ -244,9 +242,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async firebaseUser => {
+      // VERY IMPORTANT: Clear any previous state immediately to prevent crossover
+      // especially when switching users without a hard page reload
       setLoading(true);
 
       if (firebaseUser) {
+        // Clear existing claims/profile before setting new user
+        // This prevents components from seeing a mismatched (newUser, oldClaims) state
+        setClaims(null);
+        setProfile(null);
+        clearProfile();
+
         try {
           setUser(firebaseUser);
 
@@ -352,10 +358,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           fetchingRef.current = false;
         }
       } else {
-        // User signed out - clear cache
+        // User signed out - clear everything
         clearAuth();
         clearProfile(); // Clear centralized profile store
         localStorage.removeItem('learnity_user_claims');
+        fetchingRef.current = false; // Reset fetching ref for next login
       }
 
       setLoading(false);
@@ -523,8 +530,9 @@ export const withAuth = <P extends object>(
     </AuthProvider>
   );
 
-  WrappedComponent.displayName = `withAuth(${Component.displayName || Component.name
-    })`;
+  WrappedComponent.displayName = `withAuth(${
+    Component.displayName || Component.name
+  })`;
   return WrappedComponent;
 };
 

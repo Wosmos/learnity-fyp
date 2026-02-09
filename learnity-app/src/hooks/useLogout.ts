@@ -87,9 +87,9 @@ export const useLogout = (): LogoutHook => {
           // Clear localStorage items related to auth
           const keysToRemove = Object.keys(localStorage).filter(
             key =>
-              key.startsWith('learnity-') ||
-              key.startsWith('firebase-') ||
-              key.startsWith('auth-')
+              key.toLowerCase().includes('learnity') ||
+              key.toLowerCase().includes('firebase') ||
+              key.toLowerCase().includes('auth-')
           );
           keysToRemove.forEach(key => localStorage.removeItem(key));
 
@@ -104,7 +104,8 @@ export const useLogout = (): LogoutHook => {
             if (
               name.includes('auth') ||
               name.includes('session') ||
-              name.includes('token')
+              name.includes('token') ||
+              name.includes('learnity')
             ) {
               document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
             }

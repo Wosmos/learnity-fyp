@@ -6,11 +6,20 @@ export const metadata: Metadata = {
   description: 'Your conversations with teachers and students.',
 };
 
-export default function MessagesPage() {
+export default async function MessagesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ channelId?: string; userId?: string }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+
   return (
-    <div className='max-w-4xl mx-auto'>
-      <h1 className='text-2xl font-bold mb-6 text-slate-900'>Messages</h1>
-      <DirectMessages className='min-h-[600px] border shadow-sm' />
+    <div className='w-full h-full'>
+      <DirectMessages
+        className='w-full'
+        initialChannelId={resolvedSearchParams.channelId}
+        initialOtherUserId={resolvedSearchParams.userId}
+      />
     </div>
   );
 }

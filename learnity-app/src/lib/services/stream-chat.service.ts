@@ -175,6 +175,58 @@ class StreamChatService implements IStreamChatService {
     const response = await channel.queryMembers({});
     return response.members.map(m => m.user_id || '').filter(Boolean);
   }
+
+  /**
+   * Create a teacher group chat channel
+   * Channel ID format: group_{timestamp}
+   */
+  async createTeacherGroupChannel(
+    channelId: string,
+    chatName: string,
+    teacherId: string,
+    studentIds: string[]
+  ): Promise<string> {
+    const client = this.getClient();
+
+    // All members including teacher
+    const members = Array.from(new Set([teacherId, ...studentIds]));
+
+    const channel = client.channel('messaging', channelId, {
+      members,
+      created_by_id: teacherId,
+    });
+
+    await channel.create();
+    await channel.update({ name: chatName } as Record<string, unknown>);
+
+    return channelId;
+  }
+
+  /**
+   * Create a session chat channel
+   * Channel ID format: session_{timestamp}
+   */
+  async createSessionChannel(
+    channelId: string,
+    sessionTitle: string,
+    teacherId: string,
+    participantIds: string[]
+  ): Promise<string> {
+    const client = this.getClient();
+
+    // All members including teacher
+    const members = Array.from(new Set([teacherId, ...participantIds]));
+
+    const channel = client.channel('messaging', channelId, {
+      members,
+      created_by_id: teacherId,
+    });
+
+    await channel.create();
+    await channel.update({ name: sessionTitle } as Record<string, unknown>);
+
+    return channelId;
+  }
 }
 
 // Export singleton instance

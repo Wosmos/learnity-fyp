@@ -28,3 +28,8 @@ function formatDuration(seconds: number): string {
 
   return `${minutes}m`;
 }
+
+export function serializeData<T>(data: T): T {
+  if (data === null || data === undefined) return data;
+  return JSON.parse(JSON.stringify(data));
+}

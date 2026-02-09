@@ -50,6 +50,14 @@ model User {
   userQuests   UserQuest[]   @relation("UserQuests")
   badges       Badge[]       @relation("UserBadges")
 
+  // Teacher Sessions & Communication Relations
+  teacherGroupChats     TeacherGroupChat[]         @relation("TeacherGroupChats")
+  groupChatMemberships  TeacherGroupChatMember[]   @relation("GroupChatMemberships")
+  teacherSessions       VideoSession[]             @relation("TeacherSessions")
+  sessionParticipations VideoSessionParticipant[]  @relation("SessionParticipations")
+  notifications         SessionNotification[]      @relation("UserNotifications")
+  deviceTokens          DeviceToken[]              @relation("DeviceTokens")
+
   // Indexes for optimal query performance
   @@index([firebaseUid])
   @@index([email])
@@ -885,4 +893,183 @@ model DirectMessageChannel {
   @@index([user2Id])
   @@index([lastMessageAt])
   @@map("direct_message_channels")
+}
+
+// ============================================
+// TEACHER SESSIONS & COMMUNICATION HUB
+// ============================================
+
+// Teacher-created group chats (independent of courses)
+model TeacherGroupChat {
+  id              String   @id @default(cuid())
+  teacherId       String
+  name            String
+  description     String?
+  streamChannelId String   @unique // GetStream channel ID
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  teacher User                      @relation("TeacherGroupChats", fields: [teacherId], references: [id], onDelete: Cascade)
+  members TeacherGroupChatMember[]
+  
+  @@index([teacherId])
+  @@map("teacher_group_chats")
+}
+
+model TeacherGroupChatMember {
+  id        String   @id @default(cuid())
+  chatId    String
+  studentId String
+  addedAt   DateTime @default(now())
+  
+  chat    TeacherGroupChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  student User             @relation("GroupChatMemberships", fields: [studentId], references: [id], onDelete: Cascade)
+  
+  @@unique([chatId, studentId])
+  @@index([studentId])
+  @@map("teacher_group_chat_members")
+}
+
+// Scheduled video sessions (one-time or recurring)
+model VideoSession {
+  id          String      @id @default(cuid())
+  teacherId   String
+  title       String
+  description String?
+  sessionType SessionType // CLASS, ONE_ON_ONE, GROUP_MEETING
+  
+  // Scheduling
+  scheduledAt DateTime
+  duration    Int // minutes
+  isRecurring Boolean         @default(false)
+  recurrence  RecurrenceType? // DAILY, WEEKLY
+  
+  // 100ms integration
+  hmsRoomId   String?
+  hmsRoomName String?
+  
+  // GetStream chat for session
+  streamChannelId String? @unique
+  
+  // Status
+  status              VideoSessionStatus @default(SCHEDULED)
+  startedAt           DateTime?
+  endedAt             DateTime?
+  cancelledAt         DateTime?
+  cancellationReason  String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  teacher       User                       @relation("TeacherSessions", fields: [teacherId], references: [id], onDelete: Cascade)
+  participants  VideoSessionParticipant[]
+  notifications SessionNotification[]
+  
+  @@index([teacherId])
+  @@index([scheduledAt])
+  @@index([status])
+  @@map("video_sessions")
+}
+
+model VideoSessionParticipant {
+  id        String   @id @default(cuid())
+  sessionId String
+  studentId String
+  
+  // Attendance tracking
+  joinedAt DateTime?
+  leftAt   DateTime?
+  attended Boolean   @default(false)
+  
+  session VideoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student User         @relation("SessionParticipations", fields: [studentId], references: [id], onDelete: Cascade)
+  
+  @@unique([sessionId, studentId])
+  @@index([studentId])
+  @@map("video_session_participants")
+}
+
+// Push notifications tracking
+model SessionNotification {
+  id        String           @id @default(cuid())
+  sessionId String?
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  data      Json? // Additional data for deep linking
+  
+  // Delivery status
+  sent   Boolean   @default(false)
+  sentAt DateTime?
+  read   Boolean   @default(false)
+  readAt DateTime?
+  
+  // FCM/APNs tokens
+  fcmToken  String?
+  apnsToken String?
+  
+  createdAt DateTime @default(now())
+  
+  session VideoSession? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User          @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([sessionId])
+  @@index([sent])
+  @@index([read])
+  @@map("session_notifications")
+}
+
+// Store FCM/APNs device tokens
+model DeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  platform  Platform // WEB, ANDROID, IOS
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user User @relation("DeviceTokens", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([isActive])
+  @@map("device_tokens")
+}
+
+// Enums for Teacher Sessions
+enum SessionType {
+  CLASS
+  ONE_ON_ONE
+  GROUP_MEETING
+}
+
+enum RecurrenceType {
+  DAILY
+  WEEKLY
+}
+
+enum VideoSessionStatus {
+  SCHEDULED
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  GROUP_CHAT_CREATED
+  NEW_MESSAGE
+  INSTANT_CALL_STARTED
+  SESSION_SCHEDULED
+  SESSION_REMINDER
+  SESSION_LIVE
+  SESSION_CANCELLED
+  SESSION_RESCHEDULED
+}
+
+enum Platform {
+  WEB
+  ANDROID
+  IOS
 }

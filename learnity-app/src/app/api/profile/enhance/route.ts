@@ -13,8 +13,8 @@ const profileService = new ProfileEnhancementService();
 
 // Validation schema
 const profileUpdateSchema = z.object({
-  firstName: z.string().min(1, 'First name is required').optional(),
-  lastName: z.string().min(1, 'Last name is required').optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
   learningGoals: z.array(z.string()).optional(),
   interests: z.array(z.string()).optional(),
   studyPreferences: z.array(z.string()).optional(),

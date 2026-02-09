@@ -11,6 +11,7 @@ import {
   getPlatformStats,
   getDetailedStats,
 } from '@/lib/data/stats';
+import { serializeData } from '@/lib/utils';
 
 export interface PrefetchStrategy {
   immediate: string[]; // Data to prefetch immediately
@@ -34,13 +35,13 @@ export const prefetchHomePageData = cache(async () => {
       ]
     );
 
-    return {
+    return serializeData({
       stats,
       detailedStats,
       coursesData,
       teachersData,
       prefetchedAt: new Date().toISOString(),
-    };
+    });
   } catch (error) {
     console.error('Error prefetching home page data:', error);
     return null;
@@ -115,11 +116,11 @@ export const prefetchCoursesPage = cache(async () => {
       ),
     ]);
 
-    return {
+    return serializeData({
       ...data,
       popularCourses,
       recentCourses,
-    };
+    });
   } catch (error) {
     console.error('Error prefetching courses page:', error);
     return null;
@@ -190,12 +191,12 @@ export const prefetchTeachersPage = cache(async () => {
         ),
       ]);
 
-    return {
+    return serializeData({
       ...data,
       topRatedTeachers,
       newTeachers,
       teachersBySubject,
-    };
+    });
   } catch (error) {
     console.error('Error prefetching teachers page:', error);
     return null;

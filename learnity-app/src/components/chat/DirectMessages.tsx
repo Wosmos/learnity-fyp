@@ -39,6 +39,9 @@ interface DMChannel {
   id: string;
   streamChannelId: string;
   lastMessageAt: string | null;
+  type: 'dm' | 'group';
+  name?: string;
+  description?: string;
   otherUser: {
     id: string;
     name: string;
@@ -51,12 +54,14 @@ interface DirectMessagesProps {
   className?: string;
   onClose?: () => void;
   initialOtherUserId?: string;
+  initialChannelId?: string;
 }
 
 export function DirectMessages({
   className,
   onClose,
   initialOtherUserId,
+  initialChannelId,
 }: DirectMessagesProps) {
   const { user } = useAuthStore();
   const { client, isConnected, isLoading: clientLoading } = useChatClient();
@@ -72,9 +77,12 @@ export function DirectMessages({
 
   // Fetch DM channels
   useEffect(() => {
-    const fetchChannels = async () => {
-      if (!user) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
 
+    const fetchChannels = async () => {
       try {
         setIsLoading(true);
         const token = await user.getIdToken();
@@ -160,6 +168,38 @@ export function DirectMessages({
     }
   }, [client, isConnected, channels, initialOtherUserId]);
 
+  // Effect to sync selection when initialChannelId is provided
+  useEffect(() => {
+    if (!client || !isConnected || !initialChannelId) return;
+
+    // Prevent re-watching if already selected
+    if (selectedChannel?.id === initialChannelId) return;
+
+    const selectInitialChannel = async () => {
+      try {
+        const channel = client.channel('messaging', initialChannelId);
+        await channel.watch();
+        setSelectedChannel(channel);
+
+        // Enrichment: search in loaded channels
+        const existing = channels.find(
+          c => c.streamChannelId === initialChannelId
+        );
+        if (existing) {
+          setSelectedUser(existing.otherUser);
+        } else {
+          // If not in our list (e.g. it's a group chat not returned by api/chat/direct yet)
+          // we rely on channel.data.name in the UI header
+          setSelectedUser(null);
+        }
+      } catch (error) {
+        console.error('Failed to open initial channel:', error);
+      }
+    };
+
+    selectInitialChannel();
+  }, [client, isConnected, initialChannelId, channels, selectedChannel?.id]);
+
   // Select a channel
   const handleSelectChannel = async (dmChannel: DMChannel) => {
     if (!client || !isConnected) return;
@@ -175,17 +215,36 @@ export function DirectMessages({
   };
 
   // Filter channels by search
-  const filteredChannels = channels.filter(ch =>
-    ch.otherUser?.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredChannels = channels.filter(ch => {
+    const searchLower = searchQuery.toLowerCase();
+    const otherUserName = ch.otherUser?.name?.toLowerCase() || '';
+    const groupName = ch.name?.toLowerCase() || '';
+    return (
+      otherUserName.includes(searchLower) || groupName.includes(searchLower)
+    );
+  });
 
   // Loading state
-  if (clientLoading || isLoading) {
+  // Only block if we don't have a selected channel yet, or if the client itself is still loading
+  // Also block if we have a deep link target but haven't loaded it yet to prevent flashing the list
+  const isTransitioningDeepLink = !!initialChannelId && !selectedChannel;
+
+  if (
+    clientLoading ||
+    (isLoading && !selectedChannel) ||
+    isTransitioningDeepLink
+  ) {
     return (
       <Card className={className}>
         <CardContent className='flex flex-col items-center justify-center h-96 gap-4'>
           <Loader2 className='h-8 w-8 animate-spin text-indigo-600' />
-          <p className='text-slate-500'>Loading conversations...</p>
+          <p className='text-slate-500'>
+            {clientLoading
+              ? 'Connecting to chat...'
+              : isTransitioningDeepLink
+                ? 'Opening chat...'
+                : 'Loading conversations...'}
+          </p>
         </CardContent>
       </Card>
     );
@@ -235,30 +294,50 @@ export function DirectMessages({
                     onClick={() => handleSelectChannel(channel)}
                     className='w-full flex items-center gap-3 p-4 hover:bg-slate-50 transition-colors text-left'
                   >
-                    {channel.otherUser?.profilePicture ? (
-                      <img
-                        src={channel.otherUser.profilePicture}
-                        alt={channel.otherUser.name}
-                        className='h-10 w-10 rounded-full object-cover'
-                      />
+                    {channel.type === 'dm' ? (
+                      channel.otherUser?.profilePicture ? (
+                        <img
+                          src={channel.otherUser.profilePicture}
+                          alt={channel.otherUser.name}
+                          className='h-10 w-10 rounded-full object-cover'
+                        />
+                      ) : (
+                        <div className='h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center'>
+                          <User className='h-5 w-5 text-indigo-600' />
+                        </div>
+                      )
                     ) : (
-                      <div className='h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center'>
-                        <User className='h-5 w-5 text-indigo-600' />
+                      <div className='h-10 w-10 rounded-full bg-violet-100 flex items-center justify-center'>
+                        <MessageCircle className='h-5 w-5 text-violet-600' />
                       </div>
                     )}
                     <div className='flex-1 min-w-0'>
                       <div className='flex items-center gap-2'>
                         <p className='font-medium text-slate-900 truncate'>
-                          {channel.otherUser?.name || 'Unknown User'}
+                          {channel.type === 'dm'
+                            ? channel.otherUser?.name || 'Unknown User'
+                            : channel.name || 'Group Chat'}
                         </p>
                         {channel.otherUser?.role === 'TEACHER' && (
                           <GraduationCap className='h-3 w-3 text-indigo-600' />
                         )}
+                        {channel.type === 'group' && (
+                          <Badge
+                            variant='outline'
+                            className='text-[10px] h-4 px-1 bg-violet-50 text-violet-600 border-violet-100'
+                          >
+                            Group
+                          </Badge>
+                        )}
                       </div>
-                      <p className='text-xs text-slate-500'>
-                        {channel.lastMessageAt
-                          ? new Date(channel.lastMessageAt).toLocaleDateString()
-                          : 'Start a conversation'}
+                      <p className='text-xs text-slate-500 truncate'>
+                        {channel.type === 'group' && channel.description
+                          ? channel.description
+                          : channel.lastMessageAt
+                            ? new Date(
+                                channel.lastMessageAt
+                              ).toLocaleDateString()
+                            : 'Start a conversation'}
                       </p>
                     </div>
                   </button>
@@ -286,21 +365,30 @@ export function DirectMessages({
           >
             <ChevronLeft className='h-5 w-5' />
           </Button>
-          {selectedUser?.profilePicture ? (
+          {selectedUser?.profilePicture ||
+          (selectedChannel?.data as any)?.image ? (
             <img
-              src={selectedUser.profilePicture}
-              alt={selectedUser.name}
+              src={
+                selectedUser?.profilePicture ||
+                (selectedChannel?.data as any)?.image
+              }
+              alt={selectedUser?.name || (selectedChannel?.data as any)?.name}
               className='h-8 w-8 rounded-full object-cover'
             />
           ) : (
             <div className='h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center'>
-              <User className='h-4 w-4 text-indigo-600' />
+              <MessageCircle className='h-4 w-4 text-indigo-600' />
             </div>
           )}
           <div>
-            <CardTitle className='text-base'>{selectedUser?.name}</CardTitle>
+            <CardTitle className='text-base'>
+              {selectedUser?.name ||
+                (selectedChannel?.data as any)?.name ||
+                'Chat'}
+            </CardTitle>
             <p className='text-xs text-slate-500 capitalize'>
-              {selectedUser?.role?.toLowerCase()}
+              {selectedUser?.role?.toLowerCase() ||
+                ((selectedChannel?.data as any)?.name ? 'Group Chat' : '')}
             </p>
           </div>
         </div>

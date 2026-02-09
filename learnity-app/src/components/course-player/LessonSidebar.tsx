@@ -14,6 +14,7 @@ import {
   HelpCircle,
   Lock,
   Clock,
+  PlayCircle,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -50,6 +51,8 @@ export interface LessonSidebarProps {
   completedLessonIds: Set<string>;
   /** Set of locked section IDs */
   lockedSectionIds?: Set<string>;
+  /** Set of locked lesson IDs */
+  lockedLessonIds?: Set<string>;
   /** Section progress percentages (sectionId -> percentage) */
   sectionProgress?: Map<string, number>;
   /** Total lessons count */
@@ -88,6 +91,7 @@ export function LessonSidebar({
   currentLessonId,
   completedLessonIds,
   lockedSectionIds = new Set(),
+  lockedLessonIds = new Set(),
   sectionProgress = new Map(),
   totalLessons,
   completedCount,
@@ -105,24 +109,40 @@ export function LessonSidebar({
       : ['section-0'];
 
   return (
-    <div className={cn('flex flex-col h-full', className)}>
+    <div className={cn('flex flex-col h-full bg-slate-900', className)}>
       {/* Header */}
-      <div className='p-4 border-b border-slate-700'>
-        <h3 className='font-semibold text-white'>Course Content</h3>
-        <p className='text-sm text-slate-400 mt-1'>
-          {completedCount} of {totalLessons} lessons completed
-        </p>
+      <div className='p-6 border-b border-slate-800 bg-slate-900/50'>
+        <h3 className='font-bold text-white text-lg'>Course Content</h3>
+        <div className='mt-3 space-y-2'>
+          <div className='flex justify-between text-xs text-slate-400 mb-1'>
+            <span>Progress</span>
+            <span>
+              {Math.round((completedCount / totalLessons) * 100 || 0)}%
+            </span>
+          </div>
+          <div className='h-1.5 w-full bg-slate-800 rounded-full overflow-hidden'>
+            <div
+              className='h-full bg-indigo-500 rounded-full transition-all duration-500'
+              style={{
+                width: `${(completedCount / totalLessons) * 100 || 0}%`,
+              }}
+            />
+          </div>
+          <p className='text-[10px] text-slate-500 font-medium uppercase tracking-tight'>
+            {completedCount} of {totalLessons} lessons completed
+          </p>
+        </div>
       </div>
 
       {/* Sections List */}
-      <div className='flex-1 overflow-y-auto'>
+      <div className='flex-1 overflow-y-auto custom-scrollbar px-2 py-4'>
         <Accordion
           type='multiple'
           defaultValue={defaultExpandedSections}
-          className='px-2'
+          className='space-y-2'
         >
           {sections.map((section, sectionIndex) => {
-            const isLocked = lockedSectionIds.has(section.id);
+            const isSectionLocked = lockedSectionIds.has(section.id);
             const progress = sectionProgress.get(section.id) ?? 0;
             const sectionCompletedCount = section.lessons.filter(l =>
               completedLessonIds.has(l.id)
@@ -132,68 +152,66 @@ export function LessonSidebar({
               <AccordionItem
                 key={section.id}
                 value={`section-${sectionIndex}`}
-                className='border-b border-slate-700'
+                className='border-none bg-slate-800/30 rounded-xl overflow-hidden'
               >
                 <AccordionTrigger
                   className={cn(
-                    'text-white hover:no-underline py-3 px-2',
-                    isLocked && 'opacity-60'
+                    'text-white hover:no-underline py-4 px-4 hover:bg-slate-800/50 transition-colors',
+                    isSectionLocked && 'opacity-60 grayscale'
                   )}
-                  disabled={isLocked}
+                  disabled={isSectionLocked}
                 >
-                  <div className='flex items-center gap-2 text-left flex-1 min-w-0'>
-                    {isLocked && (
+                  <div className='flex items-center gap-3 text-left flex-1 min-w-0'>
+                    {isSectionLocked && (
                       <Lock className='h-4 w-4 text-slate-500 shrink-0' />
                     )}
                     <div className='flex-1 min-w-0'>
-                      <span className='text-sm font-medium truncate block'>
-                        {section.title}
+                      <span className='text-sm font-bold truncate block'>
+                        {sectionIndex + 1}. {section.title}
                       </span>
-                      {section.description && (
-                        <span className='text-xs text-slate-400 truncate block'>
-                          {section.description}
+                      <div className='flex items-center gap-2 mt-1'>
+                        <span className='text-[10px] text-slate-500 font-bold uppercase'>
+                          {section.lessons.length} Lessons
                         </span>
-                      )}
+                        <span className='w-1 h-1 bg-slate-700 rounded-full' />
+                        <span className='text-[10px] text-emerald-500 font-bold'>
+                          {sectionCompletedCount}/{section.lessons.length} Done
+                        </span>
+                      </div>
                     </div>
-                    <Badge
-                      variant='secondary'
-                      className={cn(
-                        'text-xs shrink-0',
-                        sectionCompletedCount === section.lessons.length &&
-                          'bg-green-600 text-white'
-                      )}
-                    >
-                      {sectionCompletedCount}/{section.lessons.length}
-                    </Badge>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className='pb-2'>
+                <AccordionContent className='pb-2 pt-0'>
                   {/* Section Progress Bar */}
-                  {!isLocked && section.lessons.length > 0 && (
-                    <div className='px-2 mb-2'>
-                      <SectionProgressBar
-                        progress={progress}
-                        isUnlocked={!isLocked}
-                      />
-                    </div>
-                  )}
+                  {!isSectionLocked &&
+                    section.lessons.length > 0 &&
+                    progress > 0 && (
+                      <div className='px-4 mb-4'>
+                        <SectionProgressBar
+                          progress={progress}
+                          isUnlocked={!isSectionLocked}
+                        />
+                      </div>
+                    )}
 
                   {/* Locked Section Message */}
-                  {isLocked && (
-                    <div className='px-2 py-3 text-center'>
-                      <Lock className='h-8 w-8 text-slate-500 mx-auto mb-2' />
-                      <p className='text-sm text-slate-400'>
-                        Complete 80% of the previous section to unlock
+                  {isSectionLocked && (
+                    <div className='px-4 py-6 text-center bg-slate-900/50 mx-2 mb-2 rounded-lg'>
+                      <Lock className='h-8 w-8 text-slate-600 mx-auto mb-2' />
+                      <p className='text-xs text-slate-500 font-medium'>
+                        This section is locked until you complete previous
+                        requirements.
                       </p>
                     </div>
                   )}
 
                   {/* Lessons List */}
-                  {!isLocked && (
-                    <div className='space-y-1'>
+                  {!isSectionLocked && (
+                    <div className='space-y-1 px-1'>
                       {section.lessons.map((lesson, lessonIndex) => {
                         const isActive = currentLessonId === lesson.id;
                         const isCompleted = completedLessonIds.has(lesson.id);
+                        const isLocked = lockedLessonIds.has(lesson.id);
 
                         return (
                           <LessonListItem
@@ -201,7 +219,9 @@ export function LessonSidebar({
                             lesson={lesson}
                             isActive={isActive}
                             isCompleted={isCompleted}
+                            isLocked={isLocked}
                             onClick={() =>
+                              !isLocked &&
                               onLessonSelect(sectionIndex, lessonIndex)
                             }
                           />
@@ -226,6 +246,7 @@ interface LessonListItemProps {
   lesson: LessonItem;
   isActive: boolean;
   isCompleted: boolean;
+  isLocked: boolean;
   onClick: () => void;
 }
 
@@ -233,51 +254,78 @@ function LessonListItem({
   lesson,
   isActive,
   isCompleted,
+  isLocked,
   onClick,
 }: LessonListItemProps) {
   return (
     <button
       onClick={onClick}
+      disabled={isLocked}
       className={cn(
-        'w-full flex items-center gap-3 p-2 rounded-lg text-left transition-colors',
+        'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all relative group',
         isActive
-          ? 'bg-slate-600 text-white'
-          : 'hover:bg-slate-700 text-slate-300'
+          ? 'bg-indigo-600 shadow-lg shadow-indigo-900/20 text-white'
+          : isLocked
+            ? 'opacity-40 cursor-not-allowed text-slate-500'
+            : 'hover:bg-slate-700/50 text-slate-300'
       )}
     >
+      {/* Active Indicator */}
+      {isActive && (
+        <div className='absolute left-1 top-3 bottom-3 w-1 bg-white rounded-full' />
+      )}
+
       {/* Status Icon */}
-      <div className='shrink-0'>
-        {isCompleted ? (
-          <CheckCircle className='h-4 w-4 text-green-400' />
+      <div className='shrink-0 flex items-center justify-center w-6'>
+        {isLocked ? (
+          <Lock className='h-3.5 w-3.5' />
+        ) : isCompleted ? (
+          <div className='bg-emerald-500/10 rounded-full p-1'>
+            <CheckCircle className='h-4 w-4 text-emerald-500' />
+          </div>
+        ) : isActive ? (
+          <PlayCircle className='h-5 w-5 animate-pulse' />
         ) : lesson.type === 'QUIZ' ? (
           <HelpCircle className='h-4 w-4 text-purple-400' />
         ) : (
-          <Circle className='h-4 w-4 text-slate-500' />
+          <Circle className='h-4 w-4 text-slate-600' />
         )}
       </div>
 
       {/* Lesson Info */}
       <div className='flex-1 min-w-0'>
-        <span className='text-sm truncate block'>{lesson.title}</span>
-        {lesson.duration > 0 && lesson.type === 'VIDEO' && (
-          <span className='text-xs text-slate-400 flex items-center gap-1 mt-0.5'>
-            <Clock className='h-3 w-3' />
-            {formatDuration(lesson.duration)}
-          </span>
-        )}
+        <span
+          className={cn(
+            'text-sm truncate block font-medium',
+            isActive && 'font-bold'
+          )}
+        >
+          {lesson.title}
+        </span>
+        <div className='flex items-center gap-2 mt-0.5'>
+          {lesson.type === 'QUIZ' && (
+            <span className='text-[10px] font-black uppercase text-purple-400'>
+              Quiz
+            </span>
+          )}
+          {lesson.duration > 0 && (
+            <span className='text-[10px] text-slate-500 flex items-center gap-1 font-bold'>
+              <Clock className='h-2.5 w-2.5' />
+              {formatDuration(lesson.duration)}
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Type Badge */}
-      {lesson.type === 'QUIZ' && (
-        <Badge
-          variant='outline'
-          className='text-xs shrink-0 border-purple-400 text-purple-400'
-        >
-          Quiz
-        </Badge>
-      )}
-      {lesson.type === 'VIDEO' && (
-        <Video className='h-4 w-4 text-slate-500 shrink-0' />
+      {/* Type Icon (Right side) */}
+      {!isLocked && !isActive && (
+        <div className='opacity-40 group-hover:opacity-100 transition-opacity'>
+          {lesson.type === 'VIDEO' ? (
+            <Video className='h-3.5 w-3.5' />
+          ) : (
+            <HelpCircle className='h-3.5 w-3.5' />
+          )}
+        </div>
       )}
     </button>
   );
