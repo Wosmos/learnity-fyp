@@ -137,7 +137,7 @@ export function TeacherHero({ teacher, gradient, initials }: TeacherHeroProps) {
               <div className='flex justify-between items-end mb-6'>
                 <div>
                   <p className='text-[10px] uppercase font-bold tracking-widest text-slate-400 lg:text-indigo-400'>
-                    Hourly Rate
+                    Monthly Rate
                   </p>
                   <div className='flex items-baseline gap-1'>
                     <span className='text-4xl font-black'>

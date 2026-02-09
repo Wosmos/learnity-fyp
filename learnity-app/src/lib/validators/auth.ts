@@ -99,8 +99,8 @@ export const teacherRegistrationSchema = z
 
     hourlyRate: z
       .number()
-      .min(5, 'Hourly rate must be at least $5')
-      .max(500, 'Hourly rate cannot exceed $500')
+      .min(5, 'Monthly  rate must be at least $5')
+      .max(500, 'Monthly  rate cannot exceed $500')
       .optional(),
 
     agreeToTerms: z
@@ -211,8 +211,8 @@ export const teacherApplicationUpdateSchema = z.object({
 
   hourlyRate: z
     .number()
-    .min(5, 'Hourly rate must be at least $5')
-    .max(500, 'Hourly rate cannot exceed $500')
+    .min(5, 'Monthly  rate must be at least $5')
+    .max(500, 'Monthly  rate cannot exceed $500')
     .optional(),
 });
 
@@ -370,8 +370,8 @@ export const enhancedTeacherRegistrationSchema = z
 
     hourlyRate: z
       .number()
-      .min(5, 'Hourly rate must be at least $5')
-      .max(500, 'Hourly rate cannot exceed $500')
+      .min(5, 'Monthly  rate must be at least $5')
+      .max(500, 'Monthly  rate cannot exceed $500')
       .optional(),
 
     // Teaching Details

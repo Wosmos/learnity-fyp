@@ -838,7 +838,7 @@ export default function EditCoursePage() {
                     htmlFor='price'
                     className='text-base font-bold text-slate-900'
                   >
-                    Course Fee (USD)
+                    Course Fee (PKR)
                   </Label>
                   <div className='relative'>
                     <span className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold'>

@@ -68,7 +68,7 @@ export default function AdminSettingsPage() {
       platformName: 'Learnity',
       platformDescription:
         'Connect with expert tutors and enhance your learning journey',
-      supportEmail: 'support@learnity.com',
+      supportEmail: 'learnity.lms@gmail.com',
       maintenanceMode: false,
       registrationEnabled: true,
     },

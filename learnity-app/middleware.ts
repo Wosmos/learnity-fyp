@@ -20,6 +20,9 @@ const ROUTE_CONFIG = {
     '/auth/reset-password',
     '/demo',
     '/welcome',
+    '/courses',
+    '/terms',
+    '/privacy',
     '/unauthorized',
     '/api/auth/login',
     '/api/auth/register',
@@ -95,7 +98,8 @@ async function verifyAuth(request: NextRequest): Promise<{
       authenticated: true,
       role: payload.role as UserRole,
       userId: payload.uid || payload.sub,
-      emailVerified: payload.email_verified === true || payload.emailVerified === true,
+      emailVerified:
+        payload.email_verified === true || payload.emailVerified === true,
     };
   } catch (error) {
     console.error('Auth verification error:', error);
@@ -163,7 +167,9 @@ export async function middleware(request: NextRequest) {
 
   // Verify authentication for protected routes
   const auth = await verifyAuth(request);
-  console.log(`Middleware Path: ${pathname}, Authenticated: ${auth.authenticated}, EmailVerified: ${auth.emailVerified}`);
+  console.log(
+    `Middleware Path: ${pathname}, Authenticated: ${auth.authenticated}, EmailVerified: ${auth.emailVerified}`
+  );
 
   // Redirect to login if not authenticated
   if (!auth.authenticated) {

@@ -7,7 +7,9 @@ Based on the provided activity diagram, I've updated the Learnity platform speci
 ## Key Changes Made
 
 ### 1. Role-Based User Journey
+
 **Updated**: The platform now starts with a clear role selection process
+
 - **Student Path**: Quick signup → Instant access → Student Dashboard
 - **Teacher Path**: Application form → Document upload → Admin review → Approval
 - **Admin Path**: Special login → Admin Dashboard
@@ -15,16 +17,19 @@ Based on the provided activity diagram, I've updated the Learnity platform speci
 ### 2. Dashboard-Specific Functionality
 
 #### Student Dashboard
+
 - **Book Tutor**: Browse and book sessions with verified tutors
 - **Join Study Group**: Find and join collaborative study groups
 - **Watch Content**: Access video lessons and educational materials
 
-#### Teacher Dashboard  
-- **Set Pricing**: Configure hourly rates and session pricing
+#### Teacher Dashboard
+
+- **Set Pricing**: Configure Monthly rates and session pricing
 - **Upload Videos**: Create and publish educational content
 - **Conduct Sessions**: Manage scheduled tutoring sessions
 
 #### Admin Dashboard
+
 - **Review Applications**: Approve/reject teacher applications
 - **Manage Users**: User administration and role management
 - **View Analytics**: Platform metrics and performance insights
@@ -32,6 +37,7 @@ Based on the provided activity diagram, I've updated the Learnity platform speci
 ### 3. Enhanced Requirements Structure
 
 #### Updated Requirements:
+
 1. **Role-Based Authentication** - Clear role selection and tailored experiences
 2. **Student Dashboard & Learning Activities** - Centralized student hub
 3. **Teacher Application & Verification** - Streamlined teacher onboarding
@@ -41,16 +47,18 @@ Based on the provided activity diagram, I've updated the Learnity platform speci
 ### 4. Technical Architecture Updates
 
 #### Component Structure:
+
 ```
 src/app/
 ├── (auth)/           # Authentication & role selection
 ├── (student)/        # Student-specific routes
-├── (teacher)/        # Teacher-specific routes  
+├── (teacher)/        # Teacher-specific routes
 ├── (admin)/          # Admin-specific routes
 └── api/              # Shared API routes
 ```
 
 #### Database Schema Additions:
+
 - **Teacher Applications Table** - Track application status and documents
 - **Enhanced User Table** - Role-based permissions and verification status
 - **Teacher Profiles Table** - Earnings, ratings, and availability
@@ -58,11 +66,13 @@ src/app/
 ### 5. User Flow Improvements
 
 #### Simplified Onboarding:
+
 - **Students**: Immediate access after signup
 - **Teachers**: Clear application process with document upload
 - **Admins**: Secure admin-only access
 
 #### Role-Specific Features:
+
 - **Students**: Focus on learning activities and progress tracking
 - **Teachers**: Content creation and session management tools
 - **Admins**: Complete platform oversight and control
@@ -70,9 +80,13 @@ src/app/
 ## Implementation Benefits
 
 ### 1. **Clarity**: Clear separation of user types and their journeys
+
 ### 2. **Simplicity**: Streamlined flows for each role
+
 ### 3. **Scalability**: Modular architecture supports future enhancements
+
 ### 4. **User Experience**: Tailored interfaces for different user needs
+
 ### 5. **Administrative Control**: Comprehensive admin oversight
 
 ## Next Steps

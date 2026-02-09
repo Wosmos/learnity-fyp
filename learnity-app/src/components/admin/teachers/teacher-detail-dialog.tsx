@@ -121,7 +121,7 @@
                     <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100/50">
-                                <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Hourly Rate</p>
+                                <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Monthly  Rate</p>
                                 <p className="text-lg font-bold text-indigo-700">${user.hourlyRate || 0}/hr</p>
                             </div>
                             <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-100/50">

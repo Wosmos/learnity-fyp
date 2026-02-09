@@ -174,7 +174,7 @@ export default function RejectedTeacherDashboard() {
 
   const handleSupportAction = () => {
     window.location.href =
-      'mailto:support@learnity.com?subject=Teacher Application Support';
+      'mailto:learnity.lms@gmail.com?subject=Teacher Application Support';
   };
 
   if (loading) {

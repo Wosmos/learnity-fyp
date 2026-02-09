@@ -111,7 +111,6 @@ export default async function PendingTeacherDashboard() {
   const expectedDate = addBusinessDays(submittedDate, 3);
   const formattedExpectedDate = format(expectedDate, 'EEEE, MMMM do');
 
-
   return (
     <div className='bg-slate-50/50 text-slate-900 pb-20 selection:bg-slate-900 selection:text-white'>
       <main className='px-4 md:px-8 max-w-6xl mx-auto pt-10'>
@@ -179,8 +178,11 @@ export default async function PendingTeacherDashboard() {
                         <ShieldCheck className='h-5 w-5 text-indigo-600' />
                       </div>
                       <p className='pt-1'>
-                        Our admissions team is manually verifying your credentials. 
-                        Watch your inbox at <span className='font-bold text-slate-900'>{data.profile.email}</span> 
+                        Our admissions team is manually verifying your
+                        credentials. Watch your inbox at{' '}
+                        <span className='font-bold text-slate-900'>
+                          {data.profile.email}
+                        </span>
                         for any follow-up requests.
                       </p>
                     </div>
@@ -216,18 +218,19 @@ export default async function PendingTeacherDashboard() {
                     Need faster review?
                   </h3>
                   <p className='text-sm text-slate-500 leading-relaxed mt-2'>
-                    If your application has been pending for more than 5 business days, 
-                    please contact our verification team directly.
+                    If your application has been pending for more than 5
+                    business days, please contact our verification team
+                    directly.
                   </p>
                 </div>
               </div>
 
               <a
-                href='mailto:support@learnity.com'
+                href='mailto:learnity.lms@gmail.com'
                 className='flex items-center justify-between w-full p-5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-indigo-200 hover:shadow-md transition-all group'
               >
                 <span className='text-sm font-bold text-slate-700'>
-                  support@learnity.com
+                  learnity.lms@gmail.com
                 </span>
                 <ArrowRight className='h-4 w-4 text-slate-300 group-hover:text-indigo-600 transition-all' />
               </a>
@@ -247,12 +250,11 @@ export default async function PendingTeacherDashboard() {
                   Get approved 2x faster with Video
                 </h3>
                 <p className='text-slate-400 text-sm leading-relaxed'>
-                  Our review board prioritizes teachers who have a clear, high-quality 
-                  introduction video. It helps us verify your communication skills immediately.
+                  Our review board prioritizes teachers who have a clear,
+                  high-quality introduction video. It helps us verify your
+                  communication skills immediately.
                 </p>
-                <Button
-                  className='w-full bg-white text-slate-900 hover:bg-slate-100 font-black mt-2 h-12 text-xs uppercase tracking-widest'
-                >
+                <Button className='w-full bg-white text-slate-900 hover:bg-slate-100 font-black mt-2 h-12 text-xs uppercase tracking-widest'>
                   Edit Video Intro
                 </Button>
               </div>

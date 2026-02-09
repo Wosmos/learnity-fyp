@@ -191,7 +191,7 @@ export function Hero({
 
           {/* Children */}
           {children && (
-            <div className="mt-6 sm:mt-8 animate-in fade-in duration-700 fill-mode-both delay-700">
+            <div className="mt-4 sm:mt-6 animate-in fade-in duration-700 fill-mode-both delay-700">
               {children}
             </div>
           )}

@@ -100,6 +100,18 @@ export function AppLayout({
     }
   }, [loading, isAuthenticated, api]);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -236,7 +248,7 @@ export function AppLayout({
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant='ghost'
-                          className='h-10 pl-2 pr-1 rounded-full border border-slate-200 hover:bg-white hover:shadow-sm transition-all'
+                          className='h-10 pl-2 pr-1 rounded-full border border-slate-200 hover:bg-white hover:shadow-sm transition-all hidden md:flex'
                         >
                           <span className='hidden lg:inline mr-2 text-sm font-medium text-slate-700'>
                             {user?.displayName?.split(' ')[0] || 'User'}
@@ -300,10 +312,11 @@ export function AppLayout({
                       </DropdownMenuContent>
                     </DropdownMenu>
 
+                    {/* Mobile Menu Button - Moved outside conditional so it always shows on mobile when logged in */}
                     <Button
                       variant='ghost'
                       size='icon'
-                      className='md:hidden rounded-full'
+                      className='md:hidden rounded-full z-50 relative'
                       onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     >
                       {isMobileMenuOpen ? (
@@ -314,116 +327,158 @@ export function AppLayout({
                     </Button>
                   </>
                 ) : (
-                  <div className='flex items-center gap-2'>
-                    <Link href='/auth/login'>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        className='rounded-full'
-                      >
-                        Sign In
-                      </Button>
-                    </Link>
-                    <Link href='/auth/register'>
-                      <Button
-                        size='sm'
-                        className='rounded-full bg-slate-900 hover:bg-slate-800 shadow-md transition-all active:scale-95'
-                      >
-                        Get Started
-                      </Button>
-                    </Link>
-                  </div>
+                  <>
+                    <div className='hidden md:flex items-center gap-2'>
+                      <Link href='/auth/login'>
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          className='rounded-full'
+                        >
+                          Sign In
+                        </Button>
+                      </Link>
+                      <Link href='/auth/register'>
+                        <Button
+                          size='sm'
+                          className='rounded-full bg-slate-900 hover:bg-slate-800 shadow-md transition-all active:scale-95'
+                        >
+                          Get Started
+                        </Button>
+                      </Link>
+                    </div>
+                    {/* Mobile Menu Button for unauthenticated users */}
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='md:hidden rounded-full z-50 relative'
+                      onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    >
+                      {isMobileMenuOpen ? (
+                        <X className='h-5 w-5' />
+                      ) : (
+                        <Menu className='h-5 w-5' />
+                      )}
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu Drawer */}
           <AnimatePresence>
             {isMobileMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className='md:hidden absolute top-full left-0 right-0 bg-white border-b border-slate-200 shadow-xl'
-              >
-                <div className='px-4 py-6 space-y-6'>
-                  {isAuthenticated && user?.emailVerified && (
-                    <div className='flex items-center gap-4 p-4 bg-slate-50 rounded-2xl'>
-                      <Avatar className='h-12 w-12 border-2 border-white shadow-sm'>
-                        <AvatarImage src={profileData?.profilePicture || ''} />
-                        <AvatarFallback className='bg-slate-900 text-white'>
-                          {getInitials()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h4 className='font-bold text-slate-900'>{fullName}</h4>
-                        <Badge
-                          variant='outline'
-                          className={cn(
-                            'mt-1',
-                            getRoleBadgeColor(claims?.role || UserRole.STUDENT)
-                          )}
-                        >
-                          {getRoleDisplayName(claims?.role || UserRole.STUDENT)}
-                        </Badge>
+              <>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className='fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 md:hidden'
+                  onClick={() => setIsMobileMenuOpen(false)}
+                />
+                
+                {/* Drawer */}
+                <motion.div
+                  initial={{ x: '100%' }}
+                  animate={{ x: 0 }}
+                  exit={{ x: '100%' }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                  className='fixed top-0 right-0 bottom-0 w-[280px] bg-white shadow-2xl z-50 md:hidden flex flex-col'
+                >
+                  <div className='p-6 pt-20 flex-1 overflow-y-auto'>
+                    {isAuthenticated && user?.emailVerified ? (
+                      <div className='flex items-center gap-4 p-4 mb-6 bg-slate-50 rounded-2xl border border-slate-100'>
+                        <Avatar className='h-12 w-12 border-2 border-white shadow-sm'>
+                          <AvatarImage src={profileData?.profilePicture || ''} />
+                          <AvatarFallback className='bg-slate-900 text-white'>
+                            {getInitials()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h4 className='font-bold text-slate-900 truncate max-w-[140px]'>
+                            {fullName}
+                          </h4>
+                          <Badge
+                            variant='outline'
+                            className={cn(
+                              'mt-1',
+                              getRoleBadgeColor(claims?.role || UserRole.STUDENT)
+                            )}
+                          >
+                            {getRoleDisplayName(claims?.role || UserRole.STUDENT)}
+                          </Badge>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    ) : null}
 
-                  <div className='grid gap-2'>
-                    {isAuthenticated && user?.emailVerified && (
-                      <Link
-                        href={dashboardRoute}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <Button
-                          variant='ghost'
-                          className='w-full justify-between items-center px-4 py-6 rounded-xl hover:bg-slate-50 group'
+                    <div className='space-y-1'>
+                      {isAuthenticated && user?.emailVerified && (
+                        <Link
+                          href={dashboardRoute}
+                          onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          <span className='flex items-center gap-3'>
-                            <LayoutDashboard className='h-5 w-5 text-slate-500 group-hover:text-slate-900' />
+                          <Button
+                            variant='ghost'
+                            className='w-full justify-start gap-3 px-4 py-6 rounded-xl hover:bg-slate-50 text-slate-600 hover:text-slate-900 font-medium'
+                          >
+                            <LayoutDashboard className='h-5 w-5' />
                             Dashboard
-                          </span>
-                          <ChevronRight className='h-4 w-4 text-slate-300 group-hover:text-slate-500' />
-                        </Button>
-                      </Link>
-                    )}
-                    {navLinks.map(link => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <Button
-                          variant='ghost'
-                          className='w-full justify-between items-center px-4 py-6 rounded-xl hover:bg-slate-50 group'
+                          </Button>
+                        </Link>
+                      )}
+                      
+                      {navLinks.map(link => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          <span className='flex items-center gap-3'>
-                            <div className='w-5 h-5 bg-slate-100 rounded group-hover:bg-slate-200' />
+                          <Button
+                            variant='ghost'
+                            className='w-full justify-start gap-3 px-4 py-6 rounded-xl hover:bg-slate-50 text-slate-600 hover:text-slate-900 font-medium'
+                          >
+                            <div className='w-5 flex justify-center'>
+                              <div className='w-1.5 h-1.5 rounded-full bg-slate-300' />
+                            </div>
                             {link.label}
-                          </span>
-                          <ChevronRight className='h-4 w-4 text-slate-300 group-hover:text-slate-500' />
-                        </Button>
-                      </Link>
-                    ))}
+                          </Button>
+                        </Link>
+                      ))}
+                    </div>
+
+                    {!isAuthenticated && (
+                      <div className='mt-8 pt-8 border-t border-slate-100 space-y-3'>
+                        <Link href='/auth/login' onClick={() => setIsMobileMenuOpen(false)}>
+                          <Button variant='outline' className='w-full rounded-xl py-6'>
+                            Sign In
+                          </Button>
+                        </Link>
+                        <Link href='/auth/register' onClick={() => setIsMobileMenuOpen(false)}>
+                          <Button className='w-full rounded-xl py-6 bg-slate-900 hover:bg-slate-800'>
+                            Get Started
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
                   </div>
 
                   {isAuthenticated && (
-                    <div className='pt-4 border-t border-slate-100'>
+                    <div className='p-6 border-t border-slate-100 bg-slate-50/50'>
                       <Button
                         variant='ghost'
                         onClick={handleLogout}
                         disabled={isLoggingOut}
-                        className='w-full justify-start gap-3 py-6 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-xl'
+                        className='w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl'
                       >
                         <LogOut className='h-5 w-5' />
                         Sign Out
                       </Button>
                     </div>
                   )}
-                </div>
-              </motion.div>
+                </motion.div>
+              </>
             )}
           </AnimatePresence>
         </header>

@@ -428,7 +428,7 @@ export function CourseBasicInfoForm() {
               name='price'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price (USD)</FormLabel>
+                  <FormLabel>Price (PKR)</FormLabel>
                   <FormControl>
                     <div className='relative max-w-[200px]'>
                       <DollarSign className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400' />

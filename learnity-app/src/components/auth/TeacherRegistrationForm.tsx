@@ -1422,7 +1422,7 @@ export const TeacherRegistrationForm: React.FC<
                       name='hourlyRate'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Hourly Rate (USD)</FormLabel>
+                          <FormLabel>Monthly Rate (PKR)</FormLabel>
                           <FormControl>
                             <Input
                               type='number'
@@ -2429,7 +2429,7 @@ export const TeacherRegistrationForm: React.FC<
                       </ul>
                     </div>
 
-                    <div className='flex justify-center bg-black'>
+                    <div className='flex justify-center'>
                       <HCaptcha
                         sitekey={
                           process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''
@@ -2455,7 +2455,7 @@ export const TeacherRegistrationForm: React.FC<
                         control={form.control}
                         name='agreeToTerms'
                         render={({ field }) => (
-                          <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
+                          <FormItem className='flex flex-row items-start space-x-3 space-y-0 p-4 bg-white rounded-xl border border-slate-100 shadow-sm'>
                             <FormControl>
                               <Checkbox
                                 checked={field.value}
@@ -2463,29 +2463,21 @@ export const TeacherRegistrationForm: React.FC<
                               />
                             </FormControl>
                             <div className='space-y-1 leading-none'>
-                              <FormLabel className='text-sm font-normal'>
+                              <FormLabel className='text-sm font-medium text-slate-700 cursor-pointer'>
                                 I agree to the{' '}
                                 <Link
                                   href='/terms'
-                                  className='text-green-600 hover:text-green-700 underline'
+                                  className='text-green-600 hover:text-green-700 underline font-bold transition-colors'
                                 >
                                   Terms of Service
                                 </Link>
                                 ,{' '}
                                 <Link
                                   href='/privacy'
-                                  className='text-green-600 hover:text-green-700 underline'
+                                  className='text-green-600 hover:text-green-700 underline font-bold transition-colors'
                                 >
                                   Privacy Policy
                                 </Link>
-                                {/* , and{' '} */}
-                                {/* <Link
-                                  href='/teacher-guidelines'
-                                  type='button'
-                                  className='text-green-600 hover:text-green-700 underline'
-                                >
-                                  Teacher Guidelines
-                                </Link> */}
                               </FormLabel>
                               <FormMessage />
                             </div>
@@ -2497,7 +2489,7 @@ export const TeacherRegistrationForm: React.FC<
                         control={form.control}
                         name='agreeToBackgroundCheck'
                         render={({ field }) => (
-                          <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
+                          <FormItem className='flex flex-row items-start space-x-3 space-y-0 p-4 bg-white rounded-xl border border-slate-100 shadow-sm'>
                             <FormControl>
                               <Checkbox
                                 checked={field.value}
@@ -2505,13 +2497,12 @@ export const TeacherRegistrationForm: React.FC<
                               />
                             </FormControl>
                             <div className='space-y-1 leading-none'>
-                              <FormLabel className='text-sm font-normal'>
-                                I consent to background verification checks as
-                                required by the platform
+                              <FormLabel className='text-sm font-medium text-slate-700 cursor-pointer'>
+                                I consent to background verification checks
                               </FormLabel>
                               <FormDescription className='text-xs'>
-                                This may include identity verification,
-                                qualification checks, and reference verification
+                                Identity verification, qualification checks, and
+                                reference verification
                               </FormDescription>
                               <FormMessage />
                             </div>

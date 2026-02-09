@@ -276,7 +276,9 @@ export function UserDetailDialog({
 
                   {user.teacherProfile.hourlyRate && (
                     <div className='p-3 bg-green-50 rounded-lg'>
-                      <p className='text-sm text-green-600 mb-1'>Hourly Rate</p>
+                      <p className='text-sm text-green-600 mb-1'>
+                        Monthly Rate
+                      </p>
                       <p className='font-semibold text-green-700'>
                         ${user.teacherProfile.hourlyRate}/hour
                       </p>

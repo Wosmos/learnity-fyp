@@ -5,7 +5,7 @@
 Your registration **DID WORK**! Here's what happened:
 
 1. ✅ Firebase user created successfully
-2. ✅ Email verification sent to: m.wasifmalik17@gmail.com
+2. ✅ Email verification sent to: learnity.lms@gmail.com
 3. ✅ User profile created (200 status code)
 4. ✅ Redirected to Email Verification Pending page
 
@@ -21,7 +21,7 @@ Your registration **DID WORK**! Here's what happened:
 
 ### Step 1: Verify Your Email
 
-1. Check your email inbox: **m.wasifmalik17@gmail.com**
+1. Check your email inbox: **learnity.lms@gmail.com**
 2. Look for email from Firebase/Learnity
 3. Click the verification link
 4. Your email will be verified
@@ -30,7 +30,7 @@ Your registration **DID WORK**! Here's what happened:
 
 1. Go to: **http://localhost:3000/auth/login**
 2. Enter your credentials:
-   - Email: m.wasifmalik17@gmail.com
+   - Email: learnity.lms@gmail.com
    - Password: [your password]
 3. Click "Sign In"
 

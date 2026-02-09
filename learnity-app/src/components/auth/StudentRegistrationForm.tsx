@@ -386,40 +386,6 @@ export const StudentRegistrationForm: React.FC<
 
               {/* Terms and Captcha */}
               <div className='space-y-4'>
-                <FormField
-                  control={form.control}
-                  name='agreeToTerms'
-                  render={({ field }) => (
-                    <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className='space-y-1 leading-none'>
-                        <FormLabel className='text-sm font-normal'>
-                          I agree to the{' '}
-                          <Link
-                            href='/terms'
-                            className='text-blue-600 hover:text-blue-700 underline'
-                          >
-                            Terms of Service
-                          </Link>{' '}
-                          and{' '}
-                          <Link
-                            href='/privacy'
-                            className='text-blue-600 hover:text-blue-700 underline'
-                          >
-                            Privacy Policy
-                          </Link>
-                        </FormLabel>
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
                 <div className='flex justify-center'>
                   <HCaptcha
                     sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''}
@@ -439,6 +405,40 @@ export const StudentRegistrationForm: React.FC<
                     {form.formState.errors.hcaptchaToken.message}
                   </p>
                 )}
+
+                <FormField
+                  control={form.control}
+                  name='agreeToTerms'
+                  render={({ field }) => (
+                    <FormItem className='flex flex-row items-start space-x-3 space-y-0 p-4'>
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className='space-y-1 leading-none'>
+                        <FormLabel className='text-sm font-medium text-slate-700 cursor-pointer'>
+                          I agree to the{' '}
+                          <Link
+                            href='/terms'
+                            className='text-blue-600 hover:text-blue-700 underline font-bold transition-colors'
+                          >
+                            Terms of Service
+                          </Link>{' '}
+                          and{' '}
+                          <Link
+                            href='/privacy'
+                            className='text-blue-600 hover:text-blue-700 underline font-bold transition-colors'
+                          >
+                            Privacy Policy
+                          </Link>
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
               </div>
 
               {/* Submit Button */}
@@ -728,40 +728,6 @@ export const StudentRegistrationForm: React.FC<
 
               {/* Terms and Captcha */}
               <div className='space-y-4'>
-                <FormField
-                  control={form.control}
-                  name='agreeToTerms'
-                  render={({ field }) => (
-                    <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className='space-y-1 leading-none'>
-                        <FormLabel className='text-sm font-normal'>
-                          I agree to the{' '}
-                          <Link
-                            href='/terms'
-                            className='text-blue-600 hover:text-blue-700 underline'
-                          >
-                            Terms of Service
-                          </Link>{' '}
-                          and{' '}
-                          <Link
-                            href='/privacy'
-                            className='text-blue-600 hover:text-blue-700 underline'
-                          >
-                            Privacy Policy
-                          </Link>
-                        </FormLabel>
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
                 <div className='flex justify-center'>
                   <HCaptcha
                     sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''}
@@ -778,9 +744,43 @@ export const StudentRegistrationForm: React.FC<
                 </div>
                 {form.formState.errors.hcaptchaToken && (
                   <p className='text-sm text-red-600 text-center'>
-                    {form.formState.errors.hcaptchaToken.message}dsdsds
+                    {form.formState.errors.hcaptchaToken.message}
                   </p>
                 )}
+
+                <FormField
+                  control={form.control}
+                  name='agreeToTerms'
+                  render={({ field }) => (
+                    <FormItem className='flex flex-row items-start space-x-3 space-y-0 p-4 bg-white rounded-xl border border-slate-100 shadow-sm'>
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className='space-y-1 leading-none'>
+                        <FormLabel className='text-sm font-medium text-slate-700 cursor-pointer'>
+                          I agree to the{' '}
+                          <Link
+                            href='/terms'
+                            className='text-blue-600 hover:text-blue-700 underline font-bold transition-colors'
+                          >
+                            Terms of Service
+                          </Link>{' '}
+                          and{' '}
+                          <Link
+                            href='/privacy'
+                            className='text-blue-600 hover:text-blue-700 underline font-bold transition-colors'
+                          >
+                            Privacy Policy
+                          </Link>
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
               </div>
 
               {/* Submit Button */}

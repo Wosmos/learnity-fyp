@@ -904,7 +904,7 @@ export default function TeacherProfileEnhancement() {
                 <CardContent className='space-y-4'>
                   <div className='space-y-2'>
                     <Label className='flex items-center gap-2'>
-                      <DollarSign className='h-4 w-4' /> Hourly Rate (USD)
+                      <DollarSign className='h-4 w-4' /> Monthly Rate (PKR)
                     </Label>
                     <div className='relative'>
                       <span className='absolute left-3 top-2.5 text-slate-500'>

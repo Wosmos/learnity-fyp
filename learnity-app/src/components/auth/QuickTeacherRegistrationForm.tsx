@@ -92,11 +92,26 @@ const AGE_GROUPS = [
 ];
 
 const COUNTRIES = [
-  'United States',
-  'Brazil',
-  'Pakistan',
-  'Sri Lanka',
-  'Saudi Arabia',
+  'Karachi',
+  'Lahore',
+  'Islamabad',
+  'Faisalabad',
+  'Rawalpindi',
+  'Multan',
+  'Hyderabad',
+  'Peshawar',
+  'Quetta',
+  'Sialkot',
+  'Bahawalpur',
+  'Sargodha',
+  'Sukkur',
+  'Larkana',
+  'Sheikhupura',
+  'Jhang',
+  'Dera Ghazi Khan',
+  'Sahiwal',
+  'Mirpur Khas',
+  'Rahim Yar Khan',
 ];
 
 const TIMEZONES = [
@@ -287,7 +302,8 @@ export const QuickTeacherRegistrationForm: React.FC<
 
       toast({
         title: 'Application Submitted! 🎉',
-        description: 'Welcome to Learnity! Please verify your email to complete your setup.',
+        description:
+          'Welcome to Learnity! Please verify your email to complete your setup.',
       });
 
       setRegistrationStep('verification');
@@ -430,7 +446,8 @@ export const QuickTeacherRegistrationForm: React.FC<
                           )}
                         </div>
                         <span
-                          className={`text-xs font-medium ${isCurrent
+                          className={`text-xs font-medium ${
+                            isCurrent
                               ? 'text-blue-600'
                               : isCompleted
                                 ? 'text-green-600'
@@ -604,14 +621,14 @@ export const QuickTeacherRegistrationForm: React.FC<
                       name='country'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Country *</FormLabel>
+                          <FormLabel>City *</FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
                             <FormControl>
                               <SelectTrigger className='h-12'>
-                                <SelectValue placeholder='Select your country' />
+                                <SelectValue placeholder='Select your City' />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -816,7 +833,7 @@ export const QuickTeacherRegistrationForm: React.FC<
                       name='hourlyRate'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Hourly Rate (USD)</FormLabel>
+                          <FormLabel>Monthly Rate (PKR)</FormLabel>
                           <FormControl>
                             <Input
                               type='number'
@@ -1003,66 +1020,71 @@ export const QuickTeacherRegistrationForm: React.FC<
                   </div>
 
                   {/* hCaptcha */}
-                  <div className='flex justify-center'>
-                    <HCaptcha
-                      sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''}
-                      onVerify={token => {
-                        setHcaptchaToken(token);
-                        form.setValue('hcaptchaToken', token);
-                        form.clearErrors('hcaptchaToken');
-                      }}
-                      onExpire={() => {
-                        setHcaptchaToken('');
-                        form.setValue('hcaptchaToken', '');
-                      }}
-                    />
-                  </div>
-                  {form.formState.errors.hcaptchaToken && (
-                    <p className='text-sm text-red-600 text-center'>
-                      {form.formState.errors.hcaptchaToken.message}
-                    </p>
-                  )}
-                  {/* Legal Agreements */}
-                  <div className='space-y-4 p-4 bg-gray-50 rounded-lg'>
-                    <h4 className='font-medium text-gray-900 flex items-center gap-2'>
-                      <Shield className='h-5 w-5' />
-                      Verification & Agreement
-                    </h4>
+                  <div className='space-y-4'>
+                    <div className='flex justify-center'>
+                      <HCaptcha
+                        sitekey={
+                          process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''
+                        }
+                        onVerify={token => {
+                          setHcaptchaToken(token);
+                          form.setValue('hcaptchaToken', token);
+                          form.clearErrors('hcaptchaToken');
+                        }}
+                        onExpire={() => {
+                          setHcaptchaToken('');
+                          form.setValue('hcaptchaToken', '');
+                        }}
+                      />
+                    </div>
+                    {form.formState.errors.hcaptchaToken && (
+                      <p className='text-sm text-red-600 text-center'>
+                        {form.formState.errors.hcaptchaToken.message}
+                      </p>
+                    )}
 
+                    {/* Terms Agreement - Now below captcha */}
                     <FormField
                       control={form.control}
                       name='agreeToTerms'
                       render={({ field }) => (
-                        <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
-                           <div className='space-y-1 leading-none'>
-                            <FormLabel className='text-sm font-normal'>
-                              I agree to the{' '}
-                              <Link
-                                href='/terms'
-                                className='text-green-600 hover:text-green-700 underline'
-                              >
-                                Terms of Service
-                              </Link>{' '}
-                              and{' '}
-                              <Link
-                                href='/privacy'
-                                className='text-green-600 hover:text-green-700 underline'
-                              >
-                                Privacy Policy
-                              </Link>
-                            </FormLabel>
-                            <FormMessage />
-                          </div>
+                        <FormItem className='flex flex-row items-start space-x-3 space-y-0 p-4 bg-white rounded-xl border border-slate-100 shadow-sm'>
                           <FormControl>
                             <Checkbox
                               checked={field.value}
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>
-                         
+                          <div className='space-y-1 leading-none'>
+                            <FormLabel className='text-sm font-medium text-slate-700 cursor-pointer'>
+                              I agree to the{' '}
+                              <Link
+                                href='/terms'
+                                className='text-blue-600 hover:text-blue-700 underline font-bold transition-colors'
+                              >
+                                Terms of Service
+                              </Link>{' '}
+                              and{' '}
+                              <Link
+                                href='/privacy'
+                                className='text-blue-600 hover:text-blue-700 underline font-bold transition-colors'
+                              >
+                                Privacy Policy
+                              </Link>
+                            </FormLabel>
+                            <FormMessage />
+                          </div>
                         </FormItem>
                       )}
                     />
+                  </div>
+
+                  {/* Legal Agreements */}
+                  <div className='space-y-4 p-4 bg-gray-50 rounded-lg'>
+                    <h4 className='font-medium text-gray-900 flex items-center gap-2'>
+                      <Shield className='h-5 w-5' />
+                      Verification & Agreement
+                    </h4>
 
                     <FormField
                       control={form.control}

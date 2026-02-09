@@ -419,7 +419,7 @@ export default function TeacherCommandCenter() {
               variant='outline'
               className='w-full h-12 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 gap-2 font-bold shadow-sm'
               onClick={() =>
-                (window.location.href = 'mailto:support@learnity.com')
+                (window.location.href = 'mailto:learnity.lms@gmail.com')
               }
             >
               <Mail className='h-4 w-4' /> Reach Support
