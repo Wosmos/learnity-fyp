@@ -134,12 +134,12 @@ async function getXPEarnedForCourse(
   // Get all lesson IDs for the course
   const course = await prisma.course.findUnique({
     where: { id: courseId },
-    include: {
+    select: {
       sections: {
-        include: {
+        select: {
           lessons: {
-            select: { id: true },
-            include: {
+            select: {
+              id: true,
               quiz: {
                 select: { id: true },
               },

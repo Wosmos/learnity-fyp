@@ -116,16 +116,15 @@ export class ProgressService implements IProgressService {
       );
     }
 
-    // Check if section is unlocked (if sequential progress is required)
-    if (lesson.section.course.requireSequentialProgress) {
-      const isUnlocked = await this.isSectionUnlocked(
-        studentId,
-        lesson.sectionId
-      );
+    // Check if lesson is unlocked (if sequential progress is required)
+    const requireSequential =
+      lesson.section.course.requireSequentialProgress !== false;
+    if (requireSequential) {
+      const isUnlocked = await this.isLessonUnlocked(studentId, lessonId);
       if (!isUnlocked) {
         throw new ProgressError(
-          'This section is locked. Complete the previous section first.',
-          ProgressErrorCode.SECTION_LOCKED,
+          'This lesson is locked. Complete the previous lesson first.',
+          ProgressErrorCode.SECTION_LOCKED, // Reusing error code for simplicity
           403
         );
       }
@@ -253,15 +252,14 @@ export class ProgressService implements IProgressService {
       );
     }
 
-    // Check if section is unlocked
-    if (lesson.section.course.requireSequentialProgress) {
-      const isUnlocked = await this.isSectionUnlocked(
-        studentId,
-        lesson.sectionId
-      );
+    // Check if lesson is unlocked
+    const requireSequential =
+      lesson.section.course.requireSequentialProgress !== false;
+    if (requireSequential) {
+      const isUnlocked = await this.isLessonUnlocked(studentId, lessonId);
       if (!isUnlocked) {
         throw new ProgressError(
-          'This section is locked. Complete the previous section first.',
+          'This lesson is locked. Complete the previous lesson first.',
           ProgressErrorCode.SECTION_LOCKED,
           403
         );
@@ -417,6 +415,7 @@ export class ProgressService implements IProgressService {
     // Calculate totals
     let totalLessons = 0;
     let completedLessons = 0;
+    const completedLessonIds: string[] = [];
     let totalDuration = 0;
     let watchedDuration = 0;
 
@@ -438,6 +437,7 @@ export class ProgressService implements IProgressService {
         if (isCompleted) {
           completedLessons++;
           sectionCompletedLessons++;
+          completedLessonIds.push(lesson.id);
         }
 
         watchedDuration += progress?.watchedSeconds ?? 0;
@@ -472,6 +472,9 @@ export class ProgressService implements IProgressService {
         order: section.order,
         totalLessons: sectionTotalLessons,
         completedLessons: sectionCompletedLessons,
+        completedLessonIds: lessons
+          .filter(l => l.completed)
+          .map(l => l.lessonId),
         progressPercentage: sectionProgressPercentage,
         isUnlocked,
         lessons,
@@ -493,6 +496,7 @@ export class ProgressService implements IProgressService {
       studentId,
       totalLessons,
       completedLessons,
+      completedLessonIds,
       progressPercentage,
       totalDuration,
       watchedDuration,
@@ -603,6 +607,64 @@ export class ProgressService implements IProgressService {
       previousSection.id
     );
     return previousProgress >= SECTION_UNLOCK_THRESHOLD * 100;
+  }
+
+  /**
+   * Check if a lesson is unlocked for a student
+   * Enforces sequential lesson flow within and across sections
+   */
+  async isLessonUnlocked(
+    studentId: string,
+    lessonId: string
+  ): Promise<boolean> {
+    // Get lesson with course structure
+    const lesson = await this.prisma.lesson.findUnique({
+      where: { id: lessonId },
+      include: {
+        section: {
+          include: {
+            course: {
+              include: {
+                sections: {
+                  orderBy: { order: 'asc' },
+                  include: {
+                    lessons: {
+                      orderBy: { order: 'asc' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!lesson) return false;
+
+    const course = lesson.section.course;
+
+    // If sequential not required, unlocked (default to true now)
+    if (course.requireSequentialProgress === false) {
+      return true;
+    }
+
+    // Flatten all lessons across all sections in the correct order
+    const allLessons = course.sections.flatMap(s => s.lessons);
+    const currentIndex = allLessons.findIndex(l => l.id === lessonId);
+
+    // First lesson of the course is always unlocked
+    if (currentIndex === 0) return true;
+
+    // Check if the immediately preceding lesson is completed
+    const previousLesson = allLessons[currentIndex - 1];
+    const previousProgress = await this.prisma.lessonProgress.findUnique({
+      where: {
+        studentId_lessonId: { studentId, lessonId: previousLesson.id },
+      },
+    });
+
+    return previousProgress?.completed ?? false;
   }
 
   /**
@@ -966,7 +1028,8 @@ export class ProgressService implements IProgressService {
       },
     });
 
-    const wasAlreadyCompleted = enrollment?.status === EnrollmentStatus.COMPLETED;
+    const wasAlreadyCompleted =
+      enrollment?.status === EnrollmentStatus.COMPLETED;
 
     // Mark enrollment as completed
     await this.prisma.enrollment.update({

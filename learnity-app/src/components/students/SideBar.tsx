@@ -88,7 +88,7 @@ function SideBar() {
       </section>
 
       {/* 4. ACTIVE QUESTS - DAILY CHALLENGES */}
-      <section>
+      {/* <section>
         <QuestTracker
           compact
           limit={3}
@@ -96,17 +96,17 @@ function SideBar() {
           showViewAll
           onViewAll={() => (window.location.href = '/dashboard/student/achievements')}
         />
-      </section>
+      </section> */}
 
       {/* 5. LEADERBOARD - COMPETITIVE ELEMENT */}
-      <section>
+      {/* <section>
         <Leaderboard
           compact
           limit={5}
           showViewAll
           onViewAll={() => (window.location.href = '/dashboard/student/achievements')}
         />
-      </section>
+      </section> */}
     </div>
   );
 }

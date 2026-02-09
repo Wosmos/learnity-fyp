@@ -100,8 +100,9 @@ interface LessonProgressData {
 }
 
 interface CourseProgress {
-  progress: number;
-  completedLessons: string[];
+  progressPercentage: number;
+  completedLessons: number;
+  completedLessonIds: string[];
   lessonProgress: LessonProgressData[];
 }
 
@@ -244,22 +245,32 @@ export default function CoursePlayerPage() {
 
   // Gating Logic - Determine which lessons are locked
   const lockedLessonIds = useMemo(() => {
-    if (!course || !progress || !course.requireSequentialProgress)
-      return new Set<string>();
+    if (!course || !progress) return new Set<string>();
 
     const locked = new Set<string>();
     let foundIncomplete = false;
 
+    // Enforce sequential progress by default for better UX
+    const requireSequential = course.requireSequentialProgress !== false;
+
+    if (!requireSequential) return locked;
+
     // Sort sections and lessons to ensure order
-    const orderedLessons = course.sections
+    const orderedLessons = (course.sections || [])
       .sort((a, b) => a.order - b.order)
-      .flatMap(section => section.lessons.sort((a, b) => a.order - b.order));
+      .flatMap(section =>
+        Array.isArray(section.lessons)
+          ? [...section.lessons].sort((a, b) => a.order - b.order)
+          : []
+      );
 
     for (const lesson of orderedLessons) {
       if (foundIncomplete) {
         locked.add(lesson.id);
       } else {
-        const isComplete = progress.completedLessons.includes(lesson.id);
+        const isComplete = (progress.completedLessonIds || []).includes(
+          lesson.id
+        );
         if (!isComplete) {
           foundIncomplete = true;
         }
@@ -289,7 +300,7 @@ export default function CoursePlayerPage() {
   // Check if lesson is completed
   const isLessonCompleted = useCallback(
     (lessonId: string) => {
-      return progress?.completedLessons?.includes(lessonId) || false;
+      return (progress?.completedLessonIds || []).includes(lessonId);
     },
     [progress]
   );
@@ -312,7 +323,7 @@ export default function CoursePlayerPage() {
           xpEarned: 0,
           currentStreak: gamification?.currentStreak,
           streakIncreased: false,
-          courseCompleted: progress?.progress === 100,
+          courseCompleted: progress?.progressPercentage === 100,
         });
         setShowCompleteDialog(true);
         setIsMarkingComplete(false);
@@ -572,26 +583,27 @@ export default function CoursePlayerPage() {
     (sum, s) => sum + s.lessons.length,
     0
   );
-  const completedCount = progress?.completedLessons?.length || 0;
-  const progressPercent =
-    totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+  const completedCount = progress?.completedLessons || 0;
+  const progressPercent = progress?.progressPercentage || 0;
 
   // Convert sections for LessonSidebar
-  const sidebarSections: SectionItem[] = course.sections.map(s => ({
+  const sidebarSections: SectionItem[] = (course.sections || []).map(s => ({
     id: s.id,
     title: s.title,
     description: s.description,
     order: s.order,
-    lessons: s.lessons.map(l => ({
-      id: l.id,
-      title: l.title,
-      type: l.type,
-      duration: l.duration,
-      order: l.order,
-    })),
+    lessons: Array.isArray(s.lessons)
+      ? s.lessons.map(l => ({
+          id: l.id,
+          title: l.title,
+          type: l.type,
+          duration: l.duration,
+          order: l.order,
+        }))
+      : [],
   }));
 
-  const completedLessonIds = new Set(progress?.completedLessons || []);
+  const completedLessonIds = new Set(progress?.completedLessonIds || []);
   const currentLessonProgress = currentLesson
     ? getLessonProgress(currentLesson.id)
     : undefined;
@@ -628,7 +640,7 @@ export default function CoursePlayerPage() {
         onNextLesson={goToNextLesson}
         onReplay={() => setShowCompleteDialog(false)}
         onViewCertificate={() => {
-          router.push(`/dashboard/student/courses/${courseId}/certificate`);
+          // No longer using dialog for certificate as requested
         }}
       />
 
@@ -646,11 +658,19 @@ export default function CoursePlayerPage() {
         prevDisabled={isFirstLesson}
         nextDisabled={
           isLastLesson ||
-          lockedLessonIds.has(
-            course.sections[currentSectionIndex]?.lessons[
-              currentLessonIndex + 1
-            ]?.id || ''
-          )
+          (() => {
+            const currentSection = course.sections[currentSectionIndex];
+            let nextLessonId = '';
+
+            if (currentLessonIndex < currentSection.lessons.length - 1) {
+              nextLessonId = currentSection.lessons[currentLessonIndex + 1].id;
+            } else if (currentSectionIndex < course.sections.length - 1) {
+              nextLessonId =
+                course.sections[currentSectionIndex + 1].lessons[0]?.id || '';
+            }
+
+            return nextLessonId ? lockedLessonIds.has(nextLessonId) : true;
+          })()
         }
         onPrevious={goToPrevLesson}
         onNext={goToNextLesson}
@@ -667,7 +687,7 @@ export default function CoursePlayerPage() {
           currentLesson && currentLesson.type === 'VIDEO' ? (
             <Button
               onClick={() => markLessonComplete(currentLesson.id)}
-              disabled={isMarkingComplete}
+              disabled={isMarkingComplete || isCompleted}
               className={cn(
                 'transition-all duration-300',
                 isCompleted
@@ -697,6 +717,7 @@ export default function CoursePlayerPage() {
             totalLessons={totalLessons}
             completedCount={completedCount}
             onLessonSelect={goToLesson}
+            courseId={courseId}
           />
         }
       >

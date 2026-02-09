@@ -32,6 +32,7 @@ export interface CourseProgress {
   studentId: string;
   totalLessons: number;
   completedLessons: number;
+  completedLessonIds: string[];
   progressPercentage: number;
   totalDuration: number; // Total course duration in seconds
   watchedDuration: number; // Total watched time in seconds
@@ -49,6 +50,7 @@ export interface SectionProgress {
   order: number;
   totalLessons: number;
   completedLessons: number;
+  completedLessonIds: string[];
   progressPercentage: number;
   isUnlocked: boolean;
   lessons: LessonProgressSummary[];

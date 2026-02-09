@@ -18,6 +18,7 @@ import {
   PanelRightOpen,
   Zap,
   Award,
+  Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -113,22 +114,48 @@ export function CoursePlayerLayout({
           </div>
 
           {/* Center: Gamification (Desktop) */}
-          {gamificationProgress && (
-            <div className='hidden md:flex items-center gap-6'>
-              <div className='flex items-center gap-2 bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20'>
-                <Zap className='h-3.5 w-3.5 text-yellow-500 fill-yellow-500' />
-                <span className='text-xs font-black text-yellow-500 tracking-tighter'>
-                  STREAK: {gamificationProgress.currentStreak}
-                </span>
-              </div>
-              <div className='flex items-center gap-2 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20'>
-                <Award className='h-3.5 w-3.5 text-indigo-400' />
-                <span className='text-xs font-black text-indigo-400 tracking-tighter uppercase'>
-                  Level {gamificationProgress.currentLevel}
-                </span>
-              </div>
-            </div>
-          )}
+          <div className='hidden lg:flex items-center gap-6'>
+            {gamificationProgress && (
+              <>
+                <div className='flex items-center gap-2 bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20'>
+                  <Zap className='h-3.5 w-3.5 text-yellow-500 fill-yellow-500' />
+                  <span className='text-xs font-black text-yellow-500 tracking-tighter'>
+                    STREAK: {gamificationProgress.currentStreak}
+                  </span>
+                </div>
+                <div className='flex items-center gap-2 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20'>
+                  <Award className='h-3.5 w-3.5 text-indigo-400' />
+                  <span className='text-xs font-black text-indigo-400 tracking-tighter uppercase'>
+                    Level {gamificationProgress.currentLevel}
+                  </span>
+                </div>
+              </>
+            )}
+
+            {/* Community Hub Link */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href={`/dashboard/student/courses/${courseId}/community`}
+                  className='shrink-0'
+                >
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    className='text-slate-400 hover:text-white hover:bg-slate-800 rounded-full gap-2 px-4'
+                  >
+                    <Users className='h-4 w-4 text-indigo-400' />
+                    <span className='text-xs font-bold uppercase tracking-wider'>
+                      Community Hub
+                    </span>
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side='bottom'>
+                Connect with fellow learners
+              </TooltipContent>
+            </Tooltip>
+          </div>
 
           {/* Right: Progress, Desktop Toggle, Mobile Menu */}
           <div className='flex items-center gap-3 shrink-0'>

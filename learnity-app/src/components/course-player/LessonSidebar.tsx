@@ -7,6 +7,7 @@
  */
 
 import React from 'react';
+import Link from 'next/link';
 import {
   CheckCircle,
   Circle,
@@ -15,8 +16,10 @@ import {
   Lock,
   Clock,
   PlayCircle,
+  Trophy,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Accordion,
   AccordionContent,
@@ -63,6 +66,8 @@ export interface LessonSidebarProps {
   onLessonSelect: (sectionIndex: number, lessonIndex: number) => void;
   /** Additional class name */
   className?: string;
+  /** Course ID for certificate link */
+  courseId?: string;
 }
 
 /**
@@ -97,6 +102,7 @@ export function LessonSidebar({
   completedCount,
   onLessonSelect,
   className,
+  courseId,
 }: LessonSidebarProps) {
   // Find the section containing the current lesson for default expansion
   const currentSectionIndex = sections.findIndex(section =>
@@ -132,6 +138,19 @@ export function LessonSidebar({
             {completedCount} of {totalLessons} lessons completed
           </p>
         </div>
+
+        {/* Certificate Button - Immersive UX */}
+        {completedCount === totalLessons && totalLessons > 0 && courseId && (
+          <Link
+            href={`/dashboard/student/courses/${courseId}/certificate`}
+            className='block mt-4'
+          >
+            <Button className='w-full bg-emerald-600 hover:bg-emerald-500 text-white border-none shadow-lg shadow-emerald-900/20 font-black uppercase text-[10px] tracking-widest h-9 py-0'>
+              <Trophy className='h-4 w-4 mr-2' />
+              Claim Certificate
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Sections List */}
