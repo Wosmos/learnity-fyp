@@ -28,6 +28,7 @@ import {
 } from '@/lib/interfaces/enrollment.interface';
 import { EnrollmentFiltersData } from '@/lib/validators/enrollment';
 import { prisma as defaultPrisma } from '@/lib/prisma';
+import { walletService } from './wallet.service';
 
 /**
  * EnrollmentService - Implements enrollment management business logic
@@ -51,7 +52,14 @@ export class EnrollmentService implements IEnrollmentService {
     // Verify course exists and is published
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
-      select: { id: true, status: true, enrollmentCount: true },
+      select: {
+        id: true,
+        status: true,
+        enrollmentCount: true,
+        isFree: true,
+        price: true,
+        title: true,
+      },
     });
 
     if (!course) {
@@ -119,6 +127,55 @@ export class EnrollmentService implements IEnrollmentService {
 
     // Create new enrollment with initial state (Requirement 4.2)
     const enrollment = await this.prisma.$transaction(async tx => {
+      // Handle payment if course is not free
+      if (!course.isFree && course.price && Number(course.price) > 0) {
+        const amount = Number(course.price);
+        const hasBalance = await walletService.hasSufficientBalance(
+          studentId,
+          amount
+        );
+
+        if (!hasBalance) {
+          throw new EnrollmentError(
+            'Insufficient funds in wallet',
+            EnrollmentErrorCode.INSUFFICIENT_FUNDS,
+            402
+          );
+        }
+
+        // Execute purchase through wallet service (pass transaction client if possible, but here we'll just do it)
+        // Note: walletService currently doesn't accept 'tx', so we do it manually in the transaction
+        const wallet = await tx.wallet.findUnique({
+          where: { userId: studentId },
+        });
+        if (!wallet || Number(wallet.balance) < amount) {
+          throw new EnrollmentError(
+            'Insufficient funds',
+            EnrollmentErrorCode.INSUFFICIENT_FUNDS,
+            402
+          );
+        }
+
+        // Deduct from wallet
+        await tx.wallet.update({
+          where: { id: wallet.id },
+          data: { balance: { decrement: amount } },
+        });
+
+        // Create wallet transaction record
+        await tx.walletTransaction.create({
+          data: {
+            userId: studentId,
+            walletId: wallet.id,
+            amount: amount,
+            type: 'PURCHASE' as any,
+            status: 'COMPLETED' as any,
+            description: `Enrolled in course: ${course.title}`,
+            metadata: { courseId },
+          },
+        });
+      }
+
       // Create enrollment with 0% progress and ACTIVE status
       const newEnrollment = await tx.enrollment.create({
         data: {

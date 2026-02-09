@@ -154,11 +154,28 @@ export default function CourseDetailClient({
       setIsEnrolled(true);
       toast({ title: 'Success', description: 'Enrolled successfully!' });
     } catch (err: any) {
-      toast({
-        title: 'Error',
-        description: err.message,
-        variant: 'destructive',
-      });
+      if (err.message.includes('402') || err.message.includes('Insufficient')) {
+        toast({
+          title: 'Insufficient Funds',
+          description: 'Please top up your wallet to enroll in this course.',
+          variant: 'destructive',
+          action: (
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => router.push('/dashboard/student/wallet')}
+            >
+              Top Up
+            </Button>
+          ) as any,
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: err.message,
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsEnrolling(false);
     }
@@ -394,7 +411,7 @@ export default function CourseDetailClient({
                     !course.price ||
                     Number(course.price) === 0
                       ? 'FREE'
-                      : `$${course.price}`}
+                      : `Rs. ${course.price}`}
                   </span>
                   {(course.isFree ||
                     !course.price ||
@@ -424,8 +441,10 @@ export default function CourseDetailClient({
                 >
                   {isEnrolling ? (
                     <Loader2 className='h-4 w-4 animate-spin' />
-                  ) : (
+                  ) : course.isFree || !course.price ? (
                     'Initiate Enrollment'
+                  ) : (
+                    'Buy Now'
                   )}
                 </Button>
               )}

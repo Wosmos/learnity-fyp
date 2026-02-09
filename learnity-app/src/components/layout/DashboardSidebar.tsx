@@ -34,6 +34,7 @@ import {
   Lock,
   Layers,
   MessageCircle,
+  Wallet,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -86,6 +87,7 @@ const teacherNavItems: NavItem[] = [
   },
   { label: 'Students', href: '/dashboard/teacher/students', icon: Users },
   { label: 'Live Sessions', href: '/dashboard/teacher/sessions', icon: Video },
+  { label: 'Wallet', href: '/dashboard/teacher/wallet', icon: Wallet },
   { label: 'Profile', href: '/dashboard/teacher/profile/enhance', icon: User },
 ];
 
@@ -104,6 +106,7 @@ const studentNavItems: NavItem[] = [
     icon: GraduationCap,
   },
   { label: 'Awards', href: '/dashboard/student/achievements', icon: Award },
+  { label: 'Wallet', href: '/dashboard/student/wallet', icon: Wallet },
   { label: 'Profile', href: '/dashboard/student/profile/enhance', icon: User },
 ];
 
@@ -117,6 +120,7 @@ const adminNavItems: NavItem[] = [
     href: '/admin/teachers',
     icon: UserCheck,
   },
+  { label: 'Finances', href: '/admin/wallet', icon: Wallet },
   { label: 'Demo Tools', href: '/admin/demo', icon: Play },
   { label: 'Auth Debug', href: '/admin/auth-test', icon: Lock },
 ];
