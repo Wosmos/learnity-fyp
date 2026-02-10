@@ -150,32 +150,46 @@ export default function CourseDetailClient({
       const res = await authenticatedFetch(`/api/courses/${course.id}/enroll`, {
         method: 'POST',
       });
-      if (!res.ok) throw new Error('Enrollment failed');
-      setIsEnrolled(true);
-      toast({ title: 'Success', description: 'Enrolled successfully!' });
-    } catch (err: any) {
-      if (err.message.includes('402') || err.message.includes('Insufficient')) {
-        toast({
-          title: 'Insufficient Funds',
-          description: 'Please top up your wallet to enroll in this course.',
-          variant: 'destructive',
-          action: (
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => router.push('/dashboard/student/wallet')}
-            >
-              Top Up
-            </Button>
-          ) as any,
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description: err.message,
-          variant: 'destructive',
-        });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        // Check for insufficient funds error
+        if (res.status === 402 || data.code === 'INSUFFICIENT_FUNDS') {
+          toast({
+            title: 'Insufficient Balance',
+            description:
+              "You don't have enough balance in your wallet to enroll in this course.",
+            variant: 'destructive',
+            action: (
+              <Button
+                className='bg-blue-500 text-white hover:bg-blue-900 hover:text-slate-100'
+                variant='outline'
+                size='sm'
+                onClick={() => router.push('/dashboard/student/wallet')}
+              >
+                Top Up Wallet
+              </Button>
+            ) as any,
+          });
+          return;
+        }
+
+        // Handle other errors
+        throw new Error(data.error || 'Enrollment failed');
       }
+
+      setIsEnrolled(true);
+      toast({
+        title: 'Success',
+        description: 'You have successfully enrolled in this course!',
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to enroll in the course',
+        variant: 'destructive',
+      });
     } finally {
       setIsEnrolling(false);
     }

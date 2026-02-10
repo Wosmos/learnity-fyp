@@ -841,8 +841,8 @@ export default function EditCoursePage() {
                     Course Fee (PKR)
                   </Label>
                   <div className='relative'>
-                    <span className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold'>
-                      $
+                    <span className='absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 font-bold'>
+                     Rs
                     </span>
                     <Input
                       id='price'
