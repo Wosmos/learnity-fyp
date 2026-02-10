@@ -172,7 +172,7 @@ export function TeachersGrid({ initialData }: TeachersGridProps) {
         <div className='text-center mt-12'>
           <button
             onClick={() => setShowAll(true)}
-            className='inline-flex items-center px-8 py-3 bg-slate-600 hover:bg-slate-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105'
+            className='inline-flex items-center px-8 py-3 bg-slate-900 hover:bg-slate-950 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105'
           >
             Show All Teachers ({teachers.length})
             <svg

@@ -26,7 +26,7 @@ import {
   Video,
   ChevronLeft,
   ChevronRight,
-  MoreHorizontal,
+  ChevronDown,
   Shield,
   BarChart3,
   UserCheck,
@@ -40,12 +40,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLogout } from '@/hooks/useLogout';
 
@@ -58,6 +52,7 @@ export interface NavItem {
   icon: React.ElementType;
   badge?: string;
   description?: string;
+  children?: NavItem[];
 }
 
 export interface SidebarConfig {
@@ -78,51 +73,72 @@ export interface SidebarConfig {
 // --- Navigation Configurations ---
 const teacherNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard/teacher', icon: Home },
-  { label: 'My Courses', href: '/dashboard/teacher/courses', icon: BookOpen },
-  { label: 'Chat', href: '/messages', icon: MessageCircle },
-  {
-    label: 'Create Course',
-    href: '/dashboard/teacher/courses/new',
-    icon: Plus,
+  { 
+    label: 'Teaching', 
+    href: '/dashboard/teacher/courses', 
+    icon: BookOpen,
+    children: [
+      { label: 'My Courses', href: '/dashboard/teacher/courses', icon: BookOpen },
+      { label: 'Create Course', href: '/dashboard/teacher/courses/new', icon: Plus },
+      { label: 'Students', href: '/dashboard/teacher/students', icon: Users },
+    ]
   },
-  { label: 'Students', href: '/dashboard/teacher/students', icon: Users },
+  { label: 'Chat', href: '/messages', icon: MessageCircle },
   { label: 'Live Sessions', href: '/dashboard/teacher/sessions', icon: Video },
   { label: 'Wallet', href: '/dashboard/teacher/wallet', icon: Wallet },
   { label: 'Profile', href: '/dashboard/teacher/profile/enhance', icon: User },
 ];
 
 const studentNavItems: NavItem[] = [
-  { label: 'Home', href: '/dashboard/student', icon: Home },
-  { label: 'Courses', href: '/dashboard/student/courses', icon: BookOpen },
-  {
-    label: 'Browse Courses',
-    href: '/dashboard/student/public-cources',
-    icon: Search,
+  { label: 'Dashboard', href: '/dashboard/student', icon: Home },
+  { 
+    label: 'Learning', 
+    href: '/dashboard/student/courses', 
+    icon: BookOpen,
+    children: [
+      { label: 'My Courses', href: '/dashboard/student/courses', icon: BookOpen },
+      { label: 'Browse Courses', href: '/dashboard/student/public-cources', icon: Search },
+      { label: 'Teachers', href: '/dashboard/student/teachers', icon: GraduationCap },
+    ]
   },
   { label: 'Chat', href: '/messages', icon: MessageCircle },
-  {
-    label: 'Progress',
-    href: '/dashboard/student/progress',
+  { label: 'Tutoring Sessions', href: '/dashboard/student/sessions', icon: Video },
+  { 
+    label: 'My Progress', 
+    href: '/dashboard/student/progress', 
     icon: GraduationCap,
+    children: [
+      { label: 'Progress', href: '/dashboard/student/progress', icon: GraduationCap },
+      { label: 'Awards', href: '/dashboard/student/achievements', icon: Award },
+    ]
   },
-  { label: 'Awards', href: '/dashboard/student/achievements', icon: Award },
   { label: 'Wallet', href: '/dashboard/student/wallet', icon: Wallet },
   { label: 'Profile', href: '/dashboard/student/profile/enhance', icon: User },
 ];
 
 const adminNavItems: NavItem[] = [
   { label: 'Overview', href: '/dashboard/admin', icon: Home },
-  { label: 'Security Hub', href: '/admin', icon: Shield },
-  { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-  { label: 'Users', href: '/admin/users', icon: Users },
-  {
-    label: 'Applications',
-    href: '/admin/teachers',
-    icon: UserCheck,
+  { 
+    label: 'Management', 
+    href: '/admin', 
+    icon: Shield,
+    children: [
+      { label: 'Security Hub', href: '/admin', icon: Shield },
+      { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+      { label: 'Users', href: '/admin/users', icon: Users },
+      { label: 'Applications', href: '/admin/teachers', icon: UserCheck },
+    ]
   },
   { label: 'Finances', href: '/admin/wallet', icon: Wallet },
-  { label: 'Demo Tools', href: '/admin/demo', icon: Play },
-  { label: 'Auth Debug', href: '/admin/auth-test', icon: Lock },
+  { 
+    label: 'Tools', 
+    href: '/admin/demo', 
+    icon: Play,
+    children: [
+      { label: 'Demo Tools', href: '/admin/demo', icon: Play },
+      { label: 'Auth Debug', href: '/admin/auth-test', icon: Lock },
+    ]
+  },
 ];
 
 export const teacherSidebarConfig: SidebarConfig = {
@@ -138,7 +154,7 @@ export const teacherSidebarConfig: SidebarConfig = {
 export const studentSidebarConfig: SidebarConfig = {
   role: 'student',
   brandName: 'Learnity',
-  brandSubtitle: 'Student Dashboard',
+  brandSubtitle: 'Student Portal',
   brandIcon: GraduationCap,
   brandGradient: 'from-emerald-600 to-teal-600',
   navItems: studentNavItems,
@@ -200,7 +216,27 @@ const DesktopSidebarContent = ({
 }) => {
   const isActive = useActiveRoute(pathname, config.role, config.navItems);
   const isDark = config.theme === 'dark';
-  const BrandIcon = config.brandIcon;
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
+  const toggleExpanded = (label: string) => {
+    setExpandedItems(prev =>
+      prev.includes(label)
+        ? prev.filter(item => item !== label)
+        : [...prev, label]
+    );
+  };
+
+  // Auto-expand parent if child is active
+  React.useEffect(() => {
+    config.navItems.forEach(item => {
+      if (item.children) {
+        const hasActiveChild = item.children.some(child => isActive(child.href));
+        if (hasActiveChild && !expandedItems.includes(item.label)) {
+          setExpandedItems(prev => [...prev, item.label]);
+        }
+      }
+    });
+  }, [pathname]);
 
   return (
     <div
@@ -212,7 +248,7 @@ const DesktopSidebarContent = ({
       {/* Header */}
       <div
         className={cn(
-          'h-16 flex items-center flex-shrink-0 border-b transition-all duration-300',
+          'h-16 flex items-center shrink-0 border-b transition-all duration-300',
           isDark ? 'border-slate-800/60' : 'border-slate-100',
           isCollapsed ? 'justify-center px-0' : 'px-6'
         )}
@@ -220,7 +256,7 @@ const DesktopSidebarContent = ({
         <div className='flex items-center gap-3 overflow-hidden'>
           <div
             className={cn(
-              'p-2 rounded-xl flex-shrink-0 transition-transform duration-300 flex items-center justify-center',
+              'p-2 rounded-xl shrink-0 transition-transform duration-300 flex items-center justify-center',
               `bg-gradient-to-br ${config.brandGradient}`,
               !isCollapsed && 'shadow-lg shadow-blue-900/20'
             )}
@@ -248,58 +284,134 @@ const DesktopSidebarContent = ({
         </div>
       </div>
 
-      {/* Nav Items */}
+      {/* Nav Items - Scrollable */}
       <ScrollArea className='flex-1 py-6'>
         <nav className={cn('space-y-1.5', isCollapsed ? 'px-2' : 'px-4')}>
           {config.navItems.map(item => {
             const active = isActive(item.href);
+            const hasChildren = item.children && item.children.length > 0;
+            const isExpanded = expandedItems.includes(item.label);
+
             return (
-              <Link key={item.href} href={item.href} className='block group'>
-                <div
-                  className={cn(
-                    'relative flex items-center h-10 rounded-lg transition-all duration-200 overflow-hidden',
-                    isCollapsed ? 'justify-center px-0' : 'px-3',
-                    active
-                      ? isDark
-                        ? 'bg-blue-600/10 text-blue-400'
-                        : 'bg-blue-50 text-blue-600'
-                      : isDark
-                        ? 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
-                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
-                  )}
-                >
-                  {/* Active Indicator Bar (Left) */}
-                  {active && (
-                    <div className='absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-current' />
-                  )}
-
-                  <item.icon
-                    className={cn(
-                      'h-[18px] w-[18px] flex-shrink-0 transition-colors',
-                      !isCollapsed && 'mr-3'
-                    )}
-                  />
-
-                  {!isCollapsed && (
-                    <span className='text-sm font-medium tracking-tight whitespace-nowrap'>
-                      {item.label}
-                    </span>
-                  )}
-
-                  {!isCollapsed && item.badge && (
-                    <Badge
+              <div key={item.label}>
+                {/* Parent Item */}
+                {hasChildren && !isCollapsed ? (
+                  <button
+                    onClick={() => toggleExpanded(item.label)}
+                    className='w-full group'
+                  >
+                    <div
                       className={cn(
-                        'ml-auto h-5 px-1.5 rounded-full text-[10px] font-bold border-0',
-                        isDark
-                          ? 'bg-slate-800 text-slate-300'
-                          : 'bg-slate-100 text-slate-600'
+                        'relative flex items-center h-10 rounded-lg transition-all duration-200 overflow-hidden px-3',
+                        active
+                          ? isDark
+                            ? 'bg-blue-600/10 text-blue-400'
+                            : 'bg-blue-50 text-blue-600'
+                          : isDark
+                            ? 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
                       )}
                     >
-                      {item.badge}
-                    </Badge>
-                  )}
-                </div>
-              </Link>
+                      <item.icon className='h-[18px] w-[18px] shrink-0 mr-3' />
+                      <span className='text-sm font-medium tracking-tight whitespace-nowrap flex-1 text-left'>
+                        {item.label}
+                      </span>
+                      <ChevronDown
+                        className={cn(
+                          'h-4 w-4 transition-transform duration-200',
+                          isExpanded && 'rotate-180'
+                        )}
+                      />
+                    </div>
+                  </button>
+                ) : (
+                  <Link href={item.href} className='block group'>
+                    <div
+                      className={cn(
+                        'relative flex items-center h-10 rounded-lg transition-all duration-200 overflow-hidden',
+                        isCollapsed ? 'justify-center px-0' : 'px-3',
+                        active
+                          ? isDark
+                            ? 'bg-blue-600/10 text-blue-400'
+                            : 'bg-blue-50 text-blue-600'
+                          : isDark
+                            ? 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                      )}
+                    >
+                      {active && (
+                        <div className='absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-current' />
+                      )}
+
+                      <item.icon
+                        className={cn(
+                          'h-[18px] w-[18px] shrink-0 transition-colors',
+                          !isCollapsed && 'mr-3'
+                        )}
+                      />
+
+                      {!isCollapsed && (
+                        <span className='text-sm font-medium tracking-tight whitespace-nowrap'>
+                          {item.label}
+                        </span>
+                      )}
+
+                      {!isCollapsed && item.badge && (
+                        <Badge
+                          className={cn(
+                            'ml-auto h-5 px-1.5 rounded-full text-[10px] font-bold border-0',
+                            isDark
+                              ? 'bg-slate-800 text-slate-300'
+                              : 'bg-slate-100 text-slate-600'
+                          )}
+                        >
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </div>
+                  </Link>
+                )}
+
+                {/* Children Items */}
+                {hasChildren && !isCollapsed && isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className='ml-6 mt-1 space-y-1 overflow-hidden'
+                  >
+                    {item.children!.map(child => {
+                      const childActive = isActive(child.href);
+                      return (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className='block group'
+                        >
+                          <div
+                            className={cn(
+                              'relative flex items-center h-9 rounded-lg transition-all duration-200 px-3',
+                              childActive
+                                ? isDark
+                                  ? 'bg-blue-600/10 text-blue-400'
+                                  : 'bg-blue-50 text-blue-600'
+                                : isDark
+                                  ? 'text-slate-500 hover:bg-slate-800/30 hover:text-slate-300'
+                                  : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700'
+                            )}
+                          >
+                            <child.icon className='h-4 w-4 shrink-0 mr-2' />
+                            <span className='text-xs font-medium tracking-tight'>
+                              {child.label}
+                            </span>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </div>
             );
           })}
         </nav>
@@ -308,7 +420,7 @@ const DesktopSidebarContent = ({
       {/* Footer */}
       <div
         className={cn(
-          'p-4 border-t mt-auto space-y-2 flex-shrink-0',
+          'p-4 border-t mt-auto space-y-2 shrink-0',
           isDark
             ? 'border-slate-800/60 bg-slate-900/30'
             : 'border-slate-100 bg-slate-50/50'
@@ -340,22 +452,6 @@ const DesktopSidebarContent = ({
             </Link>
           </div>
         )}
-
-        <Link href={`/${config.role}/settings`} className='block'>
-          <Button
-            variant='ghost'
-            className={cn(
-              'w-full justify-start h-9',
-              isCollapsed ? 'px-0 justify-center' : 'px-2',
-              isDark
-                ? 'hover:bg-slate-800 text-slate-400'
-                : 'hover:bg-slate-200/50 text-slate-600'
-            )}
-          >
-            <Settings className={cn('h-4 w-4', !isCollapsed && 'mr-2')} />
-            {!isCollapsed && 'Settings'}
-          </Button>
-        </Link>
 
         <Button
           variant='ghost'

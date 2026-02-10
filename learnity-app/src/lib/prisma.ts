@@ -20,16 +20,6 @@ export const prisma =
         url: env.DATABASE_URL,
       },
     },
-    // Optimized for Neon DB serverless
-    // @ts-ignore - Neon DB specific optimizations
-    connection: {
-      pool: {
-        min: 2,
-        max: 10,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 5000,
-      },
-    },
   });
 
 if (env.NODE_ENV !== 'production') {

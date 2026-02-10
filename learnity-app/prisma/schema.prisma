@@ -9,44 +9,46 @@ datasource db {
 }
 
 model User {
-  id                    String                    @id @default(cuid())
-  firebaseUid           String                    @unique
-  email                 String                    @unique
-  firstName             String
-  lastName              String
-  role                  UserRole
-  emailVerified         Boolean                   @default(false)
-  profilePicture        String?
-  authProvider          String?                   @default("email")
-  socialProviders       String[]                  @default([])
-  isActive              Boolean                   @default(true)
-  lastLoginAt           DateTime?
-  createdAt             DateTime                  @default(now())
-  updatedAt             DateTime                  @updatedAt
-  adminProfile          AdminProfile?
-  auditLogs             AuditLog[]
-  badges                Badge[]                   @relation("UserBadges")
-  certificates          Certificate[]             @relation("StudentCertificates")
-  teacherCourses        Course[]                  @relation("TeacherCourses")
-  deviceTokens          DeviceToken[]             @relation("DeviceTokens")
-  enrollments           Enrollment[]              @relation("StudentEnrollments")
-  lessonProgress        LessonProgress[]          @relation("StudentLessonProgress")
-  quizAttempts          QuizAttempt[]             @relation("StudentQuizAttempts")
-  reviews               Review[]                  @relation("StudentReviews")
-  securityEvents        SecurityEvent[]
-  notifications         SessionNotification[]     @relation("UserNotifications")
-  studentProfile        StudentProfile?
-  groupChatMemberships  TeacherGroupChatMember[]  @relation("GroupChatMemberships")
-  teacherGroupChats     TeacherGroupChat[]        @relation("TeacherGroupChats")
-  teacherProfile        TeacherProfile?
-  userBadges            UserBadge[]               @relation("UserBadges")
-  userProgress          UserProgress?             @relation("UserGamificationProgress")
-  userQuests            UserQuest[]               @relation("UserQuests")
-  sessionParticipations VideoSessionParticipant[] @relation("SessionParticipations")
-  teacherSessions       VideoSession[]            @relation("TeacherSessions")
-  transactions          WalletTransaction[]       @relation("UserTransactions")
-  wallet                Wallet?
-  xpActivities          XPActivity[]              @relation("UserXPActivities")
+  id                      String                    @id @default(cuid())
+  firebaseUid             String                    @unique
+  email                   String                    @unique
+  firstName               String
+  lastName                String
+  role                    UserRole
+  emailVerified           Boolean                   @default(false)
+  profilePicture          String?
+  authProvider            String?                   @default("email")
+  socialProviders         String[]                  @default([])
+  isActive                Boolean                   @default(true)
+  lastLoginAt             DateTime?
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  adminProfile            AdminProfile?
+  auditLogs               AuditLog[]
+  badges                  Badge[]                   @relation("UserBadges")
+  certificates            Certificate[]             @relation("StudentCertificates")
+  teacherCourses          Course[]                  @relation("TeacherCourses")
+  deviceTokens            DeviceToken[]             @relation("DeviceTokens")
+  enrollments             Enrollment[]              @relation("StudentEnrollments")
+  lessonProgress          LessonProgress[]          @relation("StudentLessonProgress")
+  quizAttempts            QuizAttempt[]             @relation("StudentQuizAttempts")
+  reviews                 Review[]                  @relation("StudentReviews")
+  securityEvents          SecurityEvent[]
+  notifications           SessionNotification[]     @relation("UserNotifications")
+  studentProfile          StudentProfile?
+  groupChatMemberships    TeacherGroupChatMember[]  @relation("GroupChatMemberships")
+  teacherGroupChats       TeacherGroupChat[]        @relation("TeacherGroupChats")
+  teacherProfile          TeacherProfile?
+  userBadges              UserBadge[]               @relation("UserBadges")
+  userProgress            UserProgress?             @relation("UserGamificationProgress")
+  userQuests              UserQuest[]               @relation("UserQuests")
+  sessionParticipations   VideoSessionParticipant[] @relation("SessionParticipations")
+  teacherSessions         VideoSession[]            @relation("TeacherSessions")
+  transactions            WalletTransaction[]       @relation("UserTransactions")
+  wallet                  Wallet?
+  xpActivities            XPActivity[]              @relation("UserXPActivities")
+  studentTutoringSessions TutoringSession[]         @relation("StudentTutoringSessions")
+  teacherTutoringSessions TutoringSession[]         @relation("TeacherTutoringSessions")
 
   @@index([firebaseUid])
   @@index([email])
@@ -696,6 +698,34 @@ model VideoSession {
   @@map("video_sessions")
 }
 
+model TutoringSession {
+  id                 String                @id @default(cuid())
+  studentId          String
+  teacherId          String
+  title              String
+  description        String?
+  scheduledAt        DateTime
+  duration           Int                   @default(60)
+  hmsRoomId          String?
+  hmsRoomName        String?
+  status             TutoringSessionStatus @default(PENDING)
+  startedAt          DateTime?
+  endedAt            DateTime?
+  cancelledAt        DateTime?
+  cancellationReason String?
+  rejectionReason    String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  student            User                  @relation("StudentTutoringSessions", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher            User                  @relation("TeacherTutoringSessions", fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([teacherId])
+  @@index([scheduledAt])
+  @@index([status])
+  @@map("tutoring_sessions")
+}
+
 model VideoSessionParticipant {
   id        String       @id @default(cuid())
   sessionId String
@@ -970,5 +1000,15 @@ enum TransactionStatus {
   PENDING
   COMPLETED
   FAILED
+  CANCELLED
+}
+
+enum TutoringSessionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  SCHEDULED
+  LIVE
+  COMPLETED
   CANCELLED
 }

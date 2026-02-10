@@ -2,9 +2,11 @@
 
 import { Award, Star, MapPin, Globe, MessageCircle, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { TeacherData } from './types';
+import { BookSessionModal } from '../BookSessionModal';
 
 interface TeacherHeroProps {
   teacher: TeacherData;
@@ -13,7 +15,13 @@ interface TeacherHeroProps {
 }
 
 export function TeacherHero({ teacher, gradient, initials }: TeacherHeroProps) {
-  const { isAuthenticated } = useClientAuth();
+  const { isAuthenticated, user, loading } = useClientAuth();
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+
+  const handleBookSession = () => {
+    // Always open modal - the modal itself will handle auth checks
+    setIsBookingModalOpen(true);
+  };
 
   return (
     <div className='relative w-full bg-white'>
@@ -158,11 +166,12 @@ export function TeacherHero({ teacher, gradient, initials }: TeacherHeroProps) {
               </div>
 
               <div className='space-y-3'>
-                <Link href='/auth/register/student' className='block w-full'>
-                  <Button className='w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white border-none rounded-2xl text-sm font-bold uppercase tracking-wider transition-all shadow-lg shadow-indigo-200 lg:shadow-none'>
-                    Book a Lesson
-                  </Button>
-                </Link>
+                <Button
+                  onClick={handleBookSession}
+                  className='w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white border-none rounded-2xl text-sm font-bold uppercase tracking-wider transition-all shadow-lg shadow-indigo-200 lg:shadow-none'
+                >
+                  Book a Lesson
+                </Button>
                 <Link
                   href={
                     isAuthenticated
@@ -184,6 +193,18 @@ export function TeacherHero({ teacher, gradient, initials }: TeacherHeroProps) {
           </div>
         </div>
       </div>
+
+      {/* Booking Modal */}
+      <BookSessionModal
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+        teacher={{
+          id: teacher.id,
+          name: teacher.name,
+          hourlyRate: teacher.hourlyRate,
+          profilePicture: teacher.profilePicture,
+        }}
+      />
     </div>
   );
 }

@@ -41,7 +41,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         404
       );
 
-    const { status } = await request.json();
+    const body = await request.json();
+    const { status, receiptUrl } = body;
 
     if (!['COMPLETED', 'FAILED', 'CANCELLED'].includes(status)) {
       return createErrorResponse(
@@ -52,11 +53,38 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const updatedTransaction = await walletService.processTransaction(
-      transactionId,
-      status as any,
-      dbAdmin.id
-    );
+    // Check transaction type to determine which method to use
+    const transaction = await prisma.walletTransaction.findUnique({
+      where: { id: transactionId },
+      select: { type: true },
+    });
+
+    if (!transaction) {
+      return createErrorResponse(
+        'TRANSACTION_NOT_FOUND',
+        'Transaction not found',
+        undefined,
+        404
+      );
+    }
+
+    let updatedTransaction;
+    if (transaction.type === 'WITHDRAWAL') {
+      // Use withdrawal processing method
+      updatedTransaction = await walletService.processWithdrawal(
+        transactionId,
+        status as any,
+        dbAdmin.id,
+        receiptUrl
+      );
+    } else {
+      // Use regular transaction processing
+      updatedTransaction = await walletService.processTransaction(
+        transactionId,
+        status as any,
+        dbAdmin.id
+      );
+    }
 
     return createSuccessResponse(
       updatedTransaction,

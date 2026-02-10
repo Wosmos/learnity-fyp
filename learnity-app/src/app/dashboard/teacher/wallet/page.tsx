@@ -165,13 +165,7 @@ export default function TeacherWalletPage() {
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
 
-  const [walletData, setWalletData] = useState<WalletData>({
-    balance: 0,
-    currency: 'PKR',
-    totalEarnings: 0,
-    pendingEarnings: 0,
-    withdrawnAmount: 0,
-  });
+  const [walletData, setWalletData] = useState<WalletData | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [filterType, setFilterType] = useState<string>('all');
@@ -189,19 +183,32 @@ export default function TeacherWalletPage() {
 
       try {
         setIsLoadingData(true);
-        const [walletRes, transactionsRes] = await Promise.all([
-          authenticatedFetch('/api/wallet'),
-          authenticatedFetch('/api/wallet/transactions'),
-        ]);
+        const walletRes = await authenticatedFetch('/api/wallet');
 
         if (walletRes.ok) {
-          const data = await walletRes.json();
-          setWalletData(data.data || walletData);
-        }
+          const response = await walletRes.json();
+          const { wallet, transactions: txns } = response.data || {};
+          
+          if (wallet) {
+            // Calculate stats from wallet and transactions
+            const earnings = txns?.filter((t: Transaction) => t.type === 'EARNING' && t.status === 'COMPLETED') || [];
+            const withdrawals = txns?.filter((t: Transaction) => t.type === 'WITHDRAWAL' && t.status === 'COMPLETED') || [];
+            const pending = txns?.filter((t: Transaction) => t.type === 'EARNING' && t.status === 'PENDING') || [];
+            
+            const totalEarnings = earnings.reduce((sum: number, t: Transaction) => sum + Number(t.amount), 0);
+            const withdrawnAmount = withdrawals.reduce((sum: number, t: Transaction) => sum + Number(t.amount), 0);
+            const pendingEarnings = pending.reduce((sum: number, t: Transaction) => sum + Number(t.amount), 0);
 
-        if (transactionsRes.ok) {
-          const data = await transactionsRes.json();
-          setTransactions(data.data?.transactions || []);
+            setWalletData({
+              balance: Number(wallet.balance) || 0,
+              currency: wallet.currency || 'PKR',
+              totalEarnings,
+              pendingEarnings,
+              withdrawnAmount,
+            });
+            
+            setTransactions(txns || []);
+          }
         }
       } catch (error) {
         console.error('Error fetching wallet data:', error);
@@ -215,7 +222,7 @@ export default function TeacherWalletPage() {
     }
   }, [isAuthenticated, authenticatedFetch]);
 
-  const filteredTransactions = transactions.filter(t => {
+  const filteredTransactions = (transactions || []).filter(t => {
     if (filterType !== 'all' && t.type !== filterType) return false;
     if (filterStatus !== 'all' && t.status !== filterStatus) return false;
     return true;
@@ -234,38 +241,52 @@ export default function TeacherWalletPage() {
       <div className='max-w-[1400px] mx-auto px-4 sm:px-6 py-6 space-y-6'>
         {/* Stats Grid */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-          <StatCard
-            title='Available Balance'
-            value={`PKR ${walletData.balance.toLocaleString()}`}
-            subtitle='Ready to withdraw'
-            icon={Wallet}
-            colorClass='text-blue-600'
-            bgClass='bg-blue-50'
-          />
-          <StatCard
-            title='Total Earnings'
-            value={`PKR ${walletData.totalEarnings.toLocaleString()}`}
-            subtitle='All time'
-            icon={TrendingUp}
-            colorClass='text-green-600'
-            bgClass='bg-green-50'
-          />
-          <StatCard
-            title='Pending Earnings'
-            value={`PKR ${walletData.pendingEarnings.toLocaleString()}`}
-            subtitle='Being processed'
-            icon={Clock}
-            colorClass='text-amber-600'
-            bgClass='bg-amber-50'
-          />
-          <StatCard
-            title='Total Withdrawn'
-            value={`PKR ${walletData.withdrawnAmount.toLocaleString()}`}
-            subtitle='Lifetime'
-            icon={Download}
-            colorClass='text-purple-600'
-            bgClass='bg-purple-50'
-          />
+          {isLoadingData ? (
+            <>
+              {[1, 2, 3, 4].map(i => (
+                <Card key={i} className='border shadow-sm'>
+                  <CardContent className='p-6'>
+                    <Skeleton className='h-20 w-full' />
+                  </CardContent>
+                </Card>
+              ))}
+            </>
+          ) : (
+            <>
+              <StatCard
+                title='Available Balance'
+                value={`PKR ${(walletData?.balance || 0).toLocaleString()}`}
+                subtitle='Ready to withdraw'
+                icon={Wallet}
+                colorClass='text-blue-600'
+                bgClass='bg-blue-50'
+              />
+              <StatCard
+                title='Total Earnings'
+                value={`PKR ${(walletData?.totalEarnings || 0).toLocaleString()}`}
+                subtitle='All time'
+                icon={TrendingUp}
+                colorClass='text-green-600'
+                bgClass='bg-green-50'
+              />
+              <StatCard
+                title='Pending Earnings'
+                value={`PKR ${(walletData?.pendingEarnings || 0).toLocaleString()}`}
+                subtitle='Being processed'
+                icon={Clock}
+                colorClass='text-amber-600'
+                bgClass='bg-amber-50'
+              />
+              <StatCard
+                title='Total Withdrawn'
+                value={`PKR ${(walletData?.withdrawnAmount || 0).toLocaleString()}`}
+                subtitle='Lifetime'
+                icon={Download}
+                colorClass='text-purple-600'
+                bgClass='bg-purple-50'
+              />
+            </>
+          )}
         </div>
 
         {/* Main Content */}
@@ -386,7 +407,7 @@ export default function TeacherWalletPage() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card> 
           </div>
         </div>
       </div>

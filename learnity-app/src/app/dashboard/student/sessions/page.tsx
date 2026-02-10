@@ -11,26 +11,17 @@ import {
   XCircle,
   AlertCircle,
   Play,
-  Check,
-  X as XIcon,
+  X,
 } from 'lucide-react';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 
 interface TutoringSession {
   id: string;
@@ -39,16 +30,17 @@ interface TutoringSession {
   scheduledAt: string;
   duration: number;
   status: string;
-  student: {
+  teacher: {
     id: string;
     firstName: string;
     lastName: string;
     profilePicture: string | null;
   };
   rejectionReason?: string | null;
+  cancellationReason?: string | null;
 }
 
-export default function TeacherSessionsPage() {
+export default function StudentSessionsPage() {
   const { user, loading, isAuthenticated } = useClientAuth();
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
@@ -56,15 +48,11 @@ export default function TeacherSessionsPage() {
 
   const [sessions, setSessions] = useState<TutoringSession[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
-  const [activeTab, setActiveTab] = useState('pending');
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
-  const [selectedSession, setSelectedSession] = useState<string | null>(null);
-  const [rejectionReason, setRejectionReason] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      router.push('/auth/login?redirect=/dashboard/teacher/sessions');
+      router.push('/auth/login?redirect=/dashboard/student/sessions');
     }
   }, [loading, isAuthenticated, router]);
 
@@ -92,88 +80,44 @@ export default function TeacherSessionsPage() {
     }
   }, [isAuthenticated, authenticatedFetch]);
 
-  const handleAcceptSession = async (sessionId: string) => {
-    try {
-      setIsProcessing(true);
-      const response = await authenticatedFetch(
-        `/api/tutoring-sessions/${sessionId}/accept`,
-        {
-          method: 'POST',
-        }
-      );
-
-      if (response.ok) {
-        toast({
-          title: 'Session Accepted',
-          description: 'The tutoring session has been scheduled.',
-        });
-        setSessions(prev =>
-          prev.map(s => (s.id === sessionId ? { ...s, status: 'ACCEPTED' } : s))
-        );
-      } else {
-        toast({
-          title: 'Error',
-          description: 'Failed to accept session',
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      console.error('Error accepting session:', error);
-      toast({
-        title: 'Error',
-        description: 'Something went wrong',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleRejectSession = async () => {
-    if (!selectedSession) return;
+  const handleCancelSession = async (sessionId: string) => {
+    if (!confirm('Are you sure you want to cancel this session?')) return;
 
     try {
-      setIsProcessing(true);
       const response = await authenticatedFetch(
-        `/api/tutoring-sessions/${selectedSession}/reject`,
+        `/api/tutoring-sessions/${sessionId}/cancel`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reason: rejectionReason }),
+          body: JSON.stringify({ reason: 'Cancelled by student' }),
         }
       );
 
       if (response.ok) {
         toast({
-          title: 'Session Rejected',
-          description: 'The student has been notified.',
+          title: 'Session Cancelled',
+          description: 'The tutoring session has been cancelled.',
         });
+        // Refresh sessions
         setSessions(prev =>
           prev.map(s =>
-            s.id === selectedSession
-              ? { ...s, status: 'REJECTED', rejectionReason }
-              : s
+            s.id === sessionId ? { ...s, status: 'CANCELLED' } : s
           )
         );
-        setRejectDialogOpen(false);
-        setRejectionReason('');
-        setSelectedSession(null);
       } else {
         toast({
           title: 'Error',
-          description: 'Failed to reject session',
+          description: 'Failed to cancel session',
           variant: 'destructive',
         });
       }
     } catch (error) {
-      console.error('Error rejecting session:', error);
+      console.error('Error cancelling session:', error);
       toast({
         title: 'Error',
         description: 'Something went wrong',
         variant: 'destructive',
       });
-    } finally {
-      setIsProcessing(false);
     }
   };
 
@@ -185,6 +129,7 @@ export default function TeacherSessionsPage() {
 
       if (response.ok) {
         const data = await response.json();
+        // In production, redirect to 100ms room with token
         toast({
           title: 'Joining Session',
           description: 'Opening video conference...',
@@ -226,11 +171,11 @@ export default function TeacherSessionsPage() {
   };
 
   const filteredSessions = sessions.filter(session => {
-    if (activeTab === 'pending') return session.status === 'PENDING';
-    if (activeTab === 'scheduled')
-      return ['ACCEPTED', 'SCHEDULED'].includes(session.status);
+    if (activeTab === 'all') return true;
+    if (activeTab === 'upcoming')
+      return ['PENDING', 'ACCEPTED', 'SCHEDULED'].includes(session.status);
     if (activeTab === 'completed') return session.status === 'COMPLETED';
-    if (activeTab === 'rejected')
+    if (activeTab === 'cancelled')
       return ['REJECTED', 'CANCELLED'].includes(session.status);
     return true;
   });
@@ -240,25 +185,18 @@ export default function TeacherSessionsPage() {
   return (
     <div className='min-h-screen bg-slate-50/50'>
       <PageHeader
-        title='Tutoring Sessions'
-        subtitle='Manage your student session requests'
+        title='My Tutoring Sessions'
+        subtitle='Manage your one-on-one learning sessions'
         icon={Video}
       />
 
       <div className='max-w-[1400px] mx-auto px-4 sm:px-6 py-6'>
         <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
           <TabsList className='grid w-full grid-cols-4 mb-6'>
-            <TabsTrigger value='pending'>
-              Pending{' '}
-              {sessions.filter(s => s.status === 'PENDING').length > 0 && (
-                <span className='ml-2 bg-amber-500 text-white text-xs rounded-full px-2 py-0.5'>
-                  {sessions.filter(s => s.status === 'PENDING').length}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value='scheduled'>Scheduled</TabsTrigger>
+            <TabsTrigger value='all'>All Sessions</TabsTrigger>
+            <TabsTrigger value='upcoming'>Upcoming</TabsTrigger>
             <TabsTrigger value='completed'>Completed</TabsTrigger>
-            <TabsTrigger value='rejected'>Rejected</TabsTrigger>
+            <TabsTrigger value='cancelled'>Cancelled</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab}>
@@ -278,17 +216,17 @@ export default function TeacherSessionsPage() {
                   <Card key={session.id} className='border shadow-sm'>
                     <CardContent className='p-6'>
                       <div className='flex flex-col md:flex-row gap-6'>
-                        {/* Student Info */}
+                        {/* Teacher Info */}
                         <div className='flex items-start gap-4 flex-1'>
-                          <div className='w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xl flex-shrink-0'>
-                            {session.student.profilePicture ? (
+                          <div className='w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl flex-shrink-0'>
+                            {session.teacher.profilePicture ? (
                               <img
-                                src={session.student.profilePicture}
-                                alt={`${session.student.firstName} ${session.student.lastName}`}
+                                src={session.teacher.profilePicture}
+                                alt={`${session.teacher.firstName} ${session.teacher.lastName}`}
                                 className='w-full h-full rounded-full object-cover'
                               />
                             ) : (
-                              `${session.student.firstName[0]}${session.student.lastName[0]}`
+                              `${session.teacher.firstName[0]}${session.teacher.lastName[0]}`
                             )}
                           </div>
 
@@ -300,8 +238,8 @@ export default function TeacherSessionsPage() {
                                 </h3>
                                 <p className='text-sm text-slate-600 flex items-center gap-1'>
                                   <User className='h-3 w-3' />
-                                  {session.student.firstName}{' '}
-                                  {session.student.lastName}
+                                  with {session.teacher.firstName}{' '}
+                                  {session.teacher.lastName}
                                 </p>
                               </div>
                               {getStatusBadge(session.status)}
@@ -343,9 +281,21 @@ export default function TeacherSessionsPage() {
 
                             {session.rejectionReason && (
                               <div className='mt-3 p-3 bg-red-50 border border-red-200 rounded-lg'>
-                                <p className='text-sm text-red-700'>
-                                  <strong>Rejection Reason:</strong>{' '}
-                                  {session.rejectionReason}
+                                <p className='text-sm text-red-700 flex items-start gap-2'>
+                                  <AlertCircle className='h-4 w-4 mt-0.5 flex-shrink-0' />
+                                  <span>
+                                    <strong>Rejected:</strong>{' '}
+                                    {session.rejectionReason}
+                                  </span>
+                                </p>
+                              </div>
+                            )}
+
+                            {session.cancellationReason && (
+                              <div className='mt-3 p-3 bg-slate-50 border border-slate-200 rounded-lg'>
+                                <p className='text-sm text-slate-700'>
+                                  <strong>Cancelled:</strong>{' '}
+                                  {session.cancellationReason}
                                 </p>
                               </div>
                             )}
@@ -353,39 +303,27 @@ export default function TeacherSessionsPage() {
                         </div>
 
                         {/* Actions */}
-                        <div className='flex md:flex-col gap-2 md:w-40'>
-                          {session.status === 'PENDING' && (
-                            <>
-                              <Button
-                                onClick={() => handleAcceptSession(session.id)}
-                                disabled={isProcessing}
-                                className='flex-1 md:flex-none bg-green-600 hover:bg-green-700'
-                              >
-                                <Check className='h-4 w-4 mr-2' />
-                                Accept
-                              </Button>
-                              <Button
-                                onClick={() => {
-                                  setSelectedSession(session.id);
-                                  setRejectDialogOpen(true);
-                                }}
-                                disabled={isProcessing}
-                                variant='outline'
-                                className='flex-1 md:flex-none text-red-600 hover:text-red-700 hover:bg-red-50'
-                              >
-                                <XIcon className='h-4 w-4 mr-2' />
-                                Reject
-                              </Button>
-                            </>
-                          )}
-
+                        <div className='flex md:flex-col gap-2 md:w-32'>
                           {session.status === 'LIVE' && (
                             <Button
                               onClick={() => handleJoinSession(session.id)}
-                              className='flex-1 md:flex-none bg-purple-600 hover:bg-purple-700'
+                              className='flex-1 md:flex-none bg-green-600 hover:bg-green-700'
                             >
                               <Play className='h-4 w-4 mr-2' />
                               Join
+                            </Button>
+                          )}
+
+                          {['PENDING', 'ACCEPTED', 'SCHEDULED'].includes(
+                            session.status
+                          ) && (
+                            <Button
+                              onClick={() => handleCancelSession(session.id)}
+                              variant='outline'
+                              className='flex-1 md:flex-none text-red-600 hover:text-red-700 hover:bg-red-50'
+                            >
+                              <X className='h-4 w-4 mr-2' />
+                              Cancel
                             </Button>
                           )}
                         </div>
@@ -401,58 +339,21 @@ export default function TeacherSessionsPage() {
                   <h3 className='text-lg font-semibold text-slate-900 mb-2'>
                     No Sessions Found
                   </h3>
-                  <p className='text-slate-600'>
-                    {activeTab === 'pending'
-                      ? 'No pending session requests at the moment.'
-                      : `No ${activeTab} sessions.`}
+                  <p className='text-slate-600 mb-6'>
+                    You haven't booked any tutoring sessions yet.
                   </p>
+                  <Button
+                    onClick={() => router.push('/teachers')}
+                    className='bg-indigo-600 hover:bg-indigo-700'
+                  >
+                    Browse Teachers
+                  </Button>
                 </CardContent>
               </Card>
             )}
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* Reject Dialog */}
-      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reject Session Request</DialogTitle>
-            <DialogDescription>
-              Please provide a reason for rejecting this session request.
-            </DialogDescription>
-          </DialogHeader>
-          <div className='space-y-4 mt-4'>
-            <Textarea
-              placeholder='e.g., Schedule conflict, not my area of expertise...'
-              value={rejectionReason}
-              onChange={e => setRejectionReason(e.target.value)}
-              rows={4}
-            />
-            <div className='flex gap-3'>
-              <Button
-                variant='outline'
-                onClick={() => {
-                  setRejectDialogOpen(false);
-                  setRejectionReason('');
-                  setSelectedSession(null);
-                }}
-                className='flex-1'
-                disabled={isProcessing}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleRejectSession}
-                disabled={isProcessing || !rejectionReason.trim()}
-                className='flex-1 bg-red-600 hover:bg-red-700'
-              >
-                {isProcessing ? 'Rejecting...' : 'Reject Session'}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

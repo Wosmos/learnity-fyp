@@ -59,6 +59,7 @@ export class EnrollmentService implements IEnrollmentService {
         isFree: true,
         price: true,
         title: true,
+        teacherId: true,
       },
     });
 
@@ -172,6 +173,39 @@ export class EnrollmentService implements IEnrollmentService {
             status: 'COMPLETED' as any,
             description: `Enrolled in course: ${course.title}`,
             metadata: { courseId },
+          },
+        });
+
+        // Get or create teacher wallet
+        let teacherWallet = await tx.wallet.findUnique({
+          where: { userId: course.teacherId },
+        });
+
+        if (!teacherWallet) {
+          teacherWallet = await tx.wallet.create({
+            data: {
+              userId: course.teacherId,
+              balance: 0,
+            },
+          });
+        }
+
+        // Add earnings to teacher wallet
+        await tx.wallet.update({
+          where: { id: teacherWallet.id },
+          data: { balance: { increment: amount } },
+        });
+
+        // Create teacher earning transaction record
+        await tx.walletTransaction.create({
+          data: {
+            userId: course.teacherId,
+            walletId: teacherWallet.id,
+            amount: amount,
+            type: 'EARNING' as any,
+            status: 'COMPLETED' as any,
+            description: `Earning from course enrollment: ${course.title}`,
+            metadata: { courseId, studentId },
           },
         });
       }
