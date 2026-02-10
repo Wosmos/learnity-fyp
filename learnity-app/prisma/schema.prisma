@@ -961,6 +961,7 @@ enum TransactionType {
   PURCHASE
   REFUND
   REWARD
+  EARNING
 }
 
 enum TransactionStatus {

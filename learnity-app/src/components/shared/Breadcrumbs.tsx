@@ -79,7 +79,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
     <nav
       aria-label='Breadcrumb'
       className={cn(
-        'flex items-center space-x-1 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 py-4 px-10 max-w-[1600px] mx-auto overflow-x-auto no-scrollbar',
+        'hidden md:flex items-center space-x-1 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 py-4 px-10 max-w-[1600px] mx-auto overflow-x-auto no-scrollbar',
         className
       )}
     >
