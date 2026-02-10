@@ -781,6 +781,8 @@ model WalletTransaction {
   @@index([userId])
   @@index([type])
   @@index([status])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, status])
   @@map("wallet_transactions")
 }
 

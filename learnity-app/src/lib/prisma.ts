@@ -3,8 +3,7 @@ import { env } from './env-validation';
 
 /**
  * Prisma Client Singleton
- * Prevents multiple instances of PrismaClient in development
- * and ensures proper connection handling in production
+ * Optimized for Neon DB serverless with connection pooling
  */
 
 const globalForPrisma = globalThis as unknown as {
@@ -15,10 +14,20 @@ export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     log:
-      env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+      env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
     datasources: {
       db: {
         url: env.DATABASE_URL,
+      },
+    },
+    // Optimized for Neon DB serverless
+    // @ts-ignore - Neon DB specific optimizations
+    connection: {
+      pool: {
+        min: 2,
+        max: 10,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 5000,
       },
     },
   });
