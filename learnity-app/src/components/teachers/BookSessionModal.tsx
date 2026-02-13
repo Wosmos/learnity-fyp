@@ -31,7 +31,7 @@ interface BookSessionModalProps {
   teacher: {
     id: string;
     name: string;
-    hourlyRate: string;
+    hourlyRate: string | null;
     profilePicture: string | null;
   };
 }
@@ -58,7 +58,7 @@ export function BookSessionModal({
     duration: '60',
   });
 
-  const hourlyRate = parseFloat(teacher.hourlyRate) || 0;
+  const hourlyRate = parseFloat(teacher.hourlyRate || '0') || 0;
   const isFree = hourlyRate === 0;
   const sessionCost = (hourlyRate * parseInt(formData.duration)) / 60;
 
