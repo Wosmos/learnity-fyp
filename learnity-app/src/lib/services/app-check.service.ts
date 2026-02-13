@@ -22,14 +22,17 @@ export class AppCheckService {
   /**
    * Get App Check token for bot protection with enhanced security assessment
    */
-  async getAppCheckTokenForAction(action: SecurityAction, forceRefresh: boolean = false): Promise<AppCheckResult> {
+  async getAppCheckTokenForAction(
+    action: SecurityAction,
+    forceRefresh: boolean = false
+  ): Promise<AppCheckResult> {
     if (!this.appCheck) {
       // In development, allow without App Check but mark as medium risk
       if (process.env.NODE_ENV === 'development') {
         return {
           success: true,
           riskLevel: RiskLevel.MEDIUM,
-          requiresAdditionalVerification: false
+          requiresAdditionalVerification: false,
         };
       }
 
@@ -37,37 +40,37 @@ export class AppCheckService {
         success: false,
         riskLevel: RiskLevel.HIGH,
         requiresAdditionalVerification: true,
-        error: 'App Check not initialized. Bot protection unavailable.'
+        error: 'App Check not initialized. Bot protection unavailable.',
       };
     }
 
     try {
       const token = await this.getAppCheckToken(forceRefresh);
-      
+
       if (!token) {
         return {
           success: false,
           riskLevel: RiskLevel.HIGH,
           requiresAdditionalVerification: true,
-          error: 'Failed to obtain App Check token'
+          error: 'Failed to obtain App Check token',
         };
       }
 
       // Assess risk based on action type
       const riskLevel = this.assessActionRisk(action);
-      
+
       return {
         success: true,
         token,
         riskLevel,
-        requiresAdditionalVerification: riskLevel === RiskLevel.HIGH
+        requiresAdditionalVerification: riskLevel === RiskLevel.HIGH,
       };
     } catch (error: any) {
       return {
         success: false,
         riskLevel: RiskLevel.HIGH,
         requiresAdditionalVerification: true,
-        error: error.message || 'App Check verification failed'
+        error: error.message || 'App Check verification failed',
       };
     }
   }
@@ -75,7 +78,9 @@ export class AppCheckService {
   /**
    * Get App Check token for bot protection
    */
-  async getAppCheckToken(forceRefresh: boolean = false): Promise<string | null> {
+  async getAppCheckToken(
+    forceRefresh: boolean = false
+  ): Promise<string | null> {
     if (!this.appCheck) {
       console.warn('App Check not initialized. Bot protection may be limited.');
       return null;
@@ -84,20 +89,20 @@ export class AppCheckService {
     // Check cache first
     const cacheKey = 'app-check-token';
     const cached = this.tokenCache.get(cacheKey);
-    
+
     if (!forceRefresh && cached && cached.expiry > Date.now()) {
       return cached.token;
     }
 
     try {
       const appCheckTokenResponse = await getToken(this.appCheck, forceRefresh);
-      
+
       // Cache the token
       this.tokenCache.set(cacheKey, {
         token: appCheckTokenResponse.token,
-        expiry: Date.now() + this.TOKEN_CACHE_DURATION
+        expiry: Date.now() + this.TOKEN_CACHE_DURATION,
       });
-      
+
       return appCheckTokenResponse.token;
     } catch (error) {
       console.error('Failed to get App Check token:', error);
@@ -124,19 +129,19 @@ export class AppCheckService {
         }
       } catch (error) {
         console.warn(`App Check token attempt ${attempt} failed:`, error);
-        
+
         if (attempt === maxRetries) {
           console.error('All App Check token attempts failed');
           return null;
         }
-        
+
         // Wait before retry (exponential backoff with jitter)
         const baseDelay = Math.pow(2, attempt) * 1000;
         const jitter = Math.random() * 1000;
         await new Promise(resolve => setTimeout(resolve, baseDelay + jitter));
       }
     }
-    
+
     return null;
   }
 
@@ -158,7 +163,7 @@ export class AppCheckService {
       [SecurityAction.REGISTER]: RiskLevel.HIGH,
       [SecurityAction.PASSWORD_RESET]: RiskLevel.HIGH,
       [SecurityAction.PROFILE_UPDATE]: RiskLevel.LOW,
-      [SecurityAction.TEACHER_APPLICATION]: RiskLevel.HIGH
+      [SecurityAction.TEACHER_APPLICATION]: RiskLevel.HIGH,
     };
 
     return riskLevels[action] || RiskLevel.MEDIUM;
@@ -171,10 +176,12 @@ export class AppCheckService {
     const highRiskActions = [
       SecurityAction.REGISTER,
       SecurityAction.PASSWORD_RESET,
-      SecurityAction.TEACHER_APPLICATION
+      SecurityAction.TEACHER_APPLICATION,
     ];
 
-    return highRiskActions.includes(action) || process.env.NODE_ENV === 'production';
+    return (
+      highRiskActions.includes(action) || process.env.NODE_ENV === 'production'
+    );
   }
 
   /**
@@ -190,9 +197,10 @@ export class AppCheckService {
   getCacheStats(): { cachedTokens: number; totalSize: number } {
     return {
       cachedTokens: this.tokenCache.size,
-      totalSize: Array.from(this.tokenCache.values()).reduce((size, entry) => 
-        size + entry.token.length, 0
-      )
+      totalSize: Array.from(this.tokenCache.values()).reduce(
+        (size, entry) => size + entry.token.length,
+        0
+      ),
     };
   }
 

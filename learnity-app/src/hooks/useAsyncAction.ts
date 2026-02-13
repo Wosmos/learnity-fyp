@@ -1,12 +1,12 @@
 /**
  * useAsyncAction Hook
  * Manages loading states for async button actions with proper error handling
- * 
+ *
  * @example
  * const { execute, isLoading } = useAsyncAction(async () => {
  *   await someAsyncOperation();
  * });
- * 
+ *
  * <Button onClick={execute} disabled={isLoading}>
  *   {isLoading ? 'Loading...' : 'Click Me'}
  * </Button>
@@ -56,7 +56,8 @@ export function useAsyncAction<T extends unknown[]>(
 
         onSuccess?.();
       } catch (err) {
-        const error = err instanceof Error ? err : new Error('An error occurred');
+        const error =
+          err instanceof Error ? err : new Error('An error occurred');
         setError(error);
 
         if (showToast) {

@@ -7,13 +7,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, Save, Trash2, Send, Download } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoadingButton } from '@/components/shared/LoadingButton';
 import { AsyncButton } from '@/components/ui/async-button';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, Trash2, Send, Download } from 'lucide-react';
 
 export function LoadingStatesExample() {
   const { toast } = useToast();
@@ -52,13 +58,15 @@ export function LoadingStatesExample() {
   // Pattern 4: Multiple async actions
   const [action, setAction] = useState<'save' | 'delete' | 'send' | null>(null);
 
-  const handleMultipleActions = async (actionType: 'save' | 'delete' | 'send') => {
+  const handleMultipleActions = async (
+    actionType: 'save' | 'delete' | 'send'
+  ) => {
     setAction(actionType);
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
       toast({
         title: 'Success!',
-        description: `${actionType} completed`
+        description: `${actionType} completed`,
       });
     } finally {
       setAction(null);
@@ -66,10 +74,12 @@ export function LoadingStatesExample() {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">Loading States Examples</h1>
-        <p className="text-gray-600">Reference implementations for all loading state patterns</p>
+    <div className='space-y-6 p-6'>
+      <div className='text-center mb-8'>
+        <h1 className='text-3xl font-bold mb-2'>Loading States Examples</h1>
+        <p className='text-gray-600'>
+          Reference implementations for all loading state patterns
+        </p>
       </div>
 
       {/* Pattern 1: Manual Loading State */}
@@ -80,9 +90,9 @@ export function LoadingStatesExample() {
             Traditional approach with useState and manual state management
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <code className="text-sm">
+        <CardContent className='space-y-4'>
+          <div className='bg-gray-50 p-4 rounded-lg'>
+            <code className='text-sm'>
               {`const [loading, setLoading] = useState(false);
 const handleClick = async () => {
   setLoading(true);
@@ -94,13 +104,10 @@ const handleClick = async () => {
 };`}
             </code>
           </div>
-          <Button
-            onClick={handleManualClick}
-            disabled={manualLoading}
-          >
+          <Button onClick={handleManualClick} disabled={manualLoading}>
             {manualLoading ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className='h-4 w-4 mr-2 animate-spin' />
                 Loading...
               </>
             ) : (
@@ -118,9 +125,9 @@ const handleClick = async () => {
             Simplified button with built-in loading state display
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <code className="text-sm">
+        <CardContent className='space-y-4'>
+          <div className='bg-gray-50 p-4 rounded-lg'>
+            <code className='text-sm'>
               {`<LoadingButton
   onClick={handleClick}
   isLoading={loading}
@@ -133,7 +140,7 @@ const handleClick = async () => {
           <LoadingButton
             onClick={handleManualClick}
             isLoading={manualLoading}
-            loadingText="Processing..."
+            loadingText='Processing...'
           >
             Click Me (LoadingButton)
           </LoadingButton>
@@ -148,9 +155,9 @@ const handleClick = async () => {
             Hook-based approach with automatic error handling and toasts
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <code className="text-sm">
+        <CardContent className='space-y-4'>
+          <div className='bg-gray-50 p-4 rounded-lg'>
+            <code className='text-sm'>
               {`const { execute, isLoading } = useAsyncAction(
   async () => { await doSomething(); },
   { successMessage: 'Done!' }
@@ -160,7 +167,7 @@ const handleClick = async () => {
           <LoadingButton
             onClick={handleWithHook}
             isLoading={hookLoading}
-            loadingText="Working..."
+            loadingText='Working...'
           >
             Click Me (useAsyncAction)
           </LoadingButton>
@@ -175,9 +182,9 @@ const handleClick = async () => {
             Button with automatic async handling - no manual state needed
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <code className="text-sm">
+        <CardContent className='space-y-4'>
+          <div className='bg-gray-50 p-4 rounded-lg'>
+            <code className='text-sm'>
               {`<AsyncButton
   onClick={async () => {
     await doSomething();
@@ -188,10 +195,7 @@ const handleClick = async () => {
 </AsyncButton>`}
             </code>
           </div>
-          <AsyncButton
-            onClick={handleAsyncButtonClick}
-            loadingText="Saving..."
-          >
+          <AsyncButton onClick={handleAsyncButtonClick} loadingText='Saving...'>
             Click Me (AsyncButton)
           </AsyncButton>
         </CardContent>
@@ -205,44 +209,44 @@ const handleClick = async () => {
             Managing multiple buttons with different loading states
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <code className="text-sm">
+        <CardContent className='space-y-4'>
+          <div className='bg-gray-50 p-4 rounded-lg'>
+            <code className='text-sm'>
               {`const [action, setAction] = useState<'save' | 'delete' | null>(null);
 // Each button checks if it's the active action
 disabled={!!action} // Disable all during any action
 isLoading={action === 'save'} // Show loading for specific action`}
             </code>
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className='flex gap-2 flex-wrap'>
             <LoadingButton
               onClick={() => handleMultipleActions('save')}
               isLoading={action === 'save'}
               disabled={!!action}
-              loadingText="Saving..."
-              variant="default"
+              loadingText='Saving...'
+              variant='default'
             >
-              <Save className="h-4 w-4 mr-2" />
+              <Save className='h-4 w-4 mr-2' />
               Save
             </LoadingButton>
             <LoadingButton
               onClick={() => handleMultipleActions('delete')}
               isLoading={action === 'delete'}
               disabled={!!action}
-              loadingText="Deleting..."
-              variant="destructive"
+              loadingText='Deleting...'
+              variant='destructive'
             >
-              <Trash2 className="h-4 w-4 mr-2" />
+              <Trash2 className='h-4 w-4 mr-2' />
               Delete
             </LoadingButton>
             <LoadingButton
               onClick={() => handleMultipleActions('send')}
               isLoading={action === 'send'}
               disabled={!!action}
-              loadingText="Sending..."
-              variant="outline"
+              loadingText='Sending...'
+              variant='outline'
             >
-              <Send className="h-4 w-4 mr-2" />
+              <Send className='h-4 w-4 mr-2' />
               Send
             </LoadingButton>
           </div>
@@ -258,46 +262,46 @@ isLoading={action === 'save'} // Show loading for specific action`}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2 flex-wrap">
+          <div className='flex gap-2 flex-wrap'>
             <LoadingButton
               onClick={handleManualClick}
               isLoading={manualLoading}
-              variant="default"
+              variant='default'
             >
               Default
             </LoadingButton>
             <LoadingButton
               onClick={handleManualClick}
               isLoading={manualLoading}
-              variant="destructive"
+              variant='destructive'
             >
               Destructive
             </LoadingButton>
             <LoadingButton
               onClick={handleManualClick}
               isLoading={manualLoading}
-              variant="outline"
+              variant='outline'
             >
               Outline
             </LoadingButton>
             <LoadingButton
               onClick={handleManualClick}
               isLoading={manualLoading}
-              variant="secondary"
+              variant='secondary'
             >
               Secondary
             </LoadingButton>
             <LoadingButton
               onClick={handleManualClick}
               isLoading={manualLoading}
-              variant="ghost"
+              variant='ghost'
             >
               Ghost
             </LoadingButton>
             <LoadingButton
               onClick={handleManualClick}
               isLoading={manualLoading}
-              variant="link"
+              variant='link'
             >
               Link
             </LoadingButton>
@@ -314,53 +318,64 @@ isLoading={action === 'save'} // Show loading for specific action`}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2 items-center flex-wrap">
+          <div className='flex gap-2 items-center flex-wrap'>
             <LoadingButton
               onClick={handleManualClick}
               isLoading={manualLoading}
-              size="sm"
+              size='sm'
             >
               Small
             </LoadingButton>
             <LoadingButton
               onClick={handleManualClick}
               isLoading={manualLoading}
-              size="default"
+              size='default'
             >
               Default
             </LoadingButton>
             <LoadingButton
               onClick={handleManualClick}
               isLoading={manualLoading}
-              size="lg"
+              size='lg'
             >
               Large
             </LoadingButton>
             <LoadingButton
               onClick={handleManualClick}
               isLoading={manualLoading}
-              size="icon"
+              size='icon'
             >
-              <Download className="h-4 w-4" />
+              <Download className='h-4 w-4' />
             </LoadingButton>
           </div>
         </CardContent>
       </Card>
 
       {/* Best Practices */}
-      <Card className="border-blue-200 bg-slate-50">
+      <Card className='border-blue-200 bg-slate-50'>
         <CardHeader>
-          <CardTitle className="text-blue-900">✨ Best Practices</CardTitle>
+          <CardTitle className='text-blue-900'>✨ Best Practices</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-blue-900">
+        <CardContent className='space-y-2 text-sm text-blue-900'>
           <div>✅ Always show loading state for async operations</div>
           <div>✅ Disable buttons during loading to prevent double-clicks</div>
-          <div>✅ Use descriptive loading text (e.g., "Saving..." not "Loading...")</div>
+          <div>
+            ✅ Use descriptive loading text (e.g., "Saving..." not "Loading...")
+          </div>
           <div>✅ Show success/error feedback after completion</div>
-          <div>✅ For multiple actions, disable all buttons during any action</div>
-          <div>✅ Use LoadingButton for simple cases, AsyncButton for automatic handling</div>
-          <div>✅ Use useAsyncAction when you need error handling and toasts</div>
-          <div>❌ Never leave users wondering if their action was registered</div>
+          <div>
+            ✅ For multiple actions, disable all buttons during any action
+          </div>
+          <div>
+            ✅ Use LoadingButton for simple cases, AsyncButton for automatic
+            handling
+          </div>
+          <div>
+            ✅ Use useAsyncAction when you need error handling and toasts
+          </div>
+          <div>
+            ❌ Never leave users wondering if their action was registered
+          </div>
         </CardContent>
       </Card>
     </div>

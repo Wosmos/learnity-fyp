@@ -4,18 +4,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  createApiSuccessResponse, 
-  createApiErrorResponse, 
+import { z } from 'zod';
+import {
+  createApiSuccessResponse,
+  createApiErrorResponse,
   validateMethod,
-  parseRequestBody 
+  parseRequestBody,
 } from '@/lib/utils/api-auth.utils';
 import { DatabaseService } from '@/lib/services/database.service';
 import { roleManager } from '@/lib/services/role-manager.service';
 import { notificationService } from '@/lib/services/notification.service';
 import { AuthErrorCode } from '@/types/auth';
 import { teacherApprovalSchema } from '@/lib/validators/auth';
-import { z } from 'zod';
 
 const databaseService = new DatabaseService();
 
@@ -24,8 +24,8 @@ const databaseService = new DatabaseService();
  * Get specific teacher application details
  */
 async function handleGetApplication(
-  request: NextRequest, 
-  user: any, 
+  request: NextRequest,
+  user: any,
   applicationId: string
 ): Promise<NextResponse> {
   try {
@@ -57,8 +57,8 @@ async function handleGetApplication(
  * Approve or reject teacher application
  */
 async function handleUpdateApplication(
-  request: NextRequest, 
-  user: any, 
+  request: NextRequest,
+  user: any,
   applicationId: string
 ): Promise<NextResponse> {
   try {
@@ -97,8 +97,11 @@ async function handleUpdateApplication(
 
     // Update Firebase Auth role and send notifications
     if (approvalData.decision === 'APPROVED') {
-      await roleManager.approveTeacher(application.user.firebaseUid, user.firebaseUid);
-      
+      await roleManager.approveTeacher(
+        application.user.firebaseUid,
+        user.firebaseUid
+      );
+
       // Send approval notification
       try {
         await notificationService.sendTeacherApprovalNotification({
@@ -113,7 +116,7 @@ async function handleUpdateApplication(
           isActive: true,
           lastLoginAt: undefined,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         });
       } catch (emailError) {
         console.error('Failed to send approval notification:', emailError);
@@ -121,27 +124,30 @@ async function handleUpdateApplication(
       }
     } else {
       await roleManager.rejectTeacher(
-        application.user.firebaseUid, 
+        application.user.firebaseUid,
         approvalData.rejectionReason || 'Application rejected by admin',
         user.firebaseUid
       );
-      
+
       // Send rejection notification
       try {
-        await notificationService.sendTeacherRejectionNotification({
-          id: application.user.id,
-          firebaseUid: application.user.firebaseUid,
-          email: application.user.email,
-          firstName: application.user.firstName,
-          lastName: application.user.lastName,
-          role: 'PENDING_TEACHER' as any,
-          emailVerified: true,
-          profilePicture: undefined,
-          isActive: true,
-          lastLoginAt: undefined,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }, approvalData.rejectionReason || 'Application rejected by admin');
+        await notificationService.sendTeacherRejectionNotification(
+          {
+            id: application.user.id,
+            firebaseUid: application.user.firebaseUid,
+            email: application.user.email,
+            firstName: application.user.firstName,
+            lastName: application.user.lastName,
+            role: 'PENDING_TEACHER' as any,
+            emailVerified: true,
+            profilePicture: undefined,
+            isActive: true,
+            lastLoginAt: undefined,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          approvalData.rejectionReason || 'Application rejected by admin'
+        );
       } catch (emailError) {
         console.error('Failed to send rejection notification:', emailError);
         // Don't fail the rejection process if email fails
@@ -153,11 +159,10 @@ async function handleUpdateApplication(
         applicationId,
         decision: approvalData.decision,
         reviewedBy: user.firebaseUid,
-        reviewedAt: new Date().toISOString()
+        reviewedAt: new Date().toISOString(),
       },
       `Teacher application ${approvalData.decision.toLowerCase()} successfully`
     );
-
   } catch (error: any) {
     console.error('Failed to update teacher application:', error);
     return createApiErrorResponse(
@@ -171,7 +176,7 @@ async function handleUpdateApplication(
  * Main route handler
  */
 async function handler(
-  request: NextRequest, 
+  request: NextRequest,
   user: unknown,
   { params }: { params: { applicationId: string } }
 ): Promise<NextResponse> {
@@ -191,10 +196,10 @@ async function handler(
   switch (request.method) {
     case 'GET':
       return handleGetApplication(request, user, applicationId);
-    
+
     case 'PUT':
       return handleUpdateApplication(request, user, applicationId);
-    
+
     default:
       return createApiErrorResponse(
         AuthErrorCode.INTERNAL_ERROR,

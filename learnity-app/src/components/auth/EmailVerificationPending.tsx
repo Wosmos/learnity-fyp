@@ -1,15 +1,10 @@
-/**
- * Email Verification Pending Component
- * Shows verification status and allows resending verification email
- */
-
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Mail, Clock, RefreshCw, ArrowLeft, ChevronRight, HelpCircle, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserRole } from '@/types/auth';
-import { Mail, CheckCircle, Clock, RefreshCw, ArrowLeft } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export interface EmailVerificationPendingProps {
   userRole: UserRole | null;
@@ -22,22 +17,19 @@ export const EmailVerificationPending: React.FC<EmailVerificationPendingProps> =
   userRole,
   onResendVerification,
   onBackToLogin,
-  className = ''
+  className = '',
 }) => {
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
   const handleResendVerification = async () => {
     if (resendCooldown > 0) return;
-
     setIsResending(true);
     try {
       await onResendVerification();
-
-      // Start cooldown timer
       setResendCooldown(60);
       const timer = setInterval(() => {
-        setResendCooldown((prev) => {
+        setResendCooldown(prev => {
           if (prev <= 1) {
             clearInterval(timer);
             return 0;
@@ -46,183 +38,150 @@ export const EmailVerificationPending: React.FC<EmailVerificationPendingProps> =
         });
       }, 1000);
     } catch (error) {
-      console.error('Failed to resend verification:', error);
+      console.error(error);
     } finally {
       setIsResending(false);
     }
   };
 
-  const getRoleSpecificContent = () => {
+  const getRoleContent = () => {
     switch (userRole) {
-      case UserRole.STUDENT:
-        return {
-          title: 'Student Account Created!',
-          description: 'Welcome to Learnity! Please verify your email to start learning.',
-          nextSteps: [
-            'Check your email inbox for a verification link',
-            'Click the verification link to activate your account',
-            'Complete your student profile setup',
-            'Start exploring study groups and tutoring sessions'
-          ],
-          color: 'blue'
-        };
       case UserRole.TEACHER:
         return {
-          title: 'Teacher Application Submitted!',
-          description: 'Thank you for applying to teach on Learnity. Please verify your email first.',
-          nextSteps: [
-            'Check your email inbox for a verification link',
-            'Click the verification link to verify your email',
-            'Our team will review your application within 2-3 business days',
-            'You\'ll receive an email notification once approved'
+          title: 'Review Initiated',
+          description: 'Thank you for applying to teach. Verify your email to begin the credential audit.',
+          steps: [
+            'Check inbox for verification link',
+            'Click link to verify email identity',
+            'Await application review (2-3 days)',
+            'Receive status notification'
           ],
-          color: 'green'
+          accent: 'text-emerald-500'
         };
       default:
         return {
-          title: 'Account Created!',
-          description: 'Please verify your email to continue.',
-          nextSteps: [
-            'Check your email inbox for a verification link',
-            'Click the verification link to activate your account'
+          title: 'Account Created',
+          description: 'Welcome to Learnity! Please verify your email to unlock your student dashboard.',
+          steps: [
+            'Check inbox for verification link',
+            'Click link to activate account',
+            'Complete student profile setup',
+            'Start exploring elite modules'
           ],
-          color: 'gray'
+          accent: 'text-blue-600'
         };
     }
   };
 
-  const content = getRoleSpecificContent();
+  const content = getRoleContent();
 
   return (
-    <div className={`w-full max-w-2xl mx-auto p-6 ${className}`}>
-      <Card className="shadow-lg">
-        <CardHeader className="text-center space-y-4">
-          <div className={`
-            mx-auto p-4 rounded-full w-16 h-16 flex items-center justify-center
-            ${content.color === 'blue' ? 'bg-slate-100' : ''}
-            ${content.color === 'green' ? 'bg-green-100' : ''}
-            ${content.color === 'gray' ? 'bg-gray-100' : ''}
-          `}>
-            <Mail className={`
-              h-8 w-8
-              ${content.color === 'blue' ? 'text-blue-600' : ''}
-              ${content.color === 'green' ? 'text-green-600' : ''}
-              ${content.color === 'gray' ? 'text-gray-600' : ''}
-            `} />
-          </div>
+    <div className={cn('w-full max-w-[580px] mx-auto py-12 px-6', className)}>
+      {/* 1. Onyx Header Area */}
+      <div className="text-center mb-10 space-y-3">
 
-          <div>
-            <CardTitle className="text-2xl font-bold text-gray-900">
-              {content.title}
-            </CardTitle>
-            <CardDescription className="text-lg mt-2">
-              {content.description}
-            </CardDescription>
-          </div>
-        </CardHeader>
+        <h1 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter text-black leading-none">
+          {content.title}<span className={content.accent}>!</span>
+        </h1>
+        <p className="text-slate-500 font-medium italic text-sm max-w-sm mx-auto">
+          {content.description}
+        </p>
+      </div>
 
-        <CardContent className="space-y-6">
-          {/* Next Steps */}
+      {/* 2. Main Structural Card */}
+      <div className="bg-white border-2 border-slate-100 rounded-2xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)]">
+
+        {/* Verification Status Banner */}
+        <div className="bg-black text-white p-5 flex items-center justify-between px-8">
+          <div className="flex items-center gap-3">
+            <div className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Verification Pending</span>
+          </div>
+          <Clock className="h-4 w-4 text-slate-500" />
+        </div>
+
+        <div className="p-8 md:p-10 space-y-8">
+
+          {/* Detailed Next Steps (Essential Data) */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Next Steps:</h3>
-            <div className="space-y-3">
-              {content.nextSteps.map((step, index) => (
-                <div key={index} className="flex items-start space-x-3">
-                  <div className={`
-                    flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white
-                    ${content.color === 'blue' ? 'bg-slate-600' : ''}
-                    ${content.color === 'green' ? 'bg-green-600' : ''}
-                    ${content.color === 'gray' ? 'bg-gray-600' : ''}
-                  `}>
-                    {index + 1}
-                  </div>
-                  <p className="text-gray-700 text-sm leading-relaxed">{step}</p>
+            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Sequence of Actions:</h3>
+            {content.steps.map((step, i) => (
+              <div key={i} className="flex items-center gap-4 group">
+                <div className="h-9 w-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400 group-hover:border-black group-hover:text-black transition-all">
+                  0{i + 1}
                 </div>
-              ))}
-            </div>
+                <p className="text-sm font-bold text-slate-700 uppercase tracking-tight italic">{step}</p>
+                <ChevronRight className="ml-auto h-4 w-4 text-slate-200 group-hover:text-black transition-colors" />
+              </div>
+            ))}
           </div>
 
-          {/* Email Status */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <div className="flex items-center space-x-2">
-              <Clock className="h-5 w-5 text-yellow-600" />
-              <p className="text-sm font-medium text-yellow-800">
-                Email Verification Pending
-              </p>
+          {/* Alert Context (Essential Data from Yellow Box) */}
+          <div className="p-5 rounded-2xl bg-slate-50 border-l-4 border-black space-y-2">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-black" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-black">Inbox Notice</span>
             </div>
-            <p className="text-sm text-yellow-700 mt-1">
-              We've sent a verification email to your registered email address.
-              Please check your inbox and spam folder.
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
+              A secure link has been dispatched. Please check your **inbox** and **spam** folder to proceed.
             </p>
           </div>
 
-          {/* Action Buttons */}
-          <div className="space-y-3">
+          {/* Role-Specific Detail (Teacher Credentials) */}
+          {userRole === UserRole.TEACHER && (
+            <div className="p-5 rounded-2xl bg-emerald-50/50 border border-emerald-100 flex gap-4">
+              <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />
+              <div className="space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Audit Protocol</p>
+                <p className="text-xs text-emerald-800/70 font-medium">Post-verification, our team will review your qualifications. Access will be granted upon approval.</p>
+              </div>
+            </div>
+          )}
+
+          {/* Action Interface */}
+          <div className="space-y-3 pt-4">
+            <Button
+              onClick={() => window.location.reload()}
+              className="w-full h-14 bg-black hover:bg-slate-800 text-white rounded-2xl font-black uppercase italic tracking-wider transition-all flex items-center justify-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              I've Verified My Account
+            </Button>
+
             <Button
               onClick={handleResendVerification}
               disabled={isResending || resendCooldown > 0}
-              className={`
-                w-full font-medium
-                ${content.color === 'blue' ? 'bg-slate-600 hover:bg-slate-700' : ''}
-                ${content.color === 'green' ? 'bg-green-600 hover:bg-green-700' : ''}
-                ${content.color === 'gray' ? 'bg-gray-600 hover:bg-gray-700' : ''}
-              `}
+              variant="outline"
+              className="w-full h-14 border-2 border-slate-100 rounded-2xl font-black uppercase italic tracking-wider hover:border-black transition-all"
             >
               {isResending ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Sending...
-                </>
+                <RefreshCw className='h-4 w-4 animate-spin' />
               ) : resendCooldown > 0 ? (
-                `Resend in ${resendCooldown}s`
+                `Retry in ${resendCooldown}s`
               ) : (
                 <>
-                  <Mail className="h-4 w-4 mr-2" />
-                  Resend Verification Email
+                  <Mail className='h-4 w-4 mr-2' />
+                  Resend Link
                 </>
               )}
             </Button>
-
-            <Button
-              variant="outline"
-              onClick={onBackToLogin}
-              className="w-full"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Login
-            </Button>
           </div>
+        </div>
+      </div>
 
-          {/* Help Text */}
-          <div className="text-center text-sm text-gray-500 space-y-2">
-            <p>
-              Didn't receive the email? Check your spam folder or try resending.
-            </p>
-            <p>
-              Need help?{' '}
-              <button className="text-blue-600 hover:text-blue-700 underline">
-                Contact Support
-              </button>
-            </p>
-          </div>
-
-          {/* Teacher-specific additional info */}
-          {userRole === UserRole.TEACHER && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                <p className="text-sm font-medium text-green-800">
-                  Application Under Review
-                </p>
-              </div>
-              <p className="text-sm text-green-700 mt-1">
-                Once you verify your email, our team will review your teaching credentials
-                and qualifications. You'll be notified via email once the review is complete.
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* 3. Footer Navigation & Help */}
+      <div className="mt-10 flex flex-col items-center gap-8">
+        <button
+          onClick={onBackToLogin}
+          className="flex items-center text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-black transition-all"
+        >
+          <ArrowLeft className="mr-2 h-3 w-3" />
+          Return to Login
+        </button>
+      </div>
     </div>
   );
 };

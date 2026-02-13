@@ -127,25 +127,29 @@ export const TRUST_INDICATORS: TrustIndicator[] = [
   {
     icon: Star,
     title: 'Verified Tutors',
-    description: 'All tutors are verified with background checks and credential validation',
+    description:
+      'All tutors are verified with background checks and credential validation',
     gradient: 'from-yellow-400 to-yellow-500',
   },
   {
     icon: Shield,
     title: 'Advanced Security',
-    description: 'Multi-factor authentication, encryption, and real-time threat monitoring',
+    description:
+      'Multi-factor authentication, encryption, and real-time threat monitoring',
     gradient: 'from-green-500 to-green-600',
   },
   {
     icon: Zap,
     title: 'Lightning Fast',
-    description: 'Optimized performance with 99.9% uptime and global CDN delivery',
+    description:
+      'Optimized performance with 99.9% uptime and global CDN delivery',
     gradient: 'from-blue-500 to-blue-600',
   },
   {
     icon: BarChart3,
     title: 'Audit Logging',
-    description: 'Comprehensive audit trails with real-time monitoring and analytics',
+    description:
+      'Comprehensive audit trails with real-time monitoring and analytics',
     gradient: 'from-purple-500 to-purple-600',
   },
 ];
@@ -156,19 +160,16 @@ export const GUARANTEE_FEATURES = [
     icon: Star,
     title: 'Verified Tutors',
     description: 'All tutors are verified with background checks',
-    color: 'text-yellow-500',
   },
   {
     icon: Shield,
     title: 'Secure Platform',
     description: 'Enterprise-grade security for all your data',
-    color: 'text-blue-600',
   },
   {
     icon: Award,
     title: 'Quality Assured',
     description: '4.9 average rating from thousands of students',
-    color: 'text-purple-600',
   },
 ];
 
@@ -209,5 +210,35 @@ export const WHY_CHOOSE_US = [
     icon: Award,
     title: 'Proven Results',
     description: '95% of students see improvement within 3 months',
+  },
+];
+
+export const VIDEO_SECTION = [
+  {
+    title: 'See Learnity in',
+    highlightWord: 'Action',
+    description:
+      'Watch how our platform connects students with expert tutors for personalized learning experiences',
+    videoId: 'rLRIB6AF2Dg',
+    alt: 'Learn from the best',
+    features: [
+      {
+        icon: CheckCircle,
+        title: 'Live Sessions',
+        description:
+          'Interactive one-on-one video sessions with screen sharing',
+      },
+      {
+        icon: CheckCircle,
+        title: 'Recording Available',
+        description: 'Review your lessons anytime with automatic recordings',
+      },
+      {
+        icon: CheckCircle,
+        title: 'HD Quality',
+        description:
+          'Crystal clear video and audio for the best learning experience',
+      },
+    ],
   },
 ];

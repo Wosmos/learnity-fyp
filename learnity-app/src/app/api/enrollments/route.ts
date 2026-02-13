@@ -1,12 +1,13 @@
 /**
  * Enrollments API Routes
  * GET /api/enrollments - Get student's enrolled courses
- * 
+ *
  * Requirements covered:
  * - 4.4: Student's enrolled courses display
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 import { enrollmentService } from '@/lib/services/enrollment.service';
 import { EnrollmentFiltersSchema } from '@/lib/validators/enrollment';
 import { EnrollmentError } from '@/lib/interfaces/enrollment.interface';
@@ -18,7 +19,6 @@ import {
   createValidationErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { ZodError } from 'zod';
 
 /**
  * GET /api/enrollments
@@ -27,8 +27,10 @@ import { ZodError } from 'zod';
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    // Authenticate user
-    const authResult = await authMiddleware(request);
+    // Authenticate user - Allow unverified users to see their own dashboard data
+    const authResult = await authMiddleware(request, {
+      skipEmailVerification: true,
+    });
 
     if (authResult instanceof NextResponse) {
       return authResult;
@@ -55,8 +57,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { searchParams } = new URL(request.url);
     const filters = {
       status: searchParams.get('status') || undefined,
-      page: searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1,
-      limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : 12,
+      page: searchParams.get('page')
+        ? parseInt(searchParams.get('page')!, 10)
+        : 1,
+      limit: searchParams.get('limit')
+        ? parseInt(searchParams.get('limit')!, 10)
+        : 12,
     };
 
     // Validate filters
@@ -68,17 +74,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       validatedFilters
     );
 
-    return createSuccessResponse(
-      result,
-      'Enrollments retrieved successfully',
-      {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-        hasMore: result.hasMore,
-      }
-    );
+    return createSuccessResponse(result, 'Enrollments retrieved successfully', {
+      page: result.page,
+      limit: result.limit,
+      total: result.total,
+      totalPages: result.totalPages,
+      hasMore: result.hasMore,
+    });
   } catch (error) {
     console.error('Error fetching enrollments:', error);
 

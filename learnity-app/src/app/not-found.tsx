@@ -1,78 +1,76 @@
-'use client';
-
+'use client'
+import React from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Home, ArrowRight, RotateCcw, Frown } from 'lucide-react';
+import { Home, BookOpen } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-export default function NotFoundReportCard() {
+export default function SimpleTVNotFound() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full perspective-1000">
-        
-        {/* Floating Tape Element */}
-        <div className="mx-auto w-32 h-8 bg-yellow-100/80 -mb-4 relative z-10 rotate-2 border border-yellow-200/50 backdrop-blur-sm"></div>
-        
-        <Card className="p-8 shadow-xl border-gray-200 rotate-1 relative bg-[#fffdf0]">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold font-serif text-gray-900 border-b-2 border-gray-900 inline-block pb-1 mb-2">
-              SEMESTER REPORT CARD
-            </h1>
-            <p className="text-sm font-mono text-gray-500 uppercase tracking-widest">
-              Student: Guest User
-            </p>
-          </div>
+    <div className="min-h-screen  flex flex-col items-center justify-center p-6 text-white">
+      
+      {/* 1. THE TV - Pure CSS Glitch (No State Needed) */}
+      <div className="relative w-full max-w-md aspect-video mb-12">
+        {/* Hardware Frame */}
+        <div className="absolute inset-0 bg-[#1A1A1E] rounded-[32px] border-[10px] border-[#27272A] shadow-2xl overflow-hidden ring-1 ring-white/10">
+          
+          {/* THE SCREEN - Permanent CSS Glitch */}
+          <div className="absolute inset-3 rounded-[20px] bg-slate-900 overflow-hidden flex flex-col items-center justify-center">
+            
+            {/* Scanline Effect */}
+            <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] z-20 bg-[size:100%_3px,3px_100%]" />
 
-          {/* Grades Table */}
-          <div className="space-y-3 mb-8 font-mono text-sm">
-            <div className="flex justify-between items-center border-b border-gray-300 border-dashed pb-2">
-              <span>System Uptime</span>
-              <span className="font-bold text-green-600">A+</span>
+            {/* Content with CSS Animation */}
+            <div className="relative z-10 text-center animate-[glitch_3s_infinite]">
+              <h1 className="text-7xl md:text-8xl font-[1000] italic tracking-tighter drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
+                404
+              </h1>
+              <p className="text-blue-500 font-black uppercase tracking-[0.4em] text-[10px]">
+                No Signal
+              </p>
             </div>
-            <div className="flex justify-between items-center border-b border-gray-300 border-dashed pb-2">
-              <span>Page Speed</span>
-              <span className="font-bold text-green-600">A</span>
-            </div>
-            <div className="flex justify-between items-center border-b border-gray-300 border-dashed pb-2">
-              <span>CSS Styling</span>
-              <span className="font-bold text-blue-600">B+</span>
-            </div>
-            {/* The Failure */}
-            <div className="flex justify-between items-center bg-red-50 p-2 -mx-2 rounded border border-red-100">
-              <span className="font-bold text-red-700 flex items-center gap-2">
-                URL Navigation
-                <span className="text-[10px] bg-red-100 px-1 rounded border border-red-200">404</span>
-              </span>
-              <span className="font-black text-2xl text-red-600 font-serif">F</span>
-            </div>
-          </div>
 
-          {/* Teacher's Note */}
-          <div className="relative mb-8 font-handwriting">
-            <p className="text-red-600 text-lg -rotate-1 font-semibold leading-relaxed">
-              "Please see me after class! This page doesn't exist on the syllabus."
-              <br />
-              <span className="text-sm text-red-400 font-normal block text-right mt-2">- The Server</span>
-            </p>
-            <Frown className="absolute -right-4 top-0 text-red-200 w-16 h-16 -rotate-12 opacity-50" />
+            {/* Subtle Static Flicker */}
+            <div className="absolute inset-0 opacity-[0.03] bg-[url('https://media.giphy.com/media/oEI9uWUqnW3Fe/giphy.gif')] bg-cover mix-blend-overlay" />
           </div>
+        </div>
 
-          {/* Buttons */}
-          <div className="flex flex-col gap-3">
-            <Link href="/">
-              <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium">
-                <Home className="mr-2 h-4 w-4" /> Return to Homeroom
-              </Button>
-            </Link>
-            <Link href="/courses">
-              <Button variant="outline" className="w-full border-gray-400 hover:bg-white text-gray-700">
-                <RotateCcw className="mr-2 h-4 w-4" /> Retake Quiz (Find Courses)
-              </Button>
-            </Link>
-          </div>
-        </Card>
+        {/* Small Hardware Detail */}
+        <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-2 h-16 bg-[#27272A] rounded-full" />
       </div>
+
+      {/* 2. SIMPLE NAVIGATION */}
+      <div className="flex flex-col items-center gap-6 w-full max-w-xs">
+        <div className="text-center">
+          <h2 className="text-xl font-bold uppercase tracking-tight">Lost in transmission</h2>
+          <p className="text-slate-500 text-sm">The module you requested is not found.</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 w-full">
+          <Link 
+            href="/" 
+            className="flex items-center justify-center gap-2 h-12 rounded-xl bg-white text-black font-bold text-sm hover:bg-slate-200 transition-colors"
+          >
+            <Home size={18} /> Home
+          </Link>
+          <Link 
+            href="/courses" 
+            className="flex items-center justify-center gap-2 h-12 rounded-xl bg-[#1A1A1E] border border-white/10 text-white font-bold text-sm hover:bg-[#27272A] transition-colors"
+          >
+            <BookOpen size={18} /> Courses
+          </Link>
+        </div>
+      </div>
+
+      {/* 3. GLOBAL KEYFRAMES */}
+      <style jsx global>{`
+        @keyframes glitch {
+          0% { transform: translate(0); }
+          2% { transform: translate(-2px, 2px) skewX(5deg); }
+          4% { transform: translate(2px, -2px) skewX(-5deg); }
+          6% { transform: translate(0); }
+          100% { transform: translate(0); }
+        }
+      `}</style>
     </div>
   );
 }

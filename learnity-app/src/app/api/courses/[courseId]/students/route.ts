@@ -1,7 +1,7 @@
 /**
  * Course Students API Route
  * GET /api/courses/[courseId]/students - Get enrolled students for a course
- * 
+ *
  * Requirements covered:
  * - 9.1: Teacher analytics - enrollment data
  * - 9.2: Student progress distribution
@@ -63,24 +63,38 @@ export async function GET(
     });
 
     if (!course) {
-      return createErrorResponse('COURSE_NOT_FOUND', 'Course not found', undefined, 404);
+      return createErrorResponse(
+        'COURSE_NOT_FOUND',
+        'Course not found',
+        undefined,
+        404
+      );
     }
 
     if (course.teacherId !== dbUser.id) {
-      return createErrorResponse('FORBIDDEN', 'You do not own this course', undefined, 403);
+      return createErrorResponse(
+        'FORBIDDEN',
+        'You do not own this course',
+        undefined,
+        403
+      );
     }
 
     // Parse query parameters
     const status = searchParams.get('status') || undefined;
-    const minProgress = searchParams.get('minProgress') 
-      ? parseInt(searchParams.get('minProgress')!, 10) 
+    const minProgress = searchParams.get('minProgress')
+      ? parseInt(searchParams.get('minProgress')!, 10)
       : undefined;
-    const maxProgress = searchParams.get('maxProgress') 
-      ? parseInt(searchParams.get('maxProgress')!, 10) 
+    const maxProgress = searchParams.get('maxProgress')
+      ? parseInt(searchParams.get('maxProgress')!, 10)
       : undefined;
     const search = searchParams.get('search') || undefined;
-    const page = searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1;
-    const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : 20;
+    const page = searchParams.get('page')
+      ? parseInt(searchParams.get('page')!, 10)
+      : 1;
+    const limit = searchParams.get('limit')
+      ? parseInt(searchParams.get('limit')!, 10)
+      : 20;
 
     // Build where clause
     const where: Record<string, unknown> = {
@@ -127,7 +141,8 @@ export async function GET(
     if (search) {
       const searchLower = search.toLowerCase();
       enrollments = enrollments.filter(e => {
-        const fullName = `${e.student.firstName || ''} ${e.student.lastName || ''}`.toLowerCase();
+        const fullName =
+          `${e.student.firstName || ''} ${e.student.lastName || ''}`.toLowerCase();
         const email = (e.student.email || '').toLowerCase();
         return fullName.includes(searchLower) || email.includes(searchLower);
       });
@@ -173,9 +188,13 @@ export async function GET(
 
     // Build student data with progress details
     const students = enrollments.map(enrollment => {
-      const studentLessonProgress = lessonProgress.filter(p => p.studentId === enrollment.studentId);
-      const studentQuizAttempts = quizAttempts.filter(a => a.studentId === enrollment.studentId);
-      
+      const studentLessonProgress = lessonProgress.filter(
+        p => p.studentId === enrollment.studentId
+      );
+      const studentQuizAttempts = quizAttempts.filter(
+        a => a.studentId === enrollment.studentId
+      );
+
       // Get unique completed lessons
       const completedLessons = new Set(
         studentLessonProgress.filter(p => p.completed).map(p => p.lessonId)
@@ -187,16 +206,22 @@ export async function GET(
       ).size;
 
       // Calculate average quiz score
-      const avgQuizScore = studentQuizAttempts.length > 0
-        ? Math.round(studentQuizAttempts.reduce((sum, a) => sum + a.score, 0) / studentQuizAttempts.length)
-        : null;
+      const avgQuizScore =
+        studentQuizAttempts.length > 0
+          ? Math.round(
+              studentQuizAttempts.reduce((sum, a) => sum + a.score, 0) /
+                studentQuizAttempts.length
+            )
+          : null;
 
       return {
         id: enrollment.id,
         studentId: enrollment.studentId,
         student: {
           id: enrollment.student.id,
-          name: `${enrollment.student.firstName || ''} ${enrollment.student.lastName || ''}`.trim() || 'Anonymous',
+          name:
+            `${enrollment.student.firstName || ''} ${enrollment.student.lastName || ''}`.trim() ||
+            'Anonymous',
           email: enrollment.student.email,
           profilePicture: enrollment.student.profilePicture,
         },

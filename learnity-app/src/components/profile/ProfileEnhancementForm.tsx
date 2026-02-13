@@ -2,87 +2,114 @@
 
 /**
  * Profile Enhancement Form Component
- * Comprehensive form for students to customize their profile
+ * Style: Ultra-Sleek Command Center, High Density, Bento Grid
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { LoadingButton } from '@/components/shared/LoadingButton';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Target,
   Heart,
   BookOpen,
   Clock,
-  Sparkles,
-  CheckCircle,
+  Check,
   Plus,
   X,
-  FileText,
+  User,
+  Zap,
+  Sparkles,
+  ArrowUpRight,
+  Fingerprint,
+  Layers,
 } from 'lucide-react';
-
-// Validation schema
-const profileEnhancementSchema = z.object({
-  learningGoals: z.array(z.string()).optional(),
-  interests: z.array(z.string()).optional(),
-  studyPreferences: z.array(z.string()).optional(),
-  subjects: z.array(z.string()).optional(),
-  gradeLevel: z.string().optional(),
-  bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
-});
-
-type ProfileEnhancementData = z.infer<typeof profileEnhancementSchema>;
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { LoadingButton } from '@/components/shared/LoadingButton';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
+import { useClientAuth } from '@/hooks/useClientAuth';
 
 interface ProfileEnhancementFormProps {
-  initialData?: Partial<ProfileEnhancementData>;
+  initialData?: any;
   onSuccess?: () => void;
 }
 
-export function ProfileEnhancementForm({ initialData, onSuccess }: ProfileEnhancementFormProps) {
+export function ProfileEnhancementForm({
+  initialData,
+  onSuccess,
+}: ProfileEnhancementFormProps) {
   const { toast } = useToast();
-  const { loading: authLoading } = useClientAuth();
+  const { user: authUser, loading: authLoading } = useClientAuth();
   const api = useAuthenticatedApi();
   const [loading, setLoading] = useState(false);
   const [completion, setCompletion] = useState<any>(null);
 
-  // Form state
-  const [learningGoals, setLearningGoals] = useState<string[]>(initialData?.learningGoals || []);
-  const [interests, setInterests] = useState<string[]>(initialData?.interests || []);
-  const [studyPreferences, setStudyPreferences] = useState<string[]>(initialData?.studyPreferences || []);
-  const [subjects, setSubjects] = useState<string[]>(initialData?.subjects || []);
+  // Identity state
+  const [firstName, setFirstName] = useState(initialData?.firstName || '');
+  const [lastName, setLastName] = useState(initialData?.lastName || '');
+  const [gradeLevel, setGradeLevel] = useState(
+    initialData?.gradeLevel || 'Not specified'
+  );
+
+  // Profile state
+  const [learningGoals, setLearningGoals] = useState<string[]>(
+    initialData?.learningGoals || []
+  );
+  const [interests, setInterests] = useState<string[]>(
+    initialData?.interests || []
+  );
+  const [studyPreferences, setStudyPreferences] = useState<string[]>(
+    initialData?.studyPreferences || []
+  );
+  const [subjects, setSubjects] = useState<string[]>(
+    initialData?.subjects || []
+  );
   const [bio, setBio] = useState<string>(initialData?.bio || '');
 
-  // Input states for adding new items
   const [newGoal, setNewGoal] = useState('');
   const [newInterest, setNewInterest] = useState('');
 
-  // Predefined options
   const subjectOptions = [
-    'Mathematics', 'Science', 'English', 'History', 'Geography',
-    'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Art',
-    'Music', 'Physical Education', 'Languages', 'Business', 'Psychology',
+    'Mathematics',
+    'Physics',
+    'Chemistry',
+    'Biology',
+    'Computer Science',
+    'History',
+    'Geography',
+    'Literature',
+    'Economics',
+    'Psychology',
+    'Art History',
+    'Philosophy',
+  ];
+
+  const gradeOptions = [
+    'Middle School',
+    'High School',
+    'Undergraduate',
+    'Graduate',
+    'Professional',
+    'Other',
   ];
 
   const studyPreferenceOptions = [
-    'Visual Learning', 'Auditory Learning', 'Hands-on Practice',
-    'Group Study', 'Solo Study', 'Morning Study', 'Evening Study',
-    'Short Sessions', 'Long Sessions', 'Interactive Content',
+    'Visual',
+    'Auditory',
+    'Kinesthetic',
+    'Group Work',
+    'Solo',
+    'Morning',
+    'Night',
+    'Pomodoro',
+    'Deep Work',
   ];
 
   const fetchCompletionData = useCallback(async () => {
-    if (authLoading) return; // Don't fetch if auth is still loading
-
+    if (authLoading) return;
     try {
       const data = await api.get('/api/profile/enhance');
       setCompletion(data.completion);
@@ -91,36 +118,47 @@ export function ProfileEnhancementForm({ initialData, onSuccess }: ProfileEnhanc
     }
   }, [api, authLoading]);
 
-  // Fetch completion data on mount (after auth is ready)
   useEffect(() => {
-    if (!authLoading) {
-      fetchCompletionData();
-    }
+    if (!authLoading) fetchCompletionData();
   }, [fetchCompletionData, authLoading]);
+
+  // Sync initialData when it changes
+  useEffect(() => {
+    if (initialData) {
+      setFirstName(initialData.firstName || '');
+      setLastName(initialData.lastName || '');
+      setGradeLevel(initialData.gradeLevel || 'Not specified');
+      setLearningGoals(initialData.learningGoals || []);
+      setInterests(initialData.interests || []);
+      setStudyPreferences(initialData.studyPreferences || []);
+      setSubjects(initialData.subjects || []);
+      setBio(initialData.bio || '');
+    }
+  }, [initialData]);
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const data = await api.put('/api/profile/enhance', {
+      await api.put('/api/profile/enhance', {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        gradeLevel,
         learningGoals,
         interests,
         studyPreferences,
         subjects,
-        bio: bio.trim() || undefined,
+        bio: bio.trim(),
       });
-
-      setCompletion(data.completion);
-
       toast({
-        title: 'Profile Updated',
-        description: 'Your profile has been enhanced successfully!',
+        title: 'Success',
+        description: 'Your profile has been updated.',
       });
-
+      fetchCompletionData();
       onSuccess?.();
     } catch (error: any) {
       toast({
         title: 'Error',
-        description: error.message || 'Failed to update profile',
+        description: error.message,
         variant: 'destructive',
       });
     } finally {
@@ -128,262 +166,355 @@ export function ProfileEnhancementForm({ initialData, onSuccess }: ProfileEnhanc
     }
   };
 
-  const addLearningGoal = () => {
-    if (newGoal.trim() && !learningGoals.includes(newGoal.trim())) {
-      setLearningGoals([...learningGoals, newGoal.trim()]);
-      setNewGoal('');
+  const handleAddItem = (
+    val: string,
+    setter: any,
+    list: string[],
+    listSetter: any
+  ) => {
+    if (val.trim() && !list.includes(val.trim())) {
+      listSetter([...list, val.trim()]);
+      setter('');
     }
   };
 
-  const removeLearningGoal = (goal: string) => {
-    setLearningGoals(learningGoals.filter(g => g !== goal));
-  };
-
-  const addInterest = () => {
-    if (newInterest.trim() && !interests.includes(newInterest.trim())) {
-      setInterests([...interests, newInterest.trim()]);
-      setNewInterest('');
-    }
-  };
-
-  const removeInterest = (interest: string) => {
-    setInterests(interests.filter(i => i !== interest));
-  };
-
-  const toggleSubject = (subject: string) => {
-    if (subjects.includes(subject)) {
-      setSubjects(subjects.filter(s => s !== subject));
-    } else {
-      setSubjects([...subjects, subject]);
-    }
-  };
-
-  const toggleStudyPreference = (preference: string) => {
-    if (studyPreferences.includes(preference)) {
-      setStudyPreferences(studyPreferences.filter(p => p !== preference));
-    } else {
-      setStudyPreferences([...studyPreferences, preference]);
-    }
+  const toggleItem = (item: string, list: string[], listSetter: any) => {
+    listSetter(
+      list.includes(item) ? list.filter(i => i !== item) : [...list, item]
+    );
   };
 
   return (
-    <div className="space-y-6">
-      {/* Completion Progress */}
-      {completion && (
-        <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-blue-600" />
-                  Profile Completion
-                </CardTitle>
-                <CardDescription>
-                  {completion.percentage}% complete
-                </CardDescription>
+    <div className='flex flex-col gap-8 pb-10'>
+      <div className='grid grid-cols-1 lg:grid-cols-12 gap-8'>
+        {/* LEFT COLUMN: Identity & Bio */}
+        <div className='lg:col-span-8 space-y-8'>
+          {/* 1. Basic Information */}
+          <section className='bg-white p-8 rounded-3xl border border-slate-200/60 shadow-sm transition-all hover:shadow-md'>
+            <div className='flex items-center gap-3 mb-6'>
+              <div className='p-2.5 bg-indigo-50 rounded-2xl border border-indigo-100'>
+                <User className='w-5 h-5 text-indigo-600' />
               </div>
-              <div className="text-3xl font-bold text-blue-600">
-                {completion.percentage}%
+              <div>
+                <h3 className='text-lg font-bold text-slate-800'>
+                  Basic Information
+                </h3>
+                <p className='text-xs text-slate-500'>
+                  Update your name and academic level
+                </p>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <Progress value={completion.percentage} className="h-3 mb-4" />
 
-            {/* Rewards */}
-            {completion.rewards && completion.rewards.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-4">
-                {completion.rewards.map((reward: any) => (
-                  <Badge
-                    key={reward.id}
-                    variant={reward.unlocked ? 'default' : 'outline'}
-                    className={reward.unlocked ? 'bg-gradient-to-r from-yellow-400 to-orange-500' : ''}
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>
+              <div className='space-y-2'>
+                <label className='text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1'>
+                  First Name
+                </label>
+                <Input
+                  value={firstName}
+                  onChange={e => setFirstName(e.target.value)}
+                  placeholder='John'
+                  className='rounded-xl border-slate-200 focus:ring-indigo-500'
+                />
+              </div>
+              <div className='space-y-2'>
+                <label className='text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1'>
+                  Last Name
+                </label>
+                <Input
+                  value={lastName}
+                  onChange={e => setLastName(e.target.value)}
+                  placeholder='Doe'
+                  className='rounded-xl border-slate-200 focus:ring-indigo-500'
+                />
+              </div>
+            </div>
+
+            <div className='space-y-2'>
+              <label className='text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1'>
+                Grade Level
+              </label>
+              <div className='flex flex-wrap gap-2'>
+                {gradeOptions.map(opt => (
+                  <button
+                    key={opt}
+                    onClick={() => setGradeLevel(opt)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                      gradeLevel === opt
+                        ? 'bg-slate-900 text-white border-slate-900'
+                        : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
+                    }`}
                   >
-                    <span className="mr-1">{reward.icon}</span>
-                    {reward.title}
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* 2. Bio Section */}
+          <section className='bg-white p-8 rounded-3xl border border-slate-200/60 shadow-sm transition-all hover:shadow-md'>
+            <div className='flex items-center gap-3 mb-6'>
+              <div className='p-2.5 bg-blue-50 rounded-2xl border border-blue-100'>
+                <Fingerprint className='w-5 h-5 text-blue-600' />
+              </div>
+              <div>
+                <h3 className='text-lg font-bold text-slate-800'>About Me</h3>
+                <p className='text-xs text-slate-500'>
+                  Tell us a bit about your academic journey
+                </p>
+              </div>
+            </div>
+            <Textarea
+              value={bio}
+              onChange={e => setBio(e.target.value)}
+              maxLength={500}
+              className='min-h-[140px] bg-slate-50/50 border border-slate-100 focus-visible:ring-1 focus-visible:ring-indigo-500 rounded-2xl p-4 text-sm text-slate-600 leading-relaxed resize-none'
+              placeholder='Write a short summary about yourself...'
+            />
+          </section>
+
+          {/* 3. Subjects */}
+          <section className='bg-white p-8 rounded-3xl border border-slate-200/60 shadow-sm transition-all hover:shadow-md'>
+            <div className='flex items-center gap-3 mb-6'>
+              <div className='p-2.5 bg-amber-50 rounded-2xl border border-amber-100'>
+                <BookOpen className='w-5 h-5 text-amber-600' />
+              </div>
+              <div>
+                <h3 className='text-lg font-bold text-slate-800'>
+                  Subjects I Study
+                </h3>
+                <p className='text-xs text-slate-500'>
+                  Pick the areas you're currently focused on
+                </p>
+              </div>
+            </div>
+            <div className='flex flex-wrap gap-2'>
+              {subjectOptions.map(subject => {
+                const active = subjects.includes(subject);
+                return (
+                  <button
+                    key={subject}
+                    onClick={() => toggleItem(subject, subjects, setSubjects)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                      active
+                        ? 'bg-slate-900 text-white border-slate-900 scale-[1.02]'
+                        : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
+                    }`}
+                  >
+                    {subject}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        </div>
+
+        {/* RIGHT COLUMN: Goals & Preferences */}
+        <div className='lg:col-span-4 space-y-8'>
+          {/* Progress & Save */}
+          <section className='bg-slate-900 p-8 rounded-[32px] text-white shadow-xl shadow-slate-200 group relative overflow-hidden'>
+            <div className='relative z-10'>
+              <div className='flex justify-between items-start mb-10'>
+                <div>
+                  <h4 className='text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1'>
+                    Profile Complete
+                  </h4>
+                  <div className='text-5xl font-black italic tracking-tighter text-indigo-400'>
+                    {completion?.percentage || 0}%
+                  </div>
+                </div>
+                <div className='p-3 bg-white/10 rounded-2xl'>
+                  <Sparkles className='w-5 h-5 text-amber-400' />
+                </div>
+              </div>
+
+              <LoadingButton
+                onClick={handleSubmit}
+                isLoading={loading}
+                loadingText='Updating...'
+                className='w-full bg-white text-slate-900 hover:bg-indigo-500 hover:text-white h-16 rounded-2xl font-black uppercase italic tracking-widest transition-all duration-300'
+              >
+                Save Changes <ArrowUpRight className='w-4 h-4 ml-2' />
+              </LoadingButton>
+            </div>
+          </section>
+
+          {/* 4. Learning Goals */}
+          <section className='bg-white p-8 rounded-3xl border border-slate-200/60 shadow-sm'>
+            <div className='flex items-center gap-3 mb-6'>
+              <div className='p-2.5 bg-emerald-50 rounded-2xl border border-emerald-100'>
+                <Target className='w-5 h-5 text-emerald-600' />
+              </div>
+              <div>
+                <h3 className='text-lg font-bold text-slate-800'>
+                  Learning Goals
+                </h3>
+                <p className='text-xs text-slate-500'>
+                  What are you aiming to achieve?
+                </p>
+              </div>
+            </div>
+            <div className='space-y-4'>
+              <div className='flex gap-2'>
+                <Input
+                  value={newGoal}
+                  onChange={e => setNewGoal(e.target.value)}
+                  onKeyPress={e =>
+                    e.key === 'Enter' &&
+                    handleAddItem(
+                      newGoal,
+                      setNewGoal,
+                      learningGoals,
+                      setLearningGoals
+                    )
+                  }
+                  placeholder='e.g. Master Calculus'
+                  className='rounded-xl border-slate-100 bg-slate-50/50 text-sm'
+                />
+                <Button
+                  size='icon'
+                  onClick={() =>
+                    handleAddItem(
+                      newGoal,
+                      setNewGoal,
+                      learningGoals,
+                      setLearningGoals
+                    )
+                  }
+                  className='h-10 w-10 bg-slate-900 rounded-xl shrink-0'
+                >
+                  <Plus className='w-4 h-4' />
+                </Button>
+              </div>
+              <div className='space-y-2 max-h-[160px] overflow-y-auto pr-1 custom-scrollbar'>
+                <AnimatePresence>
+                  {learningGoals.map(goal => (
+                    <motion.div
+                      initial={{ opacity: 0, x: -5 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      key={goal}
+                      className='flex items-center justify-between p-3 bg-slate-50/80 rounded-xl group/item'
+                    >
+                      <span className='text-[11px] font-medium text-slate-600'>
+                        {goal}
+                      </span>
+                      <X
+                        className='w-3.5 h-3.5 text-slate-300 cursor-pointer hover:text-red-500 transition-colors'
+                        onClick={() =>
+                          setLearningGoals(
+                            learningGoals.filter(g => g !== goal)
+                          )
+                        }
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            </div>
+          </section>
+
+          {/* 5. Study Preferences */}
+          <section className='bg-white p-8 rounded-3xl border border-slate-200/60 shadow-sm'>
+            <div className='flex items-center gap-3 mb-6'>
+              <div className='p-2.5 bg-indigo-50 rounded-2xl border border-indigo-100'>
+                <Zap className='w-5 h-5 text-indigo-600' />
+              </div>
+              <div>
+                <h3 className='text-lg font-bold text-slate-800'>
+                  Study Style
+                </h3>
+                <p className='text-xs text-slate-500'>How do you learn best?</p>
+              </div>
+            </div>
+            <div className='grid grid-cols-2 gap-2'>
+              {studyPreferenceOptions.map(pref => {
+                const active = studyPreferences.includes(pref);
+                return (
+                  <button
+                    key={pref}
+                    onClick={() =>
+                      toggleItem(pref, studyPreferences, setStudyPreferences)
+                    }
+                    className={`text-[10px] font-bold py-2.5 px-3 rounded-xl border transition-all ${
+                      active
+                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
+                        : 'bg-white border-slate-100 text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    {pref}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* 6. Interests */}
+          <section className='bg-white p-8 rounded-3xl border border-slate-200/60 shadow-sm'>
+            <div className='flex items-center gap-3 mb-6'>
+              <div className='p-2.5 bg-rose-50 rounded-2xl border border-rose-100'>
+                <Heart className='w-5 h-5 text-rose-600' />
+              </div>
+              <div>
+                <h3 className='text-lg font-bold text-slate-800'>Interests</h3>
+                <p className='text-xs text-slate-500'>
+                  What do you enjoy outside study?
+                </p>
+              </div>
+            </div>
+            <div className='space-y-4'>
+              <div className='flex gap-2'>
+                <Input
+                  value={newInterest}
+                  onChange={e => setNewInterest(e.target.value)}
+                  onKeyPress={e =>
+                    e.key === 'Enter' &&
+                    handleAddItem(
+                      newInterest,
+                      setNewInterest,
+                      interests,
+                      setInterests
+                    )
+                  }
+                  placeholder='e.g. Chess, Coding'
+                  className='rounded-xl border-slate-100 bg-slate-50/50 text-sm'
+                />
+                <Button
+                  size='icon'
+                  onClick={() =>
+                    handleAddItem(
+                      newInterest,
+                      setNewInterest,
+                      interests,
+                      setInterests
+                    )
+                  }
+                  className='h-10 w-10 bg-slate-900 rounded-xl shrink-0'
+                >
+                  <Plus className='w-4 h-4' />
+                </Button>
+              </div>
+              <div className='flex flex-wrap gap-2'>
+                {interests.map(interest => (
+                  <Badge
+                    key={interest}
+                    variant='secondary'
+                    className='px-3 py-1.5 bg-slate-100 text-slate-600 border-none rounded-lg text-[11px]'
+                  >
+                    {interest}
+                    <X
+                      className='w-3 h-3 ml-2 cursor-pointer hover:text-red-500'
+                      onClick={() =>
+                        setInterests(interests.filter(i => i !== interest))
+                      }
+                    />
                   </Badge>
                 ))}
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Learning Goals */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-green-600" />
-            Learning Goals
-          </CardTitle>
-          <CardDescription>
-            What do you want to achieve in your learning journey?
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Add a learning goal..."
-              value={newGoal}
-              onChange={(e) => setNewGoal(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addLearningGoal()}
-            />
-            <Button onClick={addLearningGoal} size="icon">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {learningGoals.map((goal) => (
-              <Badge key={goal} variant="secondary" className="gap-1">
-                {goal}
-                <button
-                  onClick={() => removeLearningGoal(goal)}
-                  className="ml-1 hover:text-red-600"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Subjects */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-blue-600" />
-            Subject Interests
-          </CardTitle>
-          <CardDescription>
-            Select the subjects you're interested in learning
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {subjectOptions.map((subject) => (
-              <Badge
-                key={subject}
-                variant={subjects.includes(subject) ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-slate-100"
-                onClick={() => toggleSubject(subject)}
-              >
-                {subjects.includes(subject) && <CheckCircle className="h-3 w-3 mr-1" />}
-                {subject}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Personal Interests */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-pink-600" />
-            Personal Interests
-          </CardTitle>
-          <CardDescription>
-            Share your hobbies and interests outside of academics
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Add an interest..."
-              value={newInterest}
-              onChange={(e) => setNewInterest(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addInterest()}
-            />
-            <Button onClick={addInterest} size="icon">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {interests.map((interest) => (
-              <Badge key={interest} variant="secondary" className="gap-1">
-                {interest}
-                <button
-                  onClick={() => removeInterest(interest)}
-                  className="ml-1 hover:text-red-600"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Study Preferences */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-purple-600" />
-            Study Preferences
-          </CardTitle>
-          <CardDescription>
-            How do you prefer to learn and study?
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {studyPreferenceOptions.map((preference) => (
-              <Badge
-                key={preference}
-                variant={studyPreferences.includes(preference) ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-purple-100"
-                onClick={() => toggleStudyPreference(preference)}
-              >
-                {studyPreferences.includes(preference) && <CheckCircle className="h-3 w-3 mr-1" />}
-                {preference}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Personal Bio */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-indigo-600" />
-            Personal Bio
-          </CardTitle>
-          <CardDescription>
-            Tell us about yourself (max 500 characters)
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Textarea
-            placeholder="Share a bit about yourself, your learning journey, goals, or anything you'd like others to know..."
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            maxLength={500}
-            rows={5}
-            className="resize-none"
-          />
-          <div className="flex justify-end">
-            <span className="text-xs text-gray-500">
-              {bio.length}/500 characters
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <LoadingButton
-          onClick={handleSubmit}
-          isLoading={loading}
-          loadingText="Saving Profile..."
-          size="lg"
-          className="bg-gradient-to-r from-blue-600 to-purple-600"
-        >
-          Save Profile
-        </LoadingButton>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   );

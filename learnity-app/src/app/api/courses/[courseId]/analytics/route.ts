@@ -1,7 +1,7 @@
 /**
  * Course Analytics API Route
  * GET /api/courses/[courseId]/analytics - Get analytics for a specific course
- * 
+ *
  * Requirements covered:
  * - 9.1: Total enrollments, completions, and average rating per course
  * - 9.2: Student progress distribution
@@ -75,11 +75,21 @@ export async function GET(
     });
 
     if (!course) {
-      return createErrorResponse('COURSE_NOT_FOUND', 'Course not found', undefined, 404);
+      return createErrorResponse(
+        'COURSE_NOT_FOUND',
+        'Course not found',
+        undefined,
+        404
+      );
     }
 
     if (course.teacherId !== dbUser.id) {
-      return createErrorResponse('FORBIDDEN', 'You do not own this course', undefined, 403);
+      return createErrorResponse(
+        'FORBIDDEN',
+        'You do not own this course',
+        undefined,
+        403
+      );
     }
 
     // Get enrollment statistics (Requirement 9.1)
@@ -95,18 +105,27 @@ export async function GET(
     });
 
     const totalEnrollments = enrollments.length;
-    const activeEnrollments = enrollments.filter(e => e.status === 'ACTIVE').length;
-    const completedEnrollments = enrollments.filter(e => e.status === 'COMPLETED').length;
-    const completionRate = totalEnrollments > 0 
-      ? Math.round((completedEnrollments / totalEnrollments) * 100) 
-      : 0;
+    const activeEnrollments = enrollments.filter(
+      e => e.status === 'ACTIVE'
+    ).length;
+    const completedEnrollments = enrollments.filter(
+      e => e.status === 'COMPLETED'
+    ).length;
+    const completionRate =
+      totalEnrollments > 0
+        ? Math.round((completedEnrollments / totalEnrollments) * 100)
+        : 0;
 
     // Get progress distribution (Requirement 9.2)
     const progressDistribution = {
-      '0-25': enrollments.filter(e => e.progress >= 0 && e.progress < 25).length,
-      '25-50': enrollments.filter(e => e.progress >= 25 && e.progress < 50).length,
-      '50-75': enrollments.filter(e => e.progress >= 50 && e.progress < 75).length,
-      '75-100': enrollments.filter(e => e.progress >= 75 && e.progress <= 100).length,
+      '0-25': enrollments.filter(e => e.progress >= 0 && e.progress < 25)
+        .length,
+      '25-50': enrollments.filter(e => e.progress >= 25 && e.progress < 50)
+        .length,
+      '50-75': enrollments.filter(e => e.progress >= 50 && e.progress < 75)
+        .length,
+      '75-100': enrollments.filter(e => e.progress >= 75 && e.progress <= 100)
+        .length,
     };
 
     // Get quiz performance (Requirement 9.3)
@@ -136,18 +155,24 @@ export async function GET(
     const quizStats = quizIds.map(quizId => {
       const attempts = quizAttempts.filter(a => a.quizId === quizId);
       const quizInfo = attempts[0]?.quiz;
-      
+
       return {
         quizId,
         title: quizInfo?.title || 'Unknown Quiz',
         lessonTitle: quizInfo?.lesson?.title || 'Unknown Lesson',
         totalAttempts: attempts.length,
-        passRate: attempts.length > 0 
-          ? Math.round((attempts.filter(a => a.passed).length / attempts.length) * 100) 
-          : 0,
-        averageScore: attempts.length > 0 
-          ? Math.round(attempts.reduce((sum, a) => sum + a.score, 0) / attempts.length) 
-          : 0,
+        passRate:
+          attempts.length > 0
+            ? Math.round(
+                (attempts.filter(a => a.passed).length / attempts.length) * 100
+              )
+            : 0,
+        averageScore:
+          attempts.length > 0
+            ? Math.round(
+                attempts.reduce((sum, a) => sum + a.score, 0) / attempts.length
+              )
+            : 0,
       };
     });
 
@@ -167,41 +192,52 @@ export async function GET(
       },
     });
 
-    const lessonEngagement = course.sections.flatMap(section =>
-      section.lessons.map(lesson => {
-        const progress = lessonProgress.filter(p => p.lessonId === lesson.id);
-        const completions = progress.filter(p => p.completed).length;
-        
-        return {
-          lessonId: lesson.id,
-          title: lesson.title,
-          sectionTitle: section.title,
-          order: lesson.order,
-          sectionOrder: section.order,
-          totalViews: progress.length,
-          completions,
-          completionRate: progress.length > 0 
-            ? Math.round((completions / progress.length) * 100) 
-            : 0,
-          averageWatchTime: progress.length > 0 
-            ? Math.round(progress.reduce((sum, p) => sum + p.watchedSeconds, 0) / progress.length) 
-            : 0,
-          duration: lesson.duration,
-        };
-      })
-    ).sort((a, b) => {
-      if (a.sectionOrder !== b.sectionOrder) return a.sectionOrder - b.sectionOrder;
-      return a.order - b.order;
-    });
+    const lessonEngagement = course.sections
+      .flatMap(section =>
+        section.lessons.map(lesson => {
+          const progress = lessonProgress.filter(p => p.lessonId === lesson.id);
+          const completions = progress.filter(p => p.completed).length;
+
+          return {
+            lessonId: lesson.id,
+            title: lesson.title,
+            sectionTitle: section.title,
+            order: lesson.order,
+            sectionOrder: section.order,
+            totalViews: progress.length,
+            completions,
+            completionRate:
+              progress.length > 0
+                ? Math.round((completions / progress.length) * 100)
+                : 0,
+            averageWatchTime:
+              progress.length > 0
+                ? Math.round(
+                    progress.reduce((sum, p) => sum + p.watchedSeconds, 0) /
+                      progress.length
+                  )
+                : 0,
+            duration: lesson.duration,
+          };
+        })
+      )
+      .sort((a, b) => {
+        if (a.sectionOrder !== b.sectionOrder)
+          return a.sectionOrder - b.sectionOrder;
+        return a.order - b.order;
+      });
 
     // Identify drop-off points (Requirement 9.5)
     const dropOffPoints = lessonEngagement
       .filter((lesson, index, arr) => {
         if (index === 0) return false;
         const prevLesson = arr[index - 1];
-        const dropRate = prevLesson.completions > 0 
-          ? ((prevLesson.completions - lesson.completions) / prevLesson.completions) * 100 
-          : 0;
+        const dropRate =
+          prevLesson.completions > 0
+            ? ((prevLesson.completions - lesson.completions) /
+                prevLesson.completions) *
+              100
+            : 0;
         return dropRate > 20; // Significant drop-off threshold
       })
       .map(lesson => ({
@@ -258,19 +294,30 @@ export async function GET(
       quizPerformance: {
         totalQuizzes: quizIds.length,
         quizStats,
-        overallPassRate: quizAttempts.length > 0 
-          ? Math.round((quizAttempts.filter(a => a.passed).length / quizAttempts.length) * 100) 
-          : 0,
-        overallAverageScore: quizAttempts.length > 0 
-          ? Math.round(quizAttempts.reduce((sum, a) => sum + a.score, 0) / quizAttempts.length) 
-          : 0,
+        overallPassRate:
+          quizAttempts.length > 0
+            ? Math.round(
+                (quizAttempts.filter(a => a.passed).length /
+                  quizAttempts.length) *
+                  100
+              )
+            : 0,
+        overallAverageScore:
+          quizAttempts.length > 0
+            ? Math.round(
+                quizAttempts.reduce((sum, a) => sum + a.score, 0) /
+                  quizAttempts.length
+              )
+            : 0,
       },
       lessonEngagement,
       dropOffPoints,
       ratingDistribution,
       recentActivity: recentEnrollments.map(e => ({
         studentId: e.student.id,
-        studentName: `${e.student.firstName || ''} ${e.student.lastName || ''}`.trim() || 'Anonymous',
+        studentName:
+          `${e.student.firstName || ''} ${e.student.lastName || ''}`.trim() ||
+          'Anonymous',
         profilePicture: e.student.profilePicture,
         enrolledAt: e.enrolledAt,
         progress: e.progress,

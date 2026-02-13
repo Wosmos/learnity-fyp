@@ -6,6 +6,7 @@
 'use client';
 
 import React from 'react';
+import { LucideIcon, BarChart3 } from 'lucide-react';
 import { HeroStatsClient } from '@/components/landing/HeroStatsClient';
 import { MetricCard } from '@/components/ui/stats-card';
 import { cn } from '@/lib/utils';
@@ -13,7 +14,7 @@ import { cn } from '@/lib/utils';
 export interface StatItem {
   value: string | number;
   label: string;
-  icon?: React.ReactNode;
+  icon?: LucideIcon; // Changed from React.ReactNode to LucideIcon
 }
 
 export interface StatsProps {
@@ -49,23 +50,22 @@ export function Stats({
   // Custom stats using MetricCard
   if (stats) {
     return (
-      <div className={cn(
-        'grid gap-6',
-        gridColsClasses[columns],
-        'max-w-5xl mx-auto pt-8 border-t border-gray-200',
-        className
-      )}>
+      <div
+        className={cn(
+          'grid gap-6',
+          gridColsClasses[columns],
+          'max-w-5xl mx-auto pt-8 border-t border-gray-200',
+          className
+        )}
+      >
         {stats.map((stat, index) => (
           <MetricCard
             key={index}
             title={stat.label}
             value={stat.value.toString()}
-            trendValue=""
-            trendLabel=""
-            icon={stat.icon ? () => stat.icon : undefined}
-            iconColor="text-blue-600"
-            bgColor="bg-slate-100"
-            className="border-0 shadow-sm"
+            trendValue=''
+            icon={stat.icon || BarChart3} // Provide default icon if none specified
+            className='border-0 shadow-sm'
           />
         ))}
       </div>
@@ -74,4 +74,3 @@ export function Stats({
 
   return null;
 }
-

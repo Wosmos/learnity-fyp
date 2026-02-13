@@ -1,7 +1,7 @@
 /**
  * Certificate Download API Route
  * GET /api/certificates/[certificateId]/download - Download certificate as PDF
- * 
+ *
  * Requirements covered:
  * - 10.3: Allow students to download certificate as PDF
  */
@@ -48,17 +48,24 @@ export async function GET(
     }
 
     // Generate PDF
-    const pdfBuffer = await certificateService.downloadCertificatePDF(certificateId);
+    const pdfBuffer =
+      await certificateService.downloadCertificatePDF(certificateId);
 
     // Create filename from certificate details
-    const studentName = `${certificate.student.firstName}_${certificate.student.lastName}`.replace(/\s+/g, '_');
-    const courseTitle = certificate.course.title.replace(/\s+/g, '_').substring(0, 30);
+    const studentName =
+      `${certificate.student.firstName}_${certificate.student.lastName}`.replace(
+        /\s+/g,
+        '_'
+      );
+    const courseTitle = certificate.course.title
+      .replace(/\s+/g, '_')
+      .substring(0, 30);
     const filename = `Certificate_${courseTitle}_${studentName}.pdf`;
 
     // Return PDF as downloadable file
     // Convert Buffer to Uint8Array for NextResponse compatibility
     const uint8Array = new Uint8Array(pdfBuffer);
-    
+
     return new NextResponse(uint8Array, {
       status: 200,
       headers: {

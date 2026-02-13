@@ -14,7 +14,7 @@ import {
   useIsAdmin,
   useIsTeacher,
   useIsStudent,
-  useIsPendingTeacher
+  useIsPendingTeacher,
 } from '@/hooks/useAuth';
 import { UserRole, Permission } from '@/types/auth';
 import {
@@ -22,7 +22,7 @@ import {
   AdminOnly,
   TeacherOnly,
   StudentOnly,
-  PendingTeacherOnly
+  PendingTeacherOnly,
 } from '@/components/auth/PermissionGate';
 
 export interface NavigationItem {
@@ -52,25 +52,25 @@ const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
     label: 'Student Dashboard',
     href: '/dashboard/student',
     permission: Permission.VIEW_STUDENT_DASHBOARD,
-    role: UserRole.STUDENT
+    role: UserRole.STUDENT,
   },
   {
     label: 'Study Groups',
     href: '/student/groups',
     permission: Permission.JOIN_STUDY_GROUPS,
-    role: UserRole.STUDENT
+    role: UserRole.STUDENT,
   },
   {
     label: 'Book Tutoring',
     href: '/student/tutoring',
     permission: Permission.BOOK_TUTORING,
-    role: UserRole.STUDENT
+    role: UserRole.STUDENT,
   },
   {
     label: 'Enhance Profile',
     href: '/profile/enhance',
     permission: Permission.ENHANCE_PROFILE,
-    role: UserRole.STUDENT
+    role: UserRole.STUDENT,
   },
 
   // Teacher Navigation
@@ -78,25 +78,25 @@ const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
     label: 'Teacher Dashboard',
     href: '/dashboard/teacher',
     permission: Permission.VIEW_TEACHER_DASHBOARD,
-    roles: [UserRole.TEACHER, UserRole.ADMIN]
+    roles: [UserRole.TEACHER, UserRole.ADMIN],
   },
   {
     label: 'Manage Sessions',
     href: '/teacher/sessions',
     permission: Permission.MANAGE_SESSIONS,
-    roles: [UserRole.TEACHER, UserRole.ADMIN]
+    roles: [UserRole.TEACHER, UserRole.ADMIN],
   },
   {
     label: 'Upload Content',
     href: '/teacher/content',
     permission: Permission.UPLOAD_CONTENT,
-    roles: [UserRole.TEACHER, UserRole.ADMIN]
+    roles: [UserRole.TEACHER, UserRole.ADMIN],
   },
   {
     label: 'Student Progress',
     href: '/teacher/progress',
     permission: Permission.VIEW_STUDENT_PROGRESS,
-    roles: [UserRole.TEACHER, UserRole.ADMIN]
+    roles: [UserRole.TEACHER, UserRole.ADMIN],
   },
 
   // Pending Teacher Navigation
@@ -104,13 +104,13 @@ const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
     label: 'Application Status',
     href: '/application/status',
     permission: Permission.VIEW_APPLICATION_STATUS,
-    role: UserRole.PENDING_TEACHER
+    role: UserRole.PENDING_TEACHER,
   },
   {
     label: 'Update Application',
     href: '/application/update',
     permission: Permission.UPDATE_APPLICATION,
-    role: UserRole.PENDING_TEACHER
+    role: UserRole.PENDING_TEACHER,
   },
 
   // Admin Navigation
@@ -118,38 +118,38 @@ const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
     label: 'Admin Dashboard',
     href: '/admin',
     permission: Permission.VIEW_ADMIN_PANEL,
-    role: UserRole.ADMIN
+    role: UserRole.ADMIN,
   },
   {
     label: 'Security Dashboard',
     href: '/admin',
     permission: Permission.VIEW_AUDIT_LOGS,
-    role: UserRole.ADMIN
+    role: UserRole.ADMIN,
   },
   {
     label: 'Audit Logs',
     href: '/admin/audit-logs',
     permission: Permission.VIEW_AUDIT_LOGS,
-    role: UserRole.ADMIN
+    role: UserRole.ADMIN,
   },
   {
     label: 'Security Events',
     href: '/admin/security-events',
     permission: Permission.VIEW_AUDIT_LOGS,
-    role: UserRole.ADMIN
+    role: UserRole.ADMIN,
   },
   {
     label: 'User Management',
     href: '/admin/users',
     permission: Permission.MANAGE_USERS,
-    role: UserRole.ADMIN
+    role: UserRole.ADMIN,
   },
   {
     label: 'Teacher Applications',
     href: '/admin/teachers',
     permission: Permission.APPROVE_TEACHERS,
-    role: UserRole.ADMIN
-  }
+    role: UserRole.ADMIN,
+  },
 ];
 
 /**
@@ -159,7 +159,7 @@ export function RoleBasedNavigation({
   items = DEFAULT_NAVIGATION_ITEMS,
   className,
   orientation = 'vertical',
-  showIcons = true
+  showIcons = true,
 }: RoleBasedNavigationProps) {
   const pathname = usePathname();
   const { user, loading, claims } = useAuth();
@@ -194,16 +194,22 @@ export function RoleBasedNavigation({
   });
 
   return (
-    <nav className={cn(
-      'role-based-navigation',
-      orientation === 'horizontal' ? 'flex flex-row space-x-4' : 'flex flex-col space-y-2',
-      className
-    )}>
+    <nav
+      className={cn(
+        'role-based-navigation',
+        orientation === 'horizontal'
+          ? 'flex flex-row space-x-4'
+          : 'flex flex-col space-y-2',
+        className
+      )}
+    >
       {filteredItems.map((item, index) => (
         <NavigationItemComponent
           key={`${item.href}-${index}`}
           item={item}
-          isActive={pathname === item.href || pathname.startsWith(item.href + '/')}
+          isActive={
+            pathname === item.href || pathname.startsWith(item.href + '/')
+          }
           orientation={orientation}
           showIcons={showIcons}
         />
@@ -219,7 +225,7 @@ function NavigationItemComponent({
   item,
   isActive,
   orientation,
-  showIcons
+  showIcons,
 }: {
   item: NavigationItem;
   isActive: boolean;
@@ -239,14 +245,16 @@ function NavigationItemComponent({
   const content = (
     <>
       {showIcons && item.icon && (
-        <span className={cn(
-          'navigation-icon',
-          orientation === 'horizontal' ? 'mr-2' : 'mr-3'
-        )}>
+        <span
+          className={cn(
+            'navigation-icon',
+            orientation === 'horizontal' ? 'mr-2' : 'mr-3'
+          )}
+        >
           {item.icon}
         </span>
       )}
-      <span className="navigation-label">{item.label}</span>
+      <span className='navigation-label'>{item.label}</span>
     </>
   );
 
@@ -254,8 +262,8 @@ function NavigationItemComponent({
     return (
       <a
         href={item.href}
-        target="_blank"
-        rel="noopener noreferrer"
+        target='_blank'
+        rel='noopener noreferrer'
         className={baseClasses}
       >
         {content}
@@ -270,14 +278,14 @@ function NavigationItemComponent({
   );
 }
 
-
-
 /**
  * Student-specific navigation component
  */
-export function StudentNavigation(props: Omit<RoleBasedNavigationProps, 'items'>) {
-  const studentItems = DEFAULT_NAVIGATION_ITEMS.filter(item =>
-    item.role === UserRole.STUDENT
+export function StudentNavigation(
+  props: Omit<RoleBasedNavigationProps, 'items'>
+) {
+  const studentItems = DEFAULT_NAVIGATION_ITEMS.filter(
+    item => item.role === UserRole.STUDENT
   );
 
   return (
@@ -290,9 +298,12 @@ export function StudentNavigation(props: Omit<RoleBasedNavigationProps, 'items'>
 /**
  * Teacher-specific navigation component
  */
-export function TeacherNavigation(props: Omit<RoleBasedNavigationProps, 'items'>) {
-  const teacherItems = DEFAULT_NAVIGATION_ITEMS.filter(item =>
-    item.roles?.includes(UserRole.TEACHER) || item.role === UserRole.TEACHER
+export function TeacherNavigation(
+  props: Omit<RoleBasedNavigationProps, 'items'>
+) {
+  const teacherItems = DEFAULT_NAVIGATION_ITEMS.filter(
+    item =>
+      item.roles?.includes(UserRole.TEACHER) || item.role === UserRole.TEACHER
   );
 
   return (
@@ -305,9 +316,11 @@ export function TeacherNavigation(props: Omit<RoleBasedNavigationProps, 'items'>
 /**
  * Admin-specific navigation component
  */
-export function AdminNavigation(props: Omit<RoleBasedNavigationProps, 'items'>) {
-  const adminItems = DEFAULT_NAVIGATION_ITEMS.filter(item =>
-    item.role === UserRole.ADMIN
+export function AdminNavigation(
+  props: Omit<RoleBasedNavigationProps, 'items'>
+) {
+  const adminItems = DEFAULT_NAVIGATION_ITEMS.filter(
+    item => item.role === UserRole.ADMIN
   );
 
   return (
@@ -320,9 +333,11 @@ export function AdminNavigation(props: Omit<RoleBasedNavigationProps, 'items'>) 
 /**
  * Pending teacher-specific navigation component
  */
-export function PendingTeacherNavigation(props: Omit<RoleBasedNavigationProps, 'items'>) {
-  const pendingTeacherItems = DEFAULT_NAVIGATION_ITEMS.filter(item =>
-    item.role === UserRole.PENDING_TEACHER
+export function PendingTeacherNavigation(
+  props: Omit<RoleBasedNavigationProps, 'items'>
+) {
+  const pendingTeacherItems = DEFAULT_NAVIGATION_ITEMS.filter(
+    item => item.role === UserRole.PENDING_TEACHER
   );
 
   return (
@@ -375,33 +390,33 @@ export interface RoleBreadcrumbsProps {
 
 export function RoleBreadcrumbs({ items, className }: RoleBreadcrumbsProps) {
   return (
-    <nav className={cn('flex', className)} aria-label="Breadcrumb">
-      <ol className="inline-flex items-center space-x-1 md:space-x-3">
+    <nav className={cn('flex', className)} aria-label='Breadcrumb'>
+      <ol className='inline-flex items-center space-x-1 md:space-x-3'>
         {items.map((item, index) => (
-          <li key={index} className="inline-flex items-center">
+          <li key={index} className='inline-flex items-center'>
             {index > 0 && (
               <svg
-                className="w-6 h-6 text-gray-400"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
+                className='w-6 h-6 text-gray-400'
+                fill='currentColor'
+                viewBox='0 0 20 20'
+                xmlns='http://www.w3.org/2000/svg'
               >
                 <path
-                  fillRule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clipRule="evenodd"
+                  fillRule='evenodd'
+                  d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z'
+                  clipRule='evenodd'
                 />
               </svg>
             )}
             {item.href ? (
               <Link
                 href={item.href}
-                className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
+                className='inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white'
               >
                 {item.label}
               </Link>
             ) : (
-              <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">
+              <span className='ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400'>
                 {item.label}
               </span>
             )}
@@ -415,21 +430,29 @@ export function RoleBreadcrumbs({ items, className }: RoleBreadcrumbsProps) {
 /**
  * Navigation skeleton for loading states
  */
-function NavigationSkeleton({ orientation }: { orientation: 'horizontal' | 'vertical' }) {
+function NavigationSkeleton({
+  orientation,
+}: {
+  orientation: 'horizontal' | 'vertical';
+}) {
   const skeletonItems = Array.from({ length: 4 }, (_, i) => i);
 
   return (
-    <div className={cn(
-      'navigation-skeleton',
-      orientation === 'horizontal' ? 'flex flex-row space-x-4' : 'flex flex-col space-y-2'
-    )}>
+    <div
+      className={cn(
+        'navigation-skeleton',
+        orientation === 'horizontal'
+          ? 'flex flex-row space-x-4'
+          : 'flex flex-col space-y-2'
+      )}
+    >
       {skeletonItems.map((_, index) => (
         <div
           key={index}
-          className="animate-pulse flex items-center px-3 py-2 rounded-md"
+          className='animate-pulse flex items-center px-3 py-2 rounded-md'
         >
-          <div className="w-4 h-4 bg-gray-300 rounded mr-3" />
-          <div className="h-4 bg-gray-300 rounded w-20" />
+          <div className='w-4 h-4 bg-gray-300 rounded mr-3' />
+          <div className='h-4 bg-gray-300 rounded w-20' />
         </div>
       ))}
     </div>
@@ -448,8 +471,8 @@ export function QuickActions({ className }: QuickActionProps) {
     <div className={cn('quick-actions flex flex-wrap gap-2', className)}>
       <RequirePermission permission={Permission.ENHANCE_PROFILE}>
         <Link
-          href="/profile/enhance"
-          className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-blue-800 hover:bg-slate-200"
+          href='/profile/enhance'
+          className='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-blue-800 hover:bg-slate-200'
         >
           Complete Profile
         </Link>
@@ -457,8 +480,8 @@ export function QuickActions({ className }: QuickActionProps) {
 
       <RequirePermission permission={Permission.BOOK_TUTORING}>
         <Link
-          href="/student/tutoring"
-          className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200"
+          href='/student/tutoring'
+          className='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200'
         >
           Book Session
         </Link>
@@ -466,8 +489,8 @@ export function QuickActions({ className }: QuickActionProps) {
 
       <RequirePermission permission={Permission.MANAGE_SESSIONS}>
         <Link
-          href="/teacher/sessions"
-          className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 hover:bg-purple-200"
+          href='/teacher/sessions'
+          className='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 hover:bg-purple-200'
         >
           Manage Sessions
         </Link>
@@ -475,8 +498,8 @@ export function QuickActions({ className }: QuickActionProps) {
 
       <RequirePermission permission={Permission.APPROVE_TEACHERS}>
         <Link
-          href="/admin/teachers"
-          className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200"
+          href='/admin/teachers'
+          className='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200'
         >
           Review Applications
         </Link>

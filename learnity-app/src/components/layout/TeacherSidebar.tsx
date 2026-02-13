@@ -5,7 +5,11 @@
  * Uses the unified DashboardSidebar with teacher configuration
  */
 
-import { DashboardSidebar, teacherSidebarConfig, type DashboardSidebarProps } from './DashboardSidebar';
+import {
+  DashboardSidebar,
+  teacherSidebarConfig,
+  type DashboardSidebarProps,
+} from './DashboardSidebar';
 
 export type TeacherSidebarProps = Omit<DashboardSidebarProps, 'config'>;
 

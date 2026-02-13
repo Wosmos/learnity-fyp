@@ -1,777 +1,298 @@
-'use client';
+import { Suspense } from 'react';
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import Image from 'next/image';
+import { Star, Users, Clock } from 'lucide-react';
+import { courseService } from '@/lib/services/course.service';
+import { reviewService } from '@/lib/services/review.service';
+import { prisma } from '@/lib/prisma';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import { PublicLayout } from '@/components/layout/AppLayout';
+import { CTA } from '@/components/externals';
+import { formatDuration } from '@/lib/utils';
+import CourseDetailClient from './CourseDetailClient';
 
 /**
- * Course Detail Page
- * Public page showing course details, sections, lessons, teacher profile, and reviews
- * Requirements: 3.5, 3.6, 4.1 - Course info, syllabus, teacher profile, reviews, enroll button
- * Uses YouTube thumbnail from first lesson or default image
+ * Course Detail Page - Optimized SSR & SSG
  */
 
-import { useEffect, useState, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { AuthenticatedLayout } from '@/components/layout/AppLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-
-import { Progress } from '@/components/ui/progress';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-import {
-  ArrowLeft,
-  BookOpen,
-  Clock,
-  Users,
-  Star,
-  Video,
-  CheckCircle,
-  Play,
-  Loader2,
-  AlertCircle,
-  GraduationCap,
-  BarChart3,
-  Globe,
-  Lock,
-  MessageSquare,
-  ThumbsUp,
-} from 'lucide-react';
-import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
-import { useClientAuth } from '@/hooks/useClientAuth';
-import { useToast } from '@/hooks/use-toast';
-import { StarRating } from '@/components/courses';
-import { ReviewForm } from '@/components/courses/ReviewForm';
-import { ReviewsList } from '@/components/courses/ReviewsList';
-
-interface Lesson {
-  id: string;
-  title: string;
-  description?: string;
-  type: 'VIDEO' | 'QUIZ';
-  youtubeUrl?: string;
-  youtubeId?: string;
-  duration: number;
-  order: number;
+interface CoursePageProps {
+  params: Promise<{ courseId: string }>;
 }
 
-interface Section {
-  id: string;
-  title: string;
-  description?: string;
-  order: number;
-  lessons: Lesson[];
-}
+export async function generateMetadata({
+  params,
+}: CoursePageProps): Promise<Metadata> {
+  const { courseId } = await params;
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+    select: { title: true, description: true, thumbnailUrl: true },
+  });
 
+  if (!course) return { title: 'Course Not Found' };
 
-interface Teacher {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl?: string;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-interface Review {
-  id: string;
-  rating: number;
-  comment?: string;
-  createdAt: string;
-  student: {
-    id: string;
-    name: string;
-    avatarUrl?: string;
+  return {
+    title: `${course.title} | Learnity`,
+    description: course.description.slice(0, 160),
+    openGraph: {
+      title: `${course.title} | Learnity`,
+      description: course.description.slice(0, 160),
+      images: course.thumbnailUrl ? [course.thumbnailUrl] : [],
+    },
   };
 }
 
-interface ReviewsData {
-  reviews: Review[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  rating: {
-    averageRating: number;
-    totalReviews: number;
-    ratingDistribution: Record<number, number>;
+// Pre-render top 50 most enrolled courses for ultra-speed
+export async function generateStaticParams() {
+  const popularCourses = await prisma.course.findMany({
+    where: { status: 'PUBLISHED' },
+    orderBy: { enrollmentCount: 'desc' },
+    take: 50,
+    select: { id: true },
+  });
+
+  return popularCourses.map(c => ({
+    courseId: c.id,
+  }));
+}
+
+async function getCourseData(courseId: string) {
+  const [course, reviews, rating] = await Promise.all([
+    courseService.getCourseById(courseId),
+    reviewService.getCourseReviews(courseId, { limit: 5, page: 1 }),
+    reviewService.getCourseRating(courseId),
+  ]);
+
+  if (!course) return null;
+
+  const estimatedDuration = formatDuration(course.totalDuration);
+
+  return {
+    course: {
+      ...course,
+      price: course.price ? Number(course.price) : null,
+      averageRating: course.averageRating ? Number(course.averageRating) : 0,
+      teacher: {
+        id: course.teacher.id,
+        name: `${course.teacher.firstName || ''} ${course.teacher.lastName || ''}`.trim(),
+        avatarUrl: course.teacher.profilePicture,
+      },
+      estimatedDuration,
+      reviewsSummary: {
+        averageRating: Number(rating.averageRating),
+        totalReviews: rating.reviewCount,
+        ratingDistribution: rating.ratingDistribution,
+      },
+      updatedAt: course.updatedAt.toISOString(),
+      createdAt: course.createdAt.toISOString(),
+      publishedAt: course.publishedAt?.toISOString() || null,
+    },
+    reviews: {
+      ...reviews,
+      reviews: reviews.reviews.map(r => ({
+        ...r,
+        createdAt: r.createdAt.toISOString(),
+        student: {
+          id: r.student.id,
+          name: `${r.student.firstName} ${r.student.lastName}`.trim(),
+          avatarUrl: r.student.profilePicture,
+        },
+      })),
+    },
   };
 }
 
-interface CourseData {
-  id: string;
-  title: string;
-  description: string;
-  thumbnailUrl?: string;
-  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
-  status: string;
-  isFree: boolean;
-  price?: number;
-  totalDuration: number;
-  lessonCount: number;
-  enrollmentCount: number;
-  averageRating: number;
-  reviewCount: number;
-  estimatedDuration: string;
-  whatsappGroupLink?: string;
-  contactEmail?: string;
-  teacher: Teacher;
-  category: Category;
-  sections: Section[];
-  reviewsSummary: {
-    averageRating: number;
-    totalReviews: number;
-    ratingDistribution: Record<number, number>;
-  };
-}
-
-// Helper to extract YouTube video ID from URL
-function extractYouTubeId(url: string): string | null {
-  if (!url) return null;
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-    /^([a-zA-Z0-9_-]{11})$/
-  ];
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match) return match[1];
-  }
-  return null;
-}
-
-// Get YouTube thumbnail URL
-function getYouTubeThumbnail(youtubeId: string | null): string | null {
-  if (!youtubeId) return null;
-  return `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
-}
-
-// Get course thumbnail - prioritize first lesson's YouTube thumbnail
-function getCourseThumbnail(course: CourseData): string | null {
-  // First, try to get thumbnail from first lesson
-  if (course.sections?.length > 0) {
-    for (const section of course.sections) {
-      if (section.lessons?.length > 0) {
-        for (const lesson of section.lessons) {
-          if (lesson.youtubeUrl || lesson.youtubeId) {
-            const videoId = lesson.youtubeId || extractYouTubeId(lesson.youtubeUrl || '');
-            if (videoId) {
-              return getYouTubeThumbnail(videoId);
-            }
-          }
-        }
-      }
-    }
-  }
-  // Fallback to course thumbnail or null for gradient placeholder
-  return course.thumbnailUrl || null;
-}
-
-function formatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  return `${minutes}m`;
-}
-
-const difficultyColors = {
-  BEGINNER: 'bg-green-100 text-green-800',
-  INTERMEDIATE: 'bg-yellow-100 text-yellow-800',
-  ADVANCED: 'bg-red-100 text-red-800',
-};
-
-
-export default function CoursePreviewPage() {
-  const params = useParams();
-  const router = useRouter();
-  const { toast } = useToast();
-  const courseId = params.courseId as string;
-  const { user, loading: authLoading } = useClientAuth();
-  const authenticatedFetch = useAuthenticatedFetch();
-
-  const [course, setCourse] = useState<CourseData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isEnrolling, setIsEnrolling] = useState(false);
-  const [isEnrolled, setIsEnrolled] = useState(false);
-  const [thumbnailError, setThumbnailError] = useState(false);
-  const [reviews, setReviews] = useState<ReviewsData | null>(null);
-  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [canReview, setCanReview] = useState(false);
-  const [existingReview, setExistingReview] = useState<{ id: string; rating: number; comment: string | null } | null>(null);
-
-  // Fetch course data
-  const fetchCourse = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await fetch(`/api/courses/${courseId}`);
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Failed to fetch course');
-      }
-
-      const responseData = await response.json();
-      const data = responseData.data || responseData;
-      setCourse(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load course');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [courseId]);
-
-  // Check enrollment status
-  const checkEnrollment = useCallback(async () => {
-    if (!user) return;
-    try {
-      const response = await authenticatedFetch(`/api/courses/${courseId}/enroll`);
-      if (response.ok) {
-        const data = await response.json();
-        setIsEnrolled(data.data?.isEnrolled || false);
-      }
-    } catch (err) {
-      console.error('Failed to check enrollment:', err);
-    }
-  }, [courseId, user, authenticatedFetch]);
-
-  // Fetch reviews
-  const fetchReviews = useCallback(async () => {
-    try {
-      setIsLoadingReviews(true);
-      const response = await fetch(`/api/courses/${courseId}/reviews?limit=5`);
-      if (response.ok) {
-        const responseData = await response.json();
-        setReviews(responseData.data || null);
-      }
-    } catch (err) {
-      console.error('Failed to fetch reviews:', err);
-    } finally {
-      setIsLoadingReviews(false);
-    }
-  }, [courseId]);
-
-  // Check if user can review
-  const checkReviewEligibility = useCallback(async () => {
-    if (!user) return;
-    try {
-      const response = await authenticatedFetch(`/api/courses/${courseId}/reviews/eligibility`);
-      if (response.ok) {
-        const data = await response.json();
-        setCanReview(data.data?.canReview || false);
-        if (data.data?.existingReview) {
-          setExistingReview({
-            id: data.data.existingReview.id,
-            rating: data.data.existingReview.rating,
-            comment: data.data.existingReview.comment ?? null,
-          });
-        }
-      }
-    } catch (err) {
-      console.error('Failed to check review eligibility:', err);
-    }
-  }, [courseId, user, authenticatedFetch]);
-
-  useEffect(() => {
-    fetchCourse();
-    fetchReviews();
-  }, [fetchCourse, fetchReviews]);
-
-  useEffect(() => {
-    if (!authLoading && user) {
-      checkEnrollment();
-      checkReviewEligibility();
-    }
-  }, [authLoading, user, checkEnrollment, checkReviewEligibility]);
-
-  const handleEnroll = async () => {
-    if (!user) {
-      router.push('/auth/login');
-      return;
-    }
-
-    try {
-      setIsEnrolling(true);
-      const response = await authenticatedFetch(`/api/courses/${courseId}/enroll`, {
-        method: 'POST',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Failed to enroll');
-      }
-
-      setIsEnrolled(true);
-      toast({ title: 'Success', description: 'You have been enrolled in this course!' });
-    } catch (err) {
-      toast({
-        title: 'Error',
-        description: err instanceof Error ? err.message : 'Failed to enroll',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsEnrolling(false);
-    }
-  };
-
-  const handleStartLearning = () => {
-    router.push(`/dashboard/student/courses/${courseId}/learn`);
-  };
-
-
-  // Loading state
-  if (isLoading) {
-    return (
-      <AuthenticatedLayout>
-        <div className="min-h-screen bg-slate-50">
-          <div className="max-w-6xl mx-auto px-4 py-8">
-            <Skeleton className="h-8 w-48 mb-4" />
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <Skeleton className="h-64 w-full mb-4 rounded-lg" />
-                <Skeleton className="h-32 w-full" />
-              </div>
-              <div>
-                <Skeleton className="h-96 w-full" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </AuthenticatedLayout>
-    );
-  }
-
-  // Error state
-  if (error || !course) {
-    return (
-      <AuthenticatedLayout>
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-          <Card className="w-full max-w-md">
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-              <p className="text-red-600 mb-4">{error || 'Course not found'}</p>
-              <Button variant="outline" onClick={() => router.back()}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Go Back
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </AuthenticatedLayout>
-    );
-  }
-
-  const thumbnailUrl = thumbnailError ? null : getCourseThumbnail(course);
-  const totalLessons = course.sections?.reduce((sum, s) => sum + (s.lessons?.length || 0), 0) || 0;
+export default async function CoursePage({ params }: CoursePageProps) {
+  const { courseId } = await params;
+  const dataPromise = getCourseData(courseId);
 
   return (
-    <AuthenticatedLayout>
-      <div className="min-h-screen bg-slate-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="flex items-center gap-4 py-4">
-              <Button variant="ghost" size="sm" onClick={() => router.back()}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Button>
-              <div className="flex items-center gap-2">
-                <Badge variant={course.status === 'PUBLISHED' ? 'default' : 'secondary'}>
-                  {course.status}
+    <PublicLayout showNavigation={true}>
+      <Suspense fallback={<CourseDetailSkeleton />}>
+        <AsyncCourseDetail dataPromise={dataPromise} />
+      </Suspense>
+
+      <CTA
+        title='Ready to master this subject?'
+        description='Join thousands of students and start your structured learning path today.'
+        primaryAction={{
+          label: 'Enroll Now',
+          href: '/auth/register',
+          variant: 'ctaSecondary',
+        }}
+        secondaryAction={{
+          label: 'View All Courses',
+          href: '/courses',
+          variant: 'outline',
+        }}
+      />
+    </PublicLayout>
+  );
+}
+
+async function AsyncCourseDetail({
+  dataPromise,
+}: {
+  dataPromise: Promise<any>;
+}) {
+  const data = await dataPromise;
+  if (!data) notFound();
+
+  const { course, reviews } = data;
+
+  return (
+    <>
+      {/* SSR HERO SECTION - Redesigned for Onyx Elegance */}
+      <section className='bg-slate-50/50 border-b border-slate-100 relative overflow-hidden'>
+        <div className='absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-indigo-50/10 to-transparent pointer-events-none' />
+        <div className='max-w-7xl mx-auto px-6 py-12 lg:py-20 relative z-10'>
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-16 items-center'>
+            <div className='space-y-8'>
+              <div className='flex flex-wrap gap-2'>
+                <Badge className='bg-indigo-600 hover:bg-indigo-700 text-white border-0 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider'>
+                  {course.category?.name}
                 </Badge>
-                {course.isFree && (
-                  <Badge className="bg-green-100 text-green-800">Free</Badge>
-                )}
+                <Badge
+                  variant='outline'
+                  className='bg-white border-slate-200 text-slate-500 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider'
+                >
+                  {course.difficulty}
+                </Badge>
               </div>
-            </div>
-          </div>
-        </header>
 
-        <main className="max-w-6xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Course Thumbnail */}
-              <div className="relative aspect-video rounded-xl overflow-hidden bg-linear-to-br from-blue-500 to-purple-600">
-                {thumbnailUrl ? (
-                  <Image
-                    src={thumbnailUrl}
-                    alt={course.title}
-                    fill
-                    className="object-cover"
-                    onError={() => setThumbnailError(true)}
-                    unoptimized
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <BookOpen className="h-24 w-24 text-white/30" />
+              <div className='space-y-4'>
+                <h1 className='text-4xl md:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight'>
+                  {course.title.split(' ').map((word: string, i: number) => (
+                    <span
+                      key={i}
+                      className={i % 2 === 1 ? 'text-indigo-600' : ''}
+                    >
+                      {word}{' '}
+                    </span>
+                  ))}
+                </h1>
+                <p className='text-slate-600 font-medium text-lg max-w-lg leading-relaxed opacity-80'>
+                  {course.description.slice(0, 180)}...
+                </p>
+              </div>
+
+              <div className='flex flex-wrap items-center gap-x-10 gap-y-4 text-slate-500'>
+                <div className='flex items-center gap-2.5'>
+                  <div className='h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center'>
+                    <Star className='h-5 w-5 fill-amber-400 text-amber-400' />
                   </div>
-                )}
-                <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <Badge className={difficultyColors[course.difficulty]}>
-                    {course.difficulty}
-                  </Badge>
+                  <div>
+                    <span className='text-xl font-bold text-slate-900 leading-none block'>
+                      {Number(course.averageRating).toFixed(1)}
+                    </span>
+                    <span className='text-[10px] font-bold text-slate-400 uppercase tracking-wider'>
+                      {course.reviewCount} Reviews
+                    </span>
+                  </div>
+                </div>
+                <div className='flex items-center gap-2.5'>
+                  <div className='h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center'>
+                    <Users className='h-5 w-5 text-slate-500' />
+                  </div>
+                  <div>
+                    <span className='text-xl font-bold text-slate-900 leading-none block'>
+                      {course.enrollmentCount}
+                    </span>
+                    <span className='text-[10px] font-bold text-slate-400 uppercase tracking-wider'>
+                      Enrolled
+                    </span>
+                  </div>
+                </div>
+                <div className='flex items-center gap-2.5'>
+                  <div className='h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center'>
+                    <Clock className='h-5 w-5 text-slate-500' />
+                  </div>
+                  <div>
+                    <span className='text-xl font-bold text-slate-900 leading-none block'>
+                      {course.estimatedDuration}
+                    </span>
+                    <span className='text-[10px] font-bold text-slate-400 uppercase tracking-wider'>
+                      Duration
+                    </span>
+                  </div>
                 </div>
               </div>
 
-
-              {/* Course Title & Info */}
-              <div>
-                <h1 className="text-3xl font-bold text-slate-900 mb-2">{course.title}</h1>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                    <span>{course.averageRating || '0.0'}</span>
-                    <span className="text-slate-400">({course.reviewCount || 0} reviews)</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    <span>{course.enrollmentCount || 0} students</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>{course.estimatedDuration || formatDuration(course.totalDuration)}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Video className="h-4 w-4" />
-                    <span>{totalLessons} lessons</span>
-                  </div>
+              <div className='flex items-center gap-4 p-2 pr-6 rounded-2xl bg-white border border-slate-100 w-max shadow-sm'>
+                <div className='h-12 w-12 rounded-xl overflow-hidden border-2 border-white shadow-sm relative bg-slate-100'>
+                  {course.teacher.avatarUrl ? (
+                    <Image
+                      src={course.teacher.avatarUrl}
+                      alt={course.teacher.name}
+                      fill
+                      className='object-cover'
+                    />
+                  ) : (
+                    <div className='h-full w-full flex items-center justify-center text-slate-400 font-bold text-lg'>
+                      {course.teacher.name[0]}
+                    </div>
+                  )}
+                </div>
+                <div className='flex flex-col'>
+                  <span className='text-[9px] font-bold text-indigo-500 uppercase tracking-widest leading-none mb-1'>
+                    Expert Mentor
+                  </span>
+                  <span className='text-md font-bold text-slate-900 tracking-tight'>
+                    {course.teacher.name}
+                  </span>
                 </div>
               </div>
-
-              {/* Description */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>About this course</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-slate-600 whitespace-pre-wrap">{course.description}</p>
-                </CardContent>
-              </Card>
-
-              {/* Course Content */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5" />
-                    Course Content
-                  </CardTitle>
-                  <CardDescription>
-                    {course.sections?.length || 0} sections • {totalLessons} lessons • {course.estimatedDuration || formatDuration(course.totalDuration)} total
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {course.sections?.length === 0 ? (
-                    <p className="text-slate-500 text-center py-8">No content available yet</p>
-                  ) : (
-                    <Accordion type="multiple" className="space-y-2">
-                      {course.sections?.map((section, sectionIndex) => (
-                        <AccordionItem
-                          key={section.id}
-                          value={`section-${sectionIndex}`}
-                          className="border rounded-lg px-4"
-                        >
-                          <AccordionTrigger className="hover:no-underline">
-                            <div className="flex items-center gap-3 flex-1">
-                              <span className="font-medium">{section.title}</span>
-                              <Badge variant="secondary" className="ml-2">
-                                {section.lessons?.length || 0} lessons
-                              </Badge>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="pt-2 pb-4">
-                            <div className="space-y-2">
-                              {section.lessons?.map((lesson, lessonIndex) => (
-                                <div
-                                  key={lesson.id}
-                                  className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
-                                >
-                                  <div className="flex items-center gap-3">
-                                    {lesson.type === 'VIDEO' ? (
-                                      <Video className="h-4 w-4 text-blue-500" />
-                                    ) : (
-                                      <CheckCircle className="h-4 w-4 text-green-500" />
-                                    )}
-                                    <span className="text-sm">{lesson.title}</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-xs text-slate-500">
-                                    {lesson.duration > 0 && (
-                                      <span>{formatDuration(lesson.duration)}</span>
-                                    )}
-                                    {!isEnrolled && lessonIndex > 0 && (
-                                      <Lock className="h-3 w-3" />
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                    </Accordion>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Reviews Section */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <MessageSquare className="h-5 w-5" />
-                        Student Reviews
-                      </CardTitle>
-                      <CardDescription>
-                        {reviews?.rating?.totalReviews || course.reviewCount || 0} reviews
-                      </CardDescription>
-                    </div>
-                    {user && isEnrolled && !existingReview && canReview && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowReviewForm(!showReviewForm)}
-                      >
-                        {showReviewForm ? 'Cancel' : 'Write a Review'}
-                      </Button>
-                    )}
-                    {user && existingReview && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowReviewForm(!showReviewForm)}
-                      >
-                        {showReviewForm ? 'Cancel' : 'Edit Your Review'}
-                      </Button>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {/* Review Form */}
-                  {showReviewForm && user && (
-                    <div className="mb-6">
-                      <ReviewForm
-                        courseId={courseId}
-                        courseName={course.title}
-                        existingReview={existingReview}
-                        onSuccess={() => {
-                          setShowReviewForm(false);
-                          fetchReviews();
-                          checkReviewEligibility();
-                        }}
-                        onCancel={() => setShowReviewForm(false)}
-                      />
-                    </div>
-                  )}
-
-                  {/* Rating Summary */}
-                  {reviews?.rating && reviews.rating.totalReviews > 0 && (
-                    <div className="flex items-start gap-8 mb-6 pb-6 border-b">
-                      {/* Average Rating */}
-                      <div className="text-center">
-                        <div className="text-4xl font-bold text-slate-900">
-                          {Number(reviews.rating.averageRating).toFixed(1)}
-                        </div>
-                        <div className="flex items-center justify-center mt-1">
-                          <StarRating value={Number(reviews.rating.averageRating)} size="sm" readonly />
-                        </div>
-                        <p className="text-sm text-slate-500 mt-1">
-                          {reviews.rating.totalReviews} reviews
-                        </p>
-                      </div>
-
-                      {/* Rating Distribution */}
-                      <div className="flex-1 space-y-2">
-                        {[5, 4, 3, 2, 1].map((star) => {
-                          const count = reviews.rating.ratingDistribution[star] || 0;
-                          const percentage = reviews.rating.totalReviews > 0
-                            ? (count / reviews.rating.totalReviews) * 100
-                            : 0;
-                          return (
-                            <div key={star} className="flex items-center gap-2">
-                              <span className="text-sm text-slate-600 w-12">{star} stars</span>
-                              <Progress value={percentage} className="h-2 flex-1" />
-                              <span className="text-sm text-slate-500 w-8">{count}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Reviews List */}
-                  {isLoadingReviews ? (
-                    <div className="space-y-4">
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="flex gap-4">
-                          <Skeleton className="h-10 w-10 rounded-full" />
-                          <div className="flex-1 space-y-2">
-                            <Skeleton className="h-4 w-32" />
-                            <Skeleton className="h-4 w-full" />
-                            <Skeleton className="h-4 w-3/4" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : reviews?.reviews && reviews.reviews.length > 0 ? (
-                    <>
-                      <ReviewsList
-                        reviews={reviews.reviews.map(r => ({
-                          ...r,
-                          comment: r.comment ?? null,
-                          student: {
-                            id: r.student.id || '',
-                            firstName: r.student.name?.split(' ')[0] || 'Student',
-                            lastName: r.student.name?.split(' ').slice(1).join(' ') || '',
-                            profilePicture: r.student.avatarUrl || null,
-                          },
-                        }))}
-                        emptyMessage="No reviews yet. Be the first to review!"
-                      />
-
-                      {/* Show More Reviews */}
-                      {reviews.totalPages > 1 && (
-                        <div className="text-center pt-4">
-                          <Button variant="outline" size="sm">
-                            View all {reviews.total} reviews
-                          </Button>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="text-center py-8">
-                      <ThumbsUp className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                      <p className="text-slate-500">No reviews yet</p>
-                      <p className="text-sm text-slate-400 mt-1">
-                        Be the first to review this course!
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
             </div>
 
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Enrollment Card */}
-              <Card className="sticky top-4">
-                <CardContent className="pt-6">
-                  <div className="text-center mb-6">
-                    {course.isFree ? (
-                      <div className="text-3xl font-bold text-green-600">Free</div>
-                    ) : (
-                      <div className="text-3xl font-bold text-slate-900">
-                        ${course.price?.toFixed(2) || '0.00'}
-                      </div>
-                    )}
-                  </div>
-
-                  {isEnrolled ? (
-                    <Button
-                      className="w-full bg-emerald-600 hover:bg-emerald-700"
-                      size="lg"
-                      onClick={handleStartLearning}
-                    >
-                      <Play className="h-4 w-4 mr-2" />
-                      Continue Learning
-                    </Button>
-                  ) : (
-                    <Button
-                      className="w-full"
-                      size="lg"
-                      onClick={handleEnroll}
-                      disabled={isEnrolling}
-                    >
-                      {isEnrolling ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Enrolling...
-                        </>
-                      ) : (
-                        <>
-                          <GraduationCap className="h-4 w-4 mr-2" />
-                          Enroll Now
-                        </>
-                      )}
-                    </Button>
-                  )}
-
-                  <div className="mt-6 space-y-3 text-sm">
-                    <div className="flex items-center gap-3 text-slate-600">
-                      <Video className="h-4 w-4" />
-                      <span>{totalLessons} video lessons</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-slate-600">
-                      <Clock className="h-4 w-4" />
-                      <span>{course.estimatedDuration || formatDuration(course.totalDuration)} of content</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-slate-600">
-                      <Globe className="h-4 w-4" />
-                      <span>Full lifetime access</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-slate-600">
-                      <BarChart3 className="h-4 w-4" />
-                      <span>Certificate of completion</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Teacher Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Instructor</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center">
-                      {course.teacher?.avatarUrl ? (
-                        <Image
-                          src={course.teacher.avatarUrl}
-                          alt={course.teacher.name}
-                          width={48}
-                          height={48}
-                          className="rounded-full"
-                        />
-                      ) : (
-                        <span className="text-blue-600 font-semibold text-lg">
-                          {course.teacher?.name?.charAt(0) || 'T'}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-900">{course.teacher?.name || 'Unknown'}</p>
-                      <p className="text-sm text-slate-500">{course.category?.name || 'Instructor'}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Category */}
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <BookOpen className="h-4 w-4" />
-                    <span>Category:</span>
-                    <Badge variant="outline">{course.category?.name || 'Uncategorized'}</Badge>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className='relative aspect-square lg:aspect-[4/3] rounded-[3rem] overflow-hidden shadow-2xl shadow-indigo-100/50 border-8 border-white ring-1 ring-slate-100 group'>
+              {course.thumbnailUrl ? (
+                <Image
+                  src={course.thumbnailUrl}
+                  alt={course.title}
+                  fill
+                  className='object-cover group-hover:scale-105 transition-transform duration-1000 ease-out'
+                />
+              ) : (
+                <div className='absolute inset-0 bg-slate-900 flex items-center justify-center'>
+                  <Users className='h-20 w-20 text-indigo-500/20' />
+                </div>
+              )}
+              <div className='absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-60' />
             </div>
           </div>
-        </main>
+        </div>
+      </section>
+
+      <section className='max-w-7xl mx-auto px-6 py-12 lg:py-20'>
+        <CourseDetailClient course={course} initialReviews={reviews} />
+      </section>
+    </>
+  );
+}
+
+function CourseDetailSkeleton() {
+  return (
+    <div className='max-w-7xl mx-auto px-6 py-20 w-full space-y-12'>
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-20 items-center'>
+        <div className='space-y-10'>
+          <Skeleton className='h-8 w-40 rounded-full' />
+          <Skeleton className='h-40 w-full rounded-3xl' />
+          <div className='flex gap-12'>
+            <Skeleton className='h-12 w-24' />
+            <Skeleton className='h-12 w-24' />
+            <Skeleton className='h-12 w-24' />
+          </div>
+        </div>
+        <Skeleton className='aspect-video w-full rounded-[4rem]' />
       </div>
-    </AuthenticatedLayout>
+      <div className='grid grid-cols-1 lg:grid-cols-3 gap-10'>
+        <div className='lg:col-span-2 space-y-10'>
+          <Skeleton className='h-12 w-full rounded-2xl' />
+          <Skeleton className='h-[600px] w-full rounded-[3rem]' />
+        </div>
+        <Skeleton className='h-[500px] w-full rounded-[3rem]' />
+      </div>
+    </div>
   );
 }

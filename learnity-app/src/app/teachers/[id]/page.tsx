@@ -27,7 +27,11 @@ async function getTeacher(id: string) {
       },
     });
 
-    if (!teacher || !teacher.teacherProfile || teacher.teacherProfile.applicationStatus !== 'APPROVED') {
+    if (
+      !teacher ||
+      !teacher.teacherProfile ||
+      teacher.teacherProfile.applicationStatus !== 'APPROVED'
+    ) {
       return null;
     }
 
@@ -37,7 +41,8 @@ async function getTeacher(id: string) {
       firstName: teacher.firstName,
       lastName: teacher.lastName,
       email: teacher.email,
-      profilePicture: teacher.profilePicture,
+      profilePicture:
+        teacher.profilePicture || teacher.teacherProfile.profilePicture,
       subjects: teacher.teacherProfile.subjects,
       experience: teacher.teacherProfile.experience,
       bio: teacher.teacherProfile.bio || '',
@@ -47,7 +52,8 @@ async function getTeacher(id: string) {
       rating: teacher.teacherProfile.rating?.toString() || '0',
       reviewCount: teacher.teacherProfile.reviewCount,
       responseTime: teacher.teacherProfile.responseTime || 'N/A',
-      availability: teacher.teacherProfile.availability || 'Contact for availability',
+      availability:
+        teacher.teacherProfile.availability || 'Contact for availability',
       languages: teacher.teacherProfile.languages,
       lessonsCompleted: teacher.teacherProfile.lessonsCompleted,
       activeStudents: teacher.teacherProfile.activeStudents,
@@ -61,6 +67,21 @@ async function getTeacher(id: string) {
       achievements: teacher.teacherProfile.achievements,
       teachingApproach: teacher.teacherProfile.teachingApproach || '',
       videoIntroUrl: teacher.teacherProfile.videoIntroUrl || null,
+      bannerImage: teacher.teacherProfile.bannerImage || null,
+      city: teacher.teacherProfile.city || null,
+      country: teacher.teacherProfile.country || null,
+      teachingMethods: teacher.teacherProfile.teachingMethods,
+      ageGroups: teacher.teacherProfile.ageGroups,
+      personalInterests: teacher.teacherProfile.personalInterests,
+      hobbies: teacher.teacherProfile.hobbies,
+      socialLinks: {
+        linkedin: teacher.teacherProfile.linkedinUrl,
+        twitter: teacher.teacherProfile.twitterUrl,
+        facebook: teacher.teacherProfile.facebookUrl,
+        instagram: teacher.teacherProfile.instagramUrl,
+        website: teacher.teacherProfile.websiteUrl,
+        youtube: teacher.teacherProfile.youtubeUrl,
+      },
       trustBadges: teacher.teacherProfile.trustBadges,
       faqs: teacher.teacherProfile.faqs as any,
       sampleLessons: teacher.teacherProfile.sampleLessons as any,
@@ -76,7 +97,8 @@ async function getTeacher(id: string) {
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
   const teacher = await getTeacher(id);
-  
+  console.log(teacher, 'teacher data on server ');
+
   if (!teacher) {
     return {
       title: 'Teacher Not Found | Learnity',

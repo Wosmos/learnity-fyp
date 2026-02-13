@@ -18,11 +18,15 @@ export async function POST(request: NextRequest) {
     const { eventType, description } = body;
 
     // Get client information
-    const clientIP = request.headers.get('x-forwarded-for') || 
-                    request.headers.get('x-real-ip') || 
-                    '192.168.1.100'; // Demo IP
+    const clientIP =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      '192.168.1.100'; // Demo IP
     const userAgent = request.headers.get('user-agent') || 'Demo User Agent';
-    const deviceFingerprint = generateDeviceFingerprintLegacy(userAgent, clientIP);
+    const deviceFingerprint = generateDeviceFingerprintLegacy(
+      userAgent,
+      clientIP
+    );
 
     // Generate different types of events based on the request
     switch (eventType) {
@@ -39,8 +43,8 @@ export async function POST(request: NextRequest) {
           metadata: {
             demo: true,
             description,
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         });
         break;
 
@@ -57,8 +61,8 @@ export async function POST(request: NextRequest) {
           metadata: {
             demo: true,
             description,
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         });
         break;
 
@@ -75,14 +79,15 @@ export async function POST(request: NextRequest) {
           metadata: {
             demo: true,
             description,
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         });
         break;
 
       case 'admin_action':
         await auditService.logAdminAction({
-          adminFirebaseUid: 'demo-admin-' + Math.random().toString(36).substr(2, 9),
+          adminFirebaseUid:
+            'demo-admin-' + Math.random().toString(36).substr(2, 9),
           action: 'demo_admin_action',
           targetResource: 'demo_resource',
           ipAddress: clientIP,
@@ -91,8 +96,8 @@ export async function POST(request: NextRequest) {
           newValues: {
             demo: true,
             description,
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         });
         break;
 
@@ -107,9 +112,8 @@ export async function POST(request: NextRequest) {
       success: true,
       message: `Demo ${eventType} event generated successfully`,
       eventType,
-      description
+      description,
     });
-
   } catch (error) {
     console.error('Failed to generate demo event:', error);
     return NextResponse.json(

@@ -1,39 +1,41 @@
 /**
  * Teacher Dashboard Layout
- * Protects teacher routes and provides common layout with sidebar and navbar
+ * Server Component that wraps client-side authentication
+ * OPTIMIZED: Layout shell is server-rendered, auth is client-side
  */
 
-'use client';
+import { Metadata } from 'next';
+import { TeacherLayoutClient } from '@/components/layout/TeacherLayoutClient';
 
-import { TeacherRoute } from '@/components/auth/ProtectedRoute';
-import { TeacherSidebar } from '@/components/layout/TeacherSidebar';
-import { DashboardNavbar, teacherNavbarConfig } from '@/components/layout/DashboardNavbar';
-import { ClientTeacherProtection } from '@/components/auth/ClientTeacherProtection';
+export const metadata: Metadata = {
+  title: 'Teacher Dashboard - Learnity',
+  description: 'Manage your courses and students',
+};
 
 export default function TeacherDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <TeacherRoute>
-      <ClientTeacherProtection>
-      <div className="flex min-h-screen bg-slate-50">
-        {/* Teacher Sidebar Navigation */}
-        <TeacherSidebar />
-        
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col overflow-x-hidden">
-          {/* Top Navbar */}
-          <DashboardNavbar config={teacherNavbarConfig} />
-          
-          {/* Page Content */}
-          <main className="flex-1 ">
-            {children}
-          </main>
-        </div>
-      </div>
-      </ClientTeacherProtection>
-    </TeacherRoute>
-  );
+  return <TeacherLayoutClient>{children}</TeacherLayoutClient>;
+
+  // <TeacherRoute>
+  //     <ClientTeacherProtection>
+  //       <div className="flex min-h-screen bg-slate-50">
+  //         {/* Teacher Sidebar Navigation */}
+  //         <TeacherSidebar />
+
+  //         {/* Main Content Area */}
+  //         <div className="flex-1 flex flex-col overflow-x-hidden">
+  //           {/* Top Navbar */}
+  //           <DashboardNavbar config={teacherNavbarConfig} />
+
+  //           {/* Page Content */}
+  //           <main className="flex-1 pb-32 md:pb-0">
+  //             {children}
+  //           </main>
+  //         </div>
+  //       </div>
+  //     </ClientTeacherProtection>
+  //   </TeacherRoute>
 }

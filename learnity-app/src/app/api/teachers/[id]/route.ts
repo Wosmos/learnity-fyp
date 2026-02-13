@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/config/database';
 
-function calculateIsTopRated(rating: number, reviewCount: number, lessonsCompleted: number, experience: number): boolean {
-  return rating >= 4.8 && reviewCount >= 80 && lessonsCompleted >= 400 && experience >= 5;
+function calculateIsTopRated(
+  rating: number,
+  reviewCount: number,
+  lessonsCompleted: number,
+  experience: number
+): boolean {
+  return (
+    rating >= 4.8 &&
+    reviewCount >= 80 &&
+    lessonsCompleted >= 400 &&
+    experience >= 5
+  );
 }
 
 export async function GET(
@@ -23,7 +33,11 @@ export async function GET(
       },
     });
 
-    if (!teacher || !teacher.teacherProfile || teacher.teacherProfile.applicationStatus !== 'APPROVED') {
+    if (
+      !teacher ||
+      !teacher.teacherProfile ||
+      teacher.teacherProfile.applicationStatus !== 'APPROVED'
+    ) {
       return NextResponse.json(
         { success: false, error: 'Teacher not found' },
         { status: 404 }
@@ -53,7 +67,8 @@ export async function GET(
         firstName: teacher.firstName,
         lastName: teacher.lastName,
         email: teacher.email,
-        profilePicture: teacher.profilePicture,
+        profilePicture:
+          teacher.profilePicture || profile.profilePicture || null,
         subjects: profile.subjects,
         experience: profile.experience,
         bio: profile.bio,
@@ -78,6 +93,21 @@ export async function GET(
         teachingApproach: profile.teachingApproach,
         videoIntroUrl: profile.videoIntroUrl,
         timezone: profile.timezone,
+        bannerImage: profile.bannerImage,
+        city: profile.city,
+        country: profile.country,
+        teachingMethods: profile.teachingMethods,
+        ageGroups: profile.ageGroups,
+        personalInterests: profile.personalInterests,
+        hobbies: profile.hobbies,
+        socialLinks: {
+          linkedin: profile.linkedinUrl,
+          twitter: profile.twitterUrl,
+          facebook: profile.facebookUrl,
+          instagram: profile.instagramUrl,
+          website: profile.websiteUrl,
+          youtube: profile.youtubeUrl,
+        },
         trustBadges: profile.trustBadges,
         faqs: profile.faqs,
         sampleLessons: profile.sampleLessons,

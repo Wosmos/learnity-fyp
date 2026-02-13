@@ -2,14 +2,14 @@
 
 /**
  * Unified Dashboard Sidebar Component
- * Supports both Teacher and Student roles with role-based navigation
- * Stats moved to DashboardNavbar for cleaner layout
+ * Features:
+ * - Desktop: Collapsible Side Navigation with sleek transitions
+ * - Mobile: Native iOS-style Bottom Tab Bar with haptic-like animations
  */
 
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
 import {
   Home,
   BookOpen,
@@ -25,24 +25,26 @@ import {
   Plus,
   Video,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ChevronDown,
+  Shield,
+  BarChart3,
+  UserCheck,
+  Play,
+  Lock,
+  Layers,
+  MessageCircle,
+  Wallet,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { AsyncButton } from '@/components/ui/async-button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger
-} from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLogout } from '@/hooks/useLogout';
-import { Squircle } from "@squircle-js/react";
 
 // --- Types ---
-export type SidebarRole = 'teacher' | 'student';
+export type SidebarRole = 'teacher' | 'student' | 'admin';
 
 export interface NavItem {
   label: string;
@@ -50,6 +52,7 @@ export interface NavItem {
   icon: React.ElementType;
   badge?: string;
   description?: string;
+  children?: NavItem[];
 }
 
 export interface SidebarConfig {
@@ -70,23 +73,74 @@ export interface SidebarConfig {
 // --- Navigation Configurations ---
 const teacherNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard/teacher', icon: Home },
-  { label: 'My Courses', href: '/dashboard/teacher/courses', icon: BookOpen },
-  { label: 'Create Course', href: '/dashboard/teacher/courses/new', icon: Plus },
-  { label: 'Students', href: '/dashboard/teacher/students', icon: Users },
+  { 
+    label: 'Teaching', 
+    href: '/dashboard/teacher/courses', 
+    icon: BookOpen,
+    children: [
+      { label: 'My Courses', href: '/dashboard/teacher/courses', icon: BookOpen },
+      { label: 'Create Course', href: '/dashboard/teacher/courses/new', icon: Plus },
+      { label: 'Students', href: '/dashboard/teacher/students', icon: Users },
+    ]
+  },
+  { label: 'Chat', href: '/messages', icon: MessageCircle },
   { label: 'Live Sessions', href: '/dashboard/teacher/sessions', icon: Video },
+  { label: 'Wallet', href: '/dashboard/teacher/wallet', icon: Wallet },
   { label: 'Profile', href: '/dashboard/teacher/profile/enhance', icon: User },
 ];
 
 const studentNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard/student', icon: Home },
-  { label: 'Browse Courses', href: '/dashboard/student/public-cources', icon: Search },
-  { label: 'My Courses', href: '/dashboard/student/courses', icon: BookOpen },
-  { label: 'My Progress', href: '/dashboard/student/progress', icon: GraduationCap },
-  { label: 'Achievements', href: '/dashboard/student/achievements', icon: Award },
+  { 
+    label: 'Learning', 
+    href: '/dashboard/student/courses', 
+    icon: BookOpen,
+    children: [
+      { label: 'My Courses', href: '/dashboard/student/courses', icon: BookOpen },
+      { label: 'Browse Courses', href: '/dashboard/student/public-cources', icon: Search },
+      { label: 'Teachers', href: '/dashboard/student/teachers', icon: GraduationCap },
+    ]
+  },
+  { label: 'Chat', href: '/messages', icon: MessageCircle },
+  { label: 'Tutoring Sessions', href: '/dashboard/student/sessions', icon: Video },
+  { 
+    label: 'My Progress', 
+    href: '/dashboard/student/progress', 
+    icon: GraduationCap,
+    children: [
+      { label: 'Progress', href: '/dashboard/student/progress', icon: GraduationCap },
+      { label: 'Awards', href: '/dashboard/student/achievements', icon: Award },
+    ]
+  },
+  { label: 'Wallet', href: '/dashboard/student/wallet', icon: Wallet },
   { label: 'Profile', href: '/dashboard/student/profile/enhance', icon: User },
 ];
 
-// --- Default Configurations ---
+const adminNavItems: NavItem[] = [
+  { label: 'Overview', href: '/dashboard/admin', icon: Home },
+  { 
+    label: 'Management', 
+    href: '/admin', 
+    icon: Shield,
+    children: [
+      { label: 'Security Hub', href: '/admin', icon: Shield },
+      { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+      { label: 'Users', href: '/admin/users', icon: Users },
+      { label: 'Applications', href: '/admin/teachers', icon: UserCheck },
+    ]
+  },
+  { label: 'Finances', href: '/admin/wallet', icon: Wallet },
+  { 
+    label: 'Tools', 
+    href: '/admin/demo', 
+    icon: Play,
+    children: [
+      { label: 'Demo Tools', href: '/admin/demo', icon: Play },
+      { label: 'Auth Debug', href: '/admin/auth-test', icon: Lock },
+    ]
+  },
+];
+
 export const teacherSidebarConfig: SidebarConfig = {
   role: 'teacher',
   brandName: 'Learnity',
@@ -95,11 +149,6 @@ export const teacherSidebarConfig: SidebarConfig = {
   brandGradient: 'from-blue-600 to-indigo-600',
   navItems: teacherNavItems,
   theme: 'dark',
-  upgradePromo: {
-    title: 'Pro Teacher',
-    description: 'Access advanced analytics & priority support.',
-    link: '#'
-  }
 };
 
 export const studentSidebarConfig: SidebarConfig = {
@@ -110,230 +159,529 @@ export const studentSidebarConfig: SidebarConfig = {
   brandGradient: 'from-emerald-600 to-teal-600',
   navItems: studentNavItems,
   theme: 'dark',
-  upgradePromo: {
-    title: 'Premium Student',
-    description: 'Get unlimited access to all courses & features.',
-    link: '#'
-  }
 };
 
+export const adminSidebarConfig: SidebarConfig = {
+  role: 'admin',
+  brandName: 'Learnity',
+  brandSubtitle: 'Admin Panel',
+  brandIcon: Layers,
+  brandGradient: 'from-purple-600 to-pink-600',
+  navItems: adminNavItems,
+  theme: 'dark',
+};
 
-// --- Sub-Component: Navigation Content ---
-interface NavContentProps {
-  config: SidebarConfig;
-  isCollapsed: boolean;
-  pathname: string;
-  onNavigate?: () => void;
-  onLogout: () => Promise<void>;
-}
-
-const NavContent = ({
-  config,
-  isCollapsed,
-  pathname,
-  onNavigate,
-  onLogout
-}: NavContentProps) => {
-  const isActive = (href: string) => {
-    // 1. Exact match always wins
+// --- Helper: Active Route Checker ---
+const useActiveRoute = (
+  pathname: string,
+  role: string,
+  navItems: NavItem[]
+) => {
+  return (href: string) => {
     if (pathname === href) return true;
-
-    // 2. Dashboard home handling (exact only)
-    const basePath = `/dashboard/${config.role}`;
+    const basePath = `/dashboard/${role}`;
+    // Exact match for base dashboard route
     if (href === basePath) return pathname === href;
 
-    // 3. Prefix matching with "Better Match" exclusion
+    // Prefix match for sub-routes
     if (pathname.startsWith(href)) {
-      // Ensure we match full path segments (e.g. dont match /courses-extra against /courses)
       const remainder = pathname.slice(href.length);
+      // Ensure we match full path segments
       if (remainder !== '' && !remainder.startsWith('/')) return false;
 
-      // Check if any *other* nav item is a more specific match for this pathname
-      // e.g. If specific item is '/courses/new', generic '/courses' should not be active
-      const hasBetterMatch = config.navItems.some(
-        (item) =>
+      // Ensure no *other* nav item is a better match (e.g. /courses vs /courses/new)
+      const hasBetterMatch = navItems.some(
+        item =>
           item.href !== href &&
           item.href.length > href.length &&
           pathname.startsWith(item.href)
       );
-
       return !hasBetterMatch;
     }
-
     return false;
   };
+};
 
+// --- Sub-Component: Desktop Sidebar Content ---
+const DesktopSidebarContent = ({
+  config,
+  isCollapsed,
+  pathname,
+  onLogout,
+}: {
+  config: SidebarConfig;
+  isCollapsed: boolean;
+  pathname: string;
+  onLogout: () => Promise<void>;
+}) => {
+  const isActive = useActiveRoute(pathname, config.role, config.navItems);
   const isDark = config.theme === 'dark';
-  const BrandIcon = config.brandIcon;
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
+  const toggleExpanded = (label: string) => {
+    setExpandedItems(prev =>
+      prev.includes(label)
+        ? prev.filter(item => item !== label)
+        : [...prev, label]
+    );
+  };
+
+  // Auto-expand parent if child is active
+  React.useEffect(() => {
+    config.navItems.forEach(item => {
+      if (item.children) {
+        const hasActiveChild = item.children.some(child => isActive(child.href));
+        if (hasActiveChild && !expandedItems.includes(item.label)) {
+          setExpandedItems(prev => [...prev, item.label]);
+        }
+      }
+    });
+  }, [pathname]);
 
   return (
-    <div className={cn(
-      "flex flex-col h-full",
-      isDark ? "bg-slate-950 text-slate-100" : "bg-white text-gray-900"
-    )}>
-
-      {/* Header Logo Area */}
-      <div className={cn(
-        "flex items-center h-16 border-b flex-shrink-0",
-        isDark ? "border-slate-800/60" : "border-gray-100",
-        isCollapsed ? "justify-center" : "px-6"
-      )}>
-        <div className="flex items-center gap-3">
-          <div className={cn(
-            "p-2 rounded-xl shadow-lg",
-            `bg-gradient-to-tr ${config.brandGradient}`,
-            isDark && "shadow-blue-900/20"
-          )}>
-            <BrandIcon className="h-5 w-5 text-white" />
+    <div
+      className={cn(
+        'flex flex-col h-full transition-colors duration-300',
+        isDark ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-900'
+      )}
+    >
+      {/* Header */}
+      <div
+        className={cn(
+          'h-16 flex items-center shrink-0 border-b transition-all duration-300',
+          isDark ? 'border-slate-800/60' : 'border-slate-100',
+          isCollapsed ? 'justify-center px-0' : 'px-6'
+        )}
+      >
+        <div className='flex items-center gap-3 overflow-hidden'>
+          <div
+            className={cn(
+              'p-2 rounded-xl shrink-0 transition-transform duration-300 flex items-center justify-center',
+              `bg-gradient-to-br ${config.brandGradient}`,
+              !isCollapsed && 'shadow-lg shadow-blue-900/20'
+            )}
+          >
+            <img src='/logo.svg' alt='Learnity' className='h-5 w-5' />
           </div>
-          {!isCollapsed && (
-            <div>
-              <h2 className={cn(
-                "text-sm font-bold leading-none tracking-wide",
-                isDark ? "text-white" : "text-gray-900"
-              )}>
-                {config.brandName}
-              </h2>
-              <span className={cn(
-                "text-[10px] font-semibold uppercase tracking-wider",
-                isDark ? "text-slate-400" : "text-gray-500"
-              )}>
-                {config.brandSubtitle}
-              </span>
-            </div>
-          )}
+          <div
+            className={cn(
+              'flex flex-col transition-opacity duration-300',
+              isCollapsed ? 'opacity-0 w-0 hidden' : 'opacity-100'
+            )}
+          >
+            <span className='font-bold text-sm tracking-tight'>
+              {config.brandName}
+            </span>
+            <span
+              className={cn(
+                'text-[10px] uppercase font-semibold tracking-wider',
+                isDark ? 'text-slate-500' : 'text-slate-400'
+              )}
+            >
+              {config.brandSubtitle}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Decorative Line (Dark theme only) */}
-      {isDark && (
-        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-slate-800 to-transparent" />
-      )}
-
-      {/* Main Nav Links with Scroll */}
-      <ScrollArea className="flex-1 py-4">
-        <nav className={cn("space-y-1", isCollapsed ? "px-2" : "px-3")}>
-          {config.navItems.map((item) => {
+      {/* Nav Items - Scrollable */}
+      <ScrollArea className='flex-1 py-6'>
+        <nav className={cn('space-y-1.5', isCollapsed ? 'px-2' : 'px-4')}>
+          {config.navItems.map(item => {
             const active = isActive(item.href);
-            return (
-              <Link key={item.href} href={item.href} onClick={onNavigate}>
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    "w-full justify-start h-10 mb-1 transition-all duration-300 relative group overflow-hidden",
-                    isCollapsed ? "px-0 justify-center" : "px-4",
-                    active
-                      ? isDark
-                        ? "bg-slate-600 text-white shadow-md shadow-blue-900/20 hover:bg-slate-600 hover:text-white"
-                        : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800"
-                      : isDark
-                        ? "text-slate-400 hover:bg-slate-800/50 hover:text-white"
-                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                  )}
-                  title={isCollapsed ? item.label : undefined}
-                >
-                  <item.icon className={cn(
-                    "h-[18px] w-[18px] transition-colors",
-                    active
-                      ? isDark ? "text-white" : "text-indigo-600"
-                      : isDark ? "text-slate-400 group-hover:text-white" : "text-gray-500",
-                    !isCollapsed && "mr-3"
-                  )} />
+            const hasChildren = item.children && item.children.length > 0;
+            const isExpanded = expandedItems.includes(item.label);
 
-                  {!isCollapsed && (
-                    <>
-                      <span className="flex-1 text-sm font-medium tracking-tight">{item.label}</span>
-                      {item.badge && (
-                        <Badge className={cn(
-                          "ml-auto border-0 px-2 py-0.5 h-5 flex items-center justify-center rounded-full text-xs font-semibold",
-                          isDark
-                            ? "bg-slate-500/20 text-blue-300"
-                            : "bg-indigo-100 text-indigo-700"
-                        )}>
+            return (
+              <div key={item.label}>
+                {/* Parent Item */}
+                {hasChildren && !isCollapsed ? (
+                  <button
+                    onClick={() => toggleExpanded(item.label)}
+                    className='w-full group'
+                  >
+                    <div
+                      className={cn(
+                        'relative flex items-center h-10 rounded-lg transition-all duration-200 overflow-hidden px-3',
+                        active
+                          ? isDark
+                            ? 'bg-blue-600/10 text-blue-400'
+                            : 'bg-blue-50 text-blue-600'
+                          : isDark
+                            ? 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                      )}
+                    >
+                      <item.icon className='h-[18px] w-[18px] shrink-0 mr-3' />
+                      <span className='text-sm font-medium tracking-tight whitespace-nowrap flex-1 text-left'>
+                        {item.label}
+                      </span>
+                      <ChevronDown
+                        className={cn(
+                          'h-4 w-4 transition-transform duration-200',
+                          isExpanded && 'rotate-180'
+                        )}
+                      />
+                    </div>
+                  </button>
+                ) : (
+                  <Link href={item.href} className='block group'>
+                    <div
+                      className={cn(
+                        'relative flex items-center h-10 rounded-lg transition-all duration-200 overflow-hidden',
+                        isCollapsed ? 'justify-center px-0' : 'px-3',
+                        active
+                          ? isDark
+                            ? 'bg-blue-600/10 text-blue-400'
+                            : 'bg-blue-50 text-blue-600'
+                          : isDark
+                            ? 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                      )}
+                    >
+                      {active && (
+                        <div className='absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-current' />
+                      )}
+
+                      <item.icon
+                        className={cn(
+                          'h-[18px] w-[18px] shrink-0 transition-colors',
+                          !isCollapsed && 'mr-3'
+                        )}
+                      />
+
+                      {!isCollapsed && (
+                        <span className='text-sm font-medium tracking-tight whitespace-nowrap'>
+                          {item.label}
+                        </span>
+                      )}
+
+                      {!isCollapsed && item.badge && (
+                        <Badge
+                          className={cn(
+                            'ml-auto h-5 px-1.5 rounded-full text-[10px] font-bold border-0',
+                            isDark
+                              ? 'bg-slate-800 text-slate-300'
+                              : 'bg-slate-100 text-slate-600'
+                          )}
+                        >
                           {item.badge}
                         </Badge>
                       )}
-                    </>
-                  )}
+                    </div>
+                  </Link>
+                )}
 
-                  {/* Active Indicator Bar (Left Side) */}
-                  {active && isCollapsed && (
-                    <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-white" />
-                  )}
-                </Button>
-              </Link>
+                {/* Children Items */}
+                {hasChildren && !isCollapsed && isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className='ml-6 mt-1 space-y-1 overflow-hidden'
+                  >
+                    {item.children!.map(child => {
+                      const childActive = isActive(child.href);
+                      return (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className='block group'
+                        >
+                          <div
+                            className={cn(
+                              'relative flex items-center h-9 rounded-lg transition-all duration-200 px-3',
+                              childActive
+                                ? isDark
+                                  ? 'bg-blue-600/10 text-blue-400'
+                                  : 'bg-blue-50 text-blue-600'
+                                : isDark
+                                  ? 'text-slate-500 hover:bg-slate-800/30 hover:text-slate-300'
+                                  : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700'
+                            )}
+                          >
+                            <child.icon className='h-4 w-4 shrink-0 mr-2' />
+                            <span className='text-xs font-medium tracking-tight'>
+                              {child.label}
+                            </span>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </div>
             );
           })}
         </nav>
       </ScrollArea>
 
-      {/* Footer Area */}
-      <div className={cn(
-        "p-4 border-t space-y-2 mt-auto flex-shrink-0",
-        isDark ? "border-slate-800/60 bg-slate-950/50" : "border-gray-100",
-        isCollapsed && "flex flex-col items-center p-2"
-      )}>
-
-        {/* Upgrade Promo Box (Dark theme only, hidden if collapsed) */}
-        {!isCollapsed && config.upgradePromo && isDark && (
-          <div className="mb-4 p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-800 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-              <Sparkles className="w-12 h-12 text-white" />
+      {/* Footer */}
+      <div
+        className={cn(
+          'p-4 border-t mt-auto space-y-2 shrink-0',
+          isDark
+            ? 'border-slate-800/60 bg-slate-900/30'
+            : 'border-slate-100 bg-slate-50/50'
+        )}
+      >
+        {!isCollapsed && config.upgradePromo && (
+          <div
+            className={cn(
+              'mb-4 p-4 rounded-xl border relative overflow-hidden group transition-all hover:scale-[1.02]',
+              isDark
+                ? 'bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700/50'
+                : 'bg-white border-slate-200 shadow-sm'
+            )}
+          >
+            <div className='absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity'>
+              <Sparkles className='w-10 h-10' />
             </div>
-            <h4 className="text-xs font-semibold text-white mb-1 relative z-10">
+            <h4 className='text-xs font-bold mb-1'>
               {config.upgradePromo.title}
             </h4>
-            <p className="text-[10px] text-slate-400 mb-2 relative z-10">
+            <p className='text-[10px] text-slate-500 mb-2 leading-relaxed'>
               {config.upgradePromo.description}
             </p>
-            <Link href={config.upgradePromo.link} className="text-[10px] font-bold text-blue-400 hover:text-blue-300 flex items-center gap-1 relative z-10">
-              Upgrade Now &rarr;
+            <Link
+              href={config.upgradePromo.link}
+              className='text-[10px] font-bold text-blue-500 hover:text-blue-600 flex items-center gap-1'
+            >
+              Upgrade <ChevronRight className='w-3 h-3' />
             </Link>
           </div>
         )}
 
-        <Link href={`/dashboard/${config.role}/settings`} onClick={onNavigate}>
-          <Button
-            variant="ghost"
-            className={cn(
-              "w-full h-10 justify-start transition-colors",
-              isCollapsed ? "px-0 justify-center" : "px-4",
-              isDark
-                ? "text-slate-400 hover:bg-slate-800 hover:text-white"
-                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-            )}
-          >
-            <Settings className={cn(
-              "h-[18px] w-[18px]",
-              isDark ? "text-slate-400" : "text-gray-500",
-              !isCollapsed && "mr-3"
-            )} />
-            {!isCollapsed && <span className="text-sm font-medium">Settings</span>}
-          </Button>
-        </Link>
-
-        <AsyncButton
-          variant="ghost"
+        <Button
+          variant='ghost'
           onClick={onLogout}
-          loadingText={isCollapsed ? undefined : "Logging out..."}
           className={cn(
-            "w-full h-10 justify-start",
-            isCollapsed ? "px-0 justify-center" : "px-4",
-            isDark
-              ? "text-red-400 hover:bg-red-500/10 hover:text-red-300"
-              : "text-red-600 hover:text-red-700 hover:bg-red-50"
+            'w-full justify-start h-9 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30',
+            isCollapsed ? 'px-0 justify-center' : 'px-2'
           )}
         >
-          <LogOut className={cn("h-[18px] w-[18px]", !isCollapsed && "mr-3")} />
-          {!isCollapsed && <span className="text-sm font-medium">Log out</span>}
-        </AsyncButton>
+          <LogOut className={cn('h-4 w-4', !isCollapsed && 'mr-2')} />
+          {!isCollapsed && 'Log out'}
+        </Button>
       </div>
     </div>
   );
 };
 
+// --- Sub-Component: Mobile Bottom Nav ---
+const MobileBottomNav = ({
+  config,
+  pathname,
+  onLogout,
+}: {
+  config: SidebarConfig;
+  pathname: string;
+  onLogout: () => Promise<void>;
+}) => {
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const isActive = useActiveRoute(pathname, config.role, config.navItems);
 
-// --- Main Component ---
+  // Adaptive Grid: Show 4 items on small, 5 on larger mobile
+  const mainItems = config.navItems.slice(0, 4);
+  const moreItems = config.navItems.slice(4);
+
+  return (
+    <>
+      {/* ONYX FLOATING DOCK */}
+      <div className='md:hidden fixed bottom-6 left-0 right-0 px-4 z-[50] flex justify-center pointer-events-none'>
+        <motion.nav
+          initial={{ y: 80 }}
+          animate={{ y: 0 }}
+          className='pointer-events-auto flex items-center bg-slate-950/90 backdrop-blur-3xl rounded-[32px] p-1.5 border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.4)]'
+        >
+          {mainItems.map((item: NavItem, index: number) => {
+            const active = isActive(item.href);
+            // Center Item (Home) gets the high-contrast Squircle treatment
+            if (index === 0)
+              return (
+                <Link key={item.href} href={item.href} className='mx-1'>
+                  <motion.div
+                    whileTap={{ scale: 0.9 }}
+                    className={cn(
+                      'w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500',
+                      active
+                        ? 'bg-white text-slate-950 shadow-[0_0_20px_rgba(255,255,255,0.2)]'
+                        : 'bg-slate-900 text-slate-500'
+                    )}
+                  >
+                    <item.icon className='w-5 h-5 stroke-[2.5px]' />
+                  </motion.div>
+                </Link>
+              );
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className='relative w-12 h-12 flex items-center justify-center'
+              >
+                <motion.div
+                  whileTap={{ scale: 0.8 }}
+                  className={cn(
+                    'relative z-10',
+                    active ? 'text-white' : 'text-slate-500'
+                  )}
+                >
+                  <item.icon className='w-5 h-5 stroke-[2px]' />
+                </motion.div>
+                {active && (
+                  <motion.div
+                    layoutId='onyxPill'
+                    className='absolute inset-1 bg-white/10 rounded-2xl'
+                    transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+              </Link>
+            );
+          })}
+
+          <div className='w-[1px] h-6 bg-white/10 mx-1' />
+
+          {/* MENU TRIGGER */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setIsMoreOpen(true)}
+            className='w-12 h-12 flex items-center justify-center text-slate-400'
+          >
+            <Menu className='w-5 h-5' />
+          </motion.button>
+        </motion.nav>
+      </div>
+
+      {/* ONYX DRAW OVERLAY (Custom Implementation) */}
+      <AnimatePresence>
+        {isMoreOpen && (
+          <motion.div className='fixed inset-0 z-[100] md:hidden'>
+            {/* Backdrop Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMoreOpen(false)}
+              className='absolute inset-0 bg-slate-950/80 backdrop-blur-xl'
+            />
+
+            {/* Sliding Drawer Container */}
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              drag='y'
+              dragConstraints={{ top: 0 }}
+              dragElastic={0.2}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 100) setIsMoreOpen(false);
+              }}
+              className='absolute bottom-0 left-0 right-0 bg-slate-950 rounded-t-[48px] border-t border-white/10 shadow-[0_-20px_80px_rgba(0,0,0,0.8)] flex flex-col max-h-[94vh] overflow-hidden'
+            >
+              <div className='mx-auto mt-4 mb-6 w-14 h-1.5 bg-white/10 rounded-full flex-shrink-0 cursor-grab active:cursor-grabbing' />
+
+              <div className='px-8 pb-16 overflow-y-auto custom-scrollbar'>
+                <header className='mb-10 pt-2'>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    <span className='text-[10px] font-black uppercase tracking-[0.4em] text-indigo-500 mb-2 block'>
+                      Navigation
+                    </span>
+                    <h2 className='text-4xl font-black italic tracking-tighter uppercase leading-none text-white'>
+                      Explore <span className='text-indigo-500'>More</span>
+                    </h2>
+                  </motion.div>
+                </header>
+
+                <div className='space-y-3'>
+                  {moreItems.map((item: NavItem, index: number) => (
+                    <motion.div
+                      key={item.href}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.15 + index * 0.05 }}
+                    >
+                      <Link
+                        href={item.href}
+                        onClick={() => setIsMoreOpen(false)}
+                        className='flex items-center gap-5 p-4 bg-white/[0.03] border border-white/5 rounded-[24px] hover:bg-white/[0.06] active:scale-[0.97] transition-all group'
+                      >
+                        <div className='w-12 h-12 rounded-[18px] bg-slate-900 border border-white/10 flex items-center justify-center text-indigo-400'>
+                          <item.icon className='w-6 h-6 stroke-[2.4px]' />
+                        </div>
+                        <div className='flex flex-col'>
+                          <span className='text-[15px] font-black uppercase tracking-tight text-white italic group-hover:text-indigo-400 transition-colors'>
+                            {item.label}
+                          </span>
+                        </div>
+                        <ChevronRight className='ml-auto w-5 h-5 text-slate-800 group-hover:text-slate-500 transition-colors' />
+                      </Link>
+                    </motion.div>
+                  ))}
+
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + moreItems.length * 0.05 }}
+                  >
+                    <Link
+                      href={`/dashboard/${config.role}/settings`}
+                      onClick={() => setIsMoreOpen(false)}
+                      className='flex items-center gap-5 p-4 bg-white/[0.015] border border-white/5 rounded-[24px] group'
+                    >
+                      <div className='w-12 h-12 rounded-[18px] bg-slate-900 border border-white/10 flex items-center justify-center text-slate-500'>
+                        <Settings className='w-6 h-6 stroke-[1.5px]' />
+                      </div>
+                      <div className='flex flex-col text-left'>
+                        <span className='text-[15px] font-black uppercase tracking-tight text-slate-400 italic'>
+                          Settings
+                        </span>
+                      </div>
+                      <ChevronRight className='ml-auto w-5 h-5 text-slate-800' />
+                    </Link>
+                  </motion.div>
+                </div>
+
+                <motion.div
+                  className='mt-12'
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <Button
+                    variant='destructive'
+                    onClick={() => {
+                      setIsMoreOpen(false);
+                      onLogout();
+                    }}
+                    className='w-full h-16 rounded-[24px] bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 font-black uppercase italic tracking-[0.3em] text-[11px] transition-all'
+                  >
+                    Terminate Session
+                  </Button>
+
+                  <button
+                    onClick={() => setIsMoreOpen(false)}
+                    className='w-full text-center text-[9px] font-black uppercase tracking-[0.8em] text-slate-700 hover:text-slate-500 transition-colors mt-8 mb-6'
+                  >
+                    Dismiss Modal
+                  </button>
+                </motion.div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+// --- Main Exported Component ---
 export interface DashboardSidebarProps {
   config: SidebarConfig;
   className?: string;
@@ -343,10 +691,9 @@ export interface DashboardSidebarProps {
 export function DashboardSidebar({
   config,
   className,
-  defaultCollapsed = false
+  defaultCollapsed = false,
 }: DashboardSidebarProps) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { logout } = useLogout();
@@ -360,97 +707,59 @@ export function DashboardSidebar({
 
   return (
     <>
-      {/* MOBILE TRIGGER */}
-      <div className="md:hidden fixed top-4 left-4 z-40">
-        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant={isDark ? "secondary" : "outline"}
-              size="icon"
-              className={cn(
-                "shadow-lg",
-                isDark
-                  ? "bg-slate-900 border border-slate-800 text-white hover:bg-slate-800"
-                  : "bg-white border-gray-200"
-              )}
-            >
-              <Menu className={cn("h-5 w-5", isDark ? "text-white" : "text-gray-700")} />
-            </Button>
-          </SheetTrigger>
-          <SheetContent
-            side="left"
-            className={cn(
-              "p-0 w-72",
-              isDark ? "border-r-slate-800 bg-slate-950 text-white" : "bg-white"
-            )}
-          >
-            <SheetHeader className="sr-only">
-              <SheetTitle>Navigation Menu</SheetTitle>
-            </SheetHeader>
-            <NavContent
-              config={config}
-              isCollapsed={false}
-              pathname={pathname}
-              onNavigate={() => setMobileOpen(false)}
-              onLogout={handleLogout}
-            />
-          </SheetContent>
-        </Sheet>
-      </div>
+      <MobileBottomNav
+        config={config}
+        pathname={pathname}
+        onLogout={handleLogout}
+      />
 
-      {/* DESKTOP SIDEBAR */}
       <aside
         className={cn(
-          "hidden md:flex flex-col h-screen fixed top-0 left-0 border-r shadow-xl z-30 transition-all duration-300 ease-out",
+          'hidden md:block fixed top-0 left-0 h-screen z-30 transition-all duration-300 border-r',
+          collapsed ? 'w-[72px]' : 'w-64',
           isDark
-            ? "bg-slate-950 border-slate-800"
-            : "bg-white border-gray-200 shadow-sm",
-          collapsed ? "w-[80px]" : "w-64",
+            ? 'border-slate-800 bg-slate-950'
+            : 'border-slate-200 bg-white',
           className
         )}
       >
-        <NavContent
+        <DesktopSidebarContent
           config={config}
           isCollapsed={collapsed}
           pathname={pathname}
           onLogout={handleLogout}
         />
 
-        {/* Floating Collapse Toggle */}
-        {isDark ? (
-          <Squircle
-            cornerRadius={10}
-            cornerSmoothing={3}
-            className="absolute -right-3 bottom-64 rounded-full p-0 bg-slate-600 hover:bg-slate-500 border-2 border-blue-600 shadow-md flex items-center justify-center text-white transition-all hover:scale-110"
+        {/* Floating Toggle Button */}
+        <div className='absolute -right-3 top-20 z-50'>
+          <Button
+            onClick={() => setCollapsed(!collapsed)}
+            className={cn(
+              'h-6 w-6 rounded-full p-0 border shadow-md transition-transform hover:scale-110',
+              isDark
+                ? 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white'
+                : 'bg-white border-slate-200 text-slate-500 hover:text-slate-800'
+            )}
           >
-            <Button
-              onClick={() => setCollapsed(!collapsed)}
-              className="h-8 w-8 hover:cursor-pointer"
-            >
-              {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
-            </Button>
-          </Squircle>
-        ) : (
-          <div className="absolute -right-3 top-20">
-            <Button
-              variant="secondary"
-              size="icon"
-              className="h-6 w-6 rounded-full shadow border border-gray-200 bg-white hover:bg-gray-100 text-gray-500"
-              onClick={() => setCollapsed(!collapsed)}
-            >
-              {collapsed ? <div className="text-xs">»</div> : <div className="text-xs">«</div>}
-            </Button>
-          </div>
-        )}
+            {collapsed ? (
+              <ChevronRight className='h-3 w-3' />
+            ) : (
+              <ChevronLeft className='h-3 w-3' />
+            )}
+          </Button>
+        </div>
       </aside>
 
-      {/* LAYOUT SPACER */}
+      {/* Layout Spacer to push content */}
       <div
         className={cn(
-          "hidden md:block transition-all duration-300 ease-in-out shrink-0",
-          collapsed ? "w-[80px]" : "w-64"
+          'hidden md:block flex-shrink-0 transition-[width] duration-300',
+          collapsed ? 'w-[72px]' : 'w-64'
         )}
       />
+
+      {/* Mobile Bottom Nav Spacer */}
+      <div className='md:hidden h-[60px] flex-shrink-0' />
     </>
   );
 }

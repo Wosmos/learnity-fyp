@@ -38,7 +38,7 @@ export function createSuccessResponse<T>(
     success: true,
     data,
     ...(message && { message }),
-    ...(meta && { meta })
+    ...(meta && { meta }),
   };
 
   return NextResponse.json(response, { status });
@@ -59,9 +59,9 @@ export function createErrorResponse(
     error: {
       code,
       message,
-      ...(details && { details })
+      ...(details && { details }),
     },
-    ...(meta && { meta })
+    ...(meta && { meta }),
   };
 
   return NextResponse.json(response, { status });
@@ -88,12 +88,7 @@ export function createValidationErrorResponse(
 export function createAuthErrorResponse(
   message: string = 'Authentication required'
 ): NextResponse {
-  return createErrorResponse(
-    'AUTH_ERROR',
-    message,
-    undefined,
-    401
-  );
+  return createErrorResponse('AUTH_ERROR', message, undefined, 401);
 }
 
 /**
@@ -102,12 +97,7 @@ export function createAuthErrorResponse(
 export function createAuthorizationErrorResponse(
   message: string = 'Insufficient permissions'
 ): NextResponse {
-  return createErrorResponse(
-    'AUTHORIZATION_ERROR',
-    message,
-    undefined,
-    403
-  );
+  return createErrorResponse('AUTHORIZATION_ERROR', message, undefined, 403);
 }
 
 /**
@@ -131,12 +121,7 @@ export function createInternalErrorResponse(
   message: string = 'Internal server error',
   details?: any
 ): NextResponse {
-  return createErrorResponse(
-    'INTERNAL_ERROR',
-    message,
-    details,
-    500
-  );
+  return createErrorResponse('INTERNAL_ERROR', message, details, 500);
 }
 
 /**
@@ -145,12 +130,7 @@ export function createInternalErrorResponse(
 export function createRateLimitErrorResponse(
   message: string = 'Rate limit exceeded'
 ): NextResponse {
-  return createErrorResponse(
-    'RATE_LIMIT_ERROR',
-    message,
-    undefined,
-    429
-  );
+  return createErrorResponse('RATE_LIMIT_ERROR', message, undefined, 429);
 }
 
 /**
@@ -170,15 +150,17 @@ export function handleApiError(error: any): NextResponse {
       case 'auth/invalid-id-token':
       case 'auth/id-token-expired':
         return createAuthErrorResponse('Invalid or expired token');
-      
+
       case 'auth/insufficient-permission':
         return createAuthorizationErrorResponse();
-      
+
       case 'auth/user-not-found':
         return createNotFoundErrorResponse('User');
-      
+
       default:
-        return createInternalErrorResponse(error.message || 'Unknown error occurred');
+        return createInternalErrorResponse(
+          error.message || 'Unknown error occurred'
+        );
     }
   }
 

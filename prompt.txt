@@ -1,0 +1,28 @@
+# Learnity Logo Brief: Onyx Modern (Learn + Unity)
+
+## 1. Brand Philosophy (Product Manager)
+**Learnity** is the intersection of pedagogy and community. 
+- **Concept**: **Learn** (the spark of knowledge) + **Unity** (the collective strength of students/teachers).
+- **Core Values**: Interconnection, Modernity, Social Learning.
+- **Audience**: Professional educators and tech-savvy students.
+
+## 2. Visual Strategy (Senior Designer) - Onyx Edition
+We are moving away from playful/vibrant and toward a "Premium Tech" aesthetic.
+
+### Symbology: The Interlocking Bond
+- **The Mark**: Two interlocking circular links. The left link incorporates a sharp vertical line forming an abstract 'L'.
+- **The Unity**: The interlocking nature represents the community aspect (Unity), while the separate yet connected loops represent individual learning paths.
+- **The "Onyx" Aesthetic**: 
+    - **Background**: Deep Charcoal/Matte Black (#111827).
+    - **Primary Glow**: Neon Cyan (#22D3EE) representing "Logic & Learning".
+    - **Secondary Accent**: Electric Indigo (#818CF8) representing "Community & Unity".
+- **Texture**: Glossy gradients and subtle inner glows to mimic glassmorphism.
+
+### Typography
+- **Font**: "Inter" or similar bold Sans-Serif.
+- **Letter Spacing**: Wide tracking (200ms) for a premium, spacious feel.
+
+## 3. Implementation Status
+- [x] **SVG V3**: Interlocking "L-Unity" concept.
+- [x] **Dark Mode Optimized**: Designed specifically for the Onyx/Matte Black background.
+- [x] **Scalable**: Simplified paths for crisp rendering at all sizes.

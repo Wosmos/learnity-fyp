@@ -11,14 +11,14 @@ import { UserRole } from '@/types/auth';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validate request data
     const validatedData = studentRegistrationSchema.parse(body);
-    
+
     // Get Firebase UID from Authorization header
     const authHeader = request.headers.get('Authorization');
     const firebaseUid = request.headers.get('X-Firebase-UID');
-    
+
     if (!firebaseUid) {
       return NextResponse.json(
         { error: 'Firebase UID is required. User must be authenticated.' },
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Initialize database service
     const databaseService = new DatabaseService();
-    
+
     // Create user profile in Neon DB
     const userProfile = await databaseService.createUserProfile(firebaseUid, {
       email: validatedData.email,
@@ -44,19 +44,19 @@ export async function POST(request: NextRequest) {
         learningGoals: [],
         interests: [],
         studyPreferences: [],
-        profileCompletionPercentage: 20
-      }
+        profileCompletionPercentage: 20,
+      },
     });
 
     console.log(' Student profile created in database:', userProfile.id);
-    
+
     // TODO: Set custom claims in Firebase using Firebase Admin SDK
     // This requires Firebase Admin SDK setup on the server
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    return NextResponse.json({
+      success: true,
       message: 'Student profile created successfully',
-      userId: userProfile.id
+      userId: userProfile.id,
     });
   } catch (error: any) {
     console.error(' Student registration failed:', error);

@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Search, X, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import * as React from 'react';
+import { Search, X, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export interface SearchInputProps {
   value: string;
@@ -46,7 +46,7 @@ export function SearchInput({
   value,
   onChange,
   onSearch,
-  placeholder = "Search courses...",
+  placeholder = 'Search courses...',
   debounceMs = 300,
   isLoading = false,
   className,
@@ -75,17 +75,17 @@ export function SearchInput({
   };
 
   const handleClear = () => {
-    setLocalValue("");
-    onChange("");
-    onSearch?.("");
+    setLocalValue('');
+    onChange('');
+    onSearch?.('');
     inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Escape") {
+    if (e.key === 'Escape') {
       handleClear();
     }
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       // Immediate search on Enter
       onChange(localValue);
       onSearch?.(localValue);
@@ -95,43 +95,40 @@ export function SearchInput({
   const showClearButton = localValue.length > 0;
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn('relative ', className)}>
       {/* Search Icon */}
-      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+      <div className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none '>
         {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className='h-4 w-4 animate-spin' />
         ) : (
-          <Search className="h-4 w-4" />
+          <Search className='h-4 w-4' />
         )}
       </div>
 
       {/* Input Field */}
       <Input
         ref={inputRef}
-        type="text"
+        type='text'
         value={localValue}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         autoFocus={autoFocus}
-        className={cn(
-          "pl-10 pr-10",
-          inputClassName
-        )}
-        aria-label="Search courses"
+        className={cn('pl-4  mt-2', inputClassName)}
+        aria-label='Search courses'
       />
 
       {/* Clear Button */}
       {showClearButton && (
         <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
+          type='button'
+          variant='ghost'
+          size='icon-sm'
           onClick={handleClear}
-          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-foreground"
-          aria-label="Clear search"
+          className='absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-foreground'
+          aria-label='Clear search'
         >
-          <X className="h-4 w-4" />
+          <X className='h-4 w-4' />
         </Button>
       )}
     </div>
@@ -145,11 +142,11 @@ export function SearchInputWithButton({
   value,
   onChange,
   onSearch,
-  placeholder = "Search courses...",
+  placeholder = 'Search courses...',
   isLoading = false,
   className,
-  buttonText = "Search",
-}: Omit<SearchInputProps, "debounceMs"> & { buttonText?: string }) {
+  buttonText = 'Search',
+}: Omit<SearchInputProps, 'debounceMs'> & { buttonText?: string }) {
   const [localValue, setLocalValue] = React.useState(value);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -168,17 +165,17 @@ export function SearchInputWithButton({
   };
 
   const handleClear = () => {
-    setLocalValue("");
-    onChange("");
-    onSearch?.("");
+    setLocalValue('');
+    onChange('');
+    onSearch?.('');
     inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Escape") {
+    if (e.key === 'Escape') {
       handleClear();
     }
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       handleSearch();
     }
   };
@@ -186,51 +183,51 @@ export function SearchInputWithButton({
   const showClearButton = localValue.length > 0;
 
   return (
-    <div className={cn("flex gap-2", className)}>
-      <div className="relative flex-1">
+    <div className={cn('flex gap-2', className)}>
+      <div className='relative flex-1'>
         {/* Search Icon */}
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-          <Search className="h-4 w-4" />
+        <div className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none'>
+          <Search className='h-4 w-4' />
         </div>
 
         {/* Input Field */}
         <Input
           ref={inputRef}
-          type="text"
+          type='text'
           value={localValue}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="pl-10 pr-10"
-          aria-label="Search courses"
+          className='pl-10 pr-10'
+          aria-label='Search courses'
         />
 
         {/* Clear Button */}
         {showClearButton && (
           <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
+            type='button'
+            variant='ghost'
+            size='icon-sm'
             onClick={handleClear}
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-foreground"
-            aria-label="Clear search"
+            className='absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-foreground'
+            aria-label='Clear search'
           >
-            <X className="h-4 w-4" />
+            <X className='h-4 w-4' />
           </Button>
         )}
       </div>
 
       {/* Search Button */}
       <Button
-        type="button"
+        type='button'
         onClick={handleSearch}
         disabled={isLoading}
-        className="shrink-0"
+        className='shrink-0'
       >
         {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          <Loader2 className='h-4 w-4 animate-spin mr-2' />
         ) : (
-          <Search className="h-4 w-4 mr-2" />
+          <Search className='h-4 w-4 mr-2' />
         )}
         {buttonText}
       </Button>

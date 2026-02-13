@@ -13,9 +13,5 @@ export interface AppProvidersProps {
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
-  return (
-    <AuthProvider>
-      {children}
-    </AuthProvider>
-  );
+  return <AuthProvider>{children}</AuthProvider>;
 }

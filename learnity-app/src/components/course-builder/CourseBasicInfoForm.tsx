@@ -10,6 +10,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Upload, X, Image as ImageIcon, Plus, DollarSign } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -30,24 +31,19 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from '@/components/ui/form';
-import {
-  Upload,
-  X,
-  Image as ImageIcon,
-  Plus,
-  DollarSign,
-} from 'lucide-react';
 import { useCourseBuilder } from './CourseBuilderContext';
 import { Category } from './types';
 
 // Form validation schema
 const basicInfoSchema = z.object({
-  title: z.string()
+  title: z
+    .string()
     .min(3, 'Title must be at least 3 characters')
     .max(100, 'Title must be less than 100 characters'),
-  description: z.string()
+  description: z
+    .string()
     .min(10, 'Description must be at least 10 characters')
     .max(2000, 'Description must be less than 2000 characters'),
   categoryId: z.string().min(1, 'Please select a category'),
@@ -115,13 +111,16 @@ export function CourseBasicInfoForm() {
   }, []);
 
   // Update context when form values change
-  const onFormChange = useCallback((data: Partial<BasicInfoFormData>) => {
-    setCourseData(data);
-  }, [setCourseData]);
+  const onFormChange = useCallback(
+    (data: Partial<BasicInfoFormData>) => {
+      setCourseData(data);
+    },
+    [setCourseData]
+  );
 
   // Watch form changes and update context
   useEffect(() => {
-    const subscription = form.watch((value) => {
+    const subscription = form.watch(value => {
       onFormChange(value as Partial<BasicInfoFormData>);
     });
     return () => subscription.unsubscribe();
@@ -140,7 +139,7 @@ export function CourseBasicInfoForm() {
 
   // Handle tag removal
   const handleRemoveTag = (tagToRemove: string) => {
-    const newTags = tags.filter((tag) => tag !== tagToRemove);
+    const newTags = tags.filter(tag => tag !== tagToRemove);
     setTags(newTags);
     setCourseData({ tags: newTags });
   };
@@ -154,7 +153,9 @@ export function CourseBasicInfoForm() {
   };
 
   // Handle thumbnail upload
-  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleThumbnailUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -207,19 +208,19 @@ export function CourseBasicInfoForm() {
 
   return (
     <Form {...form}>
-      <form className="space-y-8">
+      <form className='space-y-8'>
         {/* Title */}
         <FormField
           control={form.control}
-          name="title"
+          name='title'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Course Title *</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="e.g., Introduction to Web Development"
+                  placeholder='e.g., Introduction to Web Development'
                   {...field}
-                  className="max-w-xl"
+                  className='max-w-xl'
                 />
               </FormControl>
               <FormDescription>
@@ -233,14 +234,14 @@ export function CourseBasicInfoForm() {
         {/* Description */}
         <FormField
           control={form.control}
-          name="description"
+          name='description'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description *</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Describe what students will learn in this course..."
-                  className="min-h-[120px] max-w-xl"
+                  placeholder='Describe what students will learn in this course...'
+                  className='min-h-[120px] max-w-xl'
                   {...field}
                 />
               </FormControl>
@@ -253,21 +254,24 @@ export function CourseBasicInfoForm() {
         />
 
         {/* Category and Difficulty */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-xl">
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6 max-w-xl'>
           <FormField
             control={form.control}
-            name="categoryId"
+            name='categoryId'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder='Select a category' />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {categories.map((category) => (
+                    {categories.map(category => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
                       </SelectItem>
@@ -281,20 +285,23 @@ export function CourseBasicInfoForm() {
 
           <FormField
             control={form.control}
-            name="difficulty"
+            name='difficulty'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Difficulty Level</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select difficulty" />
+                      <SelectValue placeholder='Select difficulty' />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="BEGINNER">Beginner</SelectItem>
-                    <SelectItem value="INTERMEDIATE">Intermediate</SelectItem>
-                    <SelectItem value="ADVANCED">Advanced</SelectItem>
+                    <SelectItem value='BEGINNER'>Beginner</SelectItem>
+                    <SelectItem value='INTERMEDIATE'>Intermediate</SelectItem>
+                    <SelectItem value='ADVANCED'>Advanced</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -304,107 +311,103 @@ export function CourseBasicInfoForm() {
         </div>
 
         {/* Thumbnail Upload */}
-        <div className="space-y-3">
+        <div className='space-y-3'>
           <Label>Course Thumbnail</Label>
-          <div className="flex items-start gap-4">
+          <div className='flex items-start gap-4'>
             {thumbnailPreview ? (
-              <div className="relative">
+              <div className='relative'>
                 <img
                   src={thumbnailPreview}
-                  alt="Course thumbnail"
-                  className="w-48 h-32 object-cover rounded-lg border"
+                  alt='Course thumbnail'
+                  className='w-48 h-32 object-cover rounded-lg border'
                 />
                 <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full"
+                  type='button'
+                  variant='destructive'
+                  size='sm'
+                  className='absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full'
                   onClick={handleRemoveThumbnail}
                 >
-                  <X className="h-3 w-3" />
+                  <X className='h-3 w-3' />
                 </Button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-48 h-32 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-slate-50/50 transition-colors">
+              <label className='flex flex-col items-center justify-center w-48 h-32 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-slate-50/50 transition-colors'>
                 <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  className="hidden"
+                  type='file'
+                  accept='image/jpeg,image/png,image/webp'
+                  className='hidden'
                   onChange={handleThumbnailUpload}
                   disabled={isUploadingThumbnail}
                 />
                 {isUploadingThumbnail ? (
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
+                  <div className='animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600' />
                 ) : (
                   <>
-                    <ImageIcon className="h-8 w-8 text-slate-400 mb-2" />
-                    <span className="text-sm text-slate-500">Upload image</span>
-                    <span className="text-xs text-slate-400">Max 2MB</span>
+                    <ImageIcon className='h-8 w-8 text-slate-400 mb-2' />
+                    <span className='text-sm text-slate-500'>Upload image</span>
+                    <span className='text-xs text-slate-400'>Max 2MB</span>
                   </>
                 )}
               </label>
             )}
           </div>
-          <p className="text-sm text-slate-500">
+          <p className='text-sm text-slate-500'>
             Recommended: 1280x720px (16:9 ratio), JPG or PNG
           </p>
         </div>
 
         {/* Tags */}
-        <div className="space-y-3 max-w-xl">
+        <div className='space-y-3 max-w-xl'>
           <Label>Tags (up to 5)</Label>
-          <div className="flex gap-2">
+          <div className='flex gap-2'>
             <Input
-              placeholder="Add a tag..."
+              placeholder='Add a tag...'
               value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
+              onChange={e => setTagInput(e.target.value)}
               onKeyPress={handleTagKeyPress}
               disabled={tags.length >= 5}
-              className="flex-1"
+              className='flex-1'
             />
             <Button
-              type="button"
-              variant="outline"
+              type='button'
+              variant='outline'
               onClick={handleAddTag}
               disabled={tags.length >= 5 || !tagInput.trim()}
             >
-              <Plus className="h-4 w-4" />
+              <Plus className='h-4 w-4' />
             </Button>
           </div>
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="secondary"
-                  className="gap-1 pr-1"
-                >
+            <div className='flex flex-wrap gap-2'>
+              {tags.map(tag => (
+                <Badge key={tag} variant='secondary' className='gap-1 pr-1'>
                   {tag}
                   <button
-                    type="button"
+                    type='button'
                     onClick={() => handleRemoveTag(tag)}
-                    className="ml-1 hover:bg-slate-300 rounded-full p-0.5"
+                    className='ml-1 hover:bg-slate-300 rounded-full p-0.5'
                   >
-                    <X className="h-3 w-3" />
+                    <X className='h-3 w-3' />
                   </button>
                 </Badge>
               ))}
             </div>
           )}
-          <p className="text-sm text-slate-500">
+          <p className='text-sm text-slate-500'>
             {5 - tags.length} tags remaining
           </p>
         </div>
 
         {/* Pricing */}
-        <div className="space-y-4 max-w-xl">
+        <div className='space-y-4 max-w-xl'>
           <FormField
             control={form.control}
-            name="isFree"
+            name='isFree'
             render={({ field }) => (
-              <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">Free Course</FormLabel>
+              <FormItem className='flex items-center justify-between rounded-lg border p-4'>
+                <div className='space-y-0.5'>
+                  <FormLabel className='text-base'>Free Course</FormLabel>
                   <FormDescription>
                     Make this course available for free
                   </FormDescription>
@@ -422,22 +425,24 @@ export function CourseBasicInfoForm() {
           {!isFree && (
             <FormField
               control={form.control}
-              name="price"
+              name='price'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price (USD)</FormLabel>
+                  <FormLabel>Price (PKR)</FormLabel>
                   <FormControl>
-                    <div className="relative max-w-[200px]">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <div className='relative max-w-[200px]'>
+                      <DollarSign className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400' />
                       <Input
-                        type="number"
-                        min="0"
-                        max="9999.99"
-                        step="0.01"
-                        placeholder="0.00"
-                        className="pl-9"
+                        type='number'
+                        min='0'
+                        max='9999.99'
+                        step='0.01'
+                        placeholder='0.00'
+                        className='pl-9'
                         {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        onChange={e =>
+                          field.onChange(parseFloat(e.target.value) || 0)
+                        }
                       />
                     </div>
                   </FormControl>
@@ -451,11 +456,11 @@ export function CourseBasicInfoForm() {
         {/* Sequential Progress */}
         <FormField
           control={form.control}
-          name="requireSequentialProgress"
+          name='requireSequentialProgress'
           render={({ field }) => (
-            <FormItem className="flex items-center justify-between rounded-lg border p-4 max-w-xl">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Sequential Progress</FormLabel>
+            <FormItem className='flex items-center justify-between rounded-lg border p-4 max-w-xl'>
+              <div className='space-y-0.5'>
+                <FormLabel className='text-base'>Sequential Progress</FormLabel>
                 <FormDescription>
                   Require students to complete sections in order
                 </FormDescription>
@@ -471,18 +476,18 @@ export function CourseBasicInfoForm() {
         />
 
         {/* Communication Settings */}
-        <div className="space-y-4 max-w-xl">
-          <h3 className="text-lg font-medium">Communication (Optional)</h3>
+        <div className='space-y-4 max-w-xl'>
+          <h3 className='text-lg font-medium'>Communication (Optional)</h3>
 
           <FormField
             control={form.control}
-            name="whatsappGroupLink"
+            name='whatsappGroupLink'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>WhatsApp Group Link</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="https://chat.whatsapp.com/..."
+                    placeholder='https://chat.whatsapp.com/...'
                     {...field}
                   />
                 </FormControl>
@@ -496,14 +501,14 @@ export function CourseBasicInfoForm() {
 
           <FormField
             control={form.control}
-            name="contactEmail"
+            name='contactEmail'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Contact Email</FormLabel>
                 <FormControl>
                   <Input
-                    type="email"
-                    placeholder="teacher@example.com"
+                    type='email'
+                    placeholder='teacher@example.com'
                     {...field}
                   />
                 </FormControl>
@@ -514,15 +519,12 @@ export function CourseBasicInfoForm() {
 
           <FormField
             control={form.control}
-            name="contactWhatsapp"
+            name='contactWhatsapp'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Contact WhatsApp Number</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="+1234567890"
-                    {...field}
-                  />
+                  <Input placeholder='+1234567890' {...field} />
                 </FormControl>
                 <FormDescription>
                   Include country code (e.g., +1 for US)

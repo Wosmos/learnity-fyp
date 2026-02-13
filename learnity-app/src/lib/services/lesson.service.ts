@@ -1,7 +1,7 @@
 /**
  * Lesson Service Implementation
  * Handles all lesson management operations
- * 
+ *
  * Requirements covered:
  * - 1.7: Adding YouTube video links as lessons with title and duration
  * - 1.8: Validating YouTube URLs and extracting video metadata
@@ -69,11 +69,11 @@ export class LessonService implements ILessonService {
     // Extract YouTube video ID and fetch metadata if it's a video lesson
     let youtubeId: string | null = null;
     let youtubeMetadata: YouTubeMetadata | null = null;
-    let duration = validatedData.duration;
+    const duration = validatedData.duration;
 
     if (validatedData.type === 'VIDEO' && validatedData.youtubeUrl) {
       youtubeId = extractYouTubeVideoId(validatedData.youtubeUrl);
-      
+
       if (!youtubeId) {
         throw new LessonError(
           'Invalid YouTube URL. Please use youtube.com/watch or youtu.be format',
@@ -113,7 +113,10 @@ export class LessonService implements ILessonService {
    * Update an existing lesson
    * Requirements: 1.7
    */
-  async updateLesson(lessonId: string, data: UpdateLessonData): Promise<Lesson> {
+  async updateLesson(
+    lessonId: string,
+    data: UpdateLessonData
+  ): Promise<Lesson> {
     // Validate input
     const validatedData = UpdateLessonSchema.parse(data);
 
@@ -137,18 +140,22 @@ export class LessonService implements ILessonService {
 
     // Build update data
     const updateData: Record<string, unknown> = {};
-    
-    if (validatedData.title !== undefined) updateData.title = validatedData.title;
-    if (validatedData.description !== undefined) updateData.description = validatedData.description;
+
+    if (validatedData.title !== undefined)
+      updateData.title = validatedData.title;
+    if (validatedData.description !== undefined)
+      updateData.description = validatedData.description;
     if (validatedData.type !== undefined) updateData.type = validatedData.type;
-    if (validatedData.duration !== undefined) updateData.duration = validatedData.duration;
-    if (validatedData.order !== undefined) updateData.order = validatedData.order;
+    if (validatedData.duration !== undefined)
+      updateData.duration = validatedData.duration;
+    if (validatedData.order !== undefined)
+      updateData.order = validatedData.order;
 
     // Handle YouTube URL update
     if (validatedData.youtubeUrl !== undefined) {
       if (validatedData.youtubeUrl) {
         const youtubeId = extractYouTubeVideoId(validatedData.youtubeUrl);
-        
+
         if (!youtubeId) {
           throw new LessonError(
             'Invalid YouTube URL. Please use youtube.com/watch or youtu.be format',
@@ -202,7 +209,10 @@ export class LessonService implements ILessonService {
       );
     }
 
-    const { sectionId, courseId } = { sectionId: lesson.section.id, courseId: lesson.section.courseId };
+    const { sectionId, courseId } = {
+      sectionId: lesson.section.id,
+      courseId: lesson.section.courseId,
+    };
 
     // Delete lesson (cascades to quiz and progress due to onDelete: Cascade)
     await this.prisma.lesson.delete({
@@ -334,7 +344,8 @@ export class LessonService implements ILessonService {
         isValid: false,
         videoId: null,
         metadata: null,
-        error: 'Invalid YouTube URL. Please use youtube.com/watch or youtu.be format',
+        error:
+          'Invalid YouTube URL. Please use youtube.com/watch or youtu.be format',
       };
     }
 
@@ -346,7 +357,8 @@ export class LessonService implements ILessonService {
         isValid: false,
         videoId,
         metadata: null,
-        error: 'Could not fetch video metadata. Please check if the video exists and is public.',
+        error:
+          'Could not fetch video metadata. Please check if the video exists and is public.',
       };
     }
 
@@ -373,7 +385,10 @@ export class LessonService implements ILessonService {
   /**
    * Validate that a lesson belongs to a course owned by a teacher
    */
-  async validateOwnership(lessonId: string, teacherId: string): Promise<boolean> {
+  async validateOwnership(
+    lessonId: string,
+    teacherId: string
+  ): Promise<boolean> {
     const lesson = await this.prisma.lesson.findUnique({
       where: { id: lessonId },
       include: {
@@ -455,12 +470,43 @@ export class LessonService implements ILessonService {
       }
     }
 
+    // Calculate average rating
+    const reviews = await this.prisma.review.findMany({
+      where: { courseId },
+      select: { rating: true },
+    });
+
+    const averageRating =
+      reviews.length > 0
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+        : 0;
+
+    // Pick a thumbnail if missing
+    let thumbnailUrl = course.thumbnailUrl;
+    if (!thumbnailUrl) {
+      // Find the first video lesson with a youtubeId
+      for (const section of course.sections) {
+        const firstVideo = section.lessons.find(
+          l => l.type === 'VIDEO' && l.youtubeId
+        );
+        if (firstVideo) {
+          thumbnailUrl = `https://img.youtube.com/vi/${firstVideo.youtubeId}/mqdefault.jpg`;
+          break;
+        }
+      }
+    }
+
     // Update course
     await this.prisma.course.update({
       where: { id: courseId },
       data: {
         totalDuration,
         lessonCount,
+        thumbnailUrl,
+        enrollmentCount:
+          (course as any)._count?.enrollments || course.enrollmentCount,
+        reviewCount: (course as any)._count?.reviews || course.reviewCount,
+        averageRating: Math.round(averageRating * 10) / 10,
       },
     });
   }

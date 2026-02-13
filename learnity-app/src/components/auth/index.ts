@@ -6,48 +6,42 @@
 // Registration Flow Components
 export {
   default as RegistrationFlow,
-  type RegistrationFlowProps
+  type RegistrationFlowProps,
 } from './RegistrationFlow';
 
-export {
-  default as RoleSelection,
-  type RoleSelectionProps
-} from './RoleSelection';
+export { default as RoleSelection } from './RoleSelection';
 
 export {
   default as StudentRegistrationForm,
-  type StudentRegistrationFormProps
+  type StudentRegistrationFormProps,
 } from './StudentRegistrationForm';
 
 export {
   default as TeacherRegistrationForm,
-  type TeacherRegistrationFormProps
+  type TeacherRegistrationFormProps,
 } from './TeacherRegistrationForm';
 
 export {
   default as EmailVerificationPending,
-  type EmailVerificationPendingProps
+  type EmailVerificationPendingProps,
 } from './EmailVerificationPending';
 
 // Login and Password Management Components
-export {
-  default as LoginForm,
-  type LoginFormProps
-} from './LoginForm';
+export { default as LoginForm, type LoginFormProps } from './LoginForm';
 
 export {
   default as PasswordResetRequestForm,
-  type PasswordResetRequestFormProps
+  type PasswordResetRequestFormProps,
 } from './PasswordResetRequestForm';
 
 export {
   default as PasswordResetForm,
-  type PasswordResetFormProps
+  type PasswordResetFormProps,
 } from './PasswordResetForm';
 
 export {
   default as EmailVerificationResult,
-  type EmailVerificationResultProps
+  type EmailVerificationResultProps,
 } from './EmailVerificationResult';
 
 // Authentication State Management
@@ -56,13 +50,13 @@ export {
   useAuthContext,
   withAuth,
   type AuthContextValue,
-  type AuthProviderProps
+  type AuthProviderProps,
 } from './AuthProvider';
 
 // Mobile-Optimized Components
 export {
   default as MobileAuthLayout,
-  type MobileAuthLayoutProps
+  type MobileAuthLayoutProps,
 } from './MobileAuthLayout';
 
 // MobileLoginForm has been merged into LoginForm
@@ -75,7 +69,7 @@ export type { RegistrationFlowProps as MobileRegistrationFlowProps } from './Reg
 
 export {
   default as ResponsiveAuthRouter,
-  type ResponsiveAuthRouterProps
+  type ResponsiveAuthRouterProps,
 } from './ResponsiveAuthRouter';
 
 // Protected Route Components
@@ -83,13 +77,16 @@ export {
   ProtectedRoute,
   AdminRoute,
   TeacherRoute,
-  StudentRoute
+  StudentRoute,
 } from './ProtectedRoute';
 
 // Client-safe hooks
 export { useAuthService } from '../../hooks/useAuthService';
 export { useLogout } from '../../hooks/useLogout';
-export { useDeepLinking, useMobileDeepLinking } from '../../hooks/useDeepLinking';
+export {
+  useDeepLinking,
+  useMobileDeepLinking,
+} from '../../hooks/useDeepLinking';
 
 // Authentication store
 export {
@@ -108,7 +105,7 @@ export {
   useIsAdmin as useStoreIsAdmin,
   useIsTeacher as useStoreIsTeacher,
   useIsStudent as useStoreIsStudent,
-  useIsPendingTeacher as useStoreIsPendingTeacher
+  useIsPendingTeacher as useStoreIsPendingTeacher,
 } from '../../lib/stores/auth.store';
 
 // Re-export types for convenience
@@ -116,7 +113,7 @@ export {
   UserRole,
   Permission,
   ApplicationStatus,
-  AuthErrorCode
+  AuthErrorCode,
 } from '../../types/auth';
 
 export type {
@@ -125,5 +122,5 @@ export type {
   StudentProfile,
   TeacherProfile,
   AdminProfile,
-  AuthError
+  AuthError,
 } from '../../types/auth';

@@ -1,7 +1,7 @@
 /**
  * Section Service Implementation
  * Handles all section management operations
- * 
+ *
  * Requirements covered:
  * - 1.6: Section creation, naming, and ordering
  * - 1.9: Reordering sections via drag-and-drop
@@ -74,7 +74,10 @@ export class SectionService implements ISectionService {
    * Update an existing section
    * Requirements: 1.6
    */
-  async updateSection(sectionId: string, data: UpdateSectionData): Promise<Section> {
+  async updateSection(
+    sectionId: string,
+    data: UpdateSectionData
+  ): Promise<Section> {
     // Validate input
     const validatedData = UpdateSectionSchema.parse(data);
 
@@ -93,10 +96,13 @@ export class SectionService implements ISectionService {
 
     // Build update data
     const updateData: Record<string, unknown> = {};
-    
-    if (validatedData.title !== undefined) updateData.title = validatedData.title;
-    if (validatedData.description !== undefined) updateData.description = validatedData.description;
-    if (validatedData.order !== undefined) updateData.order = validatedData.order;
+
+    if (validatedData.title !== undefined)
+      updateData.title = validatedData.title;
+    if (validatedData.description !== undefined)
+      updateData.description = validatedData.description;
+    if (validatedData.order !== undefined)
+      updateData.order = validatedData.order;
 
     // Update section
     const section = await this.prisma.section.update({
@@ -161,7 +167,9 @@ export class SectionService implements ISectionService {
   /**
    * Get a section by ID with its lessons
    */
-  async getSectionWithLessons(sectionId: string): Promise<SectionWithLessons | null> {
+  async getSectionWithLessons(
+    sectionId: string
+  ): Promise<SectionWithLessons | null> {
     const section = await this.prisma.section.findUnique({
       where: { id: sectionId },
       include: {
@@ -250,7 +258,10 @@ export class SectionService implements ISectionService {
   /**
    * Validate that a section belongs to a course owned by a teacher
    */
-  async validateOwnership(sectionId: string, teacherId: string): Promise<boolean> {
+  async validateOwnership(
+    sectionId: string,
+    teacherId: string
+  ): Promise<boolean> {
     const section = await this.prisma.section.findUnique({
       where: { id: sectionId },
       include: {

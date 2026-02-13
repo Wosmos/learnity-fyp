@@ -1,0 +1,40 @@
+@startuml
+title System Architecture: Modular Monolith (T3 Stack)
+
+skinparam componentStyle uml2
+
+package "Client Layer (Browser / PWA)" {
+    [React UI Components] as UI
+    [Zustand Store] as State
+    [Local Storage] as Local
+    UI <--> State
+}
+
+package "Server Layer (Next.js 14)" {
+    [Server Actions / API] as API
+    [NextAuth.js] as Auth
+    [Vercel Blob Storage] as Blob
+    
+    API -down-> Auth : "Authenticates"
+    API -down-> Blob : "Uploads Assets"
+}
+
+package "Data Layer (Persistence)" {
+    [Prisma ORM] as Prisma
+    database "Neon PostgreSQL" as DB
+    
+    Prisma -down-> DB : "Query/Transaction"
+    API -down-> Prisma : "Validate & Persist"
+}
+
+cloud "Real-Time Infrastructure (Managed Services)" {
+    [GetStream.io (Chat)] as Stream
+    [100ms.live (Video)] as Video
+}
+
+' Client to Server Interactions
+UI -down-> API : "JSON / RPC (HTTPS)"
+UI -down-> Stream : "WebSocket (User Chat)"
+UI -down-> Video : "UDP / WebRTC (Live Class)"
+
+@enduml

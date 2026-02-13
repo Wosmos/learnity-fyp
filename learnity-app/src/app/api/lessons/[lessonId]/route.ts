@@ -3,12 +3,13 @@
  * GET /api/lessons/[lessonId] - Get lesson details
  * PUT /api/lessons/[lessonId] - Update lesson
  * DELETE /api/lessons/[lessonId] - Delete lesson
- * 
+ *
  * Requirements covered:
  * - 1.7: Lesson management
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 import { lessonService } from '@/lib/services/lesson.service';
 import { UpdateLessonSchema } from '@/lib/validators/lesson';
 import { LessonError } from '@/lib/interfaces/lesson.interface';
@@ -22,7 +23,6 @@ import {
   createNotFoundErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { ZodError } from 'zod';
 
 interface RouteParams {
   params: Promise<{ lessonId: string }>;
@@ -60,7 +60,6 @@ export async function GET(
     return createInternalErrorResponse('Failed to fetch lesson');
   }
 }
-
 
 /**
  * PUT /api/lessons/[lessonId]
@@ -149,7 +148,6 @@ export async function PUT(
     return createInternalErrorResponse('Failed to update lesson');
   }
 }
-
 
 /**
  * DELETE /api/lessons/[lessonId]

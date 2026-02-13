@@ -1,4 +1,8 @@
-import { User as FirebaseUser, getIdToken, getIdTokenResult } from 'firebase/auth';
+import {
+  User as FirebaseUser,
+  getIdToken,
+  getIdTokenResult,
+} from 'firebase/auth';
 import { auth } from '@/lib/config/firebase';
 import { adminAuth } from '@/lib/config/firebase-admin';
 import { CustomClaims, AuthError, AuthErrorCode } from '@/types/auth';
@@ -39,7 +43,10 @@ export class TokenManagerService {
   /**
    * Get ID token for a specific user with caching and refresh logic
    */
-  async getUserToken(user: FirebaseUser, forceRefresh: boolean = false): Promise<string> {
+  async getUserToken(
+    user: FirebaseUser,
+    forceRefresh: boolean = false
+  ): Promise<string> {
     const userId = user.uid;
 
     // Check if there's already a refresh in progress
@@ -71,12 +78,12 @@ export class TokenManagerService {
   private async refreshUserToken(user: FirebaseUser): Promise<string> {
     try {
       const tokenResult = await getIdTokenResult(user, true);
-      
+
       const tokenInfo: TokenInfo = {
         token: tokenResult.token,
         expirationTime: new Date(tokenResult.expirationTime),
         issuedAtTime: new Date(tokenResult.issuedAtTime),
-        claims: (tokenResult.claims as unknown) as CustomClaims
+        claims: tokenResult.claims as unknown as CustomClaims,
       };
 
       // Update cache
@@ -98,20 +105,22 @@ export class TokenManagerService {
       const currentTime = new Date();
 
       const isExpired = expirationTime <= currentTime;
-      const needsRefresh = (expirationTime.getTime() - currentTime.getTime()) < this.TOKEN_REFRESH_THRESHOLD;
+      const needsRefresh =
+        expirationTime.getTime() - currentTime.getTime() <
+        this.TOKEN_REFRESH_THRESHOLD;
 
       return {
         isValid: !isExpired,
         isExpired,
         needsRefresh,
-        claims: (decodedToken as unknown) as CustomClaims
+        claims: decodedToken as unknown as CustomClaims,
       };
     } catch (error: any) {
       return {
         isValid: false,
         isExpired: true,
         needsRefresh: true,
-        error: this.mapTokenError(error)
+        error: this.mapTokenError(error),
       };
     }
   }
@@ -119,7 +128,9 @@ export class TokenManagerService {
   /**
    * Validate token and refresh if needed
    */
-  async validateAndRefreshToken(token: string): Promise<{ token: string; claims: CustomClaims }> {
+  async validateAndRefreshToken(
+    token: string
+  ): Promise<{ token: string; claims: CustomClaims }> {
     const validation = await this.validateToken(token);
 
     if (!validation.isValid) {
@@ -134,16 +145,16 @@ export class TokenManagerService {
 
       const newToken = await this.getUserToken(user, true);
       const newValidation = await this.validateToken(newToken);
-      
+
       return {
         token: newToken,
-        claims: newValidation.claims!
+        claims: newValidation.claims!,
       };
     }
 
     return {
       token,
-      claims: validation.claims!
+      claims: validation.claims!,
     };
   }
 
@@ -160,7 +171,7 @@ export class TokenManagerService {
   private isTokenUsable(tokenInfo: TokenInfo): boolean {
     const currentTime = Date.now();
     const expirationTime = tokenInfo.expirationTime.getTime();
-    
+
     // Token is usable if it's not expired and doesn't need refresh soon
     return expirationTime > currentTime + this.TOKEN_REFRESH_THRESHOLD;
   }
@@ -200,14 +211,16 @@ export class TokenManagerService {
 
     const currentTime = Date.now();
     const expirationTime = tokenInfo.expirationTime.getTime();
-    
-    return (expirationTime - currentTime) < this.TOKEN_REFRESH_THRESHOLD;
+
+    return expirationTime - currentTime < this.TOKEN_REFRESH_THRESHOLD;
   }
 
   /**
    * Batch validate multiple tokens
    */
-  async batchValidateTokens(tokens: string[]): Promise<TokenValidationResult[]> {
+  async batchValidateTokens(
+    tokens: string[]
+  ): Promise<TokenValidationResult[]> {
     const validationPromises = tokens.map(token => this.validateToken(token));
     return Promise.all(validationPromises);
   }
@@ -223,7 +236,7 @@ export class TokenManagerService {
 
     const userId = user.uid;
     const tokenInfo = this.tokenCache.get(userId);
-    
+
     if (!tokenInfo) {
       return () => {};
     }
@@ -265,10 +278,10 @@ export class TokenManagerService {
 
     for (const tokenInfo of this.tokenCache.values()) {
       const expirationTime = tokenInfo.expirationTime.getTime();
-      
+
       if (expirationTime <= currentTime) {
         expiredTokens++;
-      } else if ((expirationTime - currentTime) < this.TOKEN_REFRESH_THRESHOLD) {
+      } else if (expirationTime - currentTime < this.TOKEN_REFRESH_THRESHOLD) {
         tokensNeedingRefresh++;
       }
     }
@@ -277,7 +290,7 @@ export class TokenManagerService {
       cachedTokens: this.tokenCache.size,
       activeRefreshes: this.refreshPromises.size,
       expiredTokens,
-      tokensNeedingRefresh
+      tokensNeedingRefresh,
     };
   }
 
@@ -286,36 +299,36 @@ export class TokenManagerService {
    */
   private mapTokenError(error: any): AuthError {
     const errorCode = error.code || 'unknown';
-    
+
     switch (errorCode) {
       case 'auth/id-token-expired':
         return {
           code: AuthErrorCode.TOKEN_EXPIRED,
-          message: 'Authentication token has expired'
+          message: 'Authentication token has expired',
         };
-      
+
       case 'auth/id-token-revoked':
         return {
           code: AuthErrorCode.TOKEN_REVOKED,
-          message: 'Authentication token has been revoked'
+          message: 'Authentication token has been revoked',
         };
-      
+
       case 'auth/invalid-id-token':
         return {
           code: AuthErrorCode.TOKEN_INVALID,
-          message: 'Invalid authentication token'
+          message: 'Invalid authentication token',
         };
-      
+
       case 'auth/user-not-found':
         return {
           code: AuthErrorCode.ACCOUNT_NOT_FOUND,
-          message: 'User account not found'
+          message: 'User account not found',
         };
-      
+
       default:
         return {
           code: AuthErrorCode.INTERNAL_ERROR,
-          message: error.message || 'Token validation failed'
+          message: error.message || 'Token validation failed',
         };
     }
   }

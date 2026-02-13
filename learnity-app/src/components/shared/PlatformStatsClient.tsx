@@ -5,8 +5,8 @@
 
 'use client';
 
-import { MetricCard } from '@/components/ui/stats-card';
 import { Users, GraduationCap, Star } from 'lucide-react';
+import { MetricCard } from '@/components/ui/stats-card';
 
 interface PlatformStatsClientProps {
   stats: {
@@ -21,7 +21,7 @@ interface PlatformStatsClientProps {
 export function PlatformStatsClient({
   stats,
   variant = 'default',
-  className = ''
+  className = '',
 }: PlatformStatsClientProps) {
   // Define stat items with icons and styling
   const statItems = [
@@ -69,11 +69,7 @@ export function PlatformStatsClient({
           title={stat.title}
           value={stat.value}
           trendValue={stat.trendValue}
-          trendLabel={stat.trendLabel}
           icon={stat.icon}
-          iconColor={stat.iconColor}
-          bgColor={stat.bgColor}
-          trendColor="text-green-600"
         />
       ))}
     </div>

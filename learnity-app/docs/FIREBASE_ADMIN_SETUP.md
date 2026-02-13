@@ -24,6 +24,7 @@ This guide will help you set up Firebase Admin SDK to enable programmatic user m
 ## 🔑 Step 2: Extract Credentials from JSON
 
 The downloaded JSON file looks like this:
+
 ```json
 {
   "type": "service_account",
@@ -54,6 +55,7 @@ ADMIN_SETUP_SECRET=your-super-secret-key-change-this
 ```
 
 ### ⚠️ Important Notes:
+
 - **Private Key**: Copy the entire private key including `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----`
 - **Line Breaks**: Keep the `\n` characters in the private key
 - **Quotes**: Wrap the private key in double quotes
@@ -62,6 +64,7 @@ ADMIN_SETUP_SECRET=your-super-secret-key-change-this
 ## 🧪 Step 4: Test the Configuration
 
 1. **Restart your development server**
+
    ```bash
    npm run dev
    ```
@@ -94,7 +97,7 @@ If the automatic setup doesn't work, you can manually set custom claims:
      "role": "ADMIN",
      "permissions": [
        "VIEW_ADMIN_PANEL",
-       "MANAGE_USERS", 
+       "MANAGE_USERS",
        "APPROVE_TEACHERS",
        "VIEW_AUDIT_LOGS",
        "MANAGE_PLATFORM"
@@ -109,20 +112,24 @@ If the automatic setup doesn't work, you can manually set custom claims:
 ## 🚨 Troubleshooting
 
 ### Error: "Firebase Admin SDK not properly configured"
+
 - Check that all environment variables are set correctly
 - Verify the private key format (should include `\n` characters)
 - Make sure you restarted the development server
 
 ### Error: "There is no user record"
+
 - The user must be registered in Firebase Auth first
 - Go to `/auth/register` and create an account
 - Then try the admin promotion
 
 ### Error: "Unauthorized"
+
 - Check that `ADMIN_SETUP_SECRET` matches what you're entering
 - Make sure the secret is set in your `.env.local` file
 
 ### Still having issues?
+
 - Check the browser console for detailed error messages
 - Check the server logs in your terminal
 - Verify your Firebase project settings

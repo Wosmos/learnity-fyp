@@ -27,10 +27,7 @@ export async function POST(request: NextRequest) {
     const user = await databaseService.getUserProfile(authResult.uid!);
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Get form data
@@ -38,10 +35,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get('avatar') as File;
 
     if (!file) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
     // Upload avatar
@@ -78,10 +72,7 @@ export async function DELETE(request: NextRequest) {
     const user = await databaseService.getUserProfile(authResult.uid!);
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Delete avatar

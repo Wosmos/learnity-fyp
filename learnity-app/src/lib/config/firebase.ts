@@ -1,7 +1,15 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth, connectAuthEmulator } from 'firebase/auth';
-import { getStorage, connectStorageEmulator, FirebaseStorage } from 'firebase/storage';
-import { initializeAppCheck, AppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
+import {
+  getStorage,
+  connectStorageEmulator,
+  FirebaseStorage,
+} from 'firebase/storage';
+import {
+  initializeAppCheck,
+  AppCheck,
+  ReCaptchaEnterpriseProvider,
+} from 'firebase/app-check';
 
 // Firebase configuration from environment variables
 const firebaseConfig = {
@@ -31,14 +39,18 @@ const storage: FirebaseStorage = getStorage(app);
 
 // Initialize Firebase App Check for bot protection
 // Disabled in development - enable in production with proper ReCaptcha Enterprise setup
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+if (
+  typeof window !== 'undefined' &&
+  process.env.NODE_ENV === 'production' &&
+  process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+) {
   try {
     // Only initialize App Check in the browser
     appCheck = initializeAppCheck(app, {
       provider: new ReCaptchaEnterpriseProvider(
         process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
       ),
-      isTokenAutoRefreshEnabled: true
+      isTokenAutoRefreshEnabled: true,
     });
     console.log('Firebase App Check initialized');
   } catch (error) {
@@ -48,18 +60,22 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production' && pr
 }
 
 // Connect to emulators in development (only if explicitly enabled)
-if (process.env.NODE_ENV === 'development' && 
-    process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === 'true' && 
-    typeof window !== 'undefined') {
+if (
+  process.env.NODE_ENV === 'development' &&
+  process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === 'true' &&
+  typeof window !== 'undefined'
+) {
   try {
     // Connect to Auth emulator
     try {
-      connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+      connectAuthEmulator(auth, 'http://localhost:9099', {
+        disableWarnings: true,
+      });
       console.log('Connected to Firebase Auth Emulator');
     } catch {
       // Emulator already connected or not available
     }
-    
+
     // Connect to Storage emulator
     try {
       connectStorageEmulator(storage, 'localhost', 9199);

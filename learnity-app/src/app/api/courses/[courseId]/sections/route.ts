@@ -2,12 +2,13 @@
  * Section API Routes for Course
  * POST /api/courses/[courseId]/sections - Create new section
  * GET /api/courses/[courseId]/sections - Get all sections for a course
- * 
+ *
  * Requirements covered:
  * - 1.6: Section creation, naming, and ordering
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 import { sectionService } from '@/lib/services/section.service';
 import { CreateSectionSchema } from '@/lib/validators/section';
 import { SectionError } from '@/lib/interfaces/section.interface';
@@ -20,7 +21,6 @@ import {
   createValidationErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { ZodError } from 'zod';
 
 interface RouteParams {
   params: Promise<{ courseId: string }>;
@@ -154,7 +154,7 @@ export async function POST(
     const body = await request.json();
 
     // Get next order if not provided
-    const order = body.order ?? await sectionService.getNextOrder(courseId);
+    const order = body.order ?? (await sectionService.getNextOrder(courseId));
 
     // Validate input
     const validatedData = CreateSectionSchema.parse({

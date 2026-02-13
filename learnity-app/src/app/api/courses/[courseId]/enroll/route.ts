@@ -2,7 +2,7 @@
  * Course Enrollment API Routes
  * POST /api/courses/[courseId]/enroll - Enroll in a course
  * DELETE /api/courses/[courseId]/enroll - Unenroll from a course
- * 
+ *
  * Requirements covered:
  * - 4.1: Course enrollment
  * - 4.2: Enrollment record creation with initial state (0% progress, ACTIVE status)
@@ -74,7 +74,10 @@ export async function POST(
     }
 
     // Enroll student in course
-    const enrollment = await enrollmentService.enrollStudent(dbUser.id, courseId);
+    const enrollment = await enrollmentService.enrollStudent(
+      dbUser.id,
+      courseId
+    );
 
     return createSuccessResponse(
       enrollment,
@@ -148,10 +151,7 @@ export async function DELETE(
     // Unenroll student from course
     await enrollmentService.unenrollStudent(dbUser.id, courseId);
 
-    return createSuccessResponse(
-      null,
-      'Successfully unenrolled from course'
-    );
+    return createSuccessResponse(null, 'Successfully unenrolled from course');
   } catch (error) {
     console.error('Error unenrolling from course:', error);
 
@@ -213,13 +213,19 @@ export async function GET(
     }
 
     // Get enrollment status
-    const enrollment = await enrollmentService.getEnrollment(dbUser.id, courseId);
+    const enrollment = await enrollmentService.getEnrollment(
+      dbUser.id,
+      courseId
+    );
     const isEnrolled = await enrollmentService.isEnrolled(dbUser.id, courseId);
 
-    return createSuccessResponse({
-      isEnrolled,
-      enrollment,
-    }, 'Enrollment status retrieved successfully');
+    return createSuccessResponse(
+      {
+        isEnrolled,
+        enrollment,
+      },
+      'Enrollment status retrieved successfully'
+    );
   } catch (error) {
     console.error('Error checking enrollment status:', error);
 

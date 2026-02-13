@@ -1,7 +1,7 @@
 /**
  * Course Unpublish API Route
  * POST /api/courses/[courseId]/unpublish - Unpublish a course (Teacher only)
- * 
+ *
  * Requirements covered:
  * - 2.3: Unpublish course, hiding from new enrollments while preserving existing progress
  */

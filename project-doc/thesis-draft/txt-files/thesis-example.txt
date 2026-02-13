@@ -1,0 +1,955 @@
+<TITLE OF PROJEC> 
+THESIS SUBMITTED TOWARDS THE PARTIAL FULFILMENT OF THE REQUIREMENT 
+OF THE UNIVERSITY OF SINDH, FOR THE AWARD OF BACHELOR OF SCIENCE IN 
+SOFTWARE ENGINEERING 
+SUBMITTED BY  
+<FULL NAME>     
+<FULL NAME>     
+<FULL NAME>     
+SUPERVISOR 
+<Full Roll Number> 
+<Full Roll Number> 
+<Full Roll Number> 
+Ms. Nazish Basir 
+Assistant Professor 
+Department of Information Technology 
+CO-SUPERVISOR 
+Title FirstName LastName 
+Designation 
+Department of <Department Name> 
+DEPARTMENT OF SOFTWARE ENGINEERING 
+FACULTY OF ENGINEERING AND TECHNOLOGY 
+UNIVERSITY OF SINDH 
+Session 2023 
+CERTIFICATE 
+TITLE OF PROJECT 
+A Thesis Submitted By 
+<FULL NAME>   <Full Roll Number> 
+<FULL NAME>   <Full Roll Number> 
+<FULL NAME>   <Full Roll Number> 
+    
+ 
+ 
+ 
+______________________________ ______________________________ 
+Supervisor’s name and signature  
+  
+  
+  
+  
+  
+______________________________ ______________________________ 
+Co-Supervisor’s name and signature  
+  
+  
+  
+  
+  
+______________________________ ______________________________ 
+Coordinator Final Year Projects  
+  
+  
+  
+  
+  
+______________________________ ______________________________ 
+Chairman  
+Department of Software Engineering 
+ 
+ 
+ 
+1 
+ 
+ 
+ACKNOWLEDGEMENTS 
+We are thankful with the core of our heart to almighty ALLAH. Lord of the universe, 
+who made it possible to complete our project report successfully. The success of a 
+project depends on the contributions and supports of many people whom we would 
+like to appreciate for their support in the duration of this project. We would like to 
+express our gratitude to our supervisor Nazish Basir who is responsible for 
+supervising and monitoring our progress of this project thesis. Secondly our friend for 
+offering their guidance and encouragement to us. Otherwise, this project would not 
+have been possible to be developed properly.  
+Our special appreciation and thanks to our family who always stands by us no matter 
+what happens. Their full support and encouragement were such a boost for our 
+capabilities and confidence to undergo this period last but certainly not least, we also 
+want to thank all our friends for their invaluable assistances towards this project 
+thesis.   
+Special thanks to everyone who involve in this project either direct or indirectly. We 
+must admit here that it was impossible for us to completing our project thesis without 
+the supports of them that we mentioned above. 
+2 
+ABSTRACT  
+Students and teachers have been facing problem due to the absence of centralized web 
+service for the department. This project solves their problem in the form of providing 
+DYNAMIC INTERFACE OF MEDIA AND COMMMUNICATION which gives 
+them ready access to information and centralized system for assignments, timetable, 
+notes and results.  
+DYNAMIC INTERFACE OF MEDIA AND COMMMUNICATION is design for the 
+purpose to ease the communication between Teachers and Students. There are 
+different kinds of users that have different roles on this portal. The major users are 
+students and Teachers which take the most advantage of this website. Once a teacher 
+and student are registered, they will receive benefits from this website. This project 
+will also help in collaborative learning. 
+On the other hand, administrator of the website is able to centralize the information 
+between students and teachers. He/she can access to every part of the website and 
+have right to edit, delete, change, upload, making reports and supervise the system. It 
+will reduce the burden of collection, organization, management and sharing of notes, 
+assignments, and announcement of exam timetable, results and event notifications 
+which are being maintained manually by the faculty. 
+3 
+LIST OF FIGURES 
+Figure 1-1: Context Diagram of Application 
+Figure 3-1: Use Case Diagram of Teacher 
+Figure 3-2: Use Case Diagram of Student 
+Figure 3-3: Use Case Diagram of Admin 
+Figure 3-4: Activity diagram of Teacher 
+Figure 3-5: Activity diagram of Student 
+Figure 3-6: Activity Diagram for Admin 
+Figure 3-7: Entity Relationship Diagram 
+Figure 3-8: System Architecture 
+Figure 5-1: Login of Admin 
+Figure 5-2: Admin Panel 
+Figure 5-3: Teacher Login 
+Figure 5-4: Lecture Upload by teacher 
+Figure 5-5: Enquiry Checked by Teacher 
+Figure 5-6: Student Registration 
+Figure 5-7: Student Login 
+Figure 5-8: Main Page 
+Figure 5-9: Enquiry Send By Student 
+Figure 5-10: Enquiry Check By Admin 
+Figure 5-11:  Time Table Upload By Admin 
+Figure 5-12: Time Table Display at Main Page 
+Figure 5-13: Result Upload by Admin 
+Figure 5-14: Result show at Main Page 
+Figure 5-15: Gallery 
+3 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+27 
+28 
+29 
+30 
+31 
+32 
+33 
+34 
+35 
+36 
+37 
+38 
+39 
+40 
+41 
+4 
+CONTENTS 
+CERTIFICATE.................................................................................................................................................I 
+ACKNOWLEDGEMENTS...................................................................................................................II 
+ABSTRACT...........................................................................................................................................III 
+LIST OF FIGURES.......................................................................................................................................IV 
+CONTENTS..................................................................................................................................................V 
+CHAPTER NO. 1 INTRODUCTION..........................................................................................................8 
+1.1 BACKGROUND....................................................................................................................8 
+1.2 DEPARTMENT OF MEDIA AND COMMUNICATION.....................................................8 
+1.3 OBJECTIVES.........................................................................................................................9 
+1.4 SCOPE..................................................................................................................................10 
+CHAPTER NO. 2 BACKGROUND AND LITERATURE REVIEW..........................................................................11 
+2.1 THE WEBSITE....................................................................................................................11 
+2.2 HISTORY OF WEBSITE.....................................................................................................11 
+2.3 DYNAMIC WEBSITE.........................................................................................................12 
+2.3.1 AVANTAGES OF DYNAMIC WEBSITE..........................................................................12 
+2.4 INTRODUCTION TO RESPONSIVE WEBSITE..............................................................12 
+2.5 WEB CONTENT MANAGEMENT SYSTEM...................................................................13 
+2.5.1 IMPORTANCE OF CMS..................................................................................................13 
+2.5.2 MAIN FEATURES OF CMS............................................................................................14 
+2.6 HIGHLIGHTED FEATURES..............................................................................................14 
+2.6.1 ADMINISTRATOR FEATURES.......................................................................................14 
+2.6.2 TEACHERS FEATURES..................................................................................................14 
+2.6.3 STUDENTS FEATURES..................................................................................................14 
+2.6.4 AREA OF APPLICATION...............................................................................................15 
+2.7 ADVANTAGES DYNAMIC INTERCAE OF MEDIA AND COMMUNICATION..........15 
+CHAPTER NO. 3 ANALYSIS & DESIGN...............................................................................................16 
+3.1 REQUIRMENTS..................................................................................................................16 
+3.1.1 FUNCTIONAL REQUIREMENTS..................................................................................16 
+3.1.2 NON-FUNCTIONAL REQUIREMENTS.........................................................................17 
+ 
+5 
+ 
+ 
+3.2 DESIGN OF MEDIA AND COMMUNICATION WEBSITE............................................18 
+3.2.1 USE CASE FOR TEACHERS..........................................................................................18 
+3.2.2 USE CASE FOR STUDENT............................................................................................19 
+3.2.3 USE CASE FOR ADMIN.................................................................................................20 
+3.2.4 ACTIVITY DIAGRAM FOR TEACHER..........................................................................21 
+3.2.5 ACTIVITY DIAGRAM FOR STUDENT...........................................................................22 
+3.2.6 ACTIVITY DIAGRAM FOR ADMIN...............................................................................23 
+3.3 ENTITY RELATIONSHIP DIAGRAM..............................................................................24 
+3.4 SYSTEM ARCHIECTURE.................................................................................................25 
+CHAPTER NO. 4 TOOL & TECHNOLOGIES......................................................................................26 
+4.1 OVERVIEW OF TOOLS.....................................................................................................26 
+4.2 HTML/CSS...........................................................................................................................27 
+4.2.1 HTML5.............................................................................................................................27 
+4.2.2 Cascading Style Sheets (CSS)..........................................................................................27 
+4.3 PHP.......................................................................................................................................28 
+4.3.1 USAGE PHP SCRIPT......................................................................................................28 
+4.3.2 ADVANTAGES OF PHP..................................................................................................28 
+4.3.3 APACHE SERVER...........................................................................................................29 
+4.4 JAVA SCRIPT.......................................................................................................................29 
+4.5 JQUERY...............................................................................................................................30 
+4.6 BOOTSTRAP.......................................................................................................................30 
+4.6.1 BOOTSTRAP V3.3.5........................................................................................................31 
+4.6.2 BOOTSTRAP FORM’S CLASSES...................................................................................31 
+4.6.3 REASONS TO CHOOSE BOOTSTRAP FRAMEWORK.................................................32 
+4.7 MYSQL................................................................................................................................32 
+4.8 CODEIGNITER...................................................................................................................32 
+4.9 NET BEANS........................................................................................................................33 
+4.9.1 NETBEANS VERSION 8.2...............................................................................................33 
+4.9.2 NETBEANS IDE BUNDLE FOR PHP............................................................................33 
+CHAPTER NO. 5 IMPLEMENTATION..................................................................................................34 
+5.1 IMPLEMENTATION OF THE DYNAMIC INTERFACE OF MEDIA & 
+COMMUNICATION..........................................................................................................................34 
+5.1.1 LOGIN OF ADMIN.........................................................................................................34 
+ 
+6 
+ 
+ 
+5.1.2 ADMIN PANEL................................................................................................................35 
+5.1.3 TEACHER LOGIN...........................................................................................................36 
+5.1.4 LECTURES UPLOAD BY TEACHER.............................................................................37 
+........................................................................................................................................................37 
+5.1.5 ENQUIRY CHECKED BY TEACHER.............................................................................38 
+5.1.6 STUDENT REGISTRATION............................................................................................39 
+5.1.7 STUDENT LOGIN...........................................................................................................40 
+5.1.8 MAIN PAGE.....................................................................................................................41 
+5.1.9 ENQUIRY SEND BY STUDENT......................................................................................42 
+5.1.10 ENQUIRY CHECK BY ADMIN..................................................................................43 
+5.1.11 TIME TABLE UPLOAD BY ADMIN...........................................................................44 
+5.1.12 TIME TABLE DISPLAY AT MAIN PAGE....................................................................45 
+5.1.13 RESULT UPLOAD BY ADMIN..................................................................................46 
+5.1.14 RESULT SHOW AT MAIN PAGE...............................................................................47 
+5.1.15 GALLERY....................................................................................................................48 
+CHAPTER NO. 6 RESULT AND CONCLUSION..................................................................................49 
+6.1 RESULT................................................................................................................................49 
+6.2 CONCLUSION....................................................................................................................49 
+6.3 FUTURE RECOMMENDATION........................................................................................50 
+REFERENCES.......................................................................................................................................51 
+ 
+ 
+ 
+7 
+ 
+ 
+Chapter No. 1  
+INTRODUCTION 
+1.1 BACKGROUND 
+Websites are built since the breakthrough of internet. WWW (World Wide Web) 
+further helped many institutions to be more connected worldwide this magnitude of 
+change and advancement led them develop like never before! Now there was a way to 
+which information shared and received between more than on domain, it grew up as 
+the joint and giant system of wholly interconnected networks known as web and the 
+particular location is said to be the (side) networked with its different entities and a 
+main server where the resources that are shared from various locations are to be easily 
+shared with others of that similarity.  
+University of Sindh is the one of the most reputable universities in the Pakistan and it 
+has the honor of second oldest university of Pakistan. With respect to the institute and 
+the university in particular the stuff and the students, a (website) was a must thing to 
+be included restively within the institute so that, like other well-known institutes of 
+university the Institute of Mass Communication can also provide some flexibility to 
+the student with the work that is carried on the help of website. 
+1.2 DEPARTMENT OF MEDIA AND COMMUNICATION  
+This department, founded in 1977 as the Department of Journalism Department of 
+Mass Communication in 1985. Keeping the latest market requirement department is 
+renamed as “MEDIA & COMMUNICATION STUDIES” in year 2013. It trains 
+students for career in the fields of communication and journalism offering BS and 
+Masters of Arts (M.A) programme in Media & Communication Studies. The 
+four-year BS degree courses have been redesigned to provide professional education 
+with theory-cum-research and practical based approach in everyday life-like situation 
+and meet the needs of market and professional fields i.e., print media, electronic 
+1 
+media, journalism, advertising, public relations and development support 
+communication.  
+Practically, it is the only institution offering courses in Media & Communication 
+Studies to the people of rural and urban Sindh. The Department has a well-stocked 
+seminar library with a fine collection of more than 3500 latest books and periodicals 
+and also has two well-equipped media laboratories, comprising sufficient number of 
+computers, well established Studio, video cameras, editing processors, tape recorders, 
+multimedia projectors and laser printers etc.  
+The students are required to write and report news stories, columns, articles and 
+features in weekly newspaper ‘Roshni’ and monthly magazine ‘Shaoor’ reflecting 
+scholarly and independent thought. Under these programs students are treated as 
+journalists who would one day be called upon to accept responsibilities in 
+administrative or supervisory positions in media organizations. 
+1.3 OBJECTIVES 
+Department of Media & Communication Studies seeks to provide students with 
+a leading-edge education that emphasizes a core of fundamental concepts, 
+values and skills that make them prepare for an era of unprecedented change. It 
+will educate students to understand the whole of mass communication, to solve 
+problems, to understand the ethical and legal implications of media and 
+communication, to be comfortable with innovation and to work in concert with 
+their peers. It will make them confident for leadership roles in their professions 
+and their communities. 
+● To use media for social development.  
+● To give a theoretical & practical understanding about media 
+culture.  
+● To give a working knowledge on international. Information 
+distribution techniques.  
+● To work towards building a better media culture.  
+2 
+The dynamic interface of Department Of Media & Communication Studies provides 
+information in a clear and accessible format, promoting the best user experience 
+possible and facilitate the students and teachers of department in different point of 
+views. The purpose of developing this project is to manage the whole website through 
+admin panel. 
+1.4 SCOPE 
+The scope of the Dynamic Interface of Media & Communication Studies to give 
+advance content management system where students can make and perform different 
+activities for Mass Communication department. the Dynamic Interface of Media & 
+Communication is a responsive website customized viewing experience for different 
+browser platform (laptop, tablet, and smart phones). Through this dynamic web 
+interface students and teachers of Mass communication can make their own account 
+and know about their course content, time table, notice board information, department 
+culture and celebrations and students can also view their result online. 
+Figure 1-1: Context Diagram of Application 
+3 
+Chapter No. 2  
+BACKGROUND AND 
+LITERATURE REVIEW 
+2.1 THE WEBSITE  
+A website, also written as Web site, web site, or simply site, is a set of related web 
+pages served from a single web domain. A website is hosted on at least one web 
+server, accessible via a network such as the Internet or a private local area 
+network through an Internet address known as a Uniform resource locator. All 
+publicly accessible websites collectively constitute the World Wide Web. 
+A webpage is a document, typically written in plain text interspersed with formatting 
+instructions of Hypertext Markup Language (HTML, XHTML). A webpage may 
+incorporate elements from other websites with suitable markup anchors. 
+Webpages are accessed and transported with the Hypertext Transfer Protocol (HTTP), 
+which may optionally employ encryption (HTTP Secure, HTTPS) to provide security 
+and privacy for the user of the webpage content. The user's application, often a web 
+browser, renders the page content according to its HTML markup instructions onto 
+a display terminal. 
+2.2 HISTORY OF WEBSITE 
+The World Wide Web (WWW) was created in 1990 by the British CERN 
+physicist Tim Berners-Lee. On 30 April 1993, CERN announced that the World Wide 
+Web would be free to use for anyone. 
+Before the introduction of HTML and HTTP, other protocols such as File Transfer 
+Protocol and the gopher protocol were used to retrieve individual files from a server. 
+These protocols offer a simple directory structure which the user navigates and 
+chooses files to download. Documents were most often presented as plain text files 
+without formatting, or were encoded in processor formats. [1] 
+4 
+2.3 DYNAMIC WEBSITE 
+A dynamic website is one that changes or customizes itself frequently and 
+automatically. Server-side dynamic pages are generated "on the fly" by computer code 
+that produces the HTML and CSS. There are a wide range of software systems, such 
+as CGI, Java 
+Servlets and Java 
+Server 
+Pages (JSP), Active 
+Server 
+Pages and ColdFusion (CFML) that are available to generate dynamic web systems 
+and dynamic sites. Various web application frameworks and web template systems are 
+available for general-use programming languages like PHP, Perl, Python, and Ruby, to 
+make it faster and easier to create complex dynamic web sites. 
+2.3.1 AVANTAGES OF DYNAMIC WEBSITE 
+Much more functional Website 
+Much easier to update 
+New content brings people back to the site and helps in the search engines 
+Can work as a system to allow staff or users to collaborate. [2] 
+2.4 INTRODUCTION TO RESPONSIVE WEBSITE 
+Responsive web design (or "RWD") is a type of web design that provides a 
+customized viewing experience for different browser platforms. A website created 
+with RWD will display a different interface depending   on what device is used to 
+access the site. For example, a responsive website may appear one way on a laptop, 
+another way on a tablet, and still another way on smart phone. 
+Today, many people access websites from mobile devices, rather than desktop 
+computers or laptops. While most smart phones can display regular websites, the 
+5 
+content is difficult to read and even harder to navigate. Therefore, many web 
+developers now use responsive web design to provide a better web browsing 
+experience on small screens. [3] 
+2.5 WEB CONTENT MANAGEMENT SYSTEM 
+Web content management system (WCMS) is mainly used to control and publish text 
+based document like articles, text documents and information. A CMS is normally 
+able to provide the following features: 
+Our website is able to provide the information that’s a needed by student, stuff and 
+others. Its content is managed in a way like standard content management systems. 
+To create Admin panel. 
+Identify the main users and their roles within the Institute. 
+An ability to assign certain roles and rights within the id and password. 
+Administrator has the full control system. 
+Accounts will be given to faculty members 
+2.5.1 IMPORTANCE OF CMS  
+Content management system (CMS) used to manage the content of a website. It helps 
+in updating the website easily. It is installed by web designers on the servers. So that it 
+can be used website owner/admin. A person using CMS need not be technical or web 
+savvy nor do he/she require a technical training for managing the content of a website. 
+In a CMS, data can be anything like: - document, event, picture, information about the 
+faculty etc. through CMS, one can easily add, edit, and delete images and text in 
+website. 
+6 
+2.5.2 MAIN FEATURES OF CMS 
+2.5.2.1 ADMINISTRATOR  
+Administrator has the full control over system. 
+To create and delete all faculties. 
+2.5.2.2 MONITORING USERS 
+Accounts will be given to director and faculty. [4] 
+2.6  HIGHLIGHTED FEATURES 
+Administrators  
+Teachers 
+Students 
+2.6.1  ADMINISTRATOR FEATURES 
+● Add new users 
+● Deactivate or delete the user 
+● Announcement of any Events 
+● Recover the user password 
+● Maintaining the whole information of Department 
+● Upload timetable 
+● Upload result 
+2.6.2  TEACHERS FEATURES 
+● Teachers can upload their notes and assignments to share with students. 
+● Teachers can update his/her password and profile information. 
+7 
+2.6.3  STUDENTS FEATURES 
+● Students can receive notes and assignments and can download.   
+● Student can get updates of his/her result using a secure login system. 
+● Students can see any new announcement/notifications. 
+● Students can see the time tables. 
+● Students can update his/her password and profile information. 
+2.6.4 AREA OF APPLICATION 
+This website is designed for the students and teachers of department of media and 
+communication in Sindh University. Furthermore, this kind of project can be applied 
+in educational institutes worldwide with more additional features to serve the 
+students, teaching staff and educational institutes.   
+2.7 ADVANTAGES DYNAMIC INTERCAE OF MEDIA 
+AND COMMUNICATION 
+● Provide notification and list of Events 
+● Download notes and assignments 
+● Provide result viewing and downloading 
+● Globally accessible  
+● Central place for all tasks 
+● 24 Hour accessible 
+● User friendly 
+● Secure & Personalized 
+● Saving of time & man power 
+8 
+Chapter No. 3  
+ANALYSIS & DESIGN 
+3.1 REQUIRMENTS  
+A requirement is an objective that must be met. Planners cast most requirements in 
+functional terms, leaving design and implementation details to the developers. They 
+may specify price, performance, and reliability objectives in fine detail, along with 
+some aspects of the user interface. Sometimes, they describe their objectives more 
+precisely than realistically. There are two types of requirements given below: 
+3.1.1 FUNCTIONAL REQUIREMENTS 
+A requirement that specifies a function that a system or component must be able to 
+perform is called functional requirement. These include inputs, outputs, calculations, 
+external interfaces, communications, and special management information needs. 
+Functional requirements are also called behavioral requirements because they address 
+what the system does. 
+In many cases, if the user requirements are written for the requestor and not the 
+end-user, the functional requirements are combined with the functional requirements; 
+this is common within companies that have a strong Information Technology 
+department that is tasked with doing the work. The Dynamic Interface Of Media and 
+Communication has the following functional requirement: 
+Administrator must be able to add users, design events, recover passwords 
+on user request, upload /delete files. 
+Admin can upload result/timetable and students and teachers can view 
+them. 
+Admin can upload the events and other notifications. 
+9 
+Students can download the lectures, newspaper and magazine and their 
+related stuff.  
+3.1.2 NON-FUNCTIONAL REQUIREMENTS 
+Non-Functional Requirements in Software Engineering presents a systematic and 
+pragmatic approach to `building quality into' software systems. Systems must exhibit 
+software quality attributes, such as accuracy, performance, security and modifiability. 
+However, such non-functional requirements are difficult to address in many projects, 
+even though there are many techniques to meet functional requirements in order to 
+provide desired functionality. 
+Non-Functional Requirements in Software Engineering is an excellent resource for 
+software engineering practitioners, researchers and students. For example, software 
+performance requirements, software external interface requirements, software design 
+constraints, and software quality attributes. Nonfunctional requirements are difficult 
+to test; therefore, they are usually evaluated subjectively. [5]  
+The Dynamic Interface Of Media and Communication has the following 
+nonfunctional requirement: 
+Availability of every documents, updates etc. on home page. 
+Detail of Institute various records, event, program etc. 
+Admin 
+✔ Post 
+✔ Designation 
+✔ Department/Discipline 
+✔ Contact Details 
+10 
+Availability of Gallery  
+Website should be fully dynamic 
+Detailed information on each and every page.  
+11 
+3.2 DESIGN OF MEDIA AND COMMUNICATION 
+WEBSITE 
+3.2.1 USE CASE FOR TEACHERS 
+To use Dynamic Interface Of Media and Communication teachers has to login into 
+his/her account and if he/she is not register then he /she have to register themselves. 
+After when teacher login into his/her account successfully, he/she can avail benefits of 
+website to their need. Teachers can easily upload their lectures and notes. The 
+teachers have facilities to view the time table, events and notice board information. As 
+shown in the following figure: 
+Figure 3-1: Use Case Diagram of Teacher 
+12 
+3.2.2 USE CASE FOR STUDENT 
+To use the Dynamic Interface Of Media and Communication students has to login into 
+his/her account and if he/she is not register then he /she have to register themselves. 
+After when student login into his/her account successfully, he/she can avail benefits of 
+website to her need. student can easily download lectures, notes, newspaper, magazine 
+and videos. The students have facilities to view the time table, events and notice board 
+information. After avail his/ her need student can logout. As shown in the following 
+figure: 
+Figure 3-2: Use Case Diagram of Student 
+13 
+3.2.3 USE CASE FOR ADMIN  
+To control the Dynamic Interface of Media & Communication admin has to login into 
+his/her account After login into his/her account successfully, he/she can perform 
+different activities to control the website. A admin can create the different role also 
+he/she can register the teachers and students of the mass communication department. 
+Admin can also manage notice board information such as time table, exam results and 
+other notifications. Admin can manage the course content, gallery, events, Enquiry 
+and control all the setting related to website. In last admin, can logout. As shown in 
+the following figure: 
+Figure 3-3: Use Case Diagram of Admin 
+14 
+3.2.4 ACTIVITY DIAGRAM FOR TEACHER  
+To perform the activities teacher has to login first after login he / she can check the 
+enquiry and upload and download the lectures. As shown in the following figure: 
+Figure 3-4: Activity diagram of Teacher 
+15 
+3.2.5 ACTIVITY DIAGRAM FOR STUDENT 
+Activity diagram for student shows that a student has to login first to use the website 
+and if a student doesn’t have account then he/she has to register first and he/she will 
+be able to download the lectures magazines and newspapers, view gallery and events 
+and notice board information and enquiry. After availing the benefits of the website 
+student can logout. As shown in following figure: 
+Figure 3-5: Activity diagram of Student 
+16 
+3.2.6 ACTIVITY DIAGRAM FOR ADMIN 
+After login Admin, can perform activities like manage the users (teacher, student), 
+manage the gallery and events, manage the notice board information, manage the 
+course, manage the enquiry and can also control all settings related to the website. As 
+shown in following activity figure: 
+Figure 3-6: Activity Diagram for Admin 
+17 
+3.3 ENTITY RELATIONSHIP DIAGRAM 
+An entity-relationship diagram (ERD) is a graphical representation of an information 
+system that shows the relationship between people, objects, places, concepts or events 
+within that system. An ERD is a data modeling technique that can help define 
+business processes and can be used as the foundation for a relational database. Three 
+main components of an ERD are the entities, which are objects or concepts that can 
+have data stored about them, the relationship between those entities, and the 
+cardinality, which defines that relationship in terms of numbers. 
+Figure 3-7: Entity Relationship Diagram 
+18 
+3.4 SYSTEM ARCHIECTURE  
+Figure 3-8: System Architecture 
+19 
+Chapter No. 4  
+TOOL & 
+TECHNOLOGIES 
+4.1 OVERVIEW OF TOOLS 
+A software development tool is program or application that software developers use to 
+create debug, maintain, or otherwise support other programs and applications. The 
+term usually refers to relatively simple programs that can be combined together to 
+accomplish a task, much as one might use multiple hand to fix a physical object. 
+The history of software tools began with first computers in the early 1950s that used 
+linkers, loader, and control program. Tools became famous with UNIX in the early 
+1970s with tools like grep, awk and make that meant to be combined flexibly with 
+pipes. The term “software tools” came the book of the name by brain Kernighan and 
+P. J. Plauger. 
+Tools were originally simple and light weight. As some tools have been maintained, 
+they have been integrated into more powerful integrated Development Environments 
+(IDEs). These environments consolidate functionality into one place, sometime 
+increasing simplicity and productivity, other times sacrificing flexibility and 
+extensibility. The workflow of IDEs is routinely contrasted with alternative 
+approaches, such as the use of UNIX shell tools with text editors like Vim and Emacs. 
+The distinction between tools applications is murky. For example, developers use 
+simple databases (such as a file containing a list of important values) all the time as 
+tools. However, a full-blown database is database is usually thought of as an 
+application in its own right. 
+For many years, computer Assisted Software Engineering (CASE) tools were sought 
+after. Successful tools have proven elusive. In one sense, CASE tools emphasized 
+design and architecture support, such as for UML. But the most successful of these 
+tools are IDEs.[6] 
+20 
+4.2 HTML/CSS 
+HTML (Hypertext Markup Language) is the set of markup symbols or codes inserted 
+in a file intended for display on a World Wide Web browser page. The markup tells 
+the Web browser how to display a Web page's words and images for the user. 
+HTML defines the structure and layout of a Web document by using a variety of tags 
+and attributes. 
+HTML language, called tags are words surrounded by brackets. HTML tags are 
+written as pairs, there must be a beginning tag and an ending tag in order to make the 
+code display correctly. The firs tag designates how the following text will be grouped 
+or displayed, and the closing tag (with a backslash) designates the end of this group or 
+display.  
+The correct structure for an HTML document starts with,  
+<HTML><HEAD> (enter here what document is about) 
+<BODY>  
+All the information you'd like to include in your Web page fits in between these tags. 
+</BODY> 
+</HTML> 
+4.2.1 HTML5 
+HTML5 is the latest version of Hypertext Markup Language, the code that describes 
+web pages. It's actually three kinds of code: HTML, which provides the structure; 
+Cascading Style Sheets (CSS), which take care of presentation; and JavaScript, which 
+makes things happen. One of the design goals for HTML5 is to support for 
+multimedia on mobile devices.  
+4.2.2 Cascading Style Sheets (CSS) 
+Cascading Style Sheets (CSS) is a style sheet language used for describing the 
+presentation of a document written in a markup language. CSS describes how HTML 
+elements are to be displayed on screen, paper, or in other media. CSS saves a lot of 
+work. It can control the layout of multiple web pages all at once. External style sheets 
+21 
+are stored in CSS files.CSS gives more control over the appearance of a Web page to 
+the page creator than to the browser designer or the viewer. With CSS, the sources of 
+style definition for a given document element are in this order of precedence: 
+1. The STYLE attribute on an individual element tag 
+2. The STYLE element that defines a specific style sheet containing style 
+declarations or a LINK element that links to a separate document containing 
+the STYLE element. In a Web page, the STYLE element is placed between the 
+TITLE statement and the BODY statement. [7] 
+4.3 PHP  
+PHP (Personal Home Page/ Hyper Text Pre-Processor) is a programming language 
+that is designed for building a variety of web applications that run on the Windows 
+operating system and as well as Linux. Php is simple, powerful, type-safe, and 
+object-oriented. The many innovations in php enable rapid web application 
+development while retaining the expressiveness and elegance of C-style languages. 
+Php is server side scripting language for web development but also used as 
+a general-purpose programming language use for enhance the web pages. In HTML 
+and PHP code can easily be embedded. PHP is compatible with various platforms like 
+windows, Mac, OS X etc  
+4.3.1 USAGE PHP SCRIPT  
+Three main areas where PHP scripts are used: 
+● Server-side scripting 
+● Command line scripting 
+● Writing desktop applications 
+4.3.2 ADVANTAGES OF PHP 
+● Open source 
+● Simple and very easy to learn. 
+● Support for both structural programming and Object Oriented Programming. 
+22 
+● Powerful library support 
+● Built-in database connection modules 
+● PHP also has support services using protocols such as LDAP, IMAP, SNMP, 
+NNTP, POP2, HTTP, COM (on Windows) 
+● Easy deployment and cost effective hosting. [8] 
+4.3.3 APACHE SERVER  
+Apache is the most widely used web server software. Developed and maintained by 
+Apache Software Foundation, Apache is an open source software available for free. It 
+runs on 67% of all web servers in the world. It is fast, reliable, and secure. It can be 
+highly customized to meet the needs of many different environments by using 
+extensions and modules. 
+● APACHE VERSION 3.2.1 
+The Apache Software Foundation and The Apache HTTP Server Project are pleased 
+to announce the release of version 3.2.1 of the Apache HTTP Server(“Apache”). 
+This version of Apache is principally a bug and security fix release. [9] 
+4.4 JAVA SCRIPT 
+JavaScript is a programming language used to make web pages interactive. It runs on 
+your visitor's computer and doesn't require constant downloads from your website. 
+JavaScript is a cross-platform, object-oriented scripting language. JavaScript contains 
+a standard library of objects, such as Array, Date, and Math, and a core set of 
+language elements such as operators, control structures, and statements. 
+● Client-side JavaScript extends the core language by supplying objects to 
+control a browser and its Document Object Model (DOM). 
+● Server-side JavaScript extends the core language by supplying objects relevant 
+to running JavaScript on a server.    
+JavaScript is used in Web site development to do such things as: 
+23 
+● Automatically change a formatted date on a Web page 
+● Cause a linked-to page to appear in a popup window 
+● Cause text or a graphic image to change during a mouse rollover [10] 
+4.5  JQUERY 
+JQuery is the features rich JavaScript library use to simplify the client side scripting 
+of html. JQuery is the most popular library of JavaScript library use in today. JQuery 
+is free, open source software, licensed under the MIT License. Query is ised to make 
+it user to navigate a document, Select the document object model, create animation, 
+handle events and develop the ajax applications. The jQuery library modular approach 
+allows the creation of dynamic web pages and web application. [11] 
+4.6 BOOTSTRAP 
+Bootstrap is the most popular HTML, CSS, and JS framework for developing 
+responsive, mobile first projects on the web. Bootstrap is an open-source Javascript 
+framework. It is a combination of HTML, CSS, and Javascript code designed to help 
+build user interface components. Bootstrap was also programmed to support both 
+HTML5 and CSS3. 
+Also, it is called Front-end-framework. 
+Bootstrap is a free collection of tools for creating a websites and web applications. 
+It contains HTML and CSS-based design templates for typography, forms, buttons, 
+navigation and other interface components, as well as optional JavaScript extensions. 
+[8] 
+Bootstrap can be boiled down to three main files: 
+● bootstrap.css – a CSS framework 
+● bootstrap.js – a JavaScript/JQuery framework 
+● glyphicons – a font (an icon font set) 
+24 
+4.6.1 BOOTSTRAP V3.3.5        
+Use the component and classes of bootstrap.  
+● BOOTSTRAP COMPONENTS 
+Components built to provide buttons, dropdowns, input groups, navigation, alerts, 
+and much more. [9] 
+● BOOTSTRAP CLASSES  
+i. 
+.container 
+Sets fixed width to an element (which changes depending on a screen size to other 
+fixed values, so it's still responsive) on all screen sizes except xs - on xs, the width is 
+calculated automatically (this behavior can be changed).  
+ii. .container-fluid  
+Sets 100% width, margin-left and margin-right: auto, padding-left and padding-right: 
+15px. 
+iii. .row  
+Creates horizontal groups of columns (which usually have width classes, see below). 
+4.6.2 BOOTSTRAP FORM’S CLASSES 
+i. 
+.form-group 
+ii. .form-control 
+iii. .form-control-static 
+iv. .glyphicon 
+v. .clearfix 
+Link: (http://getbootstrap.com) 
+4.6.3 REASONS TO CHOOSE BOOTSTRAP 
+FRAMEWORK 
+Some Reasons for programmers preferred Bootstrap Framework. 
+1. Easy to get started 
+25 
+2. Great grid system 
+3. Base styling for most HTML elements (Typography, Code, Tables, Forms, 
+Buttons, Images, Icons) 
+4. Extensive list of components 
+5. Bundled JavaScript plugins. [12] 
+4.7 MYSQL 
+MySql is a combination of "My", the name of co-founder Michael Widenius' 
+daughter, and "SQL", the abbreviation for Structured Query Language. MySql is a 
+database system used on the web. Basically, a MySQL database allows you to create a 
+relational database structure on a web-server somewhere in order to store data or 
+automate procedures. Mysql is a open source relational database management system. 
+It runs as a server and allow the multiple user to create numerous database. [13] 
+4.8 CODEIGNITER 
+Codeigniter is a php framework created by EllisLab on February 28, 2006 and is now 
+a project of the British Columbia Institute of Technology. codeigniter is built for 
+developer who need an elegant toolkit for web application which is rich of featured. 
+Codeigniter is based on popular development pattern MVC (Model View Controller). 
+In codeigniter the controller classes are necessary where as models and views are 
+optional. Codeigniter is noted for its speed when compared to another PHP 
+framework. To create the website of Mass Communication website we use the 
+Codeignitor version 3.1.2. [14] 
+4.9 NET BEANS 
+Net Beans is a Platform for software development which is written on java but it is 
+also support other languages such as PHP, C, C++ and HTML5. Net Beans allows 
+application to be developed from modules. Desktop, mobile and web applications can 
+26 
+easily be developed by Net Bean. The Net Bean IDE provides set of tools for c, c++ 
+and PHP developers. It is free and open source and has a large community of 
+developers and users. A IDE is much more than a text editor. The Net Bean IDE 
+match the brackets and words, high light the source code and indents lines. Through 
+the Net Beans IDE code can easily be refactor. 
+4.9.1 NETBEANS VERSION 8.2 
+NetBeans IDE 8.2 provides out-of-the-box code analyzers and editors for working. 
+NetBeans IDE 8.2 is available in English, Brazilian Portuguese, Japanese, Russian, 
+and Simplified Chinese. 
+4.9.2 NETBEANS IDE BUNDLE FOR PHP 
+The Net Beans supports the PHP. The bundle for PHP includes: 
+● PHP code debugging with Xdebugg. 
+● Code Coverage. 
+● Syntax highlighting, code completion, occurrence highlighting, error 
+highlighting, CVS version control. 
+● Semantic analysis with highlighting of parameters and unused local variables. 
+● Symfony framework support (since version 6.8). 
+● Zend Framework support (since version 6.9). 
+● Yii Framework support (since version 7.3). 
+● PHP 5.3 namespace and closure support (since version 6.8). [15] 
+27 
+Chapter No. 5  
+IMPLEMENTATION 
+5.1 IMPLEMENTATION OF THE DYNAMIC 
+INTERFACE OF MEDIA & COMMUNICATION 
+5.1.1 LOGIN OF ADMIN 
+Below is the login page of Admin. For login to this admin need to provide username 
+and password. 
+Figure 5-1: Login of Admin 
+28 
+5.1.2  ADMIN PANEL 
+Below is the snapshot of admin panel where Admin  
+can add students and teachers 
+create events 
+manage user accounts 
+upload results 
+Manage notice board information 
+Check enquiry 
+Control all setting related to website 
+29 
+Figure 5-2: Admin Panel 
+30 
+5.1.3 TEACHER LOGIN 
+Below is the login page of Teacher. For login to this teacher need to provide username 
+and password. 
+31 
+5.1.4 LECTURES UPLOAD BY TEACHER 
+Below is the snapshot of the page where teacher can 
+Upload and delete the lectures 
+Upload and delete the assignment 
+32 
+5.1.5 ENQUIRY CHECKED BY TEACHER 
+This is a page where all enquiries send by students are checked by teacher. 
+33 
+5.1.6 STUDENT REGISTRATION 
+Below is the registration page of Students. For login to this website student need to 
+provide full name, father name, cnic, email, roll number and phone number. 
+34 
+5.1.7 STUDENT LOGIN  
+Below is the login page of Students. For login to this student need to provide 
+username and password. 
+Figure 5-7: Student Login 
+35 
+5.1.8 MAIN PAGE  
+This is the main page of Dynamic Web Interface Of Media and Communication. 
+Figure 5-8: Main Page 
+36 
+ 
+ 
+ 
+37 
+ 
+ 
+5.1.9 ENQUIRY SEND BY STUDENT  
+User can send the enquiry to the admin. 
+Figure 5-9: Enquiry Send By Student 
+38 
+5.1.10 ENQUIRY CHECK BY ADMIN 
+This is a page where all enquiries send by students are checked by admin. 
+Figure 5-10: Enquiry Check By Admin 
+39 
+5.1.11 TIME TABLE UPLOAD BY ADMIN 
+Below is the snapshot where admin can 
+Upload the time table 
+Delete the time table 
+Active / Pending the time table 
+40 
+5.1.12 TIME TABLE DISPLAY AT MAIN PAGE 
+Users can see the time table on main page by clicking on notice board option and 
+choose the time table. 
+41 
+5.1.13 RESULT UPLOAD BY ADMIN 
+Below is the snapshot where admin can  
+Upload the result 
+Delete the result 
+Active / Pending the result 
+42 
+5.1.14  RESULT SHOW AT MAIN PAGE 
+Below is the snapshot of page where students can see or download the result in pdf 
+file. 
+ 
+ 
+ 
+43 
+ 
+ 
+5.1.15 GALLERY 
+Below is the snapshot of gallery page of Dynamic Web Interface of Media and 
+Communication. 
+44 
+Chapter No. 6   
+RESULTS AND 
+CONCLUSION 
+6.1 RESULT  
+It can be said that the required goal has been achieved. Goal was to build a website 
+that can work fully dynamic and perform all the operations of the institute. Where 
+various announcement, Reports, Objectives, Events and Results much soon could be 
+carried out respectively. Using different technologies for this purpose, like content 
+management system for Department of Media and Communication Studies has been 
+designed and implemented. This can work on single machine and as well as on local 
+Area Network. Because of this, users have given chance to get information from one 
+place instead of going different sites for same types of information. 
+6.2 CONCLUSION 
+The internet has become a major resource just not in Education but in every field of 
+life, thus the website of Department of Media and Communication Studies has gained 
+significance not only from the presentation of site in best way but also in the student’s 
+point of view. Hence, we have designed the project to provide the user with easy 
+navigation, retrieval of data and necessary feedback as must as possible. 
+A good website must be accompanied with user-friendly interface. It should 
+convenient for the user to view the content of their interest and to be able to fulfill 
+their requirements. The website describes in this project provide the number of 
+features. Those are designed to make the user more comfortable at their Comfort 
+ends. 
+The project helps in understanding the creation of an interactive webpage and the 
+technologies use to implement it. the building of this project has given us prestigious 
+knowledge about how PHP is used to develop a website, how connects to the database 
+45 
+to across the data, and how the data and Webpages are modified to provide the user 
+with particular application interactive. 
+6.3 FUTURE RECOMMENDATION  
+The web site of Department of Media and Communication Studies can be enhanced In 
+the future. However, the time is very short and in little time period we tried our best to 
+make the project perfect and used the expertise in each line of code to reach the peak 
+of success. There are some limitations for the current system to which solution can be 
+provided as future development by Administrator, if would be implementation for the 
+respected Department of Media and Communication Studies University of Sindh. 
+In future, an android application can be developed for the purpose of accessing 
+information everywhere and anytime. As today is the Era of mobile apps. So, 
+we can convert it into mobile application with different platforms such as 
+Fonegap, Ionic, IOS and etc. It will give more functionality to DYNAMIC 
+INTERCAE OF MASS COMMUNICATION. For this purpose, user should 
+have android phone. 
+Some more features can be added such as attendance system can be connected 
+which will generate student’s monthly attendance in percentage. 
+Another feature that is result alert via SMS can be added through which user 
+can be notified about results on his/her phone by providing his/her details by 
+SMS. 
+Online chatting with audio and voice can be implemented in future. 
+We can also give access to parents of the children where all the parents have 
+knowledge of children’s progress of the month or whole semester. They also 
+get their children progress on mobile through SMS. 
+46 
+Video conferencing can be added for the students involved in group projects/ 
+assignments. 
+Online assignment submission can be connected with this system. 
+REFERENCES 
+[1] 
+[2] 
+[3]  
+[4]  
+[5]  
+[6]  
+[7]  
+[8]  
+[9]  
+“Introduction of Website” [Online] Available:  
+https://en.wikipedia.org/wiki/Website 
+“Static and Dynamic Websites” [Online] Available:   
+http://www.spiderwriting.co.uk/static-dynamic.php 
+“Guidelines for Responsive Web Design” [Online] Available:  
+https://www.smashingmagazine.com/2011/01/guidelines-for-responsive-web-de
+sign/ 
+“What is Web 2.0” [Online] Available:  http://www.aiim.org/What-is-Web-20# 
+Software Requirement Engineering” [Online] Available:  
+http://ecomputernotes.com/software-engineering/softwarerequirement 
+“Introduction to Software Engineering Tools” [Online] Available:  
+https://en.wikibooks.org/wiki/Introduction_to_Software_Engineering/Tools 
+“About HTML and CSS” [Online] Available:  
+https://www.w3.org/standards/webdesign/htmlcss 
+“About PHP” [Online] Available:  https://en.wikipedia.org/wiki/PHP 
+“About Apache Server” [Online] Available:  
+http://www.wpbeginner.com/glossary/apache/ 
+47 
+[10]  “Java Script Tutorial” [Online] Available:  
+https://www.tutorialspoint.com/javascript/javascript_overview.htm 
+[11]  “JQuery” [Online] Available:  https://en.wikipedia.org/wiki/JQuery  
+[12]   “What is Bootstrap and how do I use it” [Online] Available:  
+https://www.taniarascia.com/what-is-bootstrap-and-how-do-i-use-it/ 
+[13] “MySQL” [Online] Available:   https://en.wikipedia.org/wiki/MySQL 
+[14]  “Introduction to Codeigniter” [Online] Available:   
+https://www.sitepoint.com/an-introduction-to-codeigniter/  
+[15]   “Netbeans” [Online] Available:  https://en.wikipedia.org/wiki/NetBeans 
+48 

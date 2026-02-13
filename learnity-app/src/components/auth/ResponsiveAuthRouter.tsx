@@ -46,7 +46,7 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
   initialView = 'login',
   resetToken,
   requireCaptcha = false,
-  className = ''
+  className = '',
 }) => {
   const [currentView, setCurrentView] = useState<AuthView>(initialView);
   const [isMobile, setIsMobile] = useState(false);
@@ -58,7 +58,10 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
 
     const checkMobile = () => {
       const userAgent = navigator.userAgent;
-      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      const isMobileDevice =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          userAgent
+        );
       const isSmallScreen = window.innerWidth < 768; // md breakpoint
 
       setIsMobile(isMobileDevice || isSmallScreen);
@@ -82,7 +85,11 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
   };
 
   // Handle password reset
-  const handlePasswordReset = async (data: { password: string; confirmPassword: string; token: string }) => {
+  const handlePasswordReset = async (data: {
+    password: string;
+    confirmPassword: string;
+    token: string;
+  }) => {
     await onPasswordReset({ password: data.password, token: data.token });
     setCurrentView('login');
   };
@@ -90,9 +97,9 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
   // Don't render until we know if it's mobile
   if (!isClient) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
-        <div className="animate-pulse">
-          <div className="w-8 h-8 bg-slate-600 rounded-full"></div>
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center'>
+        <div className='animate-pulse'>
+          <div className='w-8 h-8 bg-slate-600 rounded-full'></div>
         </div>
       </div>
     );
@@ -103,7 +110,7 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
     switch (currentView) {
       case 'login':
         return (
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+          <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4'>
             <LoginForm
               onSubmit={onLogin}
               onForgotPassword={() => handleViewChange('forgot-password')}
@@ -127,7 +134,7 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
 
       case 'forgot-password':
         return (
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+          <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4'>
             <PasswordResetRequestForm
               onSubmit={handlePasswordResetRequest}
               onBackToLogin={() => handleViewChange('login')}
@@ -138,7 +145,7 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
 
       case 'reset-password':
         return (
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+          <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4'>
             {resetToken ? (
               <PasswordResetForm
                 token={resetToken}
@@ -147,11 +154,11 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
                 className={className}
               />
             ) : (
-              <div className="text-center">
-                <p className="text-red-600">Invalid or missing reset token</p>
+              <div className='text-center'>
+                <p className='text-red-600'>Invalid or missing reset token</p>
                 <button
                   onClick={() => handleViewChange('login')}
-                  className="text-blue-600 hover:text-blue-700 underline mt-2"
+                  className='text-blue-600 hover:text-blue-700 underline mt-2'
                 >
                   Back to Login
                 </button>
@@ -169,7 +176,7 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
   switch (currentView) {
     case 'login':
       return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+        <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4'>
           <LoginForm
             onSubmit={onLogin}
             onForgotPassword={() => handleViewChange('forgot-password')}
@@ -192,7 +199,7 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
 
     case 'forgot-password':
       return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+        <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4'>
           <PasswordResetRequestForm
             onSubmit={handlePasswordResetRequest}
             onBackToLogin={() => handleViewChange('login')}
@@ -203,7 +210,7 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
 
     case 'reset-password':
       return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+        <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4'>
           {resetToken ? (
             <PasswordResetForm
               token={resetToken}
@@ -212,11 +219,11 @@ export const ResponsiveAuthRouter: React.FC<ResponsiveAuthRouterProps> = ({
               className={className}
             />
           ) : (
-            <div className="text-center">
-              <p className="text-red-600">Invalid or missing reset token</p>
+            <div className='text-center'>
+              <p className='text-red-600'>Invalid or missing reset token</p>
               <button
                 onClick={() => handleViewChange('login')}
-                className="text-blue-600 hover:text-blue-700 underline mt-2"
+                className='text-blue-600 hover:text-blue-700 underline mt-2'
               >
                 Back to Login
               </button>

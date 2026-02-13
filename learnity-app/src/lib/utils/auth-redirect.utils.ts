@@ -3,8 +3,8 @@
  * Handles role-based redirects and authentication flow routing
  */
 
-import { UserRole, CustomClaims } from '@/types/auth';
 import { User as FirebaseUser } from 'firebase/auth';
+import { UserRole, CustomClaims } from '@/types/auth';
 
 export interface RedirectOptions {
   role?: UserRole;
@@ -37,10 +37,10 @@ export function getDashboardRoute(role: UserRole): string {
  */
 export function getPostAuthRedirect(options: RedirectOptions): string {
   const { role, claims, defaultRoute = '/dashboard' } = options;
-  
+
   // Use role from claims if available, otherwise use provided role
   const userRole = claims?.role || role;
-  
+
   if (!userRole) {
     return defaultRoute;
   }
@@ -65,11 +65,11 @@ export function getPostAuthRedirect(options: RedirectOptions): string {
  */
 export function getUnauthenticatedRedirect(currentPath?: string): string {
   const loginUrl = '/auth/login';
-  
+
   if (!currentPath || currentPath === '/' || currentPath.startsWith('/auth')) {
     return loginUrl;
   }
-  
+
   // Preserve the current path as a redirect parameter
   const encodedPath = encodeURIComponent(currentPath);
   return `${loginUrl}?redirect=${encodedPath}`;
@@ -101,7 +101,7 @@ export function requiresAuthentication(path: string): boolean {
     '/terms',
     '/support',
     '/demo',
-    '/welcome'
+    '/welcome',
   ];
 
   // Check if path is in public routes
@@ -115,7 +115,7 @@ export function requiresAuthentication(path: string): boolean {
     '/api/auth/register',
     '/api/auth/login',
     '/api/auth/forgot-password',
-    '/api/auth/reset-password'
+    '/api/auth/reset-password',
   ];
 
   return !publicPatterns.some(pattern => path.startsWith(pattern));
@@ -153,7 +153,7 @@ export function getRequiredRole(path: string): UserRole | null {
  */
 export function hasRouteAccess(path: string, userRole?: UserRole): boolean {
   const requiredRole = getRequiredRole(path);
-  
+
   if (!requiredRole) {
     return true; // No specific role required
   }
@@ -184,7 +184,10 @@ export function hasRouteAccess(path: string, userRole?: UserRole): boolean {
 /**
  * Build redirect URL with query parameters
  */
-export function buildRedirectUrl(baseUrl: string, params?: Record<string, string>): string {
+export function buildRedirectUrl(
+  baseUrl: string,
+  params?: Record<string, string>
+): string {
   if (!params || Object.keys(params).length === 0) {
     return baseUrl;
   }
@@ -200,16 +203,18 @@ export function buildRedirectUrl(baseUrl: string, params?: Record<string, string
 /**
  * Extract redirect parameter from URL
  */
-export function getRedirectFromUrl(searchParams: URLSearchParams): string | null {
+export function getRedirectFromUrl(
+  searchParams: URLSearchParams
+): string | null {
   const redirect = searchParams.get('redirect');
-  
+
   if (!redirect) {
     return null;
   }
 
   try {
     const decodedRedirect = decodeURIComponent(redirect);
-    
+
     // Validate that redirect is a safe internal URL
     if (decodedRedirect.startsWith('/') && !decodedRedirect.startsWith('//')) {
       return decodedRedirect;
@@ -244,9 +249,12 @@ export function handlePostAuthNavigation(
 /**
  * Get welcome message based on user role
  */
-export function getWelcomeMessage(userRole: UserRole, userName?: string): string {
+export function getWelcomeMessage(
+  userRole: UserRole,
+  userName?: string
+): string {
   const name = userName || 'there';
-  
+
   switch (userRole) {
     case UserRole.ADMIN:
       return `Welcome back, ${name}! Ready to manage the platform?`;
@@ -275,12 +283,12 @@ export interface HomeRedirectOptions {
  */
 export function shouldRedirectFromHome(options: HomeRedirectOptions): boolean {
   const { user, claims, isLoading } = options;
-  
+
   // Don't redirect while still loading authentication state
   if (isLoading) {
     return false;
   }
-  
+
   // Redirect authenticated users with valid claims
   return !!(user && claims && claims.role);
 }
@@ -289,18 +297,20 @@ export function shouldRedirectFromHome(options: HomeRedirectOptions): boolean {
  * Get the appropriate redirect path for authenticated users on home page
  * Returns null if user should stay on home page (unauthenticated)
  */
-export function getHomeRedirectPath(options: HomeRedirectOptions): string | null {
+export function getHomeRedirectPath(
+  options: HomeRedirectOptions
+): string | null {
   const { user, claims, isLoading } = options;
-  
+
   // Don't redirect while loading or if user is not authenticated
   if (isLoading || !user || !claims) {
     return null;
   }
-  
+
   // Use existing post-auth redirect logic
-  return getPostAuthRedirect({ 
-    role: claims.role, 
-    claims 
+  return getPostAuthRedirect({
+    role: claims.role,
+    claims,
   });
 }
 
@@ -313,12 +323,12 @@ export function handleHomePageAuth(
   options: HomeRedirectOptions
 ): void {
   const { user, claims, isLoading } = options;
-  
+
   // Don't do anything while loading
   if (isLoading) {
     return;
   }
-  
+
   // If user is authenticated, redirect to appropriate dashboard
   if (user && claims) {
     const redirectPath = getHomeRedirectPath(options);
@@ -329,7 +339,7 @@ export function handleHomePageAuth(
       }, 100);
     }
   }
-  
+
   // If user is not authenticated, they stay on the landing page
   // No action needed - the home page will render the landing page content
 }

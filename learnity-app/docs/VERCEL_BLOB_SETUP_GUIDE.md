@@ -3,6 +3,7 @@
 ## Step 1: Create Vercel Blob Store
 
 ### Option A: Using Vercel Dashboard (Recommended)
+
 1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
 2. Select your project or create a new one
 3. Go to **Storage** tab
@@ -12,6 +13,7 @@
 7. Copy the **BLOB_READ_WRITE_TOKEN**
 
 ### Option B: Using Vercel CLI
+
 ```bash
 # Install Vercel CLI
 npm i -g vercel
@@ -29,6 +31,7 @@ vercel blob create learnity-files
 ## Step 2: Add Environment Variables
 
 Add to your `.env.local`:
+
 ```env
 # Vercel Blob Storage
 BLOB_READ_WRITE_TOKEN="vercel_blob_rw_xxxxxxxxxxxxxxxxx"
@@ -36,6 +39,7 @@ NEXT_PUBLIC_BLOB_STORE_ID="learnity-files"
 ```
 
 Add to your `.env.example`:
+
 ```env
 # Vercel Blob Storage (for file uploads)
 BLOB_READ_WRITE_TOKEN=vercel_blob_token_here
@@ -52,6 +56,7 @@ NEXT_PUBLIC_BLOB_STORE_ID=your_blob_store_id
 ## Step 4: Test the Setup
 
 Create a test file to verify:
+
 ```typescript
 // test-blob.ts
 import { put, list } from '@vercel/blob';
@@ -63,11 +68,11 @@ async function testBlob() {
       access: 'public',
     });
     console.log('✅ Upload successful:', blob.url);
-    
+
     // Test list
     const { blobs } = await list();
     console.log('✅ Files:', blobs.length);
-    
+
     return true;
   } catch (error) {
     console.error('❌ Blob test failed:', error);
@@ -105,23 +110,27 @@ Blob Storage Structure:
 ## Pricing Information
 
 **Vercel Blob Pricing (as of 2024):**
+
 - **Free Tier**: 5GB storage + 100GB bandwidth/month
 - **Pro Tier**: $20/month for 100GB storage + 1TB bandwidth
 - **Enterprise**: Custom pricing
 
 **Cost Estimation for Learnity:**
+
 - 1000 teachers × 5MB avg files = 5GB (Free tier covers this!)
 - Bandwidth: Mostly one-time uploads, minimal ongoing costs
 
 ## Troubleshooting
 
 ### Common Issues:
+
 1. **"Unauthorized" Error**: Check BLOB_READ_WRITE_TOKEN
 2. **"File too large"**: Implement client-side size validation
 3. **"Invalid file type"**: Add proper MIME type checking
 4. **Slow uploads**: Use progress indicators and chunked uploads
 
 ### Debug Commands:
+
 ```bash
 # Check environment variables
 echo $BLOB_READ_WRITE_TOKEN
@@ -136,6 +145,7 @@ vercel whoami
 ## Next Steps
 
 After setup:
+
 1. ✅ Test file upload in development
 2. ✅ Deploy to Vercel and test in production
 3. ✅ Implement file management UI

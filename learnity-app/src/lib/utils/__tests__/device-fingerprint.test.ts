@@ -2,30 +2,39 @@
  * Tests for device fingerprint utility
  */
 
-import { 
-  generateDeviceFingerprint, 
+import {
+  generateDeviceFingerprint,
   generateDeviceFingerprintLegacy,
   extractIpAddress,
   extractUserAgent,
-  extractDeviceInfo
+  extractDeviceInfo,
 } from '../device-fingerprint';
 
 // Mock Request object
-const createMockRequest = (headers: Record<string, string> = {}, useDefaults = true): Request => {
-  const defaultHeaders: Record<string, string> = useDefaults ? {
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-    'accept-language': 'en-US,en;q=0.9',
-    'accept-encoding': 'gzip, deflate, br',
-    'connection': 'keep-alive',
-    'x-forwarded-for': '192.168.1.1',
-  } : {};
+const createMockRequest = (
+  headers: Record<string, string> = {},
+  useDefaults = true
+): Request => {
+  const defaultHeaders: Record<string, string> = useDefaults
+    ? {
+        'user-agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'accept-language': 'en-US,en;q=0.9',
+        'accept-encoding': 'gzip, deflate, br',
+        connection: 'keep-alive',
+        'x-forwarded-for': '192.168.1.1',
+      }
+    : {};
 
-  const mergedHeaders: Record<string, string> = { ...defaultHeaders, ...headers };
+  const mergedHeaders: Record<string, string> = {
+    ...defaultHeaders,
+    ...headers,
+  };
 
   return {
     headers: {
-      get: (name: string) => mergedHeaders[name.toLowerCase()] || null
-    }
+      get: (name: string) => mergedHeaders[name.toLowerCase()] || null,
+    },
   } as Request;
 };
 
@@ -35,7 +44,7 @@ describe('Device Fingerprint Utility', () => {
       const request = createMockRequest();
       const fingerprint1 = generateDeviceFingerprint(request);
       const fingerprint2 = generateDeviceFingerprint(request);
-      
+
       expect(fingerprint1).toBe(fingerprint2);
       expect(fingerprint1).toHaveLength(24); // default hash length
     });
@@ -43,24 +52,28 @@ describe('Device Fingerprint Utility', () => {
     it('should generate different fingerprints for different requests', () => {
       const request1 = createMockRequest({ 'user-agent': 'Chrome' });
       const request2 = createMockRequest({ 'user-agent': 'Firefox' });
-      
+
       const fingerprint1 = generateDeviceFingerprint(request1);
       const fingerprint2 = generateDeviceFingerprint(request2);
-      
+
       expect(fingerprint1).not.toBe(fingerprint2);
     });
 
     it('should respect custom hash length', () => {
       const request = createMockRequest();
-      const fingerprint = generateDeviceFingerprint(request, { hashLength: 16 });
-      
+      const fingerprint = generateDeviceFingerprint(request, {
+        hashLength: 16,
+      });
+
       expect(fingerprint).toHaveLength(16);
     });
 
     it('should handle basic fingerprinting when enhancedEntropy is false', () => {
       const request = createMockRequest();
-      const fingerprint = generateDeviceFingerprint(request, { enhancedEntropy: false });
-      
+      const fingerprint = generateDeviceFingerprint(request, {
+        enhancedEntropy: false,
+      });
+
       expect(fingerprint).toHaveLength(24);
       expect(typeof fingerprint).toBe('string');
     });
@@ -70,10 +83,16 @@ describe('Device Fingerprint Utility', () => {
     it('should generate consistent fingerprints for same inputs', () => {
       const userAgent = 'Mozilla/5.0';
       const ipAddress = '192.168.1.1';
-      
-      const fingerprint1 = generateDeviceFingerprintLegacy(userAgent, ipAddress);
-      const fingerprint2 = generateDeviceFingerprintLegacy(userAgent, ipAddress);
-      
+
+      const fingerprint1 = generateDeviceFingerprintLegacy(
+        userAgent,
+        ipAddress
+      );
+      const fingerprint2 = generateDeviceFingerprintLegacy(
+        userAgent,
+        ipAddress
+      );
+
       expect(fingerprint1).toBe(fingerprint2);
       expect(fingerprint1).toHaveLength(16); // legacy default
     });
@@ -81,9 +100,11 @@ describe('Device Fingerprint Utility', () => {
 
   describe('extractIpAddress', () => {
     it('should extract IP from x-forwarded-for header', () => {
-      const request = createMockRequest({ 'x-forwarded-for': '203.0.113.1, 192.168.1.1' });
+      const request = createMockRequest({
+        'x-forwarded-for': '203.0.113.1, 192.168.1.1',
+      });
       const ip = extractIpAddress(request);
-      
+
       expect(ip).toBe('203.0.113.1');
     });
 
@@ -91,7 +112,7 @@ describe('Device Fingerprint Utility', () => {
       // Use useDefaults=false to avoid default x-forwarded-for header
       const request = createMockRequest({ 'x-real-ip': '203.0.113.2' }, false);
       const ip = extractIpAddress(request);
-      
+
       expect(ip).toBe('203.0.113.2');
     });
 
@@ -99,10 +120,10 @@ describe('Device Fingerprint Utility', () => {
       const request = createMockRequest({
         'cf-connecting-ip': '203.0.113.3',
         'x-forwarded-for': '203.0.113.1',
-        'x-real-ip': '203.0.113.2'
+        'x-real-ip': '203.0.113.2',
       });
       const ip = extractIpAddress(request);
-      
+
       expect(ip).toBe('203.0.113.3');
     });
 
@@ -110,7 +131,7 @@ describe('Device Fingerprint Utility', () => {
       // Use useDefaults=false to avoid default headers
       const request = createMockRequest({}, false);
       const ip = extractIpAddress(request);
-      
+
       expect(ip).toBe('unknown');
     });
   });
@@ -119,14 +140,14 @@ describe('Device Fingerprint Utility', () => {
     it('should extract user agent from header', () => {
       const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)';
       const request = createMockRequest({ 'user-agent': userAgent });
-      
+
       expect(extractUserAgent(request)).toBe(userAgent);
     });
 
     it('should return "unknown" when user agent is not present', () => {
       // Use useDefaults=false to avoid default user-agent header
       const request = createMockRequest({}, false);
-      
+
       expect(extractUserAgent(request)).toBe('unknown');
     });
   });
@@ -135,14 +156,14 @@ describe('Device Fingerprint Utility', () => {
     it('should extract comprehensive device information', () => {
       const request = createMockRequest();
       const deviceInfo = extractDeviceInfo(request);
-      
+
       expect(deviceInfo).toHaveProperty('fingerprint');
       expect(deviceInfo).toHaveProperty('userAgent');
       expect(deviceInfo).toHaveProperty('ipAddress');
       expect(deviceInfo).toHaveProperty('acceptLanguage');
       expect(deviceInfo).toHaveProperty('acceptEncoding');
       expect(deviceInfo).toHaveProperty('connection');
-      
+
       expect(typeof deviceInfo.fingerprint).toBe('string');
       expect(deviceInfo.fingerprint.length).toBeGreaterThan(0);
     });

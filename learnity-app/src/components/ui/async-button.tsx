@@ -4,17 +4,18 @@
  * Automatically shows loading spinner and disables during async operations
  */
 
-import * as React from "react";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import type { VariantProps } from "class-variance-authority";
+import * as React from 'react';
+import { Loader2 } from 'lucide-react';
+import type { VariantProps } from 'class-variance-authority';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export interface AsyncButtonProps
-  extends React.ComponentProps<"button">,
-    VariantProps<typeof buttonVariants> {
+  extends React.ComponentProps<'button'>, VariantProps<typeof buttonVariants> {
   /** Async function to execute on click */
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => Promise<void> | void;
+  onClick?: (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => Promise<void> | void;
   /** Loading state - can be controlled externally */
   isLoading?: boolean;
   /** Text to show when loading */
@@ -28,7 +29,10 @@ export interface AsyncButtonProps
   asChild?: boolean;
 }
 
-export const AsyncButton = React.forwardRef<HTMLButtonElement, AsyncButtonProps>(
+export const AsyncButton = React.forwardRef<
+  HTMLButtonElement,
+  AsyncButtonProps
+>(
   (
     {
       className,
@@ -48,9 +52,10 @@ export const AsyncButton = React.forwardRef<HTMLButtonElement, AsyncButtonProps>
     ref
   ) => {
     const [internalLoading, setInternalLoading] = React.useState(false);
-    
+
     // Use external loading state if provided, otherwise use internal
-    const isLoading = externalLoading !== undefined ? externalLoading : internalLoading;
+    const isLoading =
+      externalLoading !== undefined ? externalLoading : internalLoading;
 
     const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
       if (isLoading || disabled) {
@@ -74,17 +79,16 @@ export const AsyncButton = React.forwardRef<HTMLButtonElement, AsyncButtonProps>
       }
     };
 
-    const LoadingIcon = loadingIcon || <Loader2 className="h-4 w-4 animate-spin" />;
+    const LoadingIcon = loadingIcon || (
+      <Loader2 className='h-4 w-4 animate-spin' />
+    );
 
     return (
       <Button
         ref={ref}
         variant={variant}
         size={size}
-        className={cn(
-          className,
-          isLoading && loadingClassName
-        )}
+        className={cn(className, isLoading && loadingClassName)}
         onClick={handleClick}
         disabled={disabled || isLoading}
         asChild={asChild}
@@ -92,7 +96,7 @@ export const AsyncButton = React.forwardRef<HTMLButtonElement, AsyncButtonProps>
       >
         {isLoading ? (
           <>
-            {showLoadingIcon && <span className="mr-2">{LoadingIcon}</span>}
+            {showLoadingIcon && <span className='mr-2'>{LoadingIcon}</span>}
             {loadingText || children}
           </>
         ) : (
@@ -103,4 +107,4 @@ export const AsyncButton = React.forwardRef<HTMLButtonElement, AsyncButtonProps>
   }
 );
 
-AsyncButton.displayName = "AsyncButton";
+AsyncButton.displayName = 'AsyncButton';

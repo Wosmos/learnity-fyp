@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
       console.error('Available token verification failed:', verifyError);
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
-    
+
     // Set the session cookie
     // We store the ID token directly to match middleware expectations
     const maxAge = 7 * 24 * 60 * 60; // 1 week
@@ -24,9 +24,9 @@ export async function POST(request: NextRequest) {
       'HttpOnly',
       'Path=/',
       'SameSite=Lax',
-      `Max-Age=${maxAge}`
+      `Max-Age=${maxAge}`,
     ];
-    
+
     if (process.env.NODE_ENV === 'production') {
       cookieParts.push('Secure');
     }

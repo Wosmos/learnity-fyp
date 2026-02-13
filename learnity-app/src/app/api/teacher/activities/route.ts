@@ -1,5 +1,5 @@
 /**
- * Teacher Activities API Route  
+ * Teacher Activities API Route
  * GET /api/teacher/activities - Get recent teacher activities
  */
 
@@ -42,7 +42,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const activities: Array<{
       id: string;
-      type: 'new_enrollment' | 'review_received' | 'course_published' | 'lesson_completed';
+      type:
+        | 'new_enrollment'
+        | 'review_received'
+        | 'course_published'
+        | 'lesson_completed';
       message: string;
       time: string;
       metadata?: any;
@@ -75,7 +79,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
     activities.push(
-      ...recentEnrollments.map((enrollment) => ({
+      ...recentEnrollments.map(enrollment => ({
         id: enrollment.id,
         type: 'new_enrollment' as const,
         message: `${enrollment.student.firstName} ${enrollment.student.lastName} enrolled in ${enrollment.course.title}`,
@@ -114,7 +118,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
     activities.push(
-      ...recentReviews.map((review) => ({
+      ...recentReviews.map(review => ({
         id: review.id,
         type: 'review_received' as const,
         message: `Received ${review.rating}-star review from ${review.student.firstName} ${review.student.lastName}`,
@@ -149,7 +153,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
     activities.push(
-      ...recentlyPublished.map((course) => ({
+      ...recentlyPublished.map(course => ({
         id: course.id,
         type: 'course_published' as const,
         message: `Published course: "${course.title}"`,
@@ -192,7 +196,8 @@ function getRelativeTime(date: Date): string {
   if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
   if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
   if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
+  if (diffDays < 30)
+    return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
   return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? 's' : ''} ago`;
 }
 
@@ -201,13 +206,13 @@ function getRelativeTime(date: Date): string {
  */
 function parseRelativeTime(timeStr: string): number {
   if (timeStr === 'just now') return 0;
-  
+
   const match = timeStr.match(/(\d+)\s+(minute|hour|day|week|month)s?\s+ago/);
   if (!match) return 0;
-  
+
   const value = parseInt(match[1]);
   const unit = match[2];
-  
+
   const multipliers: Record<string, number> = {
     minute: 60000,
     hour: 3600000,
@@ -215,6 +220,6 @@ function parseRelativeTime(timeStr: string): number {
     week: 604800000,
     month: 2592000000,
   };
-  
+
   return value * multipliers[unit];
 }

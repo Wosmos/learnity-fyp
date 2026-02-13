@@ -21,5 +21,5 @@ export {
   usePermissions,
   type UseAuthReturn,
   type AuthState,
-  type AuthActions
+  type AuthActions,
 } from './useAuth.unified';

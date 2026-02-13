@@ -1,7 +1,7 @@
 /**
  * Quiz Attempts API Route
  * GET /api/quizzes/[quizId]/attempts - Get quiz attempts for a student
- * 
+ *
  * Requirements covered:
  * - 6.8: Allow unlimited quiz retakes with best score recorded
  * - 6.9: Track quiz attempts, scores, and time taken
@@ -89,7 +89,7 @@ export async function GET(
         quizTitle: quiz.title,
         passingScore: quiz.passingScore,
         totalQuestions: quiz.questions.length,
-        attempts: attempts.map((attempt) => ({
+        attempts: attempts.map(attempt => ({
           id: attempt.id,
           score: attempt.score,
           passed: attempt.passed,

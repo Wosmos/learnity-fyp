@@ -34,9 +34,11 @@ export class DatabaseUtils {
     let percentage = 20; // Base completion for basic info
 
     if (profile.subjects.length > 0) percentage += 20;
-    if (profile.learningGoals && profile.learningGoals.length > 0) percentage += 20;
+    if (profile.learningGoals && profile.learningGoals.length > 0)
+      percentage += 20;
     if (profile.interests && profile.interests.length > 0) percentage += 20;
-    if (profile.studyPreferences && profile.studyPreferences.length > 0) percentage += 20;
+    if (profile.studyPreferences && profile.studyPreferences.length > 0)
+      percentage += 20;
 
     return Math.min(percentage, 100);
   }
@@ -51,37 +53,32 @@ export class DatabaseUtils {
           'view:student_dashboard',
           'join:study_groups',
           'book:tutoring',
-          'enhance:profile'
+          'enhance:profile',
         ];
-      
+
       case UserRole.TEACHER:
         return [
           'view:teacher_dashboard',
           'manage:sessions',
           'upload:content',
-          'view:student_progress'
+          'view:student_progress',
         ];
-      
+
       case UserRole.PENDING_TEACHER:
-        return [
-          'view:application_status',
-          'update:application'
-        ];
-      
+        return ['view:application_status', 'update:application'];
+
       case UserRole.REJECTED_TEACHER:
-        return [
-          'view:application_status'
-        ];
-      
+        return ['view:application_status'];
+
       case UserRole.ADMIN:
         return [
           'view:admin_panel',
           'manage:users',
           'approve:teachers',
           'view:audit_logs',
-          'manage:platform'
+          'manage:platform',
         ];
-      
+
       default:
         return [];
     }
@@ -90,13 +87,16 @@ export class DatabaseUtils {
   /**
    * Check if user can transition to new role
    */
-  static canTransitionToRole(currentRole: UserRole, newRole: UserRole): boolean {
+  static canTransitionToRole(
+    currentRole: UserRole,
+    newRole: UserRole
+  ): boolean {
     const allowedTransitions: Record<UserRole, UserRole[]> = {
       [UserRole.STUDENT]: [], // Students cannot change roles directly
       [UserRole.PENDING_TEACHER]: [UserRole.TEACHER, UserRole.REJECTED_TEACHER], // Can be approved or rejected
       [UserRole.REJECTED_TEACHER]: [UserRole.PENDING_TEACHER], // Can reapply
       [UserRole.TEACHER]: [], // Teachers cannot change roles directly
-      [UserRole.ADMIN]: [UserRole.STUDENT, UserRole.TEACHER] // Admins can assign roles
+      [UserRole.ADMIN]: [UserRole.STUDENT, UserRole.TEACHER], // Admins can assign roles
     };
 
     return allowedTransitions[currentRole]?.includes(newRole) || false;
@@ -105,12 +105,15 @@ export class DatabaseUtils {
   /**
    * Generate audit log metadata
    */
-  static generateAuditMetadata(action: string, additionalData?: Record<string, any>): Record<string, unknown> {
+  static generateAuditMetadata(
+    action: string,
+    additionalData?: Record<string, any>
+  ): Record<string, unknown> {
     return {
       timestamp: new Date().toISOString(),
       action,
       source: 'database_service',
-      ...additionalData
+      ...additionalData,
     };
   }
 

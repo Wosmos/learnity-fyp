@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
 
     const idToken = authHeader.split('Bearer ')[1];
-    
+
     // Verify the ID token
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const uid = decodedToken.uid;

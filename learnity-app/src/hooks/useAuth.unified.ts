@@ -6,15 +6,10 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/config/firebase';
-import { 
-  UserRole, 
-  Permission, 
-  CustomClaims,
-  UserProfile 
-} from '@/types/auth';
+import { UserRole, Permission, CustomClaims, UserProfile } from '@/types/auth';
 import { useAuthStore } from '@/lib/stores/auth.store';
 
 // Role-based permissions mapping (client-side)
@@ -23,28 +18,26 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VIEW_STUDENT_DASHBOARD,
     Permission.JOIN_STUDY_GROUPS,
     Permission.BOOK_TUTORING,
-    Permission.ENHANCE_PROFILE
+    Permission.ENHANCE_PROFILE,
   ],
   [UserRole.TEACHER]: [
     Permission.VIEW_TEACHER_DASHBOARD,
     Permission.MANAGE_SESSIONS,
     Permission.UPLOAD_CONTENT,
-    Permission.VIEW_STUDENT_PROGRESS
+    Permission.VIEW_STUDENT_PROGRESS,
   ],
   [UserRole.PENDING_TEACHER]: [
     Permission.VIEW_APPLICATION_STATUS,
-    Permission.UPDATE_APPLICATION
+    Permission.UPDATE_APPLICATION,
   ],
   [UserRole.ADMIN]: [
     Permission.VIEW_ADMIN_PANEL,
     Permission.MANAGE_USERS,
     Permission.APPROVE_TEACHERS,
     Permission.VIEW_AUDIT_LOGS,
-    Permission.MANAGE_PLATFORM
+    Permission.MANAGE_PLATFORM,
   ],
-  [UserRole.REJECTED_TEACHER]: [
-    Permission.VIEW_APPLICATION_STATUS
-  ]
+  [UserRole.REJECTED_TEACHER]: [Permission.VIEW_APPLICATION_STATUS],
 };
 
 export interface AuthState {
@@ -70,18 +63,20 @@ export type UseAuthReturn = AuthState & AuthActions;
 /**
  * Extract custom claims from Firebase ID token
  */
-async function extractClaimsFromToken(user: FirebaseUser): Promise<CustomClaims | null> {
+async function extractClaimsFromToken(
+  user: FirebaseUser
+): Promise<CustomClaims | null> {
   try {
     // Force token refresh to get latest claims
     const idTokenResult = await user.getIdTokenResult(true);
     const firebaseClaims = idTokenResult.claims;
-    
+
     console.log('Firebase claims:', firebaseClaims); // Debug logging
-    
+
     // Check if custom claims exist
     if (!firebaseClaims.role) {
       console.warn('No custom claims found, user may need profile sync');
-      
+
       // Try to trigger profile sync
       try {
         const idToken = await user.getIdToken();
@@ -89,7 +84,7 @@ async function extractClaimsFromToken(user: FirebaseUser): Promise<CustomClaims 
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${idToken}`,
+            Authorization: `Bearer ${idToken}`,
             'X-Firebase-UID': user.uid,
           },
           body: JSON.stringify({
@@ -103,28 +98,28 @@ async function extractClaimsFromToken(user: FirebaseUser): Promise<CustomClaims 
               uid: provider.uid,
               displayName: provider.displayName,
               email: provider.email,
-              photoURL: provider.photoURL
-            }))
+              photoURL: provider.photoURL,
+            })),
           }),
         });
-        
+
         if (response.ok) {
           console.log('Profile sync triggered successfully');
           // Get fresh token with updated claims
           const freshTokenResult = await user.getIdTokenResult(true);
           const freshClaims = freshTokenResult.claims;
-          
+
           if (freshClaims.role) {
             const role = freshClaims.role as UserRole;
             const permissions = ROLE_PERMISSIONS[role] || [];
-            
+
             return {
               role,
               permissions,
               profileComplete: Boolean(freshClaims.profileComplete),
               emailVerified: user.emailVerified || false,
-              profileId: freshClaims.profileId as string || '',
-              lastLoginAt: freshClaims.lastLoginAt as string || ''
+              profileId: (freshClaims.profileId as string) || '',
+              lastLoginAt: (freshClaims.lastLoginAt as string) || '',
             };
           }
         }
@@ -135,17 +130,17 @@ async function extractClaimsFromToken(user: FirebaseUser): Promise<CustomClaims 
       // Claims exist, use them
       const role = firebaseClaims.role as UserRole;
       const permissions = ROLE_PERMISSIONS[role] || [];
-      
+
       return {
         role,
         permissions,
         profileComplete: Boolean(firebaseClaims.profileComplete),
         emailVerified: user.emailVerified || false,
-        profileId: firebaseClaims.profileId as string || '',
-        lastLoginAt: firebaseClaims.lastLoginAt as string || ''
+        profileId: (firebaseClaims.profileId as string) || '',
+        lastLoginAt: (firebaseClaims.lastLoginAt as string) || '',
       };
     }
-    
+
     // Fallback: return basic claims for authenticated users
     return {
       role: UserRole.STUDENT,
@@ -153,11 +148,11 @@ async function extractClaimsFromToken(user: FirebaseUser): Promise<CustomClaims 
       profileComplete: false,
       emailVerified: user.emailVerified || false,
       profileId: '',
-      lastLoginAt: ''
+      lastLoginAt: '',
     };
   } catch (error) {
     console.error('Error extracting claims from token:', error);
-    
+
     // Fallback: return basic claims for authenticated users
     return {
       role: UserRole.STUDENT,
@@ -165,7 +160,7 @@ async function extractClaimsFromToken(user: FirebaseUser): Promise<CustomClaims 
       profileComplete: false,
       emailVerified: user.emailVerified || false,
       profileId: '',
-      lastLoginAt: ''
+      lastLoginAt: '',
     };
   }
 }
@@ -175,51 +170,37 @@ async function extractClaimsFromToken(user: FirebaseUser): Promise<CustomClaims 
  * Combines functionality from useAuth and useClientAuth
  */
 export function useAuth(): UseAuthReturn {
-  const [state, setState] = useState<AuthState>({
-    user: null,
-    claims: null,
-    profile: null,
-    loading: true,
-    error: null,
-    isAuthenticated: false,
-    isAdmin: false
-  });
+  const store = useAuthStore();
 
-  const { setUser: setStoreUser, setClaims: setStoreClaims, setProfile: setStoreProfile } = useAuthStore();
+  const {
+    user,
+    claims,
+    profile,
+    isLoading: loading,
+    error: storeError,
+    isAuthenticated,
+    hasPermission: storeHasPermission,
+    hasRole: storeHasRole,
+    hasAnyRole: storeHasAnyRole,
+  } = store;
+
+  const error = storeError ? storeError.message : null;
+  const isAdmin = storeHasRole(UserRole.ADMIN);
 
   /**
    * Refresh user claims from Firebase token
    */
   const refreshClaims = useCallback(async () => {
-    if (!state.user) return;
-
+    if (!user) return;
     try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-      
       // Force token refresh to get latest claims
-      await state.user.getIdToken(true);
-      const claims = await extractClaimsFromToken(state.user);
-      
-      setState(prev => ({ 
-        ...prev, 
-        claims, 
-        isAdmin: claims?.role === UserRole.ADMIN || false,
-        loading: false 
-      }));
-
-      // Update store
-      if (claims) {
-        setStoreClaims(claims);
-      }
+      await user.getIdToken(true);
+      // The actual store update should be handled by the refresh logic in AuthProvider or a dedicated action
+      console.log('[useAuth] Claims refresh requested');
     } catch (error: any) {
-      const errorMessage = error.message || 'Failed to refresh claims';
-      setState(prev => ({ 
-        ...prev, 
-        error: errorMessage, 
-        loading: false 
-      }));
+      console.error('[useAuth] Failed to refresh claims:', error);
     }
-  }, [state.user, setStoreClaims]);
+  }, [user]);
 
   /**
    * Logout user
@@ -227,120 +208,86 @@ export function useAuth(): UseAuthReturn {
   const logout = useCallback(async () => {
     try {
       await auth.signOut();
-      setState({
-        user: null,
-        claims: null,
-        profile: null,
-        loading: false,
-        error: null,
-        isAuthenticated: false,
-        isAdmin: false
-      });
+      store.clearAuth();
 
-      // Clear store
-      setStoreUser(null);
-      setStoreClaims(null);
-      setStoreProfile(null);
+      // Clear profile store as well
+      const { useProfileStore } = await import('@/lib/stores/profile.store');
+      useProfileStore.getState().clearProfile();
+
+      // Clear cache
+      localStorage.removeItem('learnity_user_claims');
+      localStorage.removeItem('learnity-auth-storage');
+
+      // Force reload to clear memory
+      window.location.href = '/auth/login';
     } catch (error: any) {
-      const errorMessage = error.message || 'Failed to logout';
-      setState(prev => ({ 
-        ...prev, 
-        error: errorMessage 
-      }));
+      console.error('[useAuth] Failed to logout:', error);
+      // Still try to force login page if signout fails
+      window.location.href = '/auth/login';
     }
-  }, [setStoreUser, setStoreClaims, setStoreProfile]);
+  }, [store]);
 
   /**
    * Check if user has specific permission
    */
-  const hasPermission = useCallback((permission: Permission): boolean => {
-    if (!state.claims || !state.claims.permissions) return false;
-    return state.claims.permissions.includes(permission);
-  }, [state.claims]);
+  const hasPermission = useCallback(
+    (permission: Permission): boolean => {
+      return storeHasPermission(permission);
+    },
+    [storeHasPermission]
+  );
 
   /**
    * Check if user has specific role
    */
-  const hasRole = useCallback((role: UserRole): boolean => {
-    if (!state.claims) return false;
-    return state.claims.role === role;
-  }, [state.claims]);
+  const hasRole = useCallback(
+    (role: UserRole): boolean => {
+      return storeHasRole(role);
+    },
+    [storeHasRole]
+  );
 
   /**
    * Check if user has any of the specified roles
    */
-  const hasAnyRole = useCallback((roles: UserRole[]): boolean => {
-    if (!state.claims) return false;
-    return roles.includes(state.claims.role);
-  }, [state.claims]);
+  const hasAnyRole = useCallback(
+    (roles: UserRole[]): boolean => {
+      return storeHasAnyRole(roles);
+    },
+    [storeHasAnyRole]
+  );
 
-  // Set up auth state listener
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          setState(prev => ({ ...prev, loading: true, error: null }));
-          
-          // Extract claims from token (client-side approach)
-          const claims = await extractClaimsFromToken(user);
-          
-          setState({
-            user,
-            claims,
-            profile: null, // TODO: Fetch from database service if needed
-            loading: false,
-            error: null,
-            isAuthenticated: true,
-            isAdmin: claims?.role === UserRole.ADMIN || false
-          });
-
-          // Update store
-          setStoreUser(user);
-          if (claims) {
-            setStoreClaims(claims);
-          }
-        } catch (error: any) {
-          const errorMessage = error.message || 'Failed to get user claims';
-          setState({
-            user,
-            claims: null,
-            profile: null,
-            loading: false,
-            error: errorMessage,
-            isAuthenticated: true,
-            isAdmin: false
-          });
-          setStoreUser(user);
-        }
-      } else {
-        setState({
-          user: null,
-          claims: null,
-          profile: null,
-          loading: false,
-          error: null,
-          isAuthenticated: false,
-          isAdmin: false
-        });
-
-        // Clear store
-        setStoreUser(null);
-        setStoreClaims(null);
-        setStoreProfile(null);
-      }
-    });
-
-    return unsubscribe;
-  }, [setStoreUser, setStoreClaims, setStoreProfile]);
-
-  return {
-    ...state,
-    refreshClaims,
-    logout,
-    hasPermission,
-    hasRole,
-    hasAnyRole
-  };
+  // Memoize the return object to prevent infinite re-render loops in components
+  return useMemo(
+    () => ({
+      user,
+      claims,
+      profile,
+      loading,
+      error,
+      isAuthenticated,
+      isAdmin,
+      refreshClaims,
+      logout,
+      hasPermission,
+      hasRole,
+      hasAnyRole,
+    }),
+    [
+      user,
+      claims,
+      profile,
+      loading,
+      error,
+      isAuthenticated,
+      isAdmin,
+      refreshClaims,
+      logout,
+      hasPermission,
+      hasRole,
+      hasAnyRole,
+    ]
+  );
 }
 
 /**
@@ -443,7 +390,6 @@ export function useClientAuth(): ClientAuthState {
     loading,
     isAdmin,
     isAuthenticated,
-    claims
+    claims,
   };
 }
-

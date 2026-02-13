@@ -10,17 +10,17 @@ export interface ISyncService {
    * Sync Firebase user changes to Neon DB
    */
   syncFirebaseUserToNeonDB(firebaseUser: FirebaseUser): Promise<void>;
-  
+
   /**
    * Update Firebase custom claims from Neon DB data
    */
   syncNeonDBToFirebaseClaims(firebaseUid: string): Promise<void>;
-  
+
   /**
    * Handle email verification sync
    */
   handleEmailVerificationSync(firebaseUid: string): Promise<void>;
-  
+
   /**
    * Batch sync for data consistency
    */
@@ -31,27 +31,44 @@ export interface IUserProfileService {
   /**
    * Profile management
    */
-  createUserProfile(firebaseUid: string, data: CreateProfileData): Promise<User>;
+  createUserProfile(
+    firebaseUid: string,
+    data: CreateProfileData
+  ): Promise<User>;
   getUserProfile(firebaseUid: string): Promise<User | null>;
-  updateUserProfile(firebaseUid: string, data: UpdateProfileData): Promise<User>;
-  
+  updateUserProfile(
+    firebaseUid: string,
+    data: UpdateProfileData
+  ): Promise<User>;
+
   /**
    * Role management
    */
   getUserRole(firebaseUid: string): Promise<UserRole>;
   updateUserRole(firebaseUid: string, role: UserRole): Promise<void>;
-  
+
   /**
    * Teacher application workflow
    */
-  submitTeacherApplication(firebaseUid: string, application: TeacherApplicationData): Promise<void>;
-  getTeacherApplications(status?: ApplicationStatus): Promise<TeacherApplication[]>;
-  reviewTeacherApplication(applicationId: string, decision: ApprovalDecision): Promise<void>;
-  
+  submitTeacherApplication(
+    firebaseUid: string,
+    application: TeacherApplicationData
+  ): Promise<void>;
+  getTeacherApplications(
+    status?: ApplicationStatus
+  ): Promise<TeacherApplication[]>;
+  reviewTeacherApplication(
+    applicationId: string,
+    decision: ApprovalDecision
+  ): Promise<void>;
+
   /**
    * Student profile enhancement
    */
-  enhanceStudentProfile(firebaseUid: string, enhancements: StudentEnhancements): Promise<void>;
+  enhanceStudentProfile(
+    firebaseUid: string,
+    enhancements: StudentEnhancements
+  ): Promise<void>;
   getProfileCompletionStatus(firebaseUid: string): Promise<ProfileCompletion>;
 }
 

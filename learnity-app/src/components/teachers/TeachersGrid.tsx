@@ -1,15 +1,15 @@
 /**
  * Teachers Grid Component
- * Displays grid of teachers fetched from database
+ * Displays grid of teachers with support for prefetched data
  */
 
 'use client';
 
 import { useEffect, useState } from 'react';
-import { TeacherCard } from './TeacherCard';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { TeacherCard } from './TeacherCard';
 
 interface Teacher {
   id: string;
@@ -30,15 +30,54 @@ interface Teacher {
   languages: string[];
 }
 
-export function TeachersGrid() {
+interface TeachersGridProps {
+  initialData?: {
+    teachers?: any[];
+    topRatedTeachers?: any[];
+    newTeachers?: any[];
+    subjects?: string[];
+    stats?: any;
+  } | null;
+}
+
+export function TeachersGrid({ initialData }: TeachersGridProps) {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialData?.teachers);
   const [error, setError] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
 
   const { toast } = useToast();
 
   useEffect(() => {
+    // If we have initial data, use it
+    if (initialData?.teachers) {
+      const formattedTeachers = initialData.teachers.map((teacher: any) => ({
+        id: teacher.id,
+        name: `${teacher.firstName} ${teacher.lastName}`,
+        firstName: teacher.firstName,
+        lastName: teacher.lastName,
+        profilePicture:
+          teacher.profilePicture ||
+          teacher.teacherProfile?.profilePicture ||
+          null,
+        subjects: teacher.teacherProfile?.subjects || [],
+        experience: teacher.teacherProfile?.experience || 0,
+        bio: teacher.teacherProfile?.bio || '',
+        hourlyRate: teacher.teacherProfile?.hourlyRate?.toString() || null,
+        qualifications: teacher.teacherProfile?.qualifications || [],
+        isTopRated: Number(teacher.teacherProfile?.rating || 0) >= 4.5,
+        rating: Number(teacher.teacherProfile?.rating || 0).toFixed(1),
+        reviewCount: teacher.teacherProfile?.reviewCount || 0,
+        responseTime: teacher.teacherProfile?.responseTime || 'Within 24 hours',
+        availability: teacher.teacherProfile?.availability || 'Available',
+        languages: teacher.teacherProfile?.languages || ['English'],
+      }));
+      setTeachers(formattedTeachers);
+      setLoading(false);
+      return;
+    }
+
+    // Otherwise fetch from API
     async function fetchTeachers() {
       try {
         const response = await fetch('/api/teachers/featured');
@@ -49,18 +88,20 @@ export function TeachersGrid() {
         } else {
           setError('Failed to load teachers');
           toast({
-            variant: "destructive",
-            title: "Connection Error",
-            description: "Unable to load teachers. Please check your internet connection.",
+            variant: 'destructive',
+            title: 'Connection Error',
+            description:
+              'Unable to load teachers. Please check your internet connection.',
           });
         }
       } catch (err) {
         console.error('Error fetching teachers:', err);
         setError('Unable to load teachers at this time');
         toast({
-          variant: "destructive",
-          title: "Network Error",
-          description: "Could not connect to the server. Please check your internet connection and try again.",
+          variant: 'destructive',
+          title: 'Network Error',
+          description:
+            'Could not connect to the server. Please check your internet connection and try again.',
         });
       } finally {
         setLoading(false);
@@ -68,21 +109,27 @@ export function TeachersGrid() {
     }
 
     fetchTeachers();
-  }, [toast]);
-
-  const displayedTeachers = showAll ? teachers : teachers.slice(0, 3);
+  }, [initialData, toast]);
+  const displayedTeachers = showAll ? teachers : teachers.slice(0, 9);
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="bg-white rounded-xl p-6 shadow-sm animate-pulse">
-            <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-4"></div>
-            <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-4"></div>
-            <div className="space-y-2">
-              <div className="h-3 bg-gray-200 rounded"></div>
-              <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+        {[...Array(9)].map((_, i) => (
+          <div
+            key={i}
+            className='bg-white rounded-xl p-6 shadow-sm animate-pulse'
+          >
+            <div className='w-20 h-20 bg-gray-200 rounded-full mx-auto mb-4'></div>
+            <div className='h-6 bg-gray-200 rounded w-3/4 mx-auto mb-2'></div>
+            <div className='h-4 bg-gray-200 rounded w-1/2 mx-auto mb-4'></div>
+            <div className='flex justify-center gap-4 mb-4'>
+              <div className='h-4 bg-gray-200 rounded w-16'></div>
+              <div className='h-4 bg-gray-200 rounded w-20'></div>
+            </div>
+            <div className='space-y-2'>
+              <div className='h-3 bg-gray-200 rounded'></div>
+              <div className='h-3 bg-gray-200 rounded w-5/6 mx-auto'></div>
             </div>
           </div>
         ))}
@@ -92,8 +139,8 @@ export function TeachersGrid() {
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
+      <Alert variant='destructive'>
+        <AlertCircle className='h-4 w-4' />
         <AlertDescription>{error}</AlertDescription>
       </Alert>
     );
@@ -101,31 +148,45 @@ export function TeachersGrid() {
 
   if (teachers.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-600 text-lg">No teachers available at the moment.</p>
-        <p className="text-gray-500 text-sm mt-2">Check back soon for new tutors!</p>
+      <div className='text-center py-12'>
+        <p className='text-gray-600 text-lg'>
+          No teachers available at the moment.
+        </p>
+        <p className='text-gray-500 text-sm mt-2'>
+          Check back soon for new tutors!
+        </p>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayedTeachers.map((teacher) => (
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+        {displayedTeachers.map(teacher => (
           <TeacherCard key={teacher.id} teacher={teacher} />
         ))}
       </div>
 
       {/* Show More Button */}
-      {!showAll && teachers.length > 3 && (
-        <div className="text-center mt-12">
+      {!showAll && teachers.length > displayedTeachers.length && (
+        <div className='text-center mt-12'>
           <button
             onClick={() => setShowAll(true)}
-            className="inline-flex items-center px-8 py-3 bg-slate-600 hover:bg-slate-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+            className='inline-flex items-center px-8 py-3 bg-slate-900 hover:bg-slate-950 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105'
           >
             Show All Teachers ({teachers.length})
-            <svg className="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <svg
+              className='ml-2 h-5 w-5'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M19 9l-7 7-7-7'
+              />
             </svg>
           </button>
         </div>

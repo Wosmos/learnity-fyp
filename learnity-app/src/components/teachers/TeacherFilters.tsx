@@ -5,9 +5,9 @@
 
 'use client';
 
+import { X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
 
 interface TeacherFiltersProps {
   subjects: string[];
@@ -40,36 +40,38 @@ export function TeacherFilters({
   const hasFilters = selectedSubject || priceRange || minRating;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-gray-900">Filters</h3>
+    <div className='bg-white rounded-lg border border-gray-200 p-6 mb-8'>
+      <div className='flex items-center justify-between mb-4'>
+        <h3 className='font-semibold text-gray-900'>Filters</h3>
         {hasFilters && (
           <Button
-            variant="ghost"
-            size="sm"
+            variant='ghost'
+            size='sm'
             onClick={() => {
               onSubjectChange(null);
               onPriceChange(null);
               onRatingChange(null);
             }}
           >
-            <X className="h-4 w-4 mr-1" />
+            <X className='h-4 w-4 mr-1' />
             Clear All
           </Button>
         )}
       </div>
 
-      <div className="space-y-4">
+      <div className='space-y-4'>
         {/* Subject Filter */}
         <div>
-          <div className="text-sm font-medium text-gray-700 mb-2">Subject</div>
-          <div className="flex flex-wrap gap-2">
-            {subjects.slice(0, 8).map((subject) => (
+          <div className='text-sm font-medium text-gray-700 mb-2'>Subject</div>
+          <div className='flex flex-wrap gap-2'>
+            {subjects.slice(0, 8).map(subject => (
               <Badge
                 key={subject}
                 variant={selectedSubject === subject ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-slate-100"
-                onClick={() => onSubjectChange(selectedSubject === subject ? null : subject)}
+                className='cursor-pointer hover:bg-slate-100'
+                onClick={() =>
+                  onSubjectChange(selectedSubject === subject ? null : subject)
+                }
               >
                 {subject}
               </Badge>
@@ -79,14 +81,18 @@ export function TeacherFilters({
 
         {/* Price Filter */}
         <div>
-          <div className="text-sm font-medium text-gray-700 mb-2">Price Range</div>
-          <div className="flex flex-wrap gap-2">
-            {PRICE_RANGES.map((range) => (
+          <div className='text-sm font-medium text-gray-700 mb-2'>
+            Price Range
+          </div>
+          <div className='flex flex-wrap gap-2'>
+            {PRICE_RANGES.map(range => (
               <Badge
                 key={range.value}
                 variant={priceRange === range.value ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-slate-100"
-                onClick={() => onPriceChange(priceRange === range.value ? null : range.value)}
+                className='cursor-pointer hover:bg-slate-100'
+                onClick={() =>
+                  onPriceChange(priceRange === range.value ? null : range.value)
+                }
               >
                 {range.label}
               </Badge>
@@ -96,14 +102,18 @@ export function TeacherFilters({
 
         {/* Rating Filter */}
         <div>
-          <div className="text-sm font-medium text-gray-700 mb-2">Minimum Rating</div>
-          <div className="flex flex-wrap gap-2">
-            {RATINGS.map((rating) => (
+          <div className='text-sm font-medium text-gray-700 mb-2'>
+            Minimum Rating
+          </div>
+          <div className='flex flex-wrap gap-2'>
+            {RATINGS.map(rating => (
               <Badge
                 key={rating}
                 variant={minRating === rating ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-slate-100"
-                onClick={() => onRatingChange(minRating === rating ? null : rating)}
+                className='cursor-pointer hover:bg-slate-100'
+                onClick={() =>
+                  onRatingChange(minRating === rating ? null : rating)
+                }
               >
                 {rating}+ ⭐
               </Badge>

@@ -1,19 +1,32 @@
 /**
  * Main Application Layout
- * Provides unified layout with authentication, navigation, and logout functionality
+ * Provides unified layout with premium aesthetics and smooth transitions
  */
 
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  GraduationCap,
+  User,
+  LogOut,
+  Menu,
+  X,
+  Bell,
+  Home,
+  Loader2,
+  ChevronRight,
+  Settings,
+  LayoutDashboard,
+} from 'lucide-react';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { useLogout } from '@/hooks/useLogout';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -23,27 +36,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  GraduationCap,
-  User,
-  LogOut,
-  Menu,
-  X,
-  Bell,
-  Home,
-  Loader2
-} from 'lucide-react';
 import { UserRole } from '@/types/auth';
 import { cn } from '@/lib/utils';
-import { getDashboardRoute, getRoleBadgeColor, getRoleDisplayName } from './utils';
-import Footer from './Footer';
+import { Footer } from '../externals';
+import {
+  getDashboardRoute,
+  getRoleBadgeColor,
+  getRoleDisplayName,
+} from './utils';
 
 export interface AppLayoutProps {
   children: React.ReactNode;
   showNavigation?: boolean;
   showHeader?: boolean;
   className?: string;
-  hideNavigationLinks?: boolean; // New prop to hide nav links but keep user menu
+  hideNavigationLinks?: boolean;
 }
 
 export function AppLayout({
@@ -51,13 +58,16 @@ export function AppLayout({
   showNavigation = true,
   showHeader = true,
   className,
-  hideNavigationLinks = false
+  hideNavigationLinks = false,
 }: AppLayoutProps) {
   const { user, loading, isAuthenticated, claims } = useClientAuth();
   const { logout, isLoggingOut } = useLogout();
   const api = useAuthenticatedApi();
   const router = useRouter();
+  const pathname = usePathname();
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [profileData, setProfileData] = useState<{
     firstName: string;
     lastName: string;
@@ -65,6 +75,14 @@ export function AppLayout({
     profilePicture?: string | null;
   } | null>(null);
 
+  // Handle scroll for header effect
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Fetch profile data
   useEffect(() => {
     if (!loading && isAuthenticated) {
       const fetchProfileData = async () => {
@@ -75,10 +93,24 @@ export function AppLayout({
           console.error('Failed to fetch profile:', error);
         }
       };
-
       fetchProfileData();
+    } else if (!loading && !isAuthenticated) {
+      // Clear profile data when user is not authenticated
+      setProfileData(null);
     }
   }, [loading, isAuthenticated, api]);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
 
   const handleLogout = async () => {
     try {
@@ -93,354 +125,414 @@ export function AppLayout({
     if (profileData) {
       return `${profileData.firstName[0]}${profileData.lastName[0]}`.toUpperCase();
     }
-    return user?.displayName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
+    return (
+      user?.displayName
+        ?.split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase() || 'U'
+    );
   };
 
-  const fullName = profileData ? `${profileData.firstName} ${profileData.lastName}` : user?.displayName || 'User';
+  const fullName = profileData
+    ? `${profileData.firstName} ${profileData.lastName}`
+    : user?.displayName || 'User';
 
-  // Debug: Log when profileData changes
-  useEffect(() => {
-    if (profileData) {
-      console.log('ProfileData updated:', {
-        hasProfilePicture: !!profileData.profilePicture,
-        profilePictureType: typeof profileData.profilePicture,
-        isDataUrl: profileData.profilePicture?.startsWith('data:'),
-        firstName: profileData.firstName,
-        lastName: profileData.lastName
-      });
-    }
-  }, [profileData]);
-
-
-
-  // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="flex items-center justify-center mb-4">
-                <div className="p-3 bg-slate-600 rounded-lg mr-3">
-                  <GraduationCap className="h-6 w-6 text-white" />
-                </div>
-                <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Loading Learnity...
-              </h3>
-              <p className="text-gray-500">
-                Please wait while we set up your experience
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className='min-h-screen bg-slate-50 flex items-center justify-center'>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className='text-center'
+        >
+          <div className='inline-flex items-center justify-center p-4 bg-white rounded-2xl shadow-xl border border-slate-100 mb-6'>
+            <GraduationCap className='h-10 w-10 text-slate-800' />
+          </div>
+          <div className='flex flex-col items-center gap-3'>
+            <Loader2 className='h-6 w-6 animate-spin text-slate-900' />
+            <p className='text-sm font-medium text-slate-600 animate-pulse'>
+              Initializing Learnity...
+            </p>
+          </div>
+        </motion.div>
       </div>
     );
   }
 
+  const navLinks = [
+    { label: 'About Us', href: '/about' },
+    { label: 'Our Teachers', href: '/teachers' },
+    { label: 'Courses', href: '/courses' },
+  ];
+
+  const dashboardRoute = getDashboardRoute(claims?.role || UserRole.STUDENT);
+
   return (
-    <div className={cn('min-h-screen bg-gray-50', className)}>
-      {/* Header */}
+    <div className={cn('min-h-screen flex flex-col bg-[#F8FAFC]', className)}>
       {showHeader && (
-        <header className="bg-white/65 backdrop-blur-xl shadow-sm border-b sticky top-0 z-50">
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              {/* Logo and Brand */}
-              <div className="flex items-center space-x-4">
-                <Link href="/" className="flex items-center space-x-2">
-                  <div className="p-2 bg-slate-600 rounded-lg">
-                    <GraduationCap className="h-6 w-6 text-white" />
+        <header
+          className={cn(
+            'sticky top-0 left-0 right-0 z-50 transition-all duration-300 border-b',
+            scrolled
+              ? 'bg-white/80 backdrop-blur-xl border-slate-200 shadow-sm py-2'
+              : 'bg-slate-50 border-transparent py-4'
+          )}
+        >
+          <div className='w-full px-4 text-slate-900 font-medium'>
+            <div className='flex justify-between items-center h-12'>
+              {/* Logo */}
+              <div className='flex items-center gap-8'>
+                <Link
+                  href='/'
+                  className='group flex items-center gap-2.5 transition-transform active:scale-95'
+                >
+                  <div className='p-2 bg-slate-900 rounded-xl group-hover:rotate-6 transition-transform flex items-center justify-center'>
+                    <img src='/logo.svg' alt='Learnity' className='h-5 w-5' />
                   </div>
-                  <span className="text-xl font-bold text-gray-900">Learnity</span>
+                  <span className='text-xl font-bold tracking-tight text-slate-900'>
+                    Learnity
+                  </span>
                 </Link>
 
-                {/* Desktop Navigation */}
+                {/* Desktop Nav */}
                 {!hideNavigationLinks && (
-                  <nav className="hidden md:flex items-center space-x-1">
-                    {isAuthenticated && showNavigation && (
-                      <Link href={getDashboardRoute(claims?.role || UserRole.STUDENT)}>
-                        <Button variant="ghost" size="sm">
-                          <Home className="h-4 w-4 mr-2" />
+                  <nav className='hidden md:flex items-center gap-1'>
+                    {isAuthenticated && user?.emailVerified && showNavigation && (
+                      <Link href={dashboardRoute}>
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          className={cn(
+                            'text-slate-600 hover:text-slate-900',
+                            pathname === dashboardRoute &&
+                            'bg-slate-100/50 text-slate-900'
+                          )}
+                        >
                           Dashboard
                         </Button>
                       </Link>
                     )}
-                    <Link href="/teachers">
-                      <Button variant="ghost" size="sm">
-                        Our Teachers
-                      </Button>
-                    </Link>
-                    <Link href="/about">
-                      <Button variant="ghost" size="sm">
-                        About Us
-                      </Button>
-                    </Link>
+                    {navLinks.map(link => (
+                      <Link key={link.href} href={link.href}>
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          className={cn(
+                            'text-slate-600 hover:text-slate-900',
+                            pathname === link.href &&
+                            'bg-slate-100/50 text-slate-900'
+                          )}
+                        >
+                          {link.label}
+                        </Button>
+                      </Link>
+                    ))}
                   </nav>
                 )}
               </div>
 
-              {/* User Menu */}
-              <div className="flex items-center space-x-4">
-                {isAuthenticated ? (
+              {/* User Menu / Auth */}
+              <div className='flex items-center gap-3'>
+                {isAuthenticated && user?.emailVerified ? (
                   <>
-                    {/* Notifications */}
-                    <Button variant="ghost" size="sm" className="hidden sm:flex">
-                      <Bell className="h-4 w-4" />
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='hidden sm:flex rounded-full text-slate-500 hover:text-slate-900'
+                    >
+                      <Bell className='h-5 w-5' />
                     </Button>
 
-                    {/* User Dropdown Menu */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="hidden sm:flex items-center space-x-3 h-auto py-2">
-                          <div className="text-right">
-                            <p className="text-sm font-medium text-gray-900">
-                              {user?.displayName || user?.email?.split('@')[0] || 'User'}
-                            </p>
-                            {claims?.role && (
-                              <Badge className={cn('text-xs', getRoleBadgeColor(claims.role))}>
-                                {getRoleDisplayName(claims.role)}
-                              </Badge>
-                            )}
-                          </div>
-                          <Avatar className="h-10 w-10">
+                        <Button
+                          variant='ghost'
+                          className='h-10 pl-2 pr-1 rounded-full border border-slate-200 hover:bg-white hover:shadow-sm transition-all hidden md:flex'
+                        >
+                          <span className='hidden lg:inline mr-2 text-sm font-medium text-slate-700'>
+                            {user?.displayName?.split(' ')[0] || 'User'}
+                          </span>
+                          <Avatar className='h-8 w-8 border border-slate-100 shadow-xs'>
                             <AvatarImage
                               src={profileData?.profilePicture || ''}
-                              alt={fullName}
-                              onError={(e) => console.error('Avatar image failed to load:', e)}
                             />
-                            <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white">
+                            <AvatarFallback className='bg-slate-900 text-white text-[10px]'>
                               {getInitials()}
                             </AvatarFallback>
                           </Avatar>
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56">
-                        <DropdownMenuLabel>
-                          <div className="flex flex-col space-y-1">
-                            <p className="text-sm font-medium leading-none">{fullName}</p>
-                            <p className="text-xs leading-none text-gray-500">
-                              {profileData?.email || user?.email}
+                      <DropdownMenuContent
+                        align='end'
+                        className='w-64 p-2 rounded-2xl shadow-2xl border-slate-100'
+                      >
+                        <DropdownMenuLabel className='px-3 py-2'>
+                          <div className='flex flex-col gap-0.5'>
+                            <p className='text-sm font-semibold text-slate-900 leading-none'>
+                              {fullName}
+                            </p>
+                            <p className='text-[11px] text-slate-500 truncate'>
+                              {user?.email}
                             </p>
                           </div>
                         </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => router.push('/profile/enhance')}>
-                          <User className="mr-2 h-4 w-4" />
-                          <span>Profile</span>
+                        <DropdownMenuSeparator className='my-1' />
+                        <DropdownMenuItem
+                          onClick={() => router.push('/profile/enhance')}
+                          className='rounded-lg gap-2.5 py-2 cursor-pointer'
+                        >
+                          <User className='h-4 w-4 text-slate-500' />
+                          <span className='text-sm'>My Profile</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => router.push(getDashboardRoute(claims?.role || UserRole.STUDENT))}>
-                          <Home className="mr-2 h-4 w-4" />
-                          <span>Dashboard</span>
+                        <DropdownMenuItem
+                          onClick={() => router.push(dashboardRoute)}
+                          className='rounded-lg gap-2.5 py-2 cursor-pointer'
+                        >
+                          <LayoutDashboard className='h-4 w-4 text-slate-500' />
+                          <span className='text-sm'>Dashboard</span>
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
+                        <DropdownMenuItem className='rounded-lg gap-2.5 py-2 cursor-pointer'>
+                          <Settings className='h-4 w-4 text-slate-500' />
+                          <span className='text-sm'>Settings</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className='my-1' />
+                        <DropdownMenuItem
+                          onClick={handleLogout}
+                          disabled={isLoggingOut}
+                          className='rounded-lg gap-2.5 py-2 text-red-600 hover:text-red-700 focus:bg-red-50 cursor-pointer'
+                        >
                           {isLoggingOut ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <Loader2 className='h-4 w-4 animate-spin' />
                           ) : (
-                            <LogOut className="mr-2 h-4 w-4" />
+                            <LogOut className='h-4 w-4' />
                           )}
-                          <span>{isLoggingOut ? 'Signing out...' : 'Sign out'}</span>
+                          <span className='text-sm'>Sign Out</span>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
 
-                    {/* Mobile Menu Button */}
+                    {/* Mobile Menu Button - Moved outside conditional so it always shows on mobile when logged in */}
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      className="md:hidden"
+                      variant='ghost'
+                      size='icon'
+                      className='md:hidden rounded-full z-50 relative'
                       onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     >
                       {isMobileMenuOpen ? (
-                        <X className="h-5 w-5" />
+                        <X className='h-5 w-5' />
                       ) : (
-                        <Menu className="h-5 w-5" />
+                        <Menu className='h-5 w-5' />
                       )}
                     </Button>
                   </>
                 ) : (
-                  <div className="flex items-center space-x-2">
-                    <Link href="/auth/login">
-                      <Button variant="ghost" size="sm">
-                        Sign in
-                      </Button>
-                    </Link>
-                    <Link href="/auth/register">
-                      <Button size="sm">
-                        Get started
-                      </Button>
-                    </Link>
-                  </div>
+                  <>
+                    <div className='hidden md:flex items-center gap-2'>
+                      <Link href='/auth/login'>
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          className='rounded-full'
+                        >
+                          Sign In
+                        </Button>
+                      </Link>
+                      <Link href='/auth/register'>
+                        <Button
+                          size='sm'
+                          className='rounded-full bg-slate-900 hover:bg-slate-800 shadow-md transition-all active:scale-95'
+                        >
+                          Get Started
+                        </Button>
+                      </Link>
+                    </div>
+                    {/* Mobile Menu Button for unauthenticated users */}
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='md:hidden rounded-full z-50 relative'
+                      onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    >
+                      {isMobileMenuOpen ? (
+                        <X className='h-5 w-5' />
+                      ) : (
+                        <Menu className='h-5 w-5' />
+                      )}
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Mobile Menu */}
-          {isAuthenticated && isMobileMenuOpen && (
-            <div className="md:hidden border-t bg-white">
-              <div className="px-4 py-4 space-y-4">
-                {/* User Info */}
-                <div className="flex items-center space-x-3 pb-4 border-b">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage
-                      src={profileData?.profilePicture || ''}
-                      alt={fullName}
-                      onError={(e) => console.error('Mobile avatar image failed to load:', e)}
-                    />
-                    <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white">
-                      {getInitials()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {user?.displayName || user?.email?.split('@')[0] || 'User'}
-                    </p>
-                    {claims?.role && (
-                      <Badge className={cn('text-xs', getRoleBadgeColor(claims.role))}>
-                        {getRoleDisplayName(claims.role)}
-                      </Badge>
+          {/* Mobile Menu Drawer */}
+          <AnimatePresence>
+            {isMobileMenuOpen && (
+              <>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className='fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 md:hidden'
+                  onClick={() => setIsMobileMenuOpen(false)}
+                />
+                
+                {/* Drawer */}
+                <motion.div
+                  initial={{ x: '100%' }}
+                  animate={{ x: 0 }}
+                  exit={{ x: '100%' }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                  className='fixed top-0 right-0 bottom-0 w-[280px] bg-white shadow-2xl z-50 md:hidden flex flex-col'
+                >
+                  <div className='p-6 pt-20 flex-1 overflow-y-auto'>
+                    {isAuthenticated && user?.emailVerified ? (
+                      <div className='flex items-center gap-4 p-4 mb-6 bg-slate-50 rounded-2xl border border-slate-100'>
+                        <Avatar className='h-12 w-12 border-2 border-white shadow-sm'>
+                          <AvatarImage src={profileData?.profilePicture || ''} />
+                          <AvatarFallback className='bg-slate-900 text-white'>
+                            {getInitials()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h4 className='font-bold text-slate-900 truncate max-w-[140px]'>
+                            {fullName}
+                          </h4>
+                          <Badge
+                            variant='outline'
+                            className={cn(
+                              'mt-1',
+                              getRoleBadgeColor(claims?.role || UserRole.STUDENT)
+                            )}
+                          >
+                            {getRoleDisplayName(claims?.role || UserRole.STUDENT)}
+                          </Badge>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <div className='space-y-1'>
+                      {isAuthenticated && user?.emailVerified && (
+                        <Link
+                          href={dashboardRoute}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <Button
+                            variant='ghost'
+                            className='w-full justify-start gap-3 px-4 py-6 rounded-xl hover:bg-slate-50 text-slate-600 hover:text-slate-900 font-medium'
+                          >
+                            <LayoutDashboard className='h-5 w-5' />
+                            Dashboard
+                          </Button>
+                        </Link>
+                      )}
+                      
+                      {navLinks.map(link => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <Button
+                            variant='ghost'
+                            className='w-full justify-start gap-3 px-4 py-6 rounded-xl hover:bg-slate-50 text-slate-600 hover:text-slate-900 font-medium'
+                          >
+                            <div className='w-5 flex justify-center'>
+                              <div className='w-1.5 h-1.5 rounded-full bg-slate-300' />
+                            </div>
+                            {link.label}
+                          </Button>
+                        </Link>
+                      ))}
+                    </div>
+
+                    {!isAuthenticated && (
+                      <div className='mt-8 pt-8 border-t border-slate-100 space-y-3'>
+                        <Link href='/auth/login' onClick={() => setIsMobileMenuOpen(false)}>
+                          <Button variant='outline' className='w-full rounded-xl py-6'>
+                            Sign In
+                          </Button>
+                        </Link>
+                        <Link href='/auth/register' onClick={() => setIsMobileMenuOpen(false)}>
+                          <Button className='w-full rounded-xl py-6 bg-slate-900 hover:bg-slate-800'>
+                            Get Started
+                          </Button>
+                        </Link>
+                      </div>
                     )}
                   </div>
-                </div>
 
-                {/* Mobile Navigation */}
-                <div className="space-y-2">
-                  {showNavigation && !hideNavigationLinks && (
-                    <>
-                      <Link
-                        href={getDashboardRoute(claims?.role || UserRole.STUDENT)}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <Button variant="ghost" className="w-full justify-start">
-                          <Home className="h-4 w-4 mr-2" />
-                          Dashboard
-                        </Button>
-                      </Link>
+                  {isAuthenticated && (
+                    <div className='p-6 border-t border-slate-100 bg-slate-50/50'>
                       <Button
-                        variant="ghost"
-                        className="w-full justify-start"
-                        onClick={() => {
-                          router.push('/profile/enhance');
-                          setIsMobileMenuOpen(false);
-                        }}
+                        variant='ghost'
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                        className='w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl'
                       >
-                        <User className="h-4 w-4 mr-2" />
-                        Profile
+                        <LogOut className='h-5 w-5' />
+                        Sign Out
                       </Button>
-                      <Button variant="ghost" className="w-full justify-start">
-                        <Bell className="h-4 w-4 mr-2" />
-                        Notifications
-                      </Button>
-                    </>
+                    </div>
                   )}
-                  {!hideNavigationLinks && (
-                    <>
-                      <Link
-                        href="/teachers"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <Button variant="ghost" className="w-full justify-start">
-                          Our Teachers
-                        </Button>
-                      </Link>
-                      <Link
-                        href="/about"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <Button variant="ghost" className="w-full justify-start">
-                          About Us
-                        </Button>
-                      </Link>
-                    </>
-                  )}
-                </div>
-
-                {/* Mobile Logout */}
-                <div className="pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={handleLogout}
-                    disabled={isLoggingOut}
-                  >
-                    {isLoggingOut ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <LogOut className="h-4 w-4 mr-2" />
-                    )}
-                    {isLoggingOut ? 'Signing out...' : 'Sign out'}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         </header>
       )}
 
       {/* Main Content */}
-      <main className="flex-1">
-        {children}
+      <main className='flex-1'>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          {children}
+        </motion.div>
       </main>
 
-      {/* Footer */}
-      <Footer />
+      <Footer status={{ text: 'All Systems Operational', online: true }} />
     </div>
   );
 }
 
-/**
- * Layout wrapper for authenticated pages
- */
+// Higher Order Components for protected layouts
 export function AuthenticatedLayout({ children, ...props }: AppLayoutProps) {
-  const { isAuthenticated, loading } = useClientAuth();
+  const { user, isAuthenticated, loading } = useClientAuth();
   const router = useRouter();
 
-  React.useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/auth/login');
+  useEffect(() => {
+    if (!loading) {
+      if (!isAuthenticated) {
+        router.push('/auth/login');
+      } else if (!user?.emailVerified) {
+        router.push('/auth/verify-email');
+      }
     }
-  }, [loading, isAuthenticated, router]);
+  }, [loading, isAuthenticated, user?.emailVerified, router]);
 
-  if (loading) {
-    return <AppLayout {...props}>{children}</AppLayout>;
-  }
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  return <AppLayout {...props}>{children}</AppLayout>;
+  return (
+    <AppLayout {...props}>
+      {!loading && isAuthenticated && user?.emailVerified ? children : null}
+    </AppLayout>
+  );
 }
 
-/**
- * Layout wrapper for admin pages (hides navigation links but keeps user menu)
- */
-export function AdminAuthenticatedLayout({ children, ...props }: AppLayoutProps) {
-  const { isAuthenticated, loading } = useClientAuth();
-  const router = useRouter();
-
-  React.useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/auth/login');
-    }
-  }, [loading, isAuthenticated, router]);
-
-  if (loading) {
-    return <AppLayout {...props} hideNavigationLinks={true}>{children}</AppLayout>;
-  }
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  return <AppLayout {...props} hideNavigationLinks={true}>{children}</AppLayout>;
+export function AdminAuthenticatedLayout({
+  children,
+  ...props
+}: AppLayoutProps) {
+  return (
+    <AuthenticatedLayout {...props} hideNavigationLinks={true}>
+      {children}
+    </AuthenticatedLayout>
+  );
 }
 
-/**
- * Layout wrapper for public pages (no authentication required)
- */
 export function PublicLayout({ children, ...props }: AppLayoutProps) {
   return <AppLayout {...props}>{children}</AppLayout>;
 }

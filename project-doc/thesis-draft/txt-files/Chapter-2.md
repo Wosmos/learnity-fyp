@@ -1,0 +1,278 @@
+Chapter 2: ANALYSIS AND DESIGN
+
+2.1 INTRODUCTION
+Before determining the final architecture, we conducted a thorough analysis of the requirements. "Learnity" is not just a content repository; it is a complex social learning platform. This chapter documents the system's design using standard UML diagrams, including Use Case, Entity Relationship, Activity, and Sequence diagrams. These diagrams served as the blueprint for our development process.
+
+2.2 SYSTEM REQUIREMENTS
+We categorized our requirement into functional (what the user can do) and non-functional (how the system behaves).
+
+**2.2.1 Functional Requirements**
+
+- **User Management:** Secure registration/login via Email & Google OAuth (NextAuth).
+- **Course Delivery:** Hierarchical structure (Course > Section > Lesson) with video playback.
+- **Gamification Engine:** Real-time XP tracking, daily streaks, and level progression logic.
+- **Real-Time Communications:**
+  - **Chat:** Persistent, channel-based chat for each course.
+  - **Video:** Live, low-latency (<50ms) classroom streaming.
+- **Monetization:** Payment verification workflow (uploading receipts for admin approval) + simulated gateway.
+
+**2.2.2 Non-Functional Requirements**
+
+- **Scalability:** Must handle 1000+ concurrent connections (via Serverless Actions).
+- **Availability:** 99.9% uptime (via Vercel Edge Network).
+- **Data Integrity:** ACID compliance for all financial and academic records (PostgreSQL).
+
+2.3 USE CASE MODELING
+The Use Case diagram below illustrates the comprehensive interaction between the primary actors (Student, Teacher, Admin) and the system.
+
+```mermaid
+usecaseDiagram
+    actor Student
+    actor Teacher
+    actor Admin
+
+    package "Learnity Eco-System" {
+        usecase "Register/Login" as UC1
+        usecase "Manage Profile" as UC_Profile
+
+        package "Course Module" {
+            usecase "Browse/Filter Courses" as UC_Browse
+            usecase "Purchase Course" as UC_Buy
+            usecase "Watch Lessons" as UC_Watch
+            usecase "Take Quiz" as UC_Quiz
+        }
+
+        package "Teaching Module" {
+            usecase "Create Course Content" as UC_Create
+            usecase "Start Live Class" as UC_Live
+            usecase "Review Assignments" as UC_Review
+            usecase "Request Verification" as UC_Verify
+        }
+
+        package "Admin Module" {
+            usecase "Approve Teacher" as UC_Approve
+            usecase "Verify Payments" as UC_PayVerify
+            usecase "System Analytics" as UC_Analytics
+        }
+
+        usecase "Chat in Classroom" as UC_Chat
+    }
+
+    Student --> UC_Browse
+    Student --> UC_Buy
+    Student --> UC_Watch
+    Student --> UC_Quiz
+    Student --> UC_Chat
+
+    Teacher --> UC_Create
+    Teacher --> UC_Live
+    Teacher --> UC_Review
+    Teacher --> UC_Verify
+    Teacher --> UC_Chat
+
+    Admin --> UC_Approve
+    Admin --> UC_PayVerify
+    Admin --> UC_Analytics
+
+    %% Relationships
+    UC_Buy ..> UC1 : <<include>>
+    UC_Create ..> UC_Verify : <<requires>>
+```
+
+2.4 DATA MODELING (ERD)
+The database schema is the backbone of our application. We used a normalized Relational Database (PostgreSQL) to ensure data consistency.
+
+```mermaid
+erDiagram
+    User ||--o| TeacherProfile : "has optional"
+    User ||--o{ Enrollment : "has many"
+    User ||--o{ CourseProgress : "tracks"
+    User ||--o{ Message : "sends"
+
+    TeacherProfile ||--o{ Course : "authors"
+    TeacherProfile ||--o{ VerificationRequest : "submits"
+
+    Course ||--|{ Section : "contains"
+    Section ||--|{ Lesson : "contains"
+
+    Course ||--o{ Enrollment : "has"
+    Course ||--o{ ChatChannel : "has one"
+
+    Enrollment ||--|| Payment : "linked to"
+
+    User {
+        string id PK
+        string email
+        string name
+        enum role "STUDENT/TEACHER/ADMIN"
+        int xp_points
+        int streak_count
+    }
+
+    Course {
+        string id PK
+        string title
+        text description
+        float price
+        boolean is_published
+        string thumbnail_url
+    }
+
+    Lesson {
+        string id PK
+        string title
+        enum type "VIDEO/TEXT/QUIZ"
+        string content_url
+        int duration_seconds
+    }
+
+    Enrollment {
+        string id PK
+        timestamp enrolled_at
+        float amount_paid
+        enum status "ACTIVE/EXPIRED"
+    }
+
+    Payment {
+        string id PK
+        string transaction_id
+        string screenshot_url
+        enum status "PENDING/VERIFIED"
+    }
+```
+
+2.5 PROCESS MODELING: ACTIVITY DIAGRAMS
+To understand the flow of operations for different users, we designed detailed activity diagrams.
+
+**2.5.1 Student Workflow (Enrollment to Learning)**
+This depicts the student's journey from finding a course to earning XP.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Login
+    Login --> Browse_Catalog
+    Browse_Catalog --> Filter_Subjects : Select Grade/Subject
+    Filter_Subjects --> Select_Course
+
+    state Enrollment_Process {
+        Select_Course --> Payment_Required
+        Payment_Required --> Upload_Screenshot : Manual Payment
+        Upload_Screenshot --> Wait_Verification
+        Wait_Verification --> Access_Granted : Admin Approves
+    }
+
+    state Learning_Loop {
+        Access_Granted --> Join_Classroom
+        Join_Classroom --> Watch_Video
+        Join_Classroom --> Join_Chat
+        Watch_Video --> Take_Quiz
+        Take_Quiz --> Earn_XP : Pass Quiz
+        Earn_XP --> Update_Leaderboard
+        Update_Leaderboard --> Watch_Video : Next Lesson
+    }
+
+    Learning_Loop --> [*]
+```
+
+**2.5.2 Teacher Workflow (Verification & Creation)**
+This shows how a user upgrades to a teacher and publishes content.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Register_User
+    Register_User --> Request_Teacher_Access
+
+    state Verification_Process {
+        Request_Teacher_Access --> Upload_Degree
+        Upload_Degree --> Pending_Admin_Review
+        Pending_Admin_Review --> Rejected : Invalid Docs
+        Pending_Admin_Review --> Approved : Valid Docs
+    }
+
+    state Course_Interaction {
+        Approved --> Create_Course_Draft
+        Create_Course_Draft --> Add_Sections
+        Add_Sections --> Add_Lessons
+        Add_Lessons --> Publish_Course
+
+        Publish_Course --> Live_Session_Manager
+        Live_Session_Manager --> Start_Video_Stream
+        Start_Video_Stream --> Moderate_Chat
+    }
+
+    Rejected --> [*]
+    Moderate_Chat --> End_Session
+    End_Session --> [*]
+```
+
+**2.5.3 Admin Workflow (System Governance)**
+The admin is the gatekeeper. This diagram covers their moderation duties.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Admin_Dashboard
+
+    state User_Management {
+        Admin_Dashboard --> Review_Teacher_Requests
+        Review_Teacher_Requests --> Check_Documents
+        Check_Documents --> Approve_Teacher
+        Check_Documents --> Reject_Teacher
+    }
+
+    state Financial_Management {
+        Admin_Dashboard --> View_Payment_Queue
+        View_Payment_Queue --> Validate_Screenshots
+        Validate_Screenshots --> Verify_Payment
+        Verify_Payment --> Unlock_Student_Course
+    }
+
+    Approve_Teacher --> Admin_Dashboard
+    Reject_Teacher --> Admin_Dashboard
+    Unlock_Student_Course --> Admin_Dashboard
+```
+
+2.6 SYSTEM ARCHITECTURE
+Our architecture follows the "Modular Monolith" pattern using the T3 Stack principles.
+
+1.  **Presentation Layer:** React Server Components (RSC) for optimized rendering.
+2.  **Application Layer:** Server Actions managing business logic and authorization.
+3.  **Data Layer:** Prisma Client connecting to a Serverless Postgres pool.
+4.  **Edge Services:** Specialized APIs for heavy lifting (Video/Chat).
+
+```mermaid
+graph TD
+    subgraph Client_Side ["Client Layer (Browser/PWA)"]
+        UI[React UI Components]
+        State[Zustand Store]
+        Local[Local Storage (Tokens)]
+    end
+
+    subgraph Server_Side ["Server Layer (Next.js 14)"]
+        API[Server Actions / API Routes]
+        Auth[NextAuth.js Middleware]
+        Upload[Vercel Blob Storage]
+    end
+
+    subgraph Data_Layer ["Data Persistence"]
+        Prisma[Prisma ORM engine]
+        Postgres[(Neon DB Cluster)]
+    end
+
+    subgraph RealTime ["Real-Time Infrastructure"]
+        Stream[GetStream.io (Chat)]
+        HMS[100ms.live (Video)]
+    end
+
+    UI -->|JSON/RPC| API
+    UI -->|WebSocket| Stream
+    UI -->|UDP/WebRTC| HMS
+
+    API -->|Authenticate| Auth
+    API -->|Validation| Prisma
+    API -->|Store Images| Upload
+
+    Prisma -->|Query/Transaction| Postgres
+```
+
+2.7 SUMMARY
+This chapter detailed the structural blueprint of Learnity. The ERD ensures we have a data structure that prevents academic fraud, while the multiple Activity diagrams confirm we have accounted for all user journeys—from the student's first quiz to the teacher's first live stream. These designs guided the implementation.

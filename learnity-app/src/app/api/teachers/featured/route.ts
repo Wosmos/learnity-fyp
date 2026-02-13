@@ -7,8 +7,18 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/config/database';
 
 // Helper to calculate if teacher is top rated
-function calculateIsTopRated(rating: number, reviewCount: number, lessonsCompleted: number, experience: number): boolean {
-  return rating >= 4.8 && reviewCount >= 80 && lessonsCompleted >= 400 && experience >= 5;
+function calculateIsTopRated(
+  rating: number,
+  reviewCount: number,
+  lessonsCompleted: number,
+  experience: number
+): boolean {
+  return (
+    rating >= 4.8 &&
+    reviewCount >= 80 &&
+    lessonsCompleted >= 400 &&
+    experience >= 5
+  );
 }
 
 export async function GET() {
@@ -34,7 +44,7 @@ export async function GET() {
     });
 
     // Format the response with calculated isTopRated
-    const formattedTeachers = teachers.map((teacher) => {
+    const formattedTeachers = teachers.map(teacher => {
       const profile = teacher.teacherProfile;
       const rating = parseFloat(profile?.rating?.toString() || '0');
       const isTopRated = calculateIsTopRated(
@@ -49,7 +59,8 @@ export async function GET() {
         name: `${teacher.firstName} ${teacher.lastName}`,
         firstName: teacher.firstName,
         lastName: teacher.lastName,
-        profilePicture: teacher.profilePicture,
+        profilePicture:
+          teacher.profilePicture || profile?.profilePicture || null,
         subjects: profile?.subjects || [],
         experience: profile?.experience || 0,
         bio: profile?.bio || '',
@@ -61,7 +72,7 @@ export async function GET() {
         responseTime: profile?.responseTime || 'N/A',
         availability: profile?.availability || 'Contact for availability',
         languages: profile?.languages || [],
-        lessonsCompleted: profile?.lessonsCompleted ,
+        lessonsCompleted: profile?.lessonsCompleted,
         activeStudents: profile?.activeStudents,
         teachingStyle: profile?.teachingStyle || '',
         specialties: profile?.specialties || [],

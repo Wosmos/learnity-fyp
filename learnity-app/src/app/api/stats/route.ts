@@ -17,7 +17,7 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error in stats API:', error);
-    
+
     // Return fallback values on error
     return NextResponse.json({
       activeLearners: '1,000+',

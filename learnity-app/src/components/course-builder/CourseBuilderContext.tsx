@@ -6,7 +6,13 @@
  * Requirements: 1.1-1.10
  */
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import {
@@ -27,7 +33,9 @@ const defaultCourseData: CourseFormData = {
   requireSequentialProgress: false,
 };
 
-const CourseBuilderContext = createContext<CourseBuilderContextType | undefined>(undefined);
+const CourseBuilderContext = createContext<
+  CourseBuilderContextType | undefined
+>(undefined);
 
 interface CourseBuilderProviderProps {
   children: ReactNode;
@@ -47,15 +55,17 @@ export function CourseBuilderProvider({
   const [courseData, setCourseDataState] = useState<CourseFormData>(
     initialCourse || defaultCourseData
   );
-  const [sections, setSectionsState] = useState<SectionFormData[]>(initialSections);
-  const [currentStep, setCurrentStep] = useState<CourseBuilderStep>('basic-info');
+  const [sections, setSectionsState] =
+    useState<SectionFormData[]>(initialSections);
+  const [currentStep, setCurrentStep] =
+    useState<CourseBuilderStep>('basic-info');
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const setCourseData = useCallback((data: Partial<CourseFormData>) => {
-    setCourseDataState((prev) => ({ ...prev, ...data }));
+    setCourseDataState(prev => ({ ...prev, ...data }));
     setIsDirty(true);
   }, []);
 
@@ -65,24 +75,27 @@ export function CourseBuilderProvider({
   }, []);
 
   const addSection = useCallback((section: Omit<SectionFormData, 'order'>) => {
-    setSectionsState((prev) => [
+    setSectionsState(prev => [
       ...prev,
       { ...section, order: prev.length, lessons: section.lessons || [] },
     ]);
     setIsDirty(true);
   }, []);
 
-  const updateSection = useCallback((index: number, section: Partial<SectionFormData>) => {
-    setSectionsState((prev) => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], ...section };
-      return updated;
-    });
-    setIsDirty(true);
-  }, []);
+  const updateSection = useCallback(
+    (index: number, section: Partial<SectionFormData>) => {
+      setSectionsState(prev => {
+        const updated = [...prev];
+        updated[index] = { ...updated[index], ...section };
+        return updated;
+      });
+      setIsDirty(true);
+    },
+    []
+  );
 
   const deleteSection = useCallback((index: number) => {
-    setSectionsState((prev) => {
+    setSectionsState(prev => {
       const updated = prev.filter((_, i) => i !== index);
       return updated.map((s, i) => ({ ...s, order: i }));
     });
@@ -90,7 +103,7 @@ export function CourseBuilderProvider({
   }, []);
 
   const reorderSections = useCallback((fromIndex: number, toIndex: number) => {
-    setSectionsState((prev) => {
+    setSectionsState(prev => {
       const updated = [...prev];
       const [removed] = updated.splice(fromIndex, 1);
       updated.splice(toIndex, 0, removed);
@@ -101,7 +114,7 @@ export function CourseBuilderProvider({
 
   const addLesson = useCallback(
     (sectionIndex: number, lesson: Omit<LessonFormData, 'order'>) => {
-      setSectionsState((prev) => {
+      setSectionsState(prev => {
         const updated = [...prev];
         const section = { ...updated[sectionIndex] };
         section.lessons = [
@@ -117,12 +130,19 @@ export function CourseBuilderProvider({
   );
 
   const updateLesson = useCallback(
-    (sectionIndex: number, lessonIndex: number, lesson: Partial<LessonFormData>) => {
-      setSectionsState((prev) => {
+    (
+      sectionIndex: number,
+      lessonIndex: number,
+      lesson: Partial<LessonFormData>
+    ) => {
+      setSectionsState(prev => {
         const updated = [...prev];
         const section = { ...updated[sectionIndex] };
         section.lessons = [...section.lessons];
-        section.lessons[lessonIndex] = { ...section.lessons[lessonIndex], ...lesson };
+        section.lessons[lessonIndex] = {
+          ...section.lessons[lessonIndex],
+          ...lesson,
+        };
         updated[sectionIndex] = section;
         return updated;
       });
@@ -131,22 +151,25 @@ export function CourseBuilderProvider({
     []
   );
 
-  const deleteLesson = useCallback((sectionIndex: number, lessonIndex: number) => {
-    setSectionsState((prev) => {
-      const updated = [...prev];
-      const section = { ...updated[sectionIndex] };
-      section.lessons = section.lessons
-        .filter((_, i) => i !== lessonIndex)
-        .map((l, i) => ({ ...l, order: i }));
-      updated[sectionIndex] = section;
-      return updated;
-    });
-    setIsDirty(true);
-  }, []);
+  const deleteLesson = useCallback(
+    (sectionIndex: number, lessonIndex: number) => {
+      setSectionsState(prev => {
+        const updated = [...prev];
+        const section = { ...updated[sectionIndex] };
+        section.lessons = section.lessons
+          .filter((_, i) => i !== lessonIndex)
+          .map((l, i) => ({ ...l, order: i }));
+        updated[sectionIndex] = section;
+        return updated;
+      });
+      setIsDirty(true);
+    },
+    []
+  );
 
   const reorderLessons = useCallback(
     (sectionIndex: number, fromIndex: number, toIndex: number) => {
-      setSectionsState((prev) => {
+      setSectionsState(prev => {
         const updated = [...prev];
         const section = { ...updated[sectionIndex] };
         const lessons = [...section.lessons];
@@ -222,13 +245,21 @@ export function CourseBuilderProvider({
     } catch (error) {
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to save course',
+        description:
+          error instanceof Error ? error.message : 'Failed to save course',
         variant: 'destructive',
       });
     } finally {
       setIsSaving(false);
     }
-  }, [courseData, sections, courseId, validateCourse, toast, authenticatedFetch]);
+  }, [
+    courseData,
+    sections,
+    courseId,
+    validateCourse,
+    toast,
+    authenticatedFetch,
+  ]);
 
   const publishCourse = useCallback(async () => {
     if (!courseId) {
@@ -242,9 +273,12 @@ export function CourseBuilderProvider({
 
     setIsSaving(true);
     try {
-      const response = await authenticatedFetch(`/api/courses/${courseId}/publish`, {
-        method: 'POST',
-      });
+      const response = await authenticatedFetch(
+        `/api/courses/${courseId}/publish`,
+        {
+          method: 'POST',
+        }
+      );
 
       if (!response.ok) {
         const error = await response.json();
@@ -258,7 +292,8 @@ export function CourseBuilderProvider({
     } catch (error) {
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to publish course',
+        description:
+          error instanceof Error ? error.message : 'Failed to publish course',
         variant: 'destructive',
       });
     } finally {
@@ -300,7 +335,9 @@ export function CourseBuilderProvider({
 export function useCourseBuilder() {
   const context = useContext(CourseBuilderContext);
   if (!context) {
-    throw new Error('useCourseBuilder must be used within a CourseBuilderProvider');
+    throw new Error(
+      'useCourseBuilder must be used within a CourseBuilderProvider'
+    );
   }
   return context;
 }

@@ -6,19 +6,43 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GraduationCap, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { studentRegistrationSchema, type StudentRegistrationData } from '@/lib/validators/auth';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  studentRegistrationSchema,
+  type StudentRegistrationData,
+} from '@/lib/validators/auth';
 import { useAuthStore } from '@/lib/stores/auth.store';
-import { GraduationCap, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
-import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 const GRADE_LEVELS = [
   { value: 'elementary', label: 'Elementary (K-5)' },
@@ -26,14 +50,28 @@ const GRADE_LEVELS = [
   { value: 'high', label: 'High School (9-12)' },
   { value: 'college', label: 'College/University' },
   { value: 'graduate', label: 'Graduate School' },
-  { value: 'adult', label: 'Adult Learner' }
+  { value: 'adult', label: 'Adult Learner' },
 ];
 
 const SUBJECTS = [
-  'Mathematics', 'Science', 'English', 'History', 'Geography',
-  'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Art',
-  'Music', 'Physical Education', 'Foreign Languages', 'Economics',
-  'Psychology', 'Philosophy', 'Literature', 'Statistics'
+  'Mathematics',
+  'Science',
+  'English',
+  'History',
+  'Geography',
+  'Physics',
+  'Chemistry',
+  'Biology',
+  'Computer Science',
+  'Art',
+  'Music',
+  'Physical Education',
+  'Foreign Languages',
+  'Economics',
+  'Psychology',
+  'Philosophy',
+  'Literature',
+  'Statistics',
 ];
 
 export interface StudentRegistrationFormProps {
@@ -43,12 +81,9 @@ export interface StudentRegistrationFormProps {
   variant?: 'card' | 'simple';
 }
 
-export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = ({
-  onSubmit,
-  onBack,
-  className = '',
-  variant = 'card'
-}) => {
+export const StudentRegistrationForm: React.FC<
+  StudentRegistrationFormProps
+> = ({ onSubmit, onBack, className = '', variant = 'card' }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,16 +102,16 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
       gradeLevel: '',
       subjects: [],
       agreeToTerms: false,
-      hcaptchaToken: ''
+      hcaptchaToken: '',
     },
-    mode: 'onChange'
+    mode: 'onChange',
   });
 
   const handleSubmit = async (data: StudentRegistrationData) => {
     if (!hcaptchaToken) {
       form.setError('hcaptchaToken', {
         type: 'manual',
-        message: 'Please complete the captcha verification'
+        message: 'Please complete the captcha verification',
       });
       return;
     }
@@ -89,7 +124,7 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
       console.error('Registration failed:', error);
       form.setError('root', {
         type: 'manual',
-        message: error.message || 'Registration failed. Please try again.'
+        message: error.message || 'Registration failed. Please try again.',
       });
     } finally {
       setIsSubmitting(false);
@@ -106,7 +141,10 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
     if (checked) {
       form.setValue('subjects', [...currentSubjects, subject]);
     } else {
-      form.setValue('subjects', currentSubjects.filter(s => s !== subject));
+      form.setValue(
+        'subjects',
+        currentSubjects.filter(s => s !== subject)
+      );
     }
     form.trigger('subjects');
   };
@@ -114,42 +152,38 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
   if (variant === 'simple') {
     return (
       <div className={`w-full max-w-2xl mx-auto ${className}`}>
-        <div className="space-y-6">
-          <div className="space-y-2 text-center lg:text-left">
-            {/* Back Button for simple variant if needed, or rely on external navigation */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBack}
-              className="text-gray-600 hover:text-gray-900 pl-0 -ml-3"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-
-            <h1 className="text-3xl font-bold tracking-tight">Student Registration</h1>
-            <p className="text-muted-foreground">
+        <div className='space-y-6'>
+          <div className='space-y-2 text-center lg:text-left'>
+            <h1 className='text-3xl font-bold tracking-tight'>
+              Student Registration
+            </h1>
+            <p className='text-muted-foreground'>
               Create your student account to start learning
             </p>
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className='space-y-6'
+            >
               {/* Personal Information */}
-              <div className="space-y-4 ">
-                <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className='space-y-4 '>
+                <h3 className='text-lg font-semibold text-gray-900'>
+                  Personal Information
+                </h3>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <FormField
                     control={form.control}
-                    name="firstName"
+                    name='firstName'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>First Name</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter your first name"
+                            placeholder='Enter your first name'
                             {...field}
-                            className="transition-colors focus:border-blue-500 h-10"
+                            className='transition-colors focus:border-blue-500 h-10'
                           />
                         </FormControl>
                         <FormMessage />
@@ -159,15 +193,15 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
 
                   <FormField
                     control={form.control}
-                    name="lastName"
+                    name='lastName'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Last Name</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter your last name"
+                            placeholder='Enter your last name'
                             {...field}
-                            className="transition-colors focus:border-blue-500 h-10"
+                            className='transition-colors focus:border-blue-500 h-10'
                           />
                         </FormControl>
                         <FormMessage />
@@ -178,16 +212,16 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
 
                 <FormField
                   control={form.control}
-                  name="email"
+                  name='email'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email Address</FormLabel>
                       <FormControl>
                         <Input
-                          type="email"
-                          placeholder="Enter your email address"
+                          type='email'
+                          placeholder='Enter your email address'
                           {...field}
-                          className="transition-colors focus:border-blue-500 h-10"
+                          className='transition-colors focus:border-blue-500 h-10'
                         />
                       </FormControl>
                       <FormDescription>
@@ -200,39 +234,42 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
               </div>
 
               {/* Password Section */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Security</h3>
+              <div className='space-y-4'>
+                <h3 className='text-lg font-semibold text-gray-900'>
+                  Security
+                </h3>
                 <FormField
                   control={form.control}
-                  name="password"
+                  name='password'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <div className="relative">
+                        <div className='relative'>
                           <Input
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="Create a strong password"
+                            placeholder='Create a strong password'
                             {...field}
-                            className="pr-10 transition-colors focus:border-blue-500 h-10"
+                            className='pr-10 transition-colors focus:border-blue-500 h-10'
                           />
                           <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            type='button'
+                            variant='ghost'
+                            size='sm'
+                            className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
                             onClick={() => setShowPassword(!showPassword)}
                           >
                             {showPassword ? (
-                              <EyeOff className="h-4 w-4 text-gray-400" />
+                              <EyeOff className='h-4 w-4 text-gray-400' />
                             ) : (
-                              <Eye className="h-4 w-4 text-gray-400" />
+                              <Eye className='h-4 w-4 text-gray-400' />
                             )}
                           </Button>
                         </div>
                       </FormControl>
                       <FormDescription>
-                        Must contain uppercase, lowercase, number, and special character
+                        Must contain uppercase, lowercase, number, and special
+                        character
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -241,29 +278,31 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
 
                 <FormField
                   control={form.control}
-                  name="confirmPassword"
+                  name='confirmPassword'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
-                        <div className="relative">
+                        <div className='relative'>
                           <Input
                             type={showConfirmPassword ? 'text' : 'password'}
-                            placeholder="Confirm your password"
+                            placeholder='Confirm your password'
                             {...field}
-                            className="pr-10 transition-colors focus:border-blue-500 h-10"
+                            className='pr-10 transition-colors focus:border-blue-500 h-10'
                           />
                           <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            type='button'
+                            variant='ghost'
+                            size='sm'
+                            className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
                           >
                             {showConfirmPassword ? (
-                              <EyeOff className="h-4 w-4 text-gray-400" />
+                              <EyeOff className='h-4 w-4 text-gray-400' />
                             ) : (
-                              <Eye className="h-4 w-4 text-gray-400" />
+                              <Eye className='h-4 w-4 text-gray-400' />
                             )}
                           </Button>
                         </div>
@@ -275,22 +314,27 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
               </div>
 
               {/* Academic Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Academic Information</h3>
+              <div className='space-y-4'>
+                <h3 className='text-lg font-semibold text-gray-900'>
+                  Academic Information
+                </h3>
                 <FormField
                   control={form.control}
-                  name="gradeLevel"
+                  name='gradeLevel'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Grade Level</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
-                          <SelectTrigger className="transition-colors focus:border-blue-500 h-10">
-                            <SelectValue placeholder="Select your grade level" />
+                          <SelectTrigger className='transition-colors focus:border-blue-500 h-10'>
+                            <SelectValue placeholder='Select your grade level' />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {GRADE_LEVELS.map((grade) => (
+                          {GRADE_LEVELS.map(grade => (
                             <SelectItem key={grade.value} value={grade.value}>
                               {grade.label}
                             </SelectItem>
@@ -304,26 +348,30 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
 
                 <FormField
                   control={form.control}
-                  name="subjects"
+                  name='subjects'
                   render={() => (
                     <FormItem>
                       <FormLabel>Subjects of Interest</FormLabel>
                       <FormDescription>
-                        Select the subjects you're interested in learning (choose at least one)
+                        Select the subjects you're interested in learning
+                        (choose at least one)
                       </FormDescription>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
-                        {SUBJECTS.map((subject) => (
-                          <div key={subject} className="flex items-center space-x-2">
+                      <div className='grid grid-cols-2 md:grid-cols-3 gap-3 mt-2'>
+                        {SUBJECTS.map(subject => (
+                          <div
+                            key={subject}
+                            className='flex items-center space-x-2'
+                          >
                             <Checkbox
                               id={subject}
                               checked={form.watch('subjects').includes(subject)}
-                              onCheckedChange={(checked) =>
+                              onCheckedChange={checked =>
                                 handleSubjectToggle(subject, checked as boolean)
                               }
                             />
                             <Label
                               htmlFor={subject}
-                              className="text-sm font-normal cursor-pointer"
+                              className='text-sm font-normal cursor-pointer'
                             >
                               {subject}
                             </Label>
@@ -337,39 +385,11 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
               </div>
 
               {/* Terms and Captcha */}
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="agreeToTerms"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm font-normal">
-                          I agree to the{' '}
-                          <button type="button" className="text-blue-600 hover:text-blue-700 underline">
-                            Terms of Service
-                          </button>{' '}
-                          and{' '}
-                          <button type="button" className="text-blue-600 hover:text-blue-700 underline">
-                            Privacy Policy
-                          </button>
-                        </FormLabel>
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
-                <div className="flex justify-center">
+              <div className='space-y-4'>
+                <div className='flex justify-center'>
                   <HCaptcha
                     sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''}
-                    onVerify={(token) => {
+                    onVerify={token => {
                       setHcaptchaToken(token);
                       form.setValue('hcaptchaToken', token);
                       form.clearErrors('hcaptchaToken');
@@ -381,21 +401,55 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
                   />
                 </div>
                 {form.formState.errors.hcaptchaToken && (
-                  <p className="text-sm text-red-600 text-center">
+                  <p className='text-sm text-red-600 text-center'>
                     {form.formState.errors.hcaptchaToken.message}
                   </p>
                 )}
+
+                <FormField
+                  control={form.control}
+                  name='agreeToTerms'
+                  render={({ field }) => (
+                    <FormItem className='flex flex-row items-start space-x-3 space-y-0 p-4'>
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className='space-y-1 leading-none'>
+                        <FormLabel className='text-sm font-medium text-slate-700 cursor-pointer'>
+                          I agree to the{' '}
+                          <Link
+                            href='/terms'
+                            className='text-blue-600 hover:text-blue-700 underline font-bold transition-colors'
+                          >
+                            Terms of Service
+                          </Link>{' '}
+                          and{' '}
+                          <Link
+                            href='/privacy'
+                            className='text-blue-600 hover:text-blue-700 underline font-bold transition-colors'
+                          >
+                            Privacy Policy
+                          </Link>
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
               </div>
 
               {/* Submit Button */}
               <Button
-                type="submit"
-                className="w-full bg-slate-600 hover:bg-slate-700 text-white font-medium py-3 h-10"
+                type='submit'
+                className='w-full bg-slate-600 hover:bg-slate-700 text-white font-medium py-3 h-10'
                 disabled={isSubmitting || !form.formState.isValid}
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
                     Creating Account...
                   </>
                 ) : (
@@ -404,7 +458,7 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
               </Button>
 
               {form.formState.errors.root && (
-                <div className="text-sm text-red-600 text-center bg-red-50 p-3 rounded-md">
+                <div className='text-sm text-red-600 text-center bg-red-50 p-3 rounded-md'>
                   {form.formState.errors.root.message}
                 </div>
               )}
@@ -417,26 +471,28 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
 
   return (
     <div className={`w-full max-w-2xl mx-auto p-6 ${className}`}>
-      <Card className="shadow-lg">
-        <CardHeader className="space-y-4">
-          <div className="flex items-center justify-between">
+      <Card className='shadow-lg'>
+        <CardHeader className='space-y-4'>
+          <div className='flex items-center justify-between'>
             <Button
-              variant="ghost"
-              size="sm"
+              variant='ghost'
+              size='sm'
               onClick={handleBack}
-              className="text-gray-600 hover:text-gray-800"
+              className='text-gray-600 hover:text-gray-800'
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft className='h-4 w-4 mr-2' />
               Back to Role Selection
             </Button>
           </div>
 
-          <div className="flex items-center space-x-3">
-            <div className="p-3 bg-slate-100 rounded-lg">
-              <GraduationCap className="h-6 w-6 text-blue-600" />
+          <div className='flex items-center space-x-3'>
+            <div className='p-3 bg-slate-100 rounded-lg'>
+              <GraduationCap className='h-6 w-6 text-blue-600' />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold">Student Registration</CardTitle>
+              <CardTitle className='text-2xl font-bold'>
+                Student Registration
+              </CardTitle>
               <CardDescription>
                 Create your student account to start learning
               </CardDescription>
@@ -446,23 +502,28 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
 
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className='space-y-6'
+            >
               {/* Personal Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+              <div className='space-y-4'>
+                <h3 className='text-lg font-semibold text-gray-900'>
+                  Personal Information
+                </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <FormField
                     control={form.control}
-                    name="firstName"
+                    name='firstName'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>First Name</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter your first name"
+                            placeholder='Enter your first name'
                             {...field}
-                            className="transition-colors focus:border-blue-500"
+                            className='transition-colors focus:border-blue-500'
                           />
                         </FormControl>
                         <FormMessage />
@@ -472,15 +533,15 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
 
                   <FormField
                     control={form.control}
-                    name="lastName"
+                    name='lastName'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Last Name</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter your last name"
+                            placeholder='Enter your last name'
                             {...field}
-                            className="transition-colors focus:border-blue-500"
+                            className='transition-colors focus:border-blue-500'
                           />
                         </FormControl>
                         <FormMessage />
@@ -491,16 +552,16 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
 
                 <FormField
                   control={form.control}
-                  name="email"
+                  name='email'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email Address</FormLabel>
                       <FormControl>
                         <Input
-                          type="email"
-                          placeholder="Enter your email address"
+                          type='email'
+                          placeholder='Enter your email address'
                           {...field}
-                          className="transition-colors focus:border-blue-500"
+                          className='transition-colors focus:border-blue-500'
                         />
                       </FormControl>
                       <FormDescription>
@@ -513,40 +574,43 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
               </div>
 
               {/* Password Section */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Security</h3>
+              <div className='space-y-4'>
+                <h3 className='text-lg font-semibold text-gray-900'>
+                  Security
+                </h3>
 
                 <FormField
                   control={form.control}
-                  name="password"
+                  name='password'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <div className="relative">
+                        <div className='relative'>
                           <Input
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="Create a strong password"
+                            placeholder='Create a strong password'
                             {...field}
-                            className="pr-10 transition-colors focus:border-blue-500"
+                            className='pr-10 transition-colors focus:border-blue-500'
                           />
                           <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            type='button'
+                            variant='ghost'
+                            size='sm'
+                            className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
                             onClick={() => setShowPassword(!showPassword)}
                           >
                             {showPassword ? (
-                              <EyeOff className="h-4 w-4 text-gray-400" />
+                              <EyeOff className='h-4 w-4 text-gray-400' />
                             ) : (
-                              <Eye className="h-4 w-4 text-gray-400" />
+                              <Eye className='h-4 w-4 text-gray-400' />
                             )}
                           </Button>
                         </div>
                       </FormControl>
                       <FormDescription>
-                        Must contain uppercase, lowercase, number, and special character
+                        Must contain uppercase, lowercase, number, and special
+                        character
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -555,29 +619,31 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
 
                 <FormField
                   control={form.control}
-                  name="confirmPassword"
+                  name='confirmPassword'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
-                        <div className="relative">
+                        <div className='relative'>
                           <Input
                             type={showConfirmPassword ? 'text' : 'password'}
-                            placeholder="Confirm your password"
+                            placeholder='Confirm your password'
                             {...field}
-                            className="pr-10 transition-colors focus:border-blue-500"
+                            className='pr-10 transition-colors focus:border-blue-500'
                           />
                           <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            type='button'
+                            variant='ghost'
+                            size='sm'
+                            className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
                           >
                             {showConfirmPassword ? (
-                              <EyeOff className="h-4 w-4 text-gray-400" />
+                              <EyeOff className='h-4 w-4 text-gray-400' />
                             ) : (
-                              <Eye className="h-4 w-4 text-gray-400" />
+                              <Eye className='h-4 w-4 text-gray-400' />
                             )}
                           </Button>
                         </div>
@@ -589,23 +655,28 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
               </div>
 
               {/* Academic Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Academic Information</h3>
+              <div className='space-y-4'>
+                <h3 className='text-lg font-semibold text-gray-900'>
+                  Academic Information
+                </h3>
 
                 <FormField
                   control={form.control}
-                  name="gradeLevel"
+                  name='gradeLevel'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Grade Level</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
-                          <SelectTrigger className="transition-colors focus:border-blue-500">
-                            <SelectValue placeholder="Select your grade level" />
+                          <SelectTrigger className='transition-colors focus:border-blue-500'>
+                            <SelectValue placeholder='Select your grade level' />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {GRADE_LEVELS.map((grade) => (
+                          {GRADE_LEVELS.map(grade => (
                             <SelectItem key={grade.value} value={grade.value}>
                               {grade.label}
                             </SelectItem>
@@ -619,26 +690,30 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
 
                 <FormField
                   control={form.control}
-                  name="subjects"
+                  name='subjects'
                   render={() => (
                     <FormItem>
                       <FormLabel>Subjects of Interest</FormLabel>
                       <FormDescription>
-                        Select the subjects you're interested in learning (choose at least one)
+                        Select the subjects you're interested in learning
+                        (choose at least one)
                       </FormDescription>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
-                        {SUBJECTS.map((subject) => (
-                          <div key={subject} className="flex items-center space-x-2">
+                      <div className='grid grid-cols-2 md:grid-cols-3 gap-3 mt-2'>
+                        {SUBJECTS.map(subject => (
+                          <div
+                            key={subject}
+                            className='flex items-center space-x-2'
+                          >
                             <Checkbox
                               id={subject}
                               checked={form.watch('subjects').includes(subject)}
-                              onCheckedChange={(checked) =>
+                              onCheckedChange={checked =>
                                 handleSubjectToggle(subject, checked as boolean)
                               }
                             />
                             <Label
                               htmlFor={subject}
-                              className="text-sm font-normal cursor-pointer"
+                              className='text-sm font-normal cursor-pointer'
                             >
                               {subject}
                             </Label>
@@ -652,39 +727,11 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
               </div>
 
               {/* Terms and Captcha */}
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="agreeToTerms"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm font-normal">
-                          I agree to the{' '}
-                          <button type="button" className="text-blue-600 hover:text-blue-700 underline">
-                            Terms of Service
-                          </button>{' '}
-                          and{' '}
-                          <button type="button" className="text-blue-600 hover:text-blue-700 underline">
-                            Privacy Policy
-                          </button>
-                        </FormLabel>
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
-                <div className="flex justify-center">
+              <div className='space-y-4'>
+                <div className='flex justify-center'>
                   <HCaptcha
                     sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''}
-                    onVerify={(token) => {
+                    onVerify={token => {
                       setHcaptchaToken(token);
                       form.setValue('hcaptchaToken', token);
                       form.clearErrors('hcaptchaToken');
@@ -696,21 +743,55 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
                   />
                 </div>
                 {form.formState.errors.hcaptchaToken && (
-                  <p className="text-sm text-red-600 text-center">
+                  <p className='text-sm text-red-600 text-center'>
                     {form.formState.errors.hcaptchaToken.message}
                   </p>
                 )}
+
+                <FormField
+                  control={form.control}
+                  name='agreeToTerms'
+                  render={({ field }) => (
+                    <FormItem className='flex flex-row items-start space-x-3 space-y-0 p-4 bg-white rounded-xl border border-slate-100 shadow-sm'>
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className='space-y-1 leading-none'>
+                        <FormLabel className='text-sm font-medium text-slate-700 cursor-pointer'>
+                          I agree to the{' '}
+                          <Link
+                            href='/terms'
+                            className='text-blue-600 hover:text-blue-700 underline font-bold transition-colors'
+                          >
+                            Terms of Service
+                          </Link>{' '}
+                          and{' '}
+                          <Link
+                            href='/privacy'
+                            className='text-blue-600 hover:text-blue-700 underline font-bold transition-colors'
+                          >
+                            Privacy Policy
+                          </Link>
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
               </div>
 
               {/* Submit Button */}
               <Button
-                type="submit"
-                className="w-full bg-slate-600 hover:bg-slate-700 text-white font-medium py-3"
+                type='submit'
+                className='w-full bg-slate-600 hover:bg-slate-700 text-white font-medium py-3'
                 disabled={isSubmitting || !form.formState.isValid}
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
                     Creating Account...
                   </>
                 ) : (
@@ -719,7 +800,7 @@ export const StudentRegistrationForm: React.FC<StudentRegistrationFormProps> = (
               </Button>
 
               {form.formState.errors.root && (
-                <div className="text-sm text-red-600 text-center bg-red-50 p-3 rounded-md">
+                <div className='text-sm text-red-600 text-center bg-red-50 p-3 rounded-md'>
                   {form.formState.errors.root.message}
                 </div>
               )}

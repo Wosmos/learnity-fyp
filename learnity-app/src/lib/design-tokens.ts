@@ -93,16 +93,16 @@ export const colors = {
 
 // Spacing Scale (8px base)
 export const spacing = {
-  xs: '0.25rem',   // 4px
-  sm: '0.5rem',    // 8px
-  md: '0.75rem',   // 12px
-  lg: '1rem',      // 16px
-  xl: '1.5rem',    // 24px
-  '2xl': '2rem',   // 32px
-  '3xl': '3rem',   // 48px
-  '4xl': '4rem',   // 64px
-  '5xl': '5rem',   // 80px
-  '6xl': '6rem',   // 96px
+  xs: '0.25rem', // 4px
+  sm: '0.5rem', // 8px
+  md: '0.75rem', // 12px
+  lg: '1rem', // 16px
+  xl: '1.5rem', // 24px
+  '2xl': '2rem', // 32px
+  '3xl': '3rem', // 48px
+  '4xl': '4rem', // 64px
+  '5xl': '5rem', // 80px
+  '6xl': '6rem', // 96px
 } as const;
 
 // Typography Scale
@@ -112,17 +112,17 @@ export const typography = {
     mono: ['var(--font-geist-mono)', 'monospace'],
   },
   fontSize: {
-    xs: '0.75rem',    // 12px
-    sm: '0.875rem',   // 14px
-    base: '1rem',     // 16px
-    lg: '1.125rem',   // 18px
-    xl: '1.25rem',    // 20px
-    '2xl': '1.5rem',  // 24px
+    xs: '0.75rem', // 12px
+    sm: '0.875rem', // 14px
+    base: '1rem', // 16px
+    lg: '1.125rem', // 18px
+    xl: '1.25rem', // 20px
+    '2xl': '1.5rem', // 24px
     '3xl': '1.875rem', // 30px
-    '4xl': '2.25rem',  // 36px
-    '5xl': '3rem',     // 48px
-    '6xl': '3.75rem',  // 60px
-    '7xl': '4.5rem',   // 72px
+    '4xl': '2.25rem', // 36px
+    '5xl': '3rem', // 48px
+    '6xl': '3.75rem', // 60px
+    '7xl': '4.5rem', // 72px
   },
   fontWeight: {
     light: '300',
@@ -144,12 +144,12 @@ export const typography = {
 // Border Radius
 export const borderRadius = {
   none: '0',
-  sm: '0.125rem',   // 2px
-  md: '0.375rem',   // 6px
-  lg: '0.5rem',     // 8px
-  xl: '0.75rem',    // 12px
-  '2xl': '1rem',    // 16px
-  '3xl': '1.5rem',  // 24px
+  sm: '0.125rem', // 2px
+  md: '0.375rem', // 6px
+  lg: '0.5rem', // 8px
+  xl: '0.75rem', // 12px
+  '2xl': '1rem', // 16px
+  '3xl': '1.5rem', // 24px
   full: '9999px',
 } as const;
 
@@ -203,9 +203,9 @@ export const breakpoints = {
 export const components = {
   button: {
     height: {
-      sm: '2rem',    // 32px
-      md: '2.5rem',  // 40px
-      lg: '3rem',    // 48px
+      sm: '2rem', // 32px
+      md: '2.5rem', // 40px
+      lg: '3rem', // 48px
     },
     padding: {
       sm: '0.5rem 1rem',
@@ -252,4 +252,3 @@ export const designTokens = {
 export type ColorPalette = typeof colors;
 export type SpacingScale = typeof spacing;
 export type TypographyScale = typeof typography;
-

@@ -89,3 +89,5 @@ next/
 # # Except README.md (case-insensitive)
 # !README.md
 # !readme.md
+.agent
+.agent/

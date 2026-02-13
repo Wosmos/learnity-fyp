@@ -32,7 +32,9 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
       // Validate file type
       const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
       if (!validTypes.includes(file.type)) {
-        throw new Error('Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.');
+        throw new Error(
+          'Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.'
+        );
       }
 
       // Validate file size (max 2MB for base64 storage)
@@ -93,7 +95,18 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
         throw new Error('User not found');
       }
 
-      // Create student profile if it doesn't exist (migration for existing users)
+      // Update core user fields if provided
+      if (data.firstName || data.lastName) {
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            ...(data.firstName && { firstName: data.firstName }),
+            ...(data.lastName && { lastName: data.lastName }),
+          },
+        });
+      }
+
+      // Create student profile if it doesn't exist
       if (!user.studentProfile) {
         await this.prisma.studentProfile.create({
           data: {
@@ -107,18 +120,7 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
             profileCompletionPercentage: 20,
           },
         });
-        
-        // Fetch the user again with the newly created profile
-        const updatedUser = await this.prisma.user.findUnique({
-          where: { id: userId },
-          include: { studentProfile: true },
-        });
-        
-        if (!updatedUser?.studentProfile) {
-          throw new Error('Failed to create student profile');
-        }
-        
-        return; // Profile created with initial data, no need to update
+        return;
       }
 
       // Calculate new completion percentage
@@ -131,9 +133,13 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
       await this.prisma.studentProfile.update({
         where: { userId },
         data: {
-          ...(data.learningGoals !== undefined && { learningGoals: data.learningGoals }),
+          ...(data.learningGoals !== undefined && {
+            learningGoals: data.learningGoals,
+          }),
           ...(data.interests !== undefined && { interests: data.interests }),
-          ...(data.studyPreferences !== undefined && { studyPreferences: data.studyPreferences }),
+          ...(data.studyPreferences !== undefined && {
+            studyPreferences: data.studyPreferences,
+          }),
           ...(data.subjects !== undefined && { subjects: data.subjects }),
           ...(data.gradeLevel !== undefined && { gradeLevel: data.gradeLevel }),
           ...(data.bio !== undefined && { bio: data.bio }),
@@ -210,17 +216,17 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
             profileCompletionPercentage: 20,
           },
         });
-        
+
         // Fetch the user again with the newly created profile
         const updatedUser = await this.prisma.user.findUnique({
           where: { id: userId },
           include: { studentProfile: true },
         });
-        
+
         if (!updatedUser?.studentProfile) {
           throw new Error('Failed to create student profile');
         }
-        
+
         const profile = updatedUser.studentProfile;
         const sections = this.getProfileSections(profile);
         const completedSections = sections.filter(s => s.completed);
@@ -298,7 +304,8 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
         id: 'study-preferences',
         name: 'Study Preferences',
         description: 'How you prefer to learn',
-        completed: profile.studyPreferences && profile.studyPreferences.length > 0,
+        completed:
+          profile.studyPreferences && profile.studyPreferences.length > 0,
         weight: 15,
       },
       {
@@ -315,9 +322,9 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
    * Generate next steps for profile completion
    */
   private generateNextSteps(missingSections: ProfileSection[]): string[] {
-    return missingSections.slice(0, 3).map(section => 
-      `Complete your ${section.name.toLowerCase()}`
-    );
+    return missingSections
+      .slice(0, 3)
+      .map(section => `Complete your ${section.name.toLowerCase()}`);
   }
 
   /**
@@ -420,7 +427,7 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
       }
 
       const profile = user.studentProfile as any; // TODO: Regenerate Prisma client
-      
+
       return {
         profileVisibility: profile.profileVisibility,
         showEmail: profile.showEmail,

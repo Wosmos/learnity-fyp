@@ -1,7 +1,7 @@
 /**
  * Quiz Submission API Route
  * POST /api/quizzes/[quizId]/submit - Submit quiz answers (Student)
- * 
+ *
  * Requirements covered:
  * - 6.3: Display one question at a time with progress indicator
  * - 6.4: Provide immediate feedback showing correct/incorrect
@@ -12,6 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 import { quizService } from '@/lib/services/quiz.service';
 import { SubmitQuizAttemptSchema } from '@/lib/validators/quiz';
 import { QuizError } from '@/lib/interfaces/quiz.interface';
@@ -23,7 +24,6 @@ import {
   createValidationErrorResponse,
   createInternalErrorResponse,
 } from '@/lib/utils/api-response.utils';
-import { ZodError } from 'zod';
 
 interface RouteParams {
   params: Promise<{ quizId: string }>;
@@ -107,15 +107,18 @@ export async function POST(
         xpAwarded: result.xpAwarded,
         createdAt: result.attempt.createdAt,
       },
-      result.passed 
-        ? 'Congratulations! You passed the quiz!' 
+      result.passed
+        ? 'Congratulations! You passed the quiz!'
         : 'Quiz completed. Keep practicing!'
     );
   } catch (error) {
     console.error('Error submitting quiz:', error);
 
     if (error instanceof ZodError) {
-      return createValidationErrorResponse(error, 'Invalid quiz submission data');
+      return createValidationErrorResponse(
+        error,
+        'Invalid quiz submission data'
+      );
     }
 
     if (error instanceof QuizError) {
