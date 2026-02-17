@@ -279,23 +279,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
           }
 
-          const idToken = await firebaseUser.getIdToken();
-
           // Prevent duplicate fetches
           if (fetchingRef.current) return;
           fetchingRef.current = true;
 
+          const idToken = await firebaseUser.getIdToken();
+
           // Check if profile is already cached
           const profileCached = isCacheValid();
 
-          // Parallel fetch: claims, profile (only if not cached), and sync (fire-and-forget)
+          // Parallel fetch: claims and profile (only if not cached)
           const fetchPromises: Promise<any>[] = [
             fetch('/api/auth/claims', {
               headers: { Authorization: `Bearer ${idToken}` },
             }),
           ];
 
-          // Only fetch profile if not cached
           if (!profileCached) {
             setProfileLoading(true);
             fetchPromises.push(
@@ -305,10 +304,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             );
           }
 
-          // Fire-and-forget sync - don't wait for it
-          syncUserProfile(firebaseUser).catch(err =>
-            console.warn('Profile sync failed (non-critical):', err)
-          );
+          // Background: sync profile + refresh cookie (non-blocking)
+          // For social login this already ran in socialLogin(), so this is
+          // just a quick update. For email/password or page refresh it ensures
+          // the cookie stays fresh.
+          (async () => {
+            try {
+              await syncUserProfile(firebaseUser);
+              const freshToken = await firebaseUser.getIdToken(true);
+              await fetch('/api/auth/session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: freshToken }),
+              });
+            } catch (err) {
+              console.warn('Background sync/cookie refresh failed:', err);
+            }
+          })();
 
           const responses = await Promise.all(fetchPromises);
           const claimsResponse = responses[0];
