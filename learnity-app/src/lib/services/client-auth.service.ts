@@ -328,6 +328,8 @@ export class ClientAuthService {
 
   /**
    * Social login with Google or Microsoft
+   * Handles full profile sync + token refresh + cookie update before returning,
+   * so the middleware has the correct role claim immediately.
    */
   async socialLogin(
     provider: 'google' | 'microsoft'
@@ -338,16 +340,22 @@ export class ClientAuthService {
       const userCredential = await signInWithPopup(auth, authProvider);
       const user = userCredential.user;
 
-      // The profile sync will be handled automatically by the AuthProvider
-      // when the auth state changes, so we don't need to call it here
+      // 1. Sync profile — creates DB user + sets Firebase custom claims
+      await this.syncProfileForSocialLogin(user);
 
-      const idToken = await user.getIdToken();
-      await this.setSessionCookie(idToken);
+      // 2. Force token refresh so the JWT now includes the role claim
+      const freshToken = await user.getIdToken(true);
+
+      // 3. Set session cookie with the fresh token (middleware reads role from it)
+      await this.setSessionCookie(freshToken);
+
+      // 4. Cache claims locally so AuthProvider picks them up instantly
+      this.cacheClaimsFromToken(freshToken, user.uid);
 
       return {
         success: true,
         user,
-        idToken: idToken,
+        idToken: freshToken,
       };
     } catch (error: any) {
       return {
@@ -357,6 +365,72 @@ export class ClientAuthService {
           message: error.message || `${provider} login failed`,
         },
       };
+    }
+  }
+
+  /**
+   * Sync user profile for social login — creates DB record + sets Firebase claims
+   */
+  private async syncProfileForSocialLogin(
+    user: FirebaseUser
+  ): Promise<void> {
+    try {
+      const idToken = await user.getIdToken();
+      await fetch('/api/auth/sync-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+          'X-Firebase-UID': user.uid,
+        },
+        body: JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          emailVerified: user.emailVerified,
+          providerData: user.providerData.map(p => ({
+            providerId: p.providerId,
+            uid: p.uid,
+            displayName: p.displayName,
+            email: p.email,
+            photoURL: p.photoURL,
+          })),
+        }),
+      });
+    } catch (err) {
+      console.warn('Social login profile sync failed:', err);
+    }
+  }
+
+  /**
+   * Parse JWT and cache claims in localStorage for instant AuthProvider pickup
+   */
+  private cacheClaimsFromToken(token: string, uid: string): void {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64));
+
+      if (payload.role) {
+        localStorage.setItem(
+          'learnity_user_claims',
+          JSON.stringify({
+            uid,
+            claims: {
+              role: payload.role,
+              permissions: payload.permissions || [],
+              emailVerified: payload.email_verified || false,
+              profileComplete: payload.profileComplete || false,
+              profileId: payload.profileId || '',
+              lastLoginAt: payload.lastLoginAt || '',
+            },
+            timestamp: Date.now(),
+          })
+        );
+      }
+    } catch (err) {
+      console.warn('Failed to cache claims from token:', err);
     }
   }
 
