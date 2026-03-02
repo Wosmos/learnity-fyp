@@ -151,7 +151,29 @@ export const useAuthService = (): AuthServiceHooks => {
             };
           }
           setUser(result.user);
-          // Claims will be set by the auth provider
+
+          // Immediately fetch and set claims so redirect can happen without waiting for AuthProvider
+          try {
+            const idToken = result.idToken || await result.user.getIdToken();
+            const claimsResponse = await fetch('/api/auth/claims', {
+              headers: { Authorization: `Bearer ${idToken}` },
+            });
+            if (claimsResponse.ok) {
+              const freshClaims = await claimsResponse.json();
+              setClaims(freshClaims);
+              localStorage.setItem(
+                'learnity_user_claims',
+                JSON.stringify({
+                  uid: result.user.uid,
+                  claims: freshClaims,
+                  timestamp: Date.now(),
+                })
+              );
+            }
+          } catch (claimsError) {
+            console.warn('Failed to fetch claims during login:', claimsError);
+            // Don't fail the login - AuthProvider will fetch claims as fallback
+          }
         } else {
           throw new Error(result.error?.message || 'Login failed');
         }
@@ -161,7 +183,7 @@ export const useAuthService = (): AuthServiceHooks => {
         setIsLoading(false);
       }
     },
-    [setUser, handleError]
+    [setUser, setClaims, handleError]
   );
 
   const socialLogin = useCallback(
@@ -181,7 +203,28 @@ export const useAuthService = (): AuthServiceHooks => {
             };
           }
           setUser(result.user);
-          // Claims will be set by the auth provider
+
+          // Immediately fetch and set claims so redirect can happen without waiting for AuthProvider
+          try {
+            const idToken = result.idToken || await result.user.getIdToken();
+            const claimsResponse = await fetch('/api/auth/claims', {
+              headers: { Authorization: `Bearer ${idToken}` },
+            });
+            if (claimsResponse.ok) {
+              const freshClaims = await claimsResponse.json();
+              setClaims(freshClaims);
+              localStorage.setItem(
+                'learnity_user_claims',
+                JSON.stringify({
+                  uid: result.user.uid,
+                  claims: freshClaims,
+                  timestamp: Date.now(),
+                })
+              );
+            }
+          } catch (claimsError) {
+            console.warn('Failed to fetch claims during social login:', claimsError);
+          }
         } else {
           throw new Error(result.error?.message || `${provider} login failed`);
         }
@@ -191,7 +234,7 @@ export const useAuthService = (): AuthServiceHooks => {
         setIsLoading(false);
       }
     },
-    [setUser, handleError]
+    [setUser, setClaims, handleError]
   );
 
   const requestPasswordReset = useCallback(

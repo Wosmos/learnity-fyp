@@ -242,16 +242,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async firebaseUser => {
-      // VERY IMPORTANT: Clear any previous state immediately to prevent crossover
-      // especially when switching users without a hard page reload
-      setLoading(true);
-
       if (firebaseUser) {
-        // Clear existing claims/profile before setting new user
-        // This prevents components from seeing a mismatched (newUser, oldClaims) state
-        setClaims(null);
-        setProfile(null);
-        clearProfile();
+        // Only clear claims/profile if switching to a different user
+        // This prevents wiping claims that were just set during login
+        const currentState = useAuthStore.getState();
+        const isSameUser = currentState.user?.uid === firebaseUser.uid;
+        if (!isSameUser) {
+          setLoading(true);
+          setClaims(null);
+          setProfile(null);
+          clearProfile();
+        } else if (!currentState.claims) {
+          // Same user but no claims yet - show loading
+          setLoading(true);
+        }
 
         try {
           setUser(firebaseUser);

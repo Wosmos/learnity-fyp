@@ -8,12 +8,14 @@
 import React, { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { GraduationCap, ArrowLeft, Star, Users, BookOpen } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { LoginForm } from '@/components/auth';
 import { useAuthService } from '@/hooks/useAuthService';
 import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuthStore } from '@/lib/stores/auth.store';
 import { AuthDebugInfo } from '@/components/debug/AuthDebugInfo';
 import { getDashboardRoute } from '@/lib/utils/auth-redirect.utils';
+import { UserRole } from '@/types/auth';
 import { Button } from '@/components/ui/button';
 import LeftSideSection from '@/components/auth/LeftSideSection';
 
@@ -21,26 +23,53 @@ export const dynamic = 'force-dynamic';
 
 function LoginPageContent() {
   const { login, socialLogin } = useAuthService();
-  const { isAuthenticated, claims, user } = useClientAuth();
+  const { isAuthenticated, claims, user, loading } = useClientAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/dashboard';
 
-  // Redirect if already authenticated
+  const getRedirectPath = (role: UserRole) => {
+    const defaultDashboard = getDashboardRoute(role);
+    return redirectTo === '/dashboard' ? defaultDashboard : redirectTo;
+  };
+
+  // Redirect if already authenticated (e.g., user navigates to login page while logged in)
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && claims?.role) {
       if (user && !user.emailVerified) {
         router.push('/auth/verify-email');
         return;
       }
-
-      if (claims?.role) {
-        // Redirect to role-specific dashboard or the requested redirect URL
-        const defaultDashboard = getDashboardRoute(claims.role);
-        router.push(redirectTo === '/dashboard' ? defaultDashboard : redirectTo);
-      }
+      router.push(getRedirectPath(claims.role));
     }
   }, [isAuthenticated, user, claims, router, redirectTo]);
+
+  // Login handler that redirects directly after success
+  const handleLogin = async (data: any) => {
+    await login(data);
+    // After login resolves, claims should be in the store
+    const { claims: currentClaims, user: currentUser } = useAuthStore.getState();
+    if (currentUser && !currentUser.emailVerified) {
+      router.push('/auth/verify-email');
+      return;
+    }
+    if (currentClaims?.role) {
+      router.push(getRedirectPath(currentClaims.role));
+    }
+  };
+
+  // Social login handler that redirects directly after success
+  const handleSocialLogin = async (provider: 'google' | 'microsoft') => {
+    await socialLogin(provider);
+    const { claims: currentClaims, user: currentUser } = useAuthStore.getState();
+    if (currentUser && !currentUser.emailVerified) {
+      router.push('/auth/verify-email');
+      return;
+    }
+    if (currentClaims?.role) {
+      router.push(getRedirectPath(currentClaims.role));
+    }
+  };
 
   const handleForgotPassword = () => {
     router.push('/auth/forgot-password');
@@ -50,14 +79,14 @@ function LoginPageContent() {
     router.push('/auth/register');
   };
 
-  // Don't render login form if already authenticated
-  if (isAuthenticated) {
+  // Show loading while auth state is initializing (prevents flash of login form)
+  if (loading || isAuthenticated) {
     return (
       <div className='min-h-screen bg-white flex items-center justify-center p-4'>
         <div className='text-center space-y-4'>
           <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900 mx-auto'></div>
           <p className='text-slate-600 font-medium'>
-            Redirecting to your dashboard...
+            {isAuthenticated ? 'Redirecting to your dashboard...' : 'Loading...'}
           </p>
         </div>
       </div>
@@ -98,10 +127,10 @@ function LoginPageContent() {
 
         <div className='w-full max-w-md space-y-8 pt-4'>
           <LoginForm
-            onSubmit={login}
+            onSubmit={handleLogin}
             onForgotPassword={handleForgotPassword}
             onSignUp={handleSignUp}
-            onSocialLogin={socialLogin}
+            onSocialLogin={handleSocialLogin}
             requireCaptcha={false}
             variant='simple'
             className='w-full max-w-none px-0'
