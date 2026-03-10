@@ -374,32 +374,33 @@ export class ClientAuthService {
   private async syncProfileForSocialLogin(
     user: FirebaseUser
   ): Promise<void> {
-    try {
-      const idToken = await user.getIdToken();
-      await fetch('/api/auth/sync-profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${idToken}`,
-          'X-Firebase-UID': user.uid,
-        },
-        body: JSON.stringify({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          emailVerified: user.emailVerified,
-          providerData: user.providerData.map(p => ({
-            providerId: p.providerId,
-            uid: p.uid,
-            displayName: p.displayName,
-            email: p.email,
-            photoURL: p.photoURL,
-          })),
-        }),
-      });
-    } catch (err) {
-      console.warn('Social login profile sync failed:', err);
+    const idToken = await user.getIdToken();
+    const response = await fetch('/api/auth/sync-profile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${idToken}`,
+        'X-Firebase-UID': user.uid,
+      },
+      body: JSON.stringify({
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        emailVerified: user.emailVerified,
+        providerData: user.providerData.map(p => ({
+          providerId: p.providerId,
+          uid: p.uid,
+          displayName: p.displayName,
+          email: p.email,
+          photoURL: p.photoURL,
+        })),
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(`Profile sync failed (${response.status}): ${errorText}`);
     }
   }
 
@@ -465,15 +466,29 @@ export class ClientAuthService {
    */
   async logout(): Promise<void> {
     try {
-      // 1. Clear server-side session cookie
+      // Get token before signing out so the server can identify the session
+      const currentUser = auth.currentUser;
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (currentUser) {
+        try {
+          const idToken = await currentUser.getIdToken();
+          headers['Authorization'] = `Bearer ${idToken}`;
+        } catch {
+          // Token may already be expired, proceed without it
+        }
+      }
+
+      // 1. Clear server-side session cookie (HttpOnly — can only be cleared server-side)
       await fetch('/api/auth/logout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
       });
     } catch (error) {
       console.error('Failed to clear server session:', error);
     } finally {
-      // 2. Sign out from Firebase
+      // 2. Sign out from Firebase (clears IndexedDB persistence)
       await signOut(auth);
     }
   }

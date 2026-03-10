@@ -92,8 +92,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isCacheValid,
   } = useProfileStore();
 
-  // Prevent duplicate fetches
+  // Prevent duplicate fetches & detect stale responses
   const fetchingRef = useRef(false);
+  const fetchVersionRef = useRef(0);
 
   /**
    * Refresh user claims from Firebase and sync with store
@@ -243,6 +244,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async firebaseUser => {
       if (firebaseUser) {
+        // Bump version so any in-flight fetch for a previous user is discarded
+        const thisVersion = ++fetchVersionRef.current;
+
         // Only clear claims/profile if switching to a different user
         // This prevents wiping claims that were just set during login
         const currentState = useAuthStore.getState();
@@ -252,6 +256,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setClaims(null);
           setProfile(null);
           clearProfile();
+          // Reset fetching ref so the new user's fetch can proceed
+          fetchingRef.current = false;
         } else if (!currentState.claims) {
           // Same user but no claims yet - show loading
           setLoading(true);
@@ -283,7 +289,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
           }
 
-          // Prevent duplicate fetches
+          // Prevent duplicate fetches for the same user
           if (fetchingRef.current) return;
           fetchingRef.current = true;
 
@@ -327,23 +333,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           })();
 
           const responses = await Promise.all(fetchPromises);
+
+          // Discard stale results if a newer auth event has fired
+          if (fetchVersionRef.current !== thisVersion) {
+            fetchingRef.current = false;
+            return;
+          }
+
           const claimsResponse = responses[0];
           const profileResponse = profileCached ? null : responses[1];
 
-          // Process claims
+          // Process claims — only apply if the login flow hasn't already
+          // set fresher claims (e.g. socialLogin sets claims before this resolves)
+          const storeNow = useAuthStore.getState();
+          const loginAlreadySetClaims =
+            storeNow.claims?.role && storeNow.user?.uid === firebaseUser.uid;
+
           if (claimsResponse.ok) {
             const customClaims = await claimsResponse.json();
-            setClaims(customClaims);
 
-            // Cache claims with timestamp and UID
-            localStorage.setItem(
-              'learnity_user_claims',
-              JSON.stringify({
-                uid: firebaseUser.uid,
-                claims: customClaims,
-                timestamp: Date.now(),
-              })
-            );
+            // Only overwrite if login flow hasn't already set claims with a role,
+            // OR if the fetched claims also have a role (i.e. they're equally fresh)
+            if (!loginAlreadySetClaims || customClaims.role) {
+              setClaims(customClaims);
+
+              // Cache claims with timestamp and UID
+              localStorage.setItem(
+                'learnity_user_claims',
+                JSON.stringify({
+                  uid: firebaseUser.uid,
+                  claims: customClaims,
+                  timestamp: Date.now(),
+                })
+              );
+            }
           }
 
           // Process profile - update both stores
@@ -358,23 +381,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           updateLastActivity();
         } catch (error: any) {
           console.error('Failed to initialize user session:', error);
-          setError({
-            code: AuthErrorCode.INTERNAL_ERROR,
-            message:
-              'Failed to initialize session. Please try signing in again.',
-            details: { originalError: error.message },
-          });
+          // Only set error if this is still the current auth version
+          if (fetchVersionRef.current === thisVersion) {
+            setError({
+              code: AuthErrorCode.INTERNAL_ERROR,
+              message:
+                'Failed to initialize session. Please try signing in again.',
+              details: { originalError: error.message },
+            });
 
-          // Clear user on error
-          setUser(null);
-          setClaims(null);
-          setProfile(null);
-          clearProfile(); // Clear centralized profile store
-          localStorage.removeItem('learnity_user_claims');
+            // Clear user on error
+            setUser(null);
+            setClaims(null);
+            setProfile(null);
+            clearProfile(); // Clear centralized profile store
+            localStorage.removeItem('learnity_user_claims');
+          }
           fetchingRef.current = false;
         }
       } else {
         // User signed out - clear everything
+        ++fetchVersionRef.current; // Invalidate any in-flight fetches
         clearAuth();
         clearProfile(); // Clear centralized profile store
         localStorage.removeItem('learnity_user_claims');
