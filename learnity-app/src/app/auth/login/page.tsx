@@ -60,14 +60,21 @@ function LoginPageContent() {
 
   // Social login handler that redirects directly after success
   const handleSocialLogin = async (provider: 'google' | 'microsoft') => {
-    await socialLogin(provider);
-    const { claims: currentClaims, user: currentUser } = useAuthStore.getState();
-    if (currentUser && !currentUser.emailVerified) {
-      router.push('/auth/verify-email');
-      return;
-    }
-    if (currentClaims?.role) {
-      router.push(getRedirectPath(currentClaims.role));
+    try {
+      await socialLogin(provider);
+      const { claims: currentClaims, user: currentUser } = useAuthStore.getState();
+      if (currentUser && !currentUser.emailVerified) {
+        router.push('/auth/verify-email');
+        return;
+      }
+      if (currentClaims?.role) {
+        router.push(getRedirectPath(currentClaims.role));
+      }
+      // If claims aren't ready yet, the useEffect above will handle
+      // the redirect once AuthProvider populates them.
+    } catch {
+      // Error is already set in the auth store by useAuthService —
+      // the LoginForm will display it. No redirect needed.
     }
   };
 

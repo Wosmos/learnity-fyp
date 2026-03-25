@@ -94,3 +94,4 @@ next/
 
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
+.vercel

@@ -314,23 +314,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             );
           }
 
-          // Background: sync profile + refresh cookie (non-blocking)
-          // For social login this already ran in socialLogin(), so this is
-          // just a quick update. For email/password or page refresh it ensures
-          // the cookie stays fresh.
-          (async () => {
-            try {
-              await syncUserProfile(firebaseUser);
-              const freshToken = await firebaseUser.getIdToken(true);
-              await fetch('/api/auth/session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken: freshToken }),
-              });
-            } catch (err) {
-              console.warn('Background sync/cookie refresh failed:', err);
-            }
-          })();
+          // Background: sync profile only (non-blocking)
+          // Do NOT refresh the session cookie here — it races with the
+          // socialLogin flow and can overwrite a good cookie (with role)
+          // with a stale one (no role yet). Cookie refresh is handled by
+          // the login flow itself and the 50-min token refresh interval.
+          syncUserProfile(firebaseUser).catch(err =>
+            console.warn('Background profile sync failed:', err)
+          );
 
           const responses = await Promise.all(fetchPromises);
 
@@ -475,7 +466,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       async () => {
         try {
           // Refresh token every 50 minutes (Firebase tokens expire after 1 hour)
-          await user.getIdToken(true);
+          const freshToken = await user.getIdToken(true);
+          // Also update the session cookie so the middleware sees a valid token
+          await fetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: freshToken }),
+          });
           updateLastActivity();
         } catch (error) {
           console.error('Failed to refresh token:', error);
