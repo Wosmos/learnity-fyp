@@ -265,7 +265,7 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
           )}
 
           {/* Theme Toggle */}
-          <ThemeToggle compact />
+          <ThemeToggle compact className='h-10 w-10 rounded-full border border-border' />
 
           {/* Notifications */}
           <div className='relative'>
