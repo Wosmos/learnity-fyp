@@ -376,7 +376,8 @@ export function AppLayout({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className='fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 md:hidden'
+                  transition={{ duration: 0.15 }}
+                  className='fixed inset-0 bg-black/30 z-40 md:hidden'
                   onClick={() => setIsMobileMenuOpen(false)}
                 />
                 
@@ -385,8 +386,8 @@ export function AppLayout({
                   initial={{ x: '100%' }}
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
-                  transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                  className='fixed top-0 right-0 bottom-0 w-[280px] bg-white shadow-2xl z-50 md:hidden flex flex-col'
+                  transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
+                  className='fixed top-0 right-0 bottom-0 w-[280px] bg-background shadow-2xl z-50 md:hidden flex flex-col'
                 >
                   <div className='p-6 pt-20 flex-1 overflow-y-auto'>
                     {isAuthenticated && user?.emailVerified ? (
@@ -487,13 +488,7 @@ export function AppLayout({
 
       {/* Main Content */}
       <main className='flex-1'>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
-        >
-          {children}
-        </motion.div>
+        {children}
       </main>
 
       <Footer status={{ text: 'All Systems Operational', online: true }} />
