@@ -67,7 +67,6 @@
     "@tanstack/react-table": "^8.21.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/pdfkit": "^0.17.4",
-    "@types/three": "^0.181.0",
     "@vercel/blob": "^2.0.0",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
@@ -103,7 +102,6 @@
     "stream-chat": "^9.27.2",
     "stream-chat-react": "^13.13.1",
     "tailwind-merge": "^3.3.1",
-    "three": "^0.181.2",
     "unified": "^11.0.5",
     "zod": "^3.25.76",
     "zustand": "^4.5.7"

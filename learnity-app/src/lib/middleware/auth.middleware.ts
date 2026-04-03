@@ -352,9 +352,7 @@ async function logAuthenticationEvent(
       errorMessage,
     };
 
-    console.log('Auth middleware event:', logData);
   } catch (error) {
-    console.error('Failed to log authentication event:', error);
   }
 }
 

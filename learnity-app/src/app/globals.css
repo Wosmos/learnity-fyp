@@ -1,6 +1,5 @@
 @import 'tailwindcss';
-/* @import url('./animations.css')
-layer(animations); */
+@import url('./animations.css') layer(animations);
 
 /* Line clamp utilities */
 .line-clamp-1 {

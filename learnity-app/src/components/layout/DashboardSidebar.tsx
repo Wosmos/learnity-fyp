@@ -9,6 +9,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Home,
@@ -261,7 +262,7 @@ const DesktopSidebarContent = ({
               !isCollapsed && 'shadow-lg shadow-blue-900/20'
             )}
           >
-            <img src='/logo.svg' alt='Learnity' className='h-5 w-5' />
+            <Image src='/logo.svg' alt='Learnity' width={20} height={20} />
           </div>
           <div
             className={cn(

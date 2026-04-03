@@ -17,7 +17,6 @@ import {
   Mail,
   Lock,
   AlertCircle,
-  Fingerprint,
   Wifi,
   WifiOff,
   ChevronLeft,
@@ -76,7 +75,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [socialLoading, setSocialLoading] = useState<
     'google' | 'microsoft' | null
   >(null);
-  const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -110,25 +108,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  // Check for biometric authentication availability (mobile only)
-  useEffect(() => {
-    if (!isMobile) return;
-
-    const checkBiometric = async () => {
-      if (typeof window !== 'undefined' && 'PublicKeyCredential' in window) {
-        try {
-          const available =
-            await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-          setBiometricAvailable(available);
-        } catch (err) {
-          // Biometric not available, silently fail
-        }
-      }
-    };
-
-    checkBiometric();
-  }, [isMobile]);
 
   // Monitor online status
   useEffect(() => {
@@ -243,24 +222,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     }
   };
 
-  const handleBiometricLogin = async () => {
-    if (!biometricAvailable) return;
-
-    try {
-      // Placeholder for biometric authentication
-      // In a real implementation, you would integrate with WebAuthn API
-      form.setError('root', {
-        type: 'manual',
-        message:
-          'Biometric login is not yet implemented. Please use email/password.',
-      });
-    } catch (err) {
-      form.setError('root', {
-        type: 'manual',
-        message: 'Biometric login failed. Please try again.',
-      });
-    }
-  };
 
   // Don't render until we know if it's mobile
   if (!isClient) {

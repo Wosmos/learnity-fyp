@@ -20,6 +20,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Card,
   CardContent,
@@ -66,7 +67,7 @@ export default function WelcomePage() {
           <div className='flex justify-between items-center'>
             <div className='flex items-center space-x-3'>
               <div className='p-2 bg-slate-600 rounded-lg flex items-center justify-center'>
-                <img src='/logo.svg' alt='Learnity' className='h-6 w-6' />
+                <Image src='/logo.svg' alt='Learnity' width={24} height={24} />
               </div>
               <div>
                 <h1 className='text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>

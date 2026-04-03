@@ -6,6 +6,7 @@
 'use client';
 
 import { GraduationCap, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 export interface AuthLoadingSpinnerProps {
@@ -75,7 +76,7 @@ export function AuthLoadingSpinner({
               sizes.logoContainer
             )}
           >
-            <img src='/logo.svg' alt='Learnity' className={cn(sizes.logo)} />
+            <Image src='/logo.svg' alt='Learnity' width={40} height={40} className={cn(sizes.logo)} />
           </div>
           <span className='text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
             Learnity

@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -188,7 +189,7 @@ export function AppLayout({
                   className='group flex items-center gap-2.5 transition-transform active:scale-95'
                 >
                   <div className='p-2 bg-slate-900 rounded-xl group-hover:rotate-6 transition-transform flex items-center justify-center'>
-                    <img src='/logo.svg' alt='Learnity' className='h-5 w-5' />
+                    <Image src='/logo.svg' alt='Learnity' width={20} height={20} />
                   </div>
                   <span className='text-xl font-bold tracking-tight text-slate-900'>
                     Learnity

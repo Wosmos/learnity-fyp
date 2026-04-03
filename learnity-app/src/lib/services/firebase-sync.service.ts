@@ -69,9 +69,7 @@ export class FirebaseSyncService implements ISyncService {
       // TODO: Implement Firebase Admin SDK custom claims update
       // await admin.auth().setCustomUserClaims(firebaseUid, customClaims);
 
-      console.log(`Custom claims prepared for ${firebaseUid}:`, customClaims);
     } catch (error) {
-      console.error('Error syncing Neon DB to Firebase claims:', error);
       throw error;
     }
   } /**
@@ -110,11 +108,8 @@ export class FirebaseSyncService implements ISyncService {
 
       // For now, we'll check Neon DB users
       // This is a placeholder implementation
-      console.log('Consistency check completed:', report);
-
       return report;
     } catch (error) {
-      console.error('Error during consistency check:', error);
       throw error;
     }
   }
