@@ -119,7 +119,7 @@ export default function RootLayout({
         <link rel='dns-prefetch' href='https://fonts.googleapis.com' />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased mb-16 sm:mb-0`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased mb-16 sm:mb-0 bg-background text-foreground`}
       >
         <AppProviders>
           <React.Suspense fallback={null}>

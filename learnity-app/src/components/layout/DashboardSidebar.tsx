@@ -41,6 +41,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLogout } from '@/hooks/useLogout';
 
@@ -454,17 +455,20 @@ const DesktopSidebarContent = ({
           </div>
         )}
 
-        <Button
-          variant='ghost'
-          onClick={onLogout}
-          className={cn(
-            'w-full justify-start h-9 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30',
-            isCollapsed ? 'px-0 justify-center' : 'px-2'
-          )}
-        >
-          <LogOut className={cn('h-4 w-4', !isCollapsed && 'mr-2')} />
-          {!isCollapsed && 'Log out'}
-        </Button>
+        <div className={cn('flex items-center', isCollapsed ? 'justify-center' : 'justify-between')}>
+          <Button
+            variant='ghost'
+            onClick={onLogout}
+            className={cn(
+              'justify-start h-9 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30',
+              isCollapsed ? 'px-0 justify-center w-full' : 'px-2 flex-1'
+            )}
+          >
+            <LogOut className={cn('h-4 w-4', !isCollapsed && 'mr-2')} />
+            {!isCollapsed && 'Log out'}
+          </Button>
+          {!isCollapsed && <ThemeToggle compact />}
+        </div>
       </div>
     </div>
   );
