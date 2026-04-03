@@ -1,15 +1,26 @@
-import { Metadata } from 'next';
-import { AdminRoute } from '@/components/auth';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Admin Dashboard - Learnity',
-  description: 'Administrative dashboard for managing the Learnity platform',
-};
+import { AdminRoute } from '@/components/auth/ProtectedRoute';
+import { AdminSidebarUnified } from '@/components/layout/AdminSidebarUnified';
+import {
+  DashboardNavbar,
+  teacherNavbarConfig,
+} from '@/components/layout/DashboardNavbar';
 
-export default function AdminLayout({
+export default function AdminDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <AdminRoute>{children}</AdminRoute>;
+  return (
+    <AdminRoute>
+      <div className='flex min-h-screen bg-background'>
+        <AdminSidebarUnified />
+        <div className='flex-1 flex flex-col overflow-x-hidden'>
+          <DashboardNavbar config={{ ...teacherNavbarConfig, role: 'admin' }} />
+          <main className='flex-1'>{children}</main>
+        </div>
+      </div>
+    </AdminRoute>
+  );
 }
