@@ -25,7 +25,7 @@ import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 
 // --- Types ---
 
-export type NavbarRole = 'teacher' | 'student';
+export type NavbarRole = 'teacher' | 'student' | 'admin';
 
 export interface NavbarStats {
   studyTime?: string;

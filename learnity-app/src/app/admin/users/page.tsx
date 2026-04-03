@@ -1,6 +1,6 @@
 import { getUsers } from '@/lib/services/user-management.service';
 import { UserManagementClient } from '@/components/admin/users/UserManagementClient';
-import { AdminLayout } from '@/components/admin/AdminLayout';
+
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -40,8 +40,7 @@ export default async function UserManagementPage({
   });
 
   return (
-    <AdminLayout>
-      <div className='flex flex-col gap-8'>
+    <div className='flex flex-col gap-8'>
         {/* Header */}
         <div className='flex flex-col gap-1'>
           <h1 className='text-3xl font-bold tracking-tight text-foreground'>
@@ -56,7 +55,6 @@ export default async function UserManagementPage({
 
         {/* Data Integrated Interface */}
         <UserManagementClient initialData={data} />
-      </div>
-    </AdminLayout>
+    </div>
   );
 }

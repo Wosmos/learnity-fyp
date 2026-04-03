@@ -1,20 +1,26 @@
-/**
- * Admin Route Group Layout
- * Provides admin route protection at the route group level
- */
+'use client';
 
-import { Metadata } from 'next';
 import { AdminRoute } from '@/components/auth/ProtectedRoute';
-
-export const metadata: Metadata = {
-  title: 'Admin Panel - Learnity',
-  description: 'Administrative interface for Learnity platform management',
-};
+import { AdminSidebarUnified } from '@/components/layout/AdminSidebarUnified';
+import {
+  DashboardNavbar,
+  teacherNavbarConfig,
+} from '@/components/layout/DashboardNavbar';
 
 export default function AdminRouteLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <AdminRoute>{children}</AdminRoute>;
+  return (
+    <AdminRoute>
+      <div className='flex min-h-screen bg-background'>
+        <AdminSidebarUnified />
+        <div className='flex-1 flex flex-col overflow-x-hidden'>
+          <DashboardNavbar config={{ ...teacherNavbarConfig, role: 'admin' }} />
+          <main className='flex-1'>{children}</main>
+        </div>
+      </div>
+    </AdminRoute>
+  );
 }

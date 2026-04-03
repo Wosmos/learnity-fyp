@@ -1,5 +1,5 @@
 import { getAdminStats } from '@/lib/services/admin-stats.service';
-import { AdminLayout } from '@/components/admin/AdminLayout';
+
 import { MetricCard } from '@/components/ui/stats-card';
 import {
   Card,
@@ -53,7 +53,7 @@ export default async function AdminDashboardPage() {
   };
 
   return (
-    <AdminLayout>
+    <>
       {/* Key Metrics Overview */}
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
         <MetricCard
@@ -177,6 +177,6 @@ export default async function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
-    </AdminLayout>
+    </>
   );
 }

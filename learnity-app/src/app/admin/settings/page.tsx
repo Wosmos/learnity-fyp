@@ -17,7 +17,7 @@ import {
   Save,
   RefreshCw,
 } from 'lucide-react';
-import { AdminLayout } from '@/components/admin/AdminLayout';
+
 import {
   Card,
   CardContent,
@@ -137,7 +137,7 @@ export default function AdminSettingsPage() {
   };
 
   return (
-    <AdminLayout>
+    <>
       <Tabs defaultValue='general' className='space-y-6'>
         <TabsList className='grid w-full grid-cols-4'>
           <TabsTrigger value='general'>General</TabsTrigger>
@@ -506,6 +506,6 @@ export default function AdminSettingsPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </AdminLayout>
+    </>
   );
 }

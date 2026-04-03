@@ -6,7 +6,7 @@ import {
   Play,
   TestTube,
 } from 'lucide-react';
-import { AdminLayout } from '@/components/admin/AdminLayout';
+
 import { SecurityDashboard } from '@/components/admin/SecurityDashboard';
 import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
 import { SecurityEventsViewer } from '@/components/admin/SecurityEventsViewer';
@@ -25,7 +25,7 @@ export default async function AdminSecurityDashboardPage() {
   // and basic auth by middleware.ts
 
   return (
-    <AdminLayout>
+    <>
       {/* Main Security Dashboard Tabs */}
       <Tabs defaultValue='dashboard' className='space-y-6'>
         <TabsList className='grid w-full grid-cols-3'>
@@ -53,6 +53,6 @@ export default async function AdminSecurityDashboardPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </AdminLayout>
+    </>
   );
 }

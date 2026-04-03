@@ -16,7 +16,7 @@ import {
   CheckCircle,
   XCircle,
 } from 'lucide-react';
-import { AdminLayout } from '@/components/admin/AdminLayout';
+
 import {
   Card,
   CardContent,
@@ -212,7 +212,7 @@ export default function TeacherManagementPage() {
   ];
 
   return (
-    <AdminLayout>
+    <>
       {/* Quick Stats */}
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
         <Card className='bg-gradient-to-br from-yellow-50 to-orange-100 border-yellow-200'>
@@ -349,6 +349,6 @@ export default function TeacherManagementPage() {
         onOpenChange={setDialogOpen}
         onTeacherAction={handleTeacherAction}
       />
-    </AdminLayout>
+    </>
   );
 }

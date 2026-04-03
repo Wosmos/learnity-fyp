@@ -9,7 +9,7 @@ import {
   Activity,
   RefreshCw,
 } from 'lucide-react';
-import { AdminLayout } from '@/components/admin/AdminLayout';
+
 import {
   Card,
   CardContent,
@@ -74,7 +74,7 @@ export default async function AdminAnalyticsPage() {
   };
 
   return (
-    <AdminLayout>
+    <>
       {/* Key Metrics */}
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
         <Card>
@@ -304,6 +304,6 @@ export default async function AdminAnalyticsPage() {
           </div>
         </CardContent>
       </Card>
-    </AdminLayout>
+    </>
   );
 }
