@@ -18,7 +18,6 @@ export function AppProviders({ children }: AppProvidersProps) {
     <ThemeProvider
       attribute='class'
       defaultTheme='light'
-      enableSystem
       disableTransitionOnChange
     >
       <AuthProvider>{children}</AuthProvider>
