@@ -141,13 +141,13 @@ export function AppLayout({
 
   if (loading) {
     return (
-      <div className='min-h-screen bg-slate-50 flex items-center justify-center'>
+      <div className='min-h-screen bg-muted flex items-center justify-center'>
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className='text-center'
         >
-          <div className='inline-flex items-center justify-center p-4 bg-white rounded-2xl shadow-xl border border-slate-100 mb-6'>
+          <div className='inline-flex items-center justify-center p-4 bg-card rounded-2xl shadow-xl border border-border mb-6'>
             <GraduationCap className='h-10 w-10 text-slate-800' />
           </div>
           <div className='flex flex-col items-center gap-3'>

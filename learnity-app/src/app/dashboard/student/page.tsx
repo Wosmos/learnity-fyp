@@ -238,7 +238,7 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className='min-h-screen bg-[#F8FAFC]'>
+    <div className='min-h-screen bg-background'>
       {/* 1. FIXED TOP HEADER */}
       <Header profileData={profileData} getInitials={getInitials} />
 
@@ -284,7 +284,7 @@ export default function StudentDashboard() {
           <div className='xl:col-span-8 space-y-10'>
             <div className='hidden md:flex items-center gap-2 px-1'>
               <div className='h-4 w-1 bg-indigo-600 rounded-full' />
-              <h2 className='text-sm font-black uppercase tracking-widest text-slate-400'>
+              <h2 className='text-sm font-black uppercase tracking-widest text-muted-foreground'>
                 Learning Operations
               </h2>
             </div>
@@ -295,7 +295,7 @@ export default function StudentDashboard() {
           <aside className='xl:col-span-4 space-y-10 sticky top-24'>
             <div className='hidden md:flex items-center gap-2 px-1'>
               <div className='h-4 w-1 bg-purple-600 rounded-full' />
-              <h2 className='text-sm font-black uppercase tracking-widest text-slate-400'>
+              <h2 className='text-sm font-black uppercase tracking-widest text-muted-foreground'>
                 Intelligence & Social
               </h2>
             </div>

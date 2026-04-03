@@ -205,7 +205,7 @@ export default function AdminSettingsPage() {
                 <div className='flex items-center justify-between'>
                   <div className='space-y-0.5'>
                     <Label>Maintenance Mode</Label>
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-sm text-muted-foreground'>
                       Temporarily disable access to the platform
                     </p>
                   </div>
@@ -220,7 +220,7 @@ export default function AdminSettingsPage() {
                 <div className='flex items-center justify-between'>
                   <div className='space-y-0.5'>
                     <Label>User Registration</Label>
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-sm text-muted-foreground'>
                       Allow new users to register on the platform
                     </p>
                   </div>
@@ -252,7 +252,7 @@ export default function AdminSettingsPage() {
                 <div className='flex items-center justify-between'>
                   <div className='space-y-0.5'>
                     <Label>Email Verification Required</Label>
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-sm text-muted-foreground'>
                       Require users to verify their email before accessing the
                       platform
                     </p>
@@ -272,7 +272,7 @@ export default function AdminSettingsPage() {
                 <div className='flex items-center justify-between'>
                   <div className='space-y-0.5'>
                     <Label>Two-Factor Authentication</Label>
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-sm text-muted-foreground'>
                       Enable two-factor authentication for enhanced security
                     </p>
                   </div>
@@ -356,7 +356,7 @@ export default function AdminSettingsPage() {
                 <div className='flex items-center justify-between'>
                   <div className='space-y-0.5'>
                     <Label>Email Notifications</Label>
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-sm text-muted-foreground'>
                       Send notifications via email
                     </p>
                   </div>
@@ -375,7 +375,7 @@ export default function AdminSettingsPage() {
                 <div className='flex items-center justify-between'>
                   <div className='space-y-0.5'>
                     <Label>Push Notifications</Label>
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-sm text-muted-foreground'>
                       Send browser push notifications
                     </p>
                   </div>
@@ -394,7 +394,7 @@ export default function AdminSettingsPage() {
                 <div className='flex items-center justify-between'>
                   <div className='space-y-0.5'>
                     <Label>SMS Notifications</Label>
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-sm text-muted-foreground'>
                       Send notifications via SMS (requires SMS service)
                     </p>
                   </div>
@@ -413,7 +413,7 @@ export default function AdminSettingsPage() {
                 <div className='flex items-center justify-between'>
                   <div className='space-y-0.5'>
                     <Label>Admin Alerts</Label>
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-sm text-muted-foreground'>
                       Receive alerts for important admin events
                     </p>
                   </div>
@@ -445,7 +445,7 @@ export default function AdminSettingsPage() {
                 <div className='flex items-center justify-between'>
                   <div className='space-y-0.5'>
                     <Label>Teacher Applications</Label>
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-sm text-muted-foreground'>
                       Allow users to apply to become teachers
                     </p>
                   </div>
@@ -460,7 +460,7 @@ export default function AdminSettingsPage() {
                 <div className='flex items-center justify-between'>
                   <div className='space-y-0.5'>
                     <Label>Student Profiles</Label>
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-sm text-muted-foreground'>
                       Enable enhanced student profile features
                     </p>
                   </div>
@@ -475,7 +475,7 @@ export default function AdminSettingsPage() {
                 <div className='flex items-center justify-between'>
                   <div className='space-y-0.5'>
                     <Label>Messaging System</Label>
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-sm text-muted-foreground'>
                       Enable messaging between users
                     </p>
                   </div>
@@ -490,7 +490,7 @@ export default function AdminSettingsPage() {
                 <div className='flex items-center justify-between'>
                   <div className='space-y-0.5'>
                     <Label>Video Sessions</Label>
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-sm text-muted-foreground'>
                       Enable video calling for tutoring sessions
                     </p>
                   </div>

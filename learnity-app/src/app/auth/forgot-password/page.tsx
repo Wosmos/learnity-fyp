@@ -36,13 +36,13 @@ export default function ForgotPasswordPage() {
         <LeftSideSection />
 
         {/* Right Panel */}
-        <div className='w-full lg:w-1/2 bg-white flex flex-col justify-center items-center p-8 lg:p-12 relative'>
+        <div className='w-full lg:w-1/2 bg-card flex flex-col justify-center items-center p-8 lg:p-12 relative'>
           <Link href='/' className='absolute top-8 left-8 lg:hidden'>
-            <div className='flex items-center space-x-2 text-slate-600'>
-              <div className='p-2 bg-slate-100 rounded-lg'>
-                <GraduationCap className='h-6 w-6 text-slate-900' />
+            <div className='flex items-center space-x-2 text-muted-foreground'>
+              <div className='p-2 bg-muted rounded-lg'>
+                <GraduationCap className='h-6 w-6 text-foreground' />
               </div>
-              <span className='text-xl font-bold text-slate-900'>Learnity</span>
+              <span className='text-xl font-bold text-foreground'>Learnity</span>
             </div>
           </Link>
 
@@ -51,7 +51,7 @@ export default function ForgotPasswordPage() {
               <Button
                 variant='ghost'
                 size='sm'
-                className='text-slate-600 hover:text-slate-900'
+                className='text-muted-foreground hover:text-foreground'
               >
                 <ArrowLeft className='h-4 w-4 mr-2' />
                 Back to Home

@@ -81,19 +81,19 @@ export default async function AdminAnalyticsPage() {
           <CardContent className='pt-6'>
             <div className='flex items-center justify-between'>
               <div>
-                <p className='text-2xl font-bold text-gray-900'>
+                <p className='text-2xl font-bold text-foreground'>
                   $
                   {analytics?.platformMetrics.totalRevenue.toLocaleString() ||
                     '0'}
                 </p>
-                <p className='text-sm text-gray-500'>Total Revenue</p>
+                <p className='text-sm text-muted-foreground'>Total Revenue</p>
               </div>
               <DollarSign className='h-8 w-8 text-green-500' />
             </div>
             <div className='mt-2 flex items-center text-sm'>
               <TrendingUp className='h-4 w-4 text-green-500 mr-1' />
               <span className='text-green-600'>+12.5%</span>
-              <span className='text-gray-500 ml-1'>vs last month</span>
+              <span className='text-muted-foreground ml-1'>vs last month</span>
             </div>
           </CardContent>
         </Card>
@@ -102,18 +102,18 @@ export default async function AdminAnalyticsPage() {
           <CardContent className='pt-6'>
             <div className='flex items-center justify-between'>
               <div>
-                <p className='text-2xl font-bold text-gray-900'>
+                <p className='text-2xl font-bold text-foreground'>
                   {analytics?.platformMetrics.activeUsers.toLocaleString() ||
                     '0'}
                 </p>
-                <p className='text-sm text-gray-500'>Active Users</p>
+                <p className='text-sm text-muted-foreground'>Active Users</p>
               </div>
               <Users className='h-8 w-8 text-blue-500' />
             </div>
             <div className='mt-2 flex items-center text-sm'>
               <TrendingUp className='h-4 w-4 text-green-500 mr-1' />
               <span className='text-green-600'>+8.2%</span>
-              <span className='text-gray-500 ml-1'>this month</span>
+              <span className='text-muted-foreground ml-1'>this month</span>
             </div>
           </CardContent>
         </Card>
@@ -122,17 +122,17 @@ export default async function AdminAnalyticsPage() {
           <CardContent className='pt-6'>
             <div className='flex items-center justify-between'>
               <div>
-                <p className='text-2xl font-bold text-gray-900'>
+                <p className='text-2xl font-bold text-foreground'>
                   {analytics?.platformMetrics.sessionCompletion || '0'}%
                 </p>
-                <p className='text-sm text-gray-500'>Session Completion</p>
+                <p className='text-sm text-muted-foreground'>Session Completion</p>
               </div>
               <BookOpen className='h-8 w-8 text-purple-500' />
             </div>
             <div className='mt-2 flex items-center text-sm'>
               <TrendingUp className='h-4 w-4 text-green-500 mr-1' />
               <span className='text-green-600'>+2.1%</span>
-              <span className='text-gray-500 ml-1'>improvement</span>
+              <span className='text-muted-foreground ml-1'>improvement</span>
             </div>
           </CardContent>
         </Card>
@@ -141,17 +141,17 @@ export default async function AdminAnalyticsPage() {
           <CardContent className='pt-6'>
             <div className='flex items-center justify-between'>
               <div>
-                <p className='text-2xl font-bold text-gray-900'>
+                <p className='text-2xl font-bold text-foreground'>
                   {analytics?.platformMetrics.userSatisfaction || '0'}
                 </p>
-                <p className='text-sm text-gray-500'>User Satisfaction</p>
+                <p className='text-sm text-muted-foreground'>User Satisfaction</p>
               </div>
               <Activity className='h-8 w-8 text-yellow-500' />
             </div>
             <div className='mt-2 flex items-center text-sm'>
               <TrendingUp className='h-4 w-4 text-green-500 mr-1' />
               <span className='text-green-600'>Excellent</span>
-              <span className='text-gray-500 ml-1'>rating</span>
+              <span className='text-muted-foreground ml-1'>rating</span>
             </div>
           </CardContent>
         </Card>
@@ -169,27 +169,27 @@ export default async function AdminAnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className='space-y-4'>
-              <div className='text-center p-10 bg-gray-50 rounded-lg'>
-                <BarChart3 className='h-16 w-16 text-gray-400 mx-auto mb-4' />
-                <p className='text-gray-600'>
+              <div className='text-center p-10 bg-background rounded-lg'>
+                <BarChart3 className='h-16 w-16 text-muted-foreground mx-auto mb-4' />
+                <p className='text-muted-foreground'>
                   Chart visualization would go here
                 </p>
-                <p className='text-sm text-gray-500 mt-2'>
+                <p className='text-sm text-muted-foreground mt-2'>
                   Integration with charting library (Chart.js, Recharts, etc.)
                 </p>
               </div>
               <div className='grid grid-cols-3 gap-4 text-center'>
                 <div>
                   <p className='text-2xl font-bold text-blue-600'>350</p>
-                  <p className='text-xs text-gray-500'>This Month</p>
+                  <p className='text-xs text-muted-foreground'>This Month</p>
                 </div>
                 <div>
                   <p className='text-2xl font-bold text-green-600'>+28%</p>
-                  <p className='text-xs text-gray-500'>Growth Rate</p>
+                  <p className='text-xs text-muted-foreground'>Growth Rate</p>
                 </div>
                 <div>
                   <p className='text-2xl font-bold text-purple-600'>1,250</p>
-                  <p className='text-xs text-gray-500'>Total Users</p>
+                  <p className='text-xs text-muted-foreground'>Total Users</p>
                 </div>
               </div>
             </div>
@@ -238,10 +238,10 @@ export default async function AdminAnalyticsPage() {
                 </div>
               </div>
 
-              <div className='pt-4 border-t border-gray-200'>
+              <div className='pt-4 border-t border-border'>
                 <div className='text-center'>
-                  <p className='text-sm text-gray-500'>Approval Rate</p>
-                  <p className='text-2xl font-bold text-gray-900'>
+                  <p className='text-sm text-muted-foreground'>Approval Rate</p>
+                  <p className='text-2xl font-bold text-foreground'>
                     {analytics
                       ? Math.round(
                           (analytics.teacherApplications.approved /
@@ -270,12 +270,12 @@ export default async function AdminAnalyticsPage() {
         </CardHeader>
         <CardContent>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
-            <div className='text-center p-4 bg-slate-50 rounded-lg'>
+            <div className='text-center p-4 bg-background rounded-lg'>
               <Users className='h-8 w-8 text-blue-600 mx-auto mb-2' />
               <p className='text-2xl font-bold text-blue-600'>
                 {analytics?.monthlyStats.newUsers || 0}
               </p>
-              <p className='text-sm text-gray-600'>New Users</p>
+              <p className='text-sm text-muted-foreground'>New Users</p>
             </div>
 
             <div className='text-center p-4 bg-green-50 rounded-lg'>
@@ -283,7 +283,7 @@ export default async function AdminAnalyticsPage() {
               <p className='text-2xl font-bold text-green-600'>
                 {analytics?.monthlyStats.newTeachers || 0}
               </p>
-              <p className='text-sm text-gray-600'>New Teachers</p>
+              <p className='text-sm text-muted-foreground'>New Teachers</p>
             </div>
 
             <div className='text-center p-4 bg-purple-50 rounded-lg'>
@@ -291,7 +291,7 @@ export default async function AdminAnalyticsPage() {
               <p className='text-2xl font-bold text-purple-600'>
                 {analytics?.monthlyStats.totalSessions || 0}
               </p>
-              <p className='text-sm text-gray-600'>Total Sessions</p>
+              <p className='text-sm text-muted-foreground'>Total Sessions</p>
             </div>
 
             <div className='text-center p-4 bg-yellow-50 rounded-lg'>
@@ -299,7 +299,7 @@ export default async function AdminAnalyticsPage() {
               <p className='text-2xl font-bold text-yellow-600'>
                 ${analytics?.monthlyStats.revenue.toLocaleString() || 0}
               </p>
-              <p className='text-sm text-gray-600'>Revenue</p>
+              <p className='text-sm text-muted-foreground'>Revenue</p>
             </div>
           </div>
         </CardContent>

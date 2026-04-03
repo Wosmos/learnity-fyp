@@ -273,14 +273,14 @@ export default function TeacherManagementPage() {
       </div>
 
       {/* Main Data Table */}
-      <Card className='bg-white/80 backdrop-blur-sm border border-gray-200'>
+      <Card className='bg-card/80 backdrop-blur-sm border border-border'>
         <CardHeader className='pb-4'>
           <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0'>
             <div>
-              <CardTitle className='text-2xl font-bold text-gray-900'>
+              <CardTitle className='text-2xl font-bold text-foreground'>
                 Teacher Applications
               </CardTitle>
-              <CardDescription className='text-gray-600'>
+              <CardDescription className='text-muted-foreground'>
                 Review and manage teacher applications with advanced filtering
                 and approval tools
               </CardDescription>
@@ -316,7 +316,7 @@ export default function TeacherManagementPage() {
                   {loading ? (
                     <div className='flex flex-col items-center justify-center py-12 text-center'>
                       <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4' />
-                      <p className='text-gray-500'>Loading teachers...</p>
+                      <p className='text-muted-foreground'>Loading teachers...</p>
                     </div>
                   ) : filteredTeachers.length > 0 ? (
                     <DataTable
@@ -326,12 +326,12 @@ export default function TeacherManagementPage() {
                       searchPlaceholder='Search by name, email, or expertise...'
                     />
                   ) : (
-                    <div className='flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 py-12 text-center'>
-                      <Icon className='h-10 w-10 text-gray-300 mb-4' />
-                      <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                    <div className='flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-12 text-center'>
+                      <Icon className='h-10 w-10 text-muted-foreground mb-4' />
+                      <h3 className='text-lg font-medium text-foreground mb-2'>
                         {emptyTitle}
                       </h3>
-                      <p className='text-gray-500 max-w-md'>
+                      <p className='text-muted-foreground max-w-md'>
                         {emptyDescription}
                       </p>
                     </div>

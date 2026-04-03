@@ -44,10 +44,10 @@ export default async function UserManagementPage({
       <div className='flex flex-col gap-8'>
         {/* Header */}
         <div className='flex flex-col gap-1'>
-          <h1 className='text-3xl font-bold tracking-tight text-slate-900'>
+          <h1 className='text-3xl font-bold tracking-tight text-foreground'>
             User Management
           </h1>
-          <p className='text-slate-500 max-w-2xl'>
+          <p className='text-muted-foreground max-w-2xl'>
             Manage access, review teacher applications, and monitor user
             activity across the entire Learnity platform from one unified
             dashboard.

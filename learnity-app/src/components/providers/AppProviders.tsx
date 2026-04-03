@@ -1,11 +1,12 @@
 /**
  * Application Providers
- * Wraps the entire application with necessary providers for authentication, state management, etc.
+ * Wraps the entire application with necessary providers for authentication, theming, etc.
  */
 
 'use client';
 
 import React from 'react';
+import { ThemeProvider } from 'next-themes';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 
 export interface AppProvidersProps {
@@ -13,5 +14,14 @@ export interface AppProvidersProps {
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
-  return <AuthProvider>{children}</AuthProvider>;
+  return (
+    <ThemeProvider
+      attribute='class'
+      defaultTheme='system'
+      enableSystem
+      disableTransitionOnChange
+    >
+      <AuthProvider>{children}</AuthProvider>
+    </ThemeProvider>
+  );
 }

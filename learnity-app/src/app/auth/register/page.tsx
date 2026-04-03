@@ -13,18 +13,18 @@ export default function RegisterPage() {
 
   return (
     <AuthProvider>
-      <div className='min-h-screen bg-slate-50 lg:flex'>
+      <div className='min-h-screen bg-background lg:flex'>
         {/* Left Side - Branding (Desktop Only) */}
         <LeftSideSection />
 
         {/* Right Side - Registration Flow */}
-        <div className='flex-1 flex flex-col p-4 sm:p-8 lg:p-12 bg-white lg:bg-transparent overflow-y-auto h-screen relative'>
+        <div className='flex-1 flex flex-col p-4 sm:p-8 lg:p-12 bg-card lg:bg-transparent overflow-y-auto h-screen relative'>
           {/* Navigation Header (Desktop) */}
           <div className='hidden lg:flex justify-end mb-8 absolute top-8 right-8 z-10'>
             <Link href='/'>
               <Button
                 variant='ghost'
-                className='text-gray-600 hover:text-gray-900'
+                className='text-muted-foreground hover:text-foreground'
               >
                 <ChevronLeft className='h-4 w-4 mr-2' />
                 Back to Home

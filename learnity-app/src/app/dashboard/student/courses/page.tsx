@@ -160,9 +160,9 @@ export default function MyCoursesPage() {
   ).length;
 
   return (
-    <div className='flex-1 bg-slate-50'>
+    <div className='flex-1 bg-background'>
       {/* Header */}
-      <header className='sticky top-0 z-30 w-full bg-white/70 backdrop-blur-xl border-b border-slate-200/60 transition-all'>
+      <header className='sticky top-0 z-30 w-full bg-card/70 backdrop-blur-xl border-b border-border/60 transition-all'>
         {/* Subtle Top Gradient Accent */}
         <div className='absolute top-0 left-0 right-0 h-[2px] bg-linear-to-r from-emerald-500 via-teal-500 to-indigo-500 opacity-60' />
 
@@ -179,15 +179,15 @@ export default function MyCoursesPage() {
                     Student Dashboard
                   </span>
                   <span className='h-1 w-1 rounded-full bg-slate-300' />
-                  <span className='text-[10px] font-bold text-slate-400 uppercase tracking-tight'>
+                  <span className='text-[10px] font-bold text-muted-foreground uppercase tracking-tight'>
                     {completedCourses} Modules Completed
                   </span>
                 </div>
-                <h1 className='text-3xl font-black text-slate-900 tracking-tight'>
+                <h1 className='text-3xl font-black text-foreground tracking-tight'>
                   My Learning{' '}
-                  <span className='text-slate-400 font-light italic'>Path</span>
+                  <span className='text-muted-foreground font-light italic'>Path</span>
                 </h1>
-                <p className='text-sm font-medium text-slate-500 max-w-md'>
+                <p className='text-sm font-medium text-muted-foreground max-w-md'>
                   Continuity is key. You&apos;re currently making progress in{' '}
                   <span className='text-indigo-600 font-bold'>
                     3 active courses
@@ -240,7 +240,7 @@ export default function MyCoursesPage() {
           ].map(stat => (
             <div
               key={stat.label}
-              className='relative p-5 bg-white border border-slate-200 rounded-2xl shadow-sm hover:border-slate-300 transition-colors'
+              className='relative p-5 bg-card border border-border rounded-2xl shadow-sm hover:border-border/80 transition-colors'
             >
               <div className='flex items-center gap-4'>
                 {/* Compact Icon Square */}
@@ -256,14 +256,14 @@ export default function MyCoursesPage() {
 
                 {/* Text Content */}
                 <div className='flex flex-col'>
-                  <p className='text-[11px] font-bold text-slate-400 uppercase tracking-wider'>
+                  <p className='text-[11px] font-bold text-muted-foreground uppercase tracking-wider'>
                     {stat.label}
                   </p>
                   <div className='flex items-baseline gap-1'>
-                    <span className='text-2xl font-black text-slate-900 tracking-tight'>
+                    <span className='text-2xl font-black text-foreground tracking-tight'>
                       {stat.value}
                     </span>
-                    <span className='text-[10px] font-medium text-slate-400'>
+                    <span className='text-[10px] font-medium text-muted-foreground'>
                       modules
                     </span>
                   </div>
@@ -349,7 +349,7 @@ export default function MyCoursesPage() {
           value={activeTab}
           onValueChange={v => setActiveTab(v as typeof activeTab)}
         >
-          <TabsList className='relative h-12 inline-flex items-center p-1.5 bg-slate-100/80 rounded-2xl border border-slate-200/50 mb-8 overflow-hidden'>
+          <TabsList className='relative h-12 inline-flex items-center p-1.5 bg-muted/80 rounded-2xl border border-border/50 mb-8 overflow-hidden'>
             {[
               { id: 'all', label: 'All Courses', count: totalCourses },
               {
@@ -367,8 +367,8 @@ export default function MyCoursesPage() {
                   // Remove the default Shadcn background and shadow so our pill does the work
                   'data-[state=active]:bg-transparent data-[state=active]:shadow-none',
                   activeTab === tab.id
-                    ? 'text-slate-900'
-                    : 'text-slate-500 hover:text-slate-700'
+                    ? 'text-foreground'
+                    : 'text-muted-foreground hover:text-foreground/80'
                 )}
               >
                 <div className='flex items-center gap-2'>
@@ -378,7 +378,7 @@ export default function MyCoursesPage() {
                       'px-1.5 py-0.5 rounded-md text-[10px] font-black transition-colors',
                       activeTab === tab.id
                         ? 'bg-indigo-50 text-indigo-600'
-                        : 'bg-slate-200/50 text-slate-500'
+                        : 'bg-muted text-muted-foreground'
                     )}
                   >
                     {tab.count}
@@ -389,7 +389,7 @@ export default function MyCoursesPage() {
                 {activeTab === tab.id && (
                   <motion.div
                     layoutId='activeTabIndicator'
-                    className='absolute inset-0 bg-white rounded-xl shadow-sm border border-slate-200/50 z-[-1]'
+                    className='absolute inset-0 bg-card rounded-xl shadow-sm border border-border/50 z-[-1]'
                     transition={{ type: 'spring', bounce: 0.18, duration: 0.5 }}
                   />
                 )}

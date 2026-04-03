@@ -322,7 +322,7 @@ export function CourseFiltersCompact({
                   'flex-1 min-w-[70px] py-2 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all',
                   isActive
                     ? 'bg-slate-900 text-white shadow-sm'
-                    : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 )}
               >
                 {label}
@@ -343,7 +343,7 @@ export function CourseFiltersCompact({
                 'flex flex-col items-center justify-center py-2 rounded-lg border transition-all',
                 filters.minRating === val
                   ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
-                  : 'border-slate-100 bg-white text-slate-400'
+                  : 'border-border bg-card text-muted-foreground'
               )}
             >
               <Star
@@ -375,7 +375,7 @@ export function CourseFiltersCompact({
                 'flex items-center justify-between px-3 py-2.5 rounded-xl transition-all',
                 filters.sortBy === option.value
                   ? 'bg-indigo-50/50'
-                  : 'hover:bg-slate-50'
+                  : 'hover:bg-muted'
               )}
             >
               <span
@@ -383,7 +383,7 @@ export function CourseFiltersCompact({
                   'text-xs font-semibold',
                   filters.sortBy === option.value
                     ? 'text-indigo-700'
-                    : 'text-slate-600'
+                    : 'text-muted-foreground'
                 )}
               >
                 {option.label}
@@ -413,8 +413,8 @@ function FilterGroup({
   return (
     <div className='space-y-3'>
       <div className='flex items-center gap-2 px-1'>
-        <Icon className='h-3.5 w-3.5 text-slate-400' />
-        <h3 className='text-[10px] font-black text-slate-500 uppercase tracking-widest'>
+        <Icon className='h-3.5 w-3.5 text-muted-foreground' />
+        <h3 className='text-[10px] font-black text-muted-foreground uppercase tracking-widest'>
           {label}
         </h3>
       </div>
@@ -439,13 +439,13 @@ function CompactChoice({
         'flex items-center justify-between px-3 py-2.5 rounded-xl border text-left transition-all',
         isActive
           ? 'border-indigo-600 bg-indigo-50/30 ring-1 ring-indigo-600'
-          : 'border-slate-100 bg-white hover:border-slate-200 shadow-sm'
+          : 'border-border bg-card hover:border-border shadow-sm'
       )}
     >
       <span
         className={cn(
           'text-[11px] font-bold truncate leading-tight',
-          isActive ? 'text-indigo-700' : 'text-slate-600'
+          isActive ? 'text-indigo-700' : 'text-muted-foreground'
         )}
       >
         {label}

@@ -35,7 +35,7 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
     <section className='relative mb-6 lg:mb-10 group lg:px-0'>
       {/* ================= MOBILE VIEW (Minimal Card) ================= */}
       <div className='block lg:hidden'>
-        <div className='relative bg-white rounded-xl border border-slate-100 shadow-xl shadow-slate-200/40 p-6 overflow-hidden'>
+        <div className='relative bg-card rounded-xl border border-border shadow-xl shadow-slate-200/40 p-6 overflow-hidden'>
           {/* Background Decoration */}
           <div className='absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-transparent'></div>
 
@@ -50,7 +50,7 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
               </div>
               <Badge
                 variant='outline'
-                className='border-slate-200 text-[9px] font-bold text-slate-400 uppercase tracking-widest bg-white'
+                className='border-border text-[9px] font-bold text-muted-foreground uppercase tracking-widest bg-card'
               >
                 {profileData?.role || 'STUDENT'}
               </Badge>
@@ -72,26 +72,26 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
               </div>
             </div>
 
-            <h2 className='text-2xl font-black text-slate-900 tracking-tight text-center'>
+            <h2 className='text-2xl font-black text-foreground tracking-tight text-center'>
               {profileData?.name}
             </h2>
-            <p className='text-xs font-medium text-slate-400 text-center mb-6'>
+            <p className='text-xs font-medium text-muted-foreground text-center mb-6'>
               {profileData?.email}
             </p>
 
             {/* Quick Stats Grid */}
             <div className='w-full grid grid-cols-2 gap-3 mb-6'>
-              <div className='bg-slate-50 p-3 rounded-xl border border-slate-100 text-center'>
-                <p className='text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1'>
+              <div className='bg-muted p-3 rounded-xl border border-border text-center'>
+                <p className='text-[9px] font-black text-muted-foreground uppercase tracking-wider mb-1'>
                   Login
                 </p>
-                <p className='text-xs font-bold text-slate-900'>{lastLogin}</p>
+                <p className='text-xs font-bold text-foreground'>{lastLogin}</p>
               </div>
-              <div className='bg-slate-50 p-3 rounded-xl border border-slate-100 text-center'>
-                <p className='text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1'>
+              <div className='bg-muted p-3 rounded-xl border border-border text-center'>
+                <p className='text-[9px] font-black text-muted-foreground uppercase tracking-wider mb-1'>
                   Auth
                 </p>
-                <p className='text-xs font-bold text-slate-900 uppercase truncate px-1'>
+                <p className='text-xs font-bold text-foreground uppercase truncate px-1'>
                   {profileData?.firebase?.sign_in_provider || 'Google'}
                 </p>
               </div>
@@ -100,7 +100,7 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
             {/* Saturation Bar */}
             <div className='w-full space-y-2'>
               <div className='flex justify-between items-end'>
-                <span className='text-[10px] font-black text-slate-400 uppercase tracking-wider'>
+                <span className='text-[10px] font-black text-muted-foreground uppercase tracking-wider'>
                   Profile Saturation
                 </span>
                 <span className='text-sm font-black text-indigo-600'>
@@ -122,12 +122,12 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
       </div>
 
       {/* ================= DESKTOP VIEW (Original Design) ================= */}
-      <div className='hidden lg:block relative bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-2xl shadow-slate-200/50'>
+      <div className='hidden lg:block relative bg-card border border-border rounded-2xl overflow-hidden shadow-2xl shadow-slate-200/50'>
         <div className='absolute -inset-1 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 blur-2xl opacity-50 group-hover:opacity-100 transition duration-1000 pointer-events-none' />
 
         <div className='relative flex flex-col lg:flex-row min-h-[380px]'>
           {/* LEFT: Identity Hub */}
-          <div className='lg:w-[380px] bg-slate-50/80 border-r border-slate-100 p-10 flex flex-col items-center justify-between'>
+          <div className='lg:w-[380px] bg-muted/80 border-r border-border p-10 flex flex-col items-center justify-between'>
             <div className='w-full flex justify-between items-center mb-4'>
               <div className='flex items-center gap-1.5 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-100'>
                 <span className='h-2 w-2 rounded-full bg-emerald-500 animate-pulse' />
@@ -135,7 +135,7 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
                   Live Session
                 </span>
               </div>
-              <p className='text-[10px] font-bold text-slate-400 uppercase tracking-tighter'>
+              <p className='text-[10px] font-bold text-muted-foreground uppercase tracking-tighter'>
                 ID: {profileData?.profileId?.slice(-6)}
               </p>
             </div>
@@ -158,10 +158,10 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
             </div>
 
             <div className='text-center space-y-1 mb-8'>
-              <h2 className='text-3xl font-black text-slate-900 tracking-tighter leading-none'>
+              <h2 className='text-3xl font-black text-foreground tracking-tighter leading-none'>
                 {profileData?.name}
               </h2>
-              <p className='text-sm font-bold text-slate-400 flex items-center justify-center gap-1'>
+              <p className='text-sm font-bold text-muted-foreground flex items-center justify-center gap-1'>
                 <Mail className='h-3.5 w-3.5 text-indigo-500' />{' '}
                 {profileData?.email}
               </p>
@@ -191,10 +191,10 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
                       <Globe className='h-5 w-5 text-indigo-600' />
                     </div>
                     <div>
-                      <p className='text-[10px] font-black text-slate-400 uppercase tracking-widest'>
+                      <p className='text-[10px] font-black text-muted-foreground uppercase tracking-widest'>
                         Login Instance
                       </p>
-                      <p className='text-sm font-bold text-slate-900'>
+                      <p className='text-sm font-bold text-foreground'>
                         {lastLogin}{' '}
                         <span className='text-slate-300 font-medium ml-1'>
                           Today
@@ -208,10 +208,10 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
                       <Fingerprint className='h-5 w-5 text-purple-600' />
                     </div>
                     <div>
-                      <p className='text-[10px] font-black text-slate-400 uppercase tracking-widest'>
+                      <p className='text-[10px] font-black text-muted-foreground uppercase tracking-widest'>
                         AuthProvider
                       </p>
-                      <p className='text-sm font-bold text-slate-900 uppercase'>
+                      <p className='text-sm font-bold text-foreground uppercase'>
                         {profileData?.firebase?.sign_in_provider ||
                           'Google Auth'}
                       </p>
@@ -222,7 +222,7 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
             </div>
 
             {/* LOWER TELEMETRY: Profile Completion Bar */}
-            <div className='mt-12 pt-8 border-t border-slate-100'>
+            <div className='mt-12 pt-8 border-t border-border'>
               <div className='flex items-center gap-8'>
                 <div className='flex-1'>
                   <div className='flex justify-between items-end mb-3'>
@@ -230,11 +230,11 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
                       <span className='px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-black rounded uppercase'>
                         Academic Node
                       </span>
-                      <p className='text-[11px] font-black text-slate-900 uppercase tracking-widest'>
+                      <p className='text-[11px] font-black text-foreground uppercase tracking-widest'>
                         Profile Saturation
                       </p>
                     </div>
-                    <span className='text-xl font-black text-slate-900'>
+                    <span className='text-xl font-black text-foreground'>
                       {profileData?.profileComplete ? '100%' : '65%'}
                     </span>
                   </div>
@@ -250,7 +250,7 @@ export function EliteProfileCard({ profileData }: { profileData: any }) {
                 </div>
 
                 <div className='hidden sm:flex flex-col items-end'>
-                  <p className='text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1'>
+                  <p className='text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1'>
                     Account Role
                   </p>
                   <Badge className='bg-slate-900 text-white hover:bg-slate-900 px-4 py-1 rounded-full font-black text-[10px] uppercase tracking-widest border-none'>

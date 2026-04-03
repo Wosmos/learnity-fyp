@@ -153,12 +153,12 @@ export default function AdminWalletPage() {
           <h1 className='text-4xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-slate-500 bg-clip-text text-transparent dark:from-white dark:to-slate-400'>
             Financial Management
           </h1>
-          <p className='text-slate-500 mt-1'>
+          <p className='text-muted-foreground mt-1'>
             Review and approve student deposit requests
           </p>
         </div>
 
-        <div className='flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl'>
+        <div className='flex items-center gap-2 bg-muted p-1 rounded-xl'>
           {['PENDING', 'COMPLETED', 'ALL'].map(status => (
             <Button
               key={status}
@@ -168,7 +168,7 @@ export default function AdminWalletPage() {
               className={
                 filterStatus === status
                   ? 'bg-indigo-600 text-white shadow-md'
-                  : 'text-slate-500'
+                  : 'text-muted-foreground'
               }
             >
               {status}
@@ -196,26 +196,26 @@ export default function AdminWalletPage() {
         </Card>
 
         <div className='lg:col-span-3'>
-          <Card className='border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden rounded-2xl'>
+          <Card className='border-border shadow-sm overflow-hidden rounded-2xl'>
             <Table>
-              <TableHeader className='bg-slate-50 dark:bg-slate-900/50'>
+              <TableHeader className='bg-muted/50'>
                 <TableRow>
-                  <TableHead className='pl-6 font-bold uppercase text-[10px] tracking-widest text-slate-400'>
+                  <TableHead className='pl-6 font-bold uppercase text-[10px] tracking-widest text-muted-foreground'>
                     Student
                   </TableHead>
-                  <TableHead className='font-bold uppercase text-[10px] tracking-widest text-slate-400'>
+                  <TableHead className='font-bold uppercase text-[10px] tracking-widest text-muted-foreground'>
                     Transaction ID
                   </TableHead>
-                  <TableHead className='font-bold uppercase text-[10px] tracking-widest text-slate-400'>
+                  <TableHead className='font-bold uppercase text-[10px] tracking-widest text-muted-foreground'>
                     Amount
                   </TableHead>
-                  <TableHead className='font-bold uppercase text-[10px] tracking-widest text-slate-400'>
+                  <TableHead className='font-bold uppercase text-[10px] tracking-widest text-muted-foreground'>
                     Status
                   </TableHead>
-                  <TableHead className='font-bold uppercase text-[10px] tracking-widest text-slate-400'>
+                  <TableHead className='font-bold uppercase text-[10px] tracking-widest text-muted-foreground'>
                     Receipt
                   </TableHead>
-                  <TableHead className='text-right pr-6 font-bold uppercase text-[10px] tracking-widest text-slate-400'>
+                  <TableHead className='text-right pr-6 font-bold uppercase text-[10px] tracking-widest text-muted-foreground'>
                     Actions
                   </TableHead>
                 </TableRow>
@@ -227,7 +227,7 @@ export default function AdminWalletPage() {
                     .map((_, i) => (
                       <TableRow
                         key={i}
-                        className='animate-pulse h-20 border-b border-slate-100 dark:border-slate-800/50'
+                        className='animate-pulse h-20 border-b border-border'
                       >
                         <TableCell
                           colSpan={5}
@@ -251,19 +251,19 @@ export default function AdminWalletPage() {
                     {transactions.map(tx => (
                       <TableRow
                         key={tx.id}
-                        className='group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors border-b border-slate-100 dark:border-slate-800/50'
+                        className='group hover:bg-muted/50 transition-colors border-b border-border'
                       >
                         <TableCell className='pl-6 py-5'>
                           <div className='flex items-center gap-3'>
-                            <div className='w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-500'>
+                            <div className='w-10 h-10 rounded-full bg-muted flex items-center justify-center font-bold text-muted-foreground'>
                               {tx.user.firstName[0]}
                               {tx.user.lastName[0]}
                             </div>
                             <div className='flex flex-col'>
-                              <span className='font-bold text-slate-900 dark:text-white'>
+                              <span className='font-bold text-foreground'>
                                 {tx.user.firstName} {tx.user.lastName}
                               </span>
-                              <span className='text-xs text-slate-400 font-medium'>
+                              <span className='text-xs text-muted-foreground font-medium'>
                                 {tx.user.email}
                               </span>
                             </div>
@@ -274,13 +274,13 @@ export default function AdminWalletPage() {
                             <span className='font-mono text-xs font-bold text-indigo-500'>
                               {tx.referenceId || 'N/A'}
                             </span>
-                            <span className='text-[10px] text-slate-400'>
+                            <span className='text-[10px] text-muted-foreground'>
                               {format(new Date(tx.createdAt), 'MMM dd | HH:mm')}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className='font-black text-slate-900 dark:text-white tabular-nums'>
+                          <span className='font-black text-foreground tabular-nums'>
                             <span className='text-[10px] mr-1 opacity-50 font-normal'>
                               PKR
                             </span>
@@ -299,7 +299,7 @@ export default function AdminWalletPage() {
                               <Eye className='w-4 h-4' />
                             </Button>
                           ) : (
-                            <span className='text-xs text-slate-400 italic'>
+                            <span className='text-xs text-muted-foreground italic'>
                               No proof
                             </span>
                           )}
@@ -348,14 +348,14 @@ export default function AdminWalletPage() {
         open={!!selectedReceipt}
         onOpenChange={open => !open && setSelectedReceipt(null)}
       >
-        <DialogContent className='max-w-3xl p-0 overflow-hidden bg-white dark:bg-slate-900 border-none rounded-3xl'>
-          <DialogHeader className='p-6 border-b border-slate-100 dark:border-slate-800'>
+        <DialogContent className='max-w-3xl p-0 overflow-hidden bg-card border-none rounded-3xl'>
+          <DialogHeader className='p-6 border-b border-border'>
             <DialogTitle className='flex items-center gap-2'>
               <Banknote className='w-5 h-5 text-indigo-600' />
               Payment Proof Verification
             </DialogTitle>
           </DialogHeader>
-          <div className='p-2 bg-slate-50 dark:bg-slate-950 flex items-center justify-center min-h-[400px]'>
+          <div className='p-2 bg-background flex items-center justify-center min-h-[400px]'>
             {selectedReceipt && (
               <img
                 src={selectedReceipt}
@@ -364,9 +364,9 @@ export default function AdminWalletPage() {
               />
             )}
           </div>
-          <div className='p-4 bg-white dark:bg-slate-900 text-center'>
+          <div className='p-4 bg-card text-center'>
             <Button
-              className='w-full bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-6 rounded-2xl'
+              className='w-full bg-muted hover:bg-muted/80 text-foreground font-bold py-6 rounded-2xl'
               onClick={() => setSelectedReceipt(null)}
             >
               Close Viewer

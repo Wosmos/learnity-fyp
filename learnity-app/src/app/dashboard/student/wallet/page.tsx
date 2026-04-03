@@ -229,10 +229,10 @@ export default function WalletPage() {
       {/* Header Section */}
       <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-4'>
         <div className=' px-8'>
-          <h1 className='text-3xl font-black text-slate-900 uppercase italic tracking-tighter'>
+          <h1 className='text-3xl font-black text-foreground uppercase italic tracking-tighter'>
             My <span className='text-indigo-600'>Wallet</span>
           </h1>
-          <p className='text-slate-500 text-sm font-medium'>
+          <p className='text-muted-foreground text-sm font-medium'>
             Manage your balance and course purchases.
           </p>
         </div>
@@ -443,7 +443,7 @@ export default function WalletPage() {
           </div>
         </motion.div>
 
-        <Card className='rounded-3xl border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col justify-center text-center p-8 space-y-4'>
+        <Card className='rounded-3xl border-border shadow-sm overflow-hidden flex flex-col justify-center text-center p-8 space-y-4'>
           <div className='w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-2'>
             <CreditCard className='w-8 h-8 text-emerald-500' />
           </div>
@@ -454,24 +454,24 @@ export default function WalletPage() {
           </CardDescription>
           <div className='pt-4 grid grid-cols-2 gap-2 text-xs'>
             <div className='p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl'>
-              <p className='font-bold text-slate-900 dark:text-white'>
+              <p className='font-bold text-foreground'>
                 {transactions.filter(t => t.type === 'PURCHASE').length}
               </p>
-              <p className='text-slate-500'>Purchases</p>
+              <p className='text-muted-foreground'>Purchases</p>
             </div>
             <div className='p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl'>
               <p className='font-bold text-emerald-500'>
                 {transactions.filter(t => t.status === 'COMPLETED').length}
               </p>
-              <p className='text-slate-500'>Completed</p>
+              <p className='text-muted-foreground'>Completed</p>
             </div>
           </div>
         </Card>
       </div>
 
       {/* Transactions Section */}
-      <Card className='rounded-3xl border-slate-200 dark:border-slate-800 shadow-sm'>
-        <CardHeader className='flex flex-row items-center justify-between border-b border-slate-100 dark:border-slate-800/50 px-8 py-6'>
+      <Card className='rounded-3xl border-border shadow-sm'>
+        <CardHeader className='flex flex-row items-center justify-between border-b border-border px-8 py-6'>
           <div className='flex items-center gap-3'>
             <div className='w-10 h-10 bg-indigo-100 dark:bg-indigo-500/10 rounded-xl flex items-center justify-center'>
               <History className='w-5 h-5 text-indigo-600 dark:text-indigo-400' />
@@ -503,7 +503,7 @@ export default function WalletPage() {
                     <TableRow key={i}>
                       <TableCell
                         colSpan={5}
-                        className='h-16 text-center text-slate-400 italic'
+                        className='h-16 text-center text-muted-foreground italic'
                       >
                         <div className='flex items-center justify-center gap-2'>
                           <Clock className='w-4 h-4 animate-spin' /> Loading
@@ -516,7 +516,7 @@ export default function WalletPage() {
                 <TableRow>
                   <TableCell
                     colSpan={5}
-                    className='h-32 text-center text-slate-500'
+                    className='h-32 text-center text-muted-foreground'
                   >
                     No transactions found.
                   </TableCell>
@@ -532,14 +532,14 @@ export default function WalletPage() {
                         <div className='w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 transition-colors'>
                           {getTypeIcon(tx.type)}
                         </div>
-                        <span className='text-xs font-bold text-slate-600 dark:text-slate-400'>
+                        <span className='text-xs font-bold text-muted-foreground'>
                           {tx.type}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className='flex flex-col'>
-                        <span className='font-medium text-slate-900 dark:text-white'>
+                        <span className='font-medium text-foreground'>
                           {tx.description}
                         </span>
                         {tx.referenceId && (
@@ -549,7 +549,7 @@ export default function WalletPage() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className='text-slate-500 text-sm'>
+                    <TableCell className='text-muted-foreground text-sm'>
                       {format(new Date(tx.createdAt), 'MMM dd, yyyy')}
                     </TableCell>
                     <TableCell>{getStatusBadge(tx.status)}</TableCell>

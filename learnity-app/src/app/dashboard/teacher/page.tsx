@@ -78,9 +78,9 @@ const StatCard = ({
       ) : (
         <>
           <div>
-            <p className='text-sm font-medium text-slate-500 mb-1'>{title}</p>
-            <h3 className='text-2xl font-bold text-slate-900'>{value}</h3>
-            <p className='text-xs text-slate-400 mt-1'>{subtext}</p>
+            <p className='text-sm font-medium text-muted-foreground mb-1'>{title}</p>
+            <h3 className='text-2xl font-bold text-foreground'>{value}</h3>
+            <p className='text-xs text-muted-foreground mt-1'>{subtext}</p>
           </div>
           <div className={`p-3 rounded-xl ${bgClass}`}>
             <Icon className={`h-5 w-5 ${colorClass}`} />
@@ -100,15 +100,15 @@ const QuickActionTile = ({
   bgClass,
 }: any) => (
   <Link href={href} className='group'>
-    <div className='h-full p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-400  transition-all duration-200 flex flex-col justify-between'>
+    <div className='h-full p-4 rounded-xl border border-border bg-card hover:border-blue-400  transition-all duration-200 flex flex-col justify-between'>
       <div
         className={`w-10 h-10 rounded-lg ${bgClass} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}
       >
         <Icon className={`h-5 w-5 ${colorClass}`} />
       </div>
       <div>
-        <h4 className='font-semibold text-slate-900 text-sm'>{title}</h4>
-        <p className='text-xs text-slate-500 mt-1 line-clamp-1'>{desc}</p>
+        <h4 className='font-semibold text-foreground text-sm'>{title}</h4>
+        <p className='text-xs text-muted-foreground mt-1 line-clamp-1'>{desc}</p>
       </div>
     </div>
   </Link>
@@ -138,10 +138,10 @@ const CourseRow = ({ course }: { course: RecentCourse }) => {
           {course.title.substring(0, 2).toUpperCase()}
         </div>
         <div className='min-w-0'>
-          <p className='font-medium text-slate-900 truncate text-sm'>
+          <p className='font-medium text-foreground truncate text-sm'>
             {course.title}
           </p>
-          <div className='flex items-center gap-2 text-xs text-slate-500 mt-0.5'>
+          <div className='flex items-center gap-2 text-xs text-muted-foreground mt-0.5'>
             <span className='flex items-center gap-1'>
               <BookOpen className='h-3 w-3' /> {course.lessonCount}
             </span>
@@ -302,7 +302,7 @@ export default function TeacherDashboard() {
   if (loading) return null;
 
   return (
-    <div className='min-h-screen bg-slate-50/50'>
+    <div className='min-h-screen bg-background'>
       <PageHeader
         title='Overview'
         subtitle={`Welcome back, ${user?.displayName?.split(' ')[0] || 'Teacher'}`}
@@ -403,8 +403,8 @@ export default function TeacherDashboard() {
 
             {/* Courses List */}
             <Card className='border shadow-sm'>
-              <CardHeader className='py-4 px-5 border-b border-slate-100 flex flex-row items-center justify-between'>
-                <CardTitle className='text-base font-semibold text-slate-900'>
+              <CardHeader className='py-4 px-5 border-b border-border flex flex-row items-center justify-between'>
+                <CardTitle className='text-base font-semibold text-foreground'>
                   Recent Courses
                 </CardTitle>
                 <Link href='/dashboard/teacher/courses'>
@@ -433,7 +433,7 @@ export default function TeacherDashboard() {
                     <div className='w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3'>
                       <BookOpen className='h-6 w-6 text-slate-300' />
                     </div>
-                    <p className='text-slate-500 text-sm mb-4'>
+                    <p className='text-muted-foreground text-sm mb-4'>
                       You haven't created any courses yet.
                     </p>
                     <Link href='/dashboard/teacher/courses/new'>
@@ -451,7 +451,7 @@ export default function TeacherDashboard() {
           <div className='lg:col-span-4 space-y-6 w-full'>
             {/* Activity Feed */}
             <Card className='border shadow-sm'>
-              <CardHeader className='border-b border-slate-100'>
+              <CardHeader className='border-b border-border'>
                 <CardTitle className='flex items-center text-left text-base font-semibold'>
                   <Zap className='h-4 w-4 text-amber-500' /> Activity Feed
                 </CardTitle>
@@ -474,10 +474,10 @@ export default function TeacherDashboard() {
                         <div key={activity.id} className='flex gap-3'>
                           <div className='shrink-0 pt-1'>{activity.icon}</div>
                           <div>
-                            <p className='text-sm text-slate-800 font-medium'>
+                            <p className='text-sm text-foreground font-medium'>
                               {activity.message}
                             </p>
-                            <p className='text-xs text-slate-400 mt-0.5'>
+                            <p className='text-xs text-muted-foreground mt-0.5'>
                               {activity.time}
                             </p>
                           </div>
@@ -485,7 +485,7 @@ export default function TeacherDashboard() {
                       ))}
                     </div>
                   ) : (
-                    <p className='text-center text-sm text-slate-500 py-4'>
+                    <p className='text-center text-sm text-muted-foreground py-4'>
                       No recent activity.
                     </p>
                   )}
@@ -540,17 +540,17 @@ export default function TeacherDashboard() {
           </Card>
           {/* Support Links */}
           <Card className='border shadow-sm'>
-            <CardHeader className='py-3 px-5 bg-slate-50 border-b border-slate-100'>
-              <CardTitle className='text-sm font-medium text-slate-600'>
+            <CardHeader className='py-3 px-5 bg-muted border-b border-border'>
+              <CardTitle className='text-sm font-medium text-muted-foreground'>
                 Student Connection
               </CardTitle>
             </CardHeader>
             <CardContent className='p-4 space-y-3'>
-              <div className='flex items-center gap-3 text-sm text-slate-600'>
+              <div className='flex items-center gap-3 text-sm text-muted-foreground'>
                 <CheckCircle className='h-4 w-4 text-green-500' />{' '}
                 <span>WhatsApp Group active</span>
               </div>
-              <div className='flex items-center gap-3 text-sm text-slate-600'>
+              <div className='flex items-center gap-3 text-sm text-muted-foreground'>
                 <CheckCircle className='h-4 w-4 text-green-500' />{' '}
                 <span>Support Email set</span>
               </div>

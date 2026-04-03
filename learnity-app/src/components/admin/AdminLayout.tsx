@@ -89,7 +89,7 @@ export function AdminLayout({
 
   return (
     <AdminAuthenticatedLayout>
-      <div className='min-h-screen bg-gray-50 flex'>
+      <div className='min-h-screen bg-muted flex'>
         {/* Sidebar */}
         <AdminSidebar />
 

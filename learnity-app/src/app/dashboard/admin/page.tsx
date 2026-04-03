@@ -36,7 +36,7 @@ export default async function AdminDashboardPage() {
       case 'down':
         return <TrendingDown className='h-4 w-4 text-red-500' />;
       default:
-        return <Activity className='h-4 w-4 text-gray-500' />;
+        return <Activity className='h-4 w-4 text-muted-foreground' />;
     }
   };
 
@@ -48,7 +48,7 @@ export default async function AdminDashboardPage() {
       case 'down':
         return 'text-red-600';
       default:
-        return 'text-gray-600';
+        return 'text-muted-foreground';
     }
   };
 
@@ -100,11 +100,11 @@ export default async function AdminDashboardPage() {
               {platformMetrics.map((metric, index) => (
                 <div
                   key={index}
-                  className='flex items-center justify-between p-3 bg-gray-50 rounded-lg'
+                  className='flex items-center justify-between p-3 bg-background rounded-lg'
                 >
                   <div>
-                    <p className='font-medium text-gray-900'>{metric.label}</p>
-                    <p className='text-2xl font-bold text-gray-900'>
+                    <p className='font-medium text-foreground'>{metric.label}</p>
+                    <p className='text-2xl font-bold text-foreground'>
                       {metric.value}
                     </p>
                   </div>
@@ -136,8 +136,8 @@ export default async function AdminDashboardPage() {
                 <div className='flex items-center space-x-3'>
                   <CheckCircle className='h-6 w-6 text-green-600' />
                   <div>
-                    <p className='font-medium text-gray-900'>System Status</p>
-                    <p className='text-sm text-gray-500'>
+                    <p className='font-medium text-foreground'>System Status</p>
+                    <p className='text-sm text-muted-foreground'>
                       {stats.systemStatus === 'operational'
                         ? 'All systems operational'
                         : 'System issues detected'}
@@ -155,14 +155,14 @@ export default async function AdminDashboardPage() {
                   value={stats.uptime}
                   trendValue=''
                   icon={CheckCircle}
-                  className='border-0 shadow-none bg-gray-50'
+                  className='border-0 shadow-none bg-background'
                 />
                 <MetricCard
                   title='Response Time'
                   value={stats.responseTime}
                   trendValue=''
                   icon={Activity}
-                  className='border-0 shadow-none bg-gray-50'
+                  className='border-0 shadow-none bg-background'
                 />
               </div>
 
@@ -171,7 +171,7 @@ export default async function AdminDashboardPage() {
                 value={stats.platformRating}
                 trendValue=''
                 icon={Star}
-                className='border-0 shadow-none bg-slate-50'
+                className='border-0 shadow-none bg-background'
               />
             </div>
           </CardContent>

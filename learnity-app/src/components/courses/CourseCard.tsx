@@ -131,7 +131,7 @@ export function CourseCard({
       <Card
         className={cn(
           courseCardVariants({ size }),
-          'bg-white border-slate-100/50 rounded-[2.5rem] p-3 transition-all duration-700',
+          'bg-card border-border/50 rounded-[2.5rem] p-3 transition-all duration-700',
           'hover:shadow-[0_32px_84px_-20px_rgba(79,70,229,0.15)] hover:border-indigo-200/50 hover:-translate-y-1',
           className
         )}
@@ -139,7 +139,7 @@ export function CourseCard({
         {/* THUMBNAIL TERMINAL */}
         <div
           className={cn(
-            'relative rounded-[2rem] overflow-hidden bg-slate-100 shadow-inner',
+            'relative rounded-[2rem] overflow-hidden bg-muted shadow-inner',
             size === 'grid'
               ? 'aspect-[16/10] w-full'
               : 'w-full md:w-80 h-56 shrink-0'
@@ -198,14 +198,14 @@ export function CourseCard({
               </div>
             )}
 
-            <h3 className='text-lg font-black text-slate-900 leading-tight tracking-tight group-hover/card:text-indigo-600 transition-colors line-clamp-2'>
+            <h3 className='text-lg font-black text-foreground leading-tight tracking-tight group-hover/card:text-indigo-600 transition-colors line-clamp-2'>
               {title}
             </h3>
 
             {description && (
               <p
                 className={cn(
-                  'text-sm font-medium text-slate-500 leading-relaxed',
+                  'text-sm font-medium text-muted-foreground leading-relaxed',
                   size === 'list' ? 'line-clamp-2' : 'line-clamp-2'
                 )}
               >
@@ -214,7 +214,7 @@ export function CourseCard({
             )}
 
             {(updatedAt || createdAt) && (
-              <div className='flex items-center gap-1.5 text-[10px] text-slate-400 font-medium pt-1'>
+              <div className='flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium pt-1'>
                 <Calendar className='h-3 w-3' />
                 <span suppressHydrationWarning>
                   {updatedAt
@@ -237,32 +237,32 @@ export function CourseCard({
                   className='relative object-cover rounded-full border-2 border-white shadow-sm'
                 />
               ) : (
-                <div className='relative h-full w-full rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 border-2 border-white shadow-sm'>
+                <div className='relative h-full w-full rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground border-2 border-white shadow-sm'>
                   {teacherName?.[0]?.toUpperCase() || 'T'}
                 </div>
               )}
             </div>
             <div className='flex flex-col min-w-0'>
-              <span className='text-[11px] font-extrabold text-slate-800 line-clamp-1 leading-none mb-0.5'>
+              <span className='text-[11px] font-extrabold text-foreground line-clamp-1 leading-none mb-0.5'>
                 {teacherName || 'Instructor'}
               </span>
-              <span className='text-[9px] font-bold text-slate-400 uppercase tracking-tighter'>
+              <span className='text-[9px] font-bold text-muted-foreground uppercase tracking-tighter'>
                 Instructor
               </span>
             </div>
           </div>
 
           {/* TELEMETRY BAR */}
-          <div className='pt-4 mt-2 border-t border-slate-50 flex items-center justify-between'>
+          <div className='pt-4 mt-2 border-t border-border flex items-center justify-between'>
             <div className='flex items-center gap-4'>
               <div className='flex items-center gap-1'>
                 <Star className='h-3.5 w-3.5 fill-amber-400 text-amber-400' />
-                <span className='text-xs font-black text-slate-900 italic'>
+                <span className='text-xs font-black text-foreground italic'>
                   {Number(rating).toFixed(1)}
                 </span>
               </div>
 
-              <div className='flex items-center gap-1.5 text-slate-400'>
+              <div className='flex items-center gap-1.5 text-muted-foreground'>
                 <Users className='h-3.5 w-3.5' />
                 <span className='text-[10px] font-bold uppercase tracking-tighter'>
                   {formatCount(enrollmentCount)}
@@ -270,7 +270,7 @@ export function CourseCard({
               </div>
             </div>
 
-            <div className='flex items-center gap-3 text-slate-400'>
+            <div className='flex items-center gap-3 text-muted-foreground'>
               {totalDuration && (
                 <div className='flex items-center gap-1 font-mono text-[10px]'>
                   <Clock className='h-3 w-3' />
@@ -300,13 +300,13 @@ export function CourseCardSkeleton({
     <Card
       className={cn(
         courseCardVariants({ size }),
-        'bg-white border-slate-100 rounded-[2rem] p-3 shadow-none'
+        'bg-card border-border rounded-[2rem] p-3 shadow-none'
       )}
     >
       {/* Thumbnail skeleton */}
       <div
         className={cn(
-          'relative rounded-[1.5rem] overflow-hidden bg-slate-100 animate-pulse',
+          'relative rounded-[1.5rem] overflow-hidden bg-muted animate-pulse',
           size === 'grid'
             ? 'aspect-[16/10] w-full'
             : 'w-full md:w-64 h-48 shrink-0'
@@ -321,33 +321,33 @@ export function CourseCardSkeleton({
         )}
       >
         <div className='space-y-2'>
-          <Skeleton className='h-6 w-3/4 bg-slate-100' />
+          <Skeleton className='h-6 w-3/4 bg-muted' />
           {size === 'list' && (
             <>
-              <Skeleton className='h-4 w-full bg-slate-100' />
-              <Skeleton className='h-4 w-2/3 bg-slate-100' />
+              <Skeleton className='h-4 w-full bg-muted' />
+              <Skeleton className='h-4 w-2/3 bg-muted' />
             </>
           )}
         </div>
 
         {/* Instructor skeleton */}
         <div className='flex items-center gap-3'>
-          <Skeleton className='w-8 h-8 rounded-full bg-slate-100' />
+          <Skeleton className='w-8 h-8 rounded-full bg-muted' />
           <div className='flex flex-col gap-1'>
-            <Skeleton className='h-3 w-20 bg-slate-100' />
-            <Skeleton className='h-2 w-12 bg-slate-50' />
+            <Skeleton className='h-3 w-20 bg-muted' />
+            <Skeleton className='h-2 w-12 bg-muted' />
           </div>
         </div>
 
         {/* Telemetry skeleton */}
-        <div className='pt-4 mt-2 border-t border-slate-50 flex items-center justify-between'>
+        <div className='pt-4 mt-2 border-t border-border flex items-center justify-between'>
           <div className='flex items-center gap-4'>
-            <Skeleton className='h-3 w-8 bg-slate-50' />
-            <Skeleton className='h-3 w-10 bg-slate-50' />
+            <Skeleton className='h-3 w-8 bg-muted' />
+            <Skeleton className='h-3 w-10 bg-muted' />
           </div>
           <div className='flex items-center gap-3'>
-            <Skeleton className='h-3 w-12 bg-slate-50' />
-            <Skeleton className='h-3 w-8 bg-slate-50' />
+            <Skeleton className='h-3 w-12 bg-muted' />
+            <Skeleton className='h-3 w-8 bg-muted' />
           </div>
         </div>
       </div>
