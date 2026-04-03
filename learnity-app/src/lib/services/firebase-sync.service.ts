@@ -171,10 +171,4 @@ export class FirebaseSyncService implements ISyncService {
     }
   }
 
-  /**
-   * Cleanup resources
-   */
-  async disconnect(): Promise<void> {
-    await this.databaseService.disconnect();
-  }
 }

@@ -3,7 +3,7 @@
  * Handles comprehensive security analysis, audit logging, and threat detection
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma as prismaClient } from '@/lib/prisma';
 import {
   ISecurityService,
   HCaptchaResult,
@@ -26,7 +26,7 @@ import { hCaptchaService } from '@/lib/services/hcaptcha.service';
 import { appCheckService } from '@/lib/services/app-check.service';
 
 export class SecurityService implements ISecurityService {
-  private prisma: PrismaClient;
+  private prisma = prismaClient;
   private readonly RATE_LIMIT_WINDOWS = {
     immediate: 5 * 60 * 1000, // 5 minutes
     short: 15 * 60 * 1000, // 15 minutes
@@ -40,10 +40,6 @@ export class SecurityService implements ISecurityService {
     medium: { ip: 15, email: 8, device: 10 },
     long: { ip: 25, email: 12, device: 15 },
   };
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
 
   /**
    * Verify App Check token (delegated to AppCheckService)

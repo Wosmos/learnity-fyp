@@ -6,7 +6,7 @@
 import { notFound } from 'next/navigation';
 import { PublicLayout } from '@/components/layout/AppLayout';
 import { TeacherDetailContent } from '@/components/teachers/TeacherDetailContent';
-import { prisma } from '@/lib/config/database';
+import { prisma } from '@/lib/prisma';
 
 interface PageProps {
   params: Promise<{

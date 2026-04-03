@@ -3,8 +3,8 @@
  * Handles all Neon DB operations with Prisma ORM
  */
 
+import { prisma as prismaClient } from '@/lib/prisma';
 import {
-  PrismaClient,
   User,
   UserRole as PrismaUserRole,
   ApplicationStatus as PrismaApplicationStatus,
@@ -24,11 +24,7 @@ import {
 import { UserRole, ApplicationStatus } from '@/types/auth';
 
 export class DatabaseService implements IUserProfileService {
-  private prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  private prisma = prismaClient;
 
   /**
    * Create user profile in Neon DB
@@ -430,10 +426,4 @@ Submit teacher application
     };
   }
 
-  /**
-   * Cleanup database connections
-   */
-  async disconnect(): Promise<void> {
-    await this.prisma.$disconnect();
-  }
 }

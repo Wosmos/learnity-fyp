@@ -3,7 +3,7 @@
  * Handles detailed authentication event logging, security monitoring, and audit trail management
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma as prismaClient } from '@/lib/prisma';
 import {
   AuditLog,
   AuditFilters,
@@ -233,11 +233,7 @@ export interface CreateAlertData {
 }
 
 export class AuditService implements IAuditService {
-  private prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  private prisma = prismaClient;
 
   /**
    * Log comprehensive authentication events

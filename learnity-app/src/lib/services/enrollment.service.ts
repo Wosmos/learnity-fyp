@@ -79,73 +79,51 @@ export class EnrollmentService implements IEnrollmentService {
       );
     }
 
-    // Check for existing enrollment (Requirement 4.3: prevent duplicates)
-    const existingEnrollment = await this.prisma.enrollment.findUnique({
-      where: {
-        studentId_courseId: {
-          studentId,
-          courseId,
-        },
-      },
-    });
-
-    if (existingEnrollment) {
-      // If previously unenrolled, reactivate the enrollment
-      if (existingEnrollment.status === EnrollmentStatus.UNENROLLED) {
-        const reactivatedEnrollment = await this.prisma.$transaction(
-          async tx => {
-            // Reactivate enrollment
-            const enrollment = await tx.enrollment.update({
-              where: { id: existingEnrollment.id },
-              data: {
-                status: EnrollmentStatus.ACTIVE,
-                lastAccessedAt: new Date(),
-              },
-            });
-
-            // Increment course enrollment count
-            await tx.course.update({
-              where: { id: courseId },
-              data: {
-                enrollmentCount: { increment: 1 },
-              },
-            });
-
-            return enrollment;
-          }
-        );
-
-        return reactivatedEnrollment;
-      }
-
-      // Already actively enrolled
-      throw new EnrollmentError(
-        'You are already enrolled in this course',
-        EnrollmentErrorCode.ALREADY_ENROLLED,
-        409
-      );
-    }
-
-    // Create new enrollment with initial state (Requirement 4.2)
+    // All enrollment logic inside a single transaction to prevent race conditions
     const enrollment = await this.prisma.$transaction(async tx => {
+      // Check for existing enrollment inside transaction (Requirement 4.3: prevent duplicates)
+      const existingEnrollment = await tx.enrollment.findUnique({
+        where: {
+          studentId_courseId: {
+            studentId,
+            courseId,
+          },
+        },
+      });
+
+      if (existingEnrollment) {
+        // If previously unenrolled, reactivate the enrollment
+        if (existingEnrollment.status === EnrollmentStatus.UNENROLLED) {
+          const reactivated = await tx.enrollment.update({
+            where: { id: existingEnrollment.id },
+            data: {
+              status: EnrollmentStatus.ACTIVE,
+              lastAccessedAt: new Date(),
+            },
+          });
+
+          await tx.course.update({
+            where: { id: courseId },
+            data: {
+              enrollmentCount: { increment: 1 },
+            },
+          });
+
+          return reactivated;
+        }
+
+        // Already actively enrolled
+        throw new EnrollmentError(
+          'You are already enrolled in this course',
+          EnrollmentErrorCode.ALREADY_ENROLLED,
+          409
+        );
+      }
       // Handle payment if course is not free
       if (!course.isFree && course.price && Number(course.price) > 0) {
         const amount = Number(course.price);
-        const hasBalance = await walletService.hasSufficientBalance(
-          studentId,
-          amount
-        );
 
-        if (!hasBalance) {
-          throw new EnrollmentError(
-            'Insufficient funds in wallet',
-            EnrollmentErrorCode.INSUFFICIENT_FUNDS,
-            402
-          );
-        }
-
-        // Execute purchase through wallet service (pass transaction client if possible, but here we'll just do it)
-        // Note: walletService currently doesn't accept 'tx', so we do it manually in the transaction
+        // Balance check inside transaction to prevent race conditions
         const wallet = await tx.wallet.findUnique({
           where: { userId: studentId },
         });

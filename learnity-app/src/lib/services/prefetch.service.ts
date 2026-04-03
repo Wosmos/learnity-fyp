@@ -89,7 +89,7 @@ export const prefetchCoursesPage = cache(async () => {
     // Additional course-specific data
     const [popularCourses, recentCourses] = await Promise.all([
       // Most popular courses by enrollment
-      import('@/lib/config/database').then(({ prisma }) =>
+      import('@/lib/prisma').then(({ prisma }) =>
         prisma.course.findMany({
           where: { status: 'PUBLISHED' },
           include: {
@@ -103,7 +103,7 @@ export const prefetchCoursesPage = cache(async () => {
       ),
 
       // Recently published courses
-      import('@/lib/config/database').then(({ prisma }) =>
+      import('@/lib/prisma').then(({ prisma }) =>
         prisma.course.findMany({
           where: { status: 'PUBLISHED' },
           include: {
@@ -139,7 +139,7 @@ export const prefetchTeachersPage = cache(async () => {
     const [topRatedTeachers, newTeachers, teachersBySubject] =
       await Promise.all([
         // Top-rated teachers
-        import('@/lib/config/database').then(({ prisma }) =>
+        import('@/lib/prisma').then(({ prisma }) =>
           prisma.user.findMany({
             where: {
               role: 'TEACHER',
@@ -163,7 +163,7 @@ export const prefetchTeachersPage = cache(async () => {
         ),
 
         // Recently joined teachers
-        import('@/lib/config/database').then(({ prisma }) =>
+        import('@/lib/prisma').then(({ prisma }) =>
           prisma.user.findMany({
             where: {
               role: 'TEACHER',
@@ -177,7 +177,7 @@ export const prefetchTeachersPage = cache(async () => {
         ),
 
         // Teachers grouped by popular subjects
-        import('@/lib/config/database').then(({ prisma }) =>
+        import('@/lib/prisma').then(({ prisma }) =>
           prisma.teacherProfile.groupBy({
             by: ['subjects'],
             where: {

@@ -368,6 +368,7 @@ export class CourseService implements ICourseService {
         category: true,
       },
       orderBy: { createdAt: 'desc' },
+      take: 100,
     });
 
     return courses as CourseWithTeacher[];

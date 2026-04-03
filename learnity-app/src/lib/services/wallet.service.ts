@@ -132,7 +132,16 @@ export class WalletService implements IWalletService {
     metadata?: any
   ): Promise<WalletTransaction> {
     return this.prisma.$transaction(async tx => {
-      const wallet = await this.getOrCreateWallet(userId);
+      // Read wallet INSIDE the transaction to prevent race conditions
+      let wallet = await tx.wallet.findUnique({
+        where: { userId },
+      });
+
+      if (!wallet) {
+        wallet = await tx.wallet.create({
+          data: { userId, balance: 0 },
+        });
+      }
 
       if (Number(wallet.balance) < amount) {
         throw new WalletError(
@@ -168,25 +177,35 @@ export class WalletService implements IWalletService {
     description: string,
     metadata?: any
   ): Promise<WalletTransaction> {
-    const wallet = await this.getOrCreateWallet(userId);
+    return this.prisma.$transaction(async tx => {
+      let wallet = await tx.wallet.findUnique({
+        where: { userId },
+      });
 
-    if (Number(wallet.balance) < amount) {
-      throw new WalletError(
-        'Insufficient funds for withdrawal',
-        WalletErrorCode.INSUFFICIENT_FUNDS
-      );
-    }
+      if (!wallet) {
+        wallet = await tx.wallet.create({
+          data: { userId, balance: 0 },
+        });
+      }
 
-    return this.prisma.walletTransaction.create({
-      data: {
-        userId,
-        walletId: wallet.id,
-        amount,
-        type: TransactionType.WITHDRAWAL,
-        status: TransactionStatus.PENDING,
-        description,
-        metadata,
-      },
+      if (Number(wallet.balance) < amount) {
+        throw new WalletError(
+          'Insufficient funds for withdrawal',
+          WalletErrorCode.INSUFFICIENT_FUNDS
+        );
+      }
+
+      return tx.walletTransaction.create({
+        data: {
+          userId,
+          walletId: wallet.id,
+          amount,
+          type: TransactionType.WITHDRAWAL,
+          status: TransactionStatus.PENDING,
+          description,
+          metadata,
+        },
+      });
     });
   }
 

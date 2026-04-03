@@ -24,22 +24,43 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const limit = Math.max(1, parseInt(searchParams.get('limit') || '20', 10));
 
-    const transactions = await prisma.walletTransaction.findMany({
-      where: status ? { status: status as any } : {},
-      include: {
-        user: {
-          select: {
-            firstName: true,
-            lastName: true,
-            email: true,
+    const where = status ? { status: status as any } : {};
+
+    const [transactions, total] = await Promise.all([
+      prisma.walletTransaction.findMany({
+        where,
+        include: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.walletTransaction.count({ where }),
+    ]);
 
-    return createSuccessResponse(transactions, 'Transactions retrieved');
+    const totalPages = Math.ceil(total / limit);
+
+    return createSuccessResponse(
+      {
+        transactions,
+        total,
+        page,
+        limit,
+        totalPages,
+        hasMore: page < totalPages,
+      },
+      'Transactions retrieved'
+    );
   } catch (error) {
     console.error('Error fetching transactions:', error);
     return createInternalErrorResponse();

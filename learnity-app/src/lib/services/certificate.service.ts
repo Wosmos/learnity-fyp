@@ -103,21 +103,19 @@ export class CertificateService implements ICertificateService {
       },
     });
 
-    // Check passed quizzes
+    // Check passed quizzes (single query instead of N+1)
     let passedQuizzesCount = 0;
     if (totalQuizzes > 0) {
-      for (const quizId of allQuizIds) {
-        const passedAttempt = await this.prisma.quizAttempt.findFirst({
-          where: {
-            studentId,
-            quizId,
-            passed: true,
-          },
-        });
-        if (passedAttempt) {
-          passedQuizzesCount++;
-        }
-      }
+      const passedQuizzes = await this.prisma.quizAttempt.findMany({
+        where: {
+          studentId,
+          quizId: { in: allQuizIds },
+          passed: true,
+        },
+        distinct: ['quizId'],
+        select: { quizId: true },
+      });
+      passedQuizzesCount = passedQuizzes.length;
     }
 
     // Build missing requirements list
@@ -159,21 +157,6 @@ export class CertificateService implements ICertificateService {
     studentId: string,
     courseId: string
   ): Promise<GenerateCertificateResult> {
-    // Check if certificate already exists
-    const existingCertificate = await this.prisma.certificate.findUnique({
-      where: {
-        studentId_courseId: { studentId, courseId },
-      },
-    });
-
-    if (existingCertificate) {
-      throw new CertificateError(
-        'Certificate already exists for this course',
-        CertificateErrorCode.CERTIFICATE_ALREADY_EXISTS,
-        409
-      );
-    }
-
     // Check enrollment
     const enrollment = await this.prisma.enrollment.findUnique({
       where: {
@@ -223,8 +206,23 @@ export class CertificateService implements ICertificateService {
     });
     const isFirstCompletion = existingCertificatesCount === 0;
 
-    // Generate certificate in a transaction
+    // Generate certificate in a transaction (prevents race condition duplicates)
     const result = await this.prisma.$transaction(async tx => {
+      // Check for existing certificate inside the transaction
+      const existingCertificate = await tx.certificate.findUnique({
+        where: {
+          studentId_courseId: { studentId, courseId },
+        },
+      });
+
+      if (existingCertificate) {
+        throw new CertificateError(
+          'Certificate already exists for this course',
+          CertificateErrorCode.CERTIFICATE_ALREADY_EXISTS,
+          409
+        );
+      }
+
       // Generate unique certificate ID
       const certificateId = this.generateCertificateId();
 
