@@ -130,15 +130,6 @@ export const loginSchema = z.object({
   hcaptchaToken: z.string().optional(), // Only required for suspicious activity
 });
 
-// Static Admin Login Schema
-export const staticAdminLoginSchema = z.object({
-  email: z.string().email('Please enter a valid email address').toLowerCase(),
-
-  password: z.string().min(1, 'Password is required'),
-
-  hcaptchaToken: z.string().min(1, 'Please complete the captcha verification'),
-});
-
 // Password Reset Schemas
 export const passwordResetRequestSchema = z.object({
   email: z.string().email('Please enter a valid email address').toLowerCase(),
@@ -547,7 +538,6 @@ export type EnhancedTeacherRegistrationData = z.infer<
   typeof enhancedTeacherRegistrationSchema
 >;
 export type LoginData = z.infer<typeof loginSchema>;
-export type StaticAdminLoginData = z.infer<typeof staticAdminLoginSchema>;
 export type PasswordResetRequestData = z.infer<
   typeof passwordResetRequestSchema
 >;

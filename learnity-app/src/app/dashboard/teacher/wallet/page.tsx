@@ -15,7 +15,7 @@ import {
   Filter,
   Calendar,
 } from 'lucide-react';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -161,7 +161,7 @@ const TransactionRow = ({ transaction }: { transaction: Transaction }) => {
 
 // --- Main Component ---
 export default function TeacherWalletPage() {
-  const { user, loading, isAuthenticated } = useClientAuth();
+  const { user, loading, isAuthenticated } = useAuth();
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
 

@@ -21,7 +21,7 @@ import {
   ArrowRight,
   Settings,
 } from 'lucide-react';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { AsyncButton } from '@/components/ui/async-button';
@@ -171,7 +171,7 @@ const CourseRow = ({ course }: { course: RecentCourse }) => {
 // --- Main Component ---
 
 export default function TeacherDashboard() {
-  const { user, loading, isAuthenticated, claims } = useClientAuth();
+  const { user, loading, isAuthenticated, claims } = useAuth();
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
 

@@ -23,7 +23,7 @@ import {
 import { Calendar, Clock, DollarSign, Wallet, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 interface BookSessionModalProps {
   isOpen: boolean;
@@ -44,7 +44,7 @@ export function BookSessionModal({
   const router = useRouter();
   const { toast } = useToast();
   const authenticatedFetch = useAuthenticatedFetch();
-  const { isAuthenticated, loading: authLoading } = useClientAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
 
   const [isLoading, setIsLoading] = useState(false);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);

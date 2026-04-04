@@ -13,7 +13,7 @@ import {
   Play,
   X,
 } from 'lucide-react';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,7 +41,7 @@ interface TutoringSession {
 }
 
 export default function StudentSessionsPage() {
-  const { user, loading, isAuthenticated } = useClientAuth();
+  const { user, loading, isAuthenticated } = useAuth();
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
   const { toast } = useToast();

@@ -26,7 +26,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { StarRating } from '@/components/courses';
 import { ReviewForm } from '@/components/courses/ReviewForm';
@@ -101,7 +101,7 @@ export default function CourseDetailClient({
 }: CourseDetailClientProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, loading: authLoading } = useClientAuth();
+  const { user, loading: authLoading } = useAuth();
   const authenticatedFetch = useAuthenticatedFetch();
 
   const [activeTab, setActiveTab] = useState('overview');

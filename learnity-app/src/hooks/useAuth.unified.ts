@@ -361,29 +361,3 @@ export function usePermissions(): Permission[] {
   return claims?.permissions || [];
 }
 
-/**
- * Backward compatibility: ClientAuthState interface
- * This allows gradual migration from useClientAuth
- */
-export interface ClientAuthState {
-  user: FirebaseUser | null;
-  loading: boolean;
-  isAdmin: boolean;
-  isAuthenticated: boolean;
-  claims: CustomClaims | null;
-}
-
-/**
- * Backward compatible hook for useClientAuth
- * @deprecated Use useAuth() instead. This will be removed in a future version.
- */
-export function useClientAuth(): ClientAuthState {
-  const { user, loading, isAdmin, isAuthenticated, claims } = useAuth();
-  return {
-    user,
-    loading,
-    isAdmin,
-    isAuthenticated,
-    claims,
-  };
-}

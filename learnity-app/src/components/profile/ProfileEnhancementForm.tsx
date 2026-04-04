@@ -30,7 +30,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ProfileEnhancementFormProps {
   initialData?: any;
@@ -42,7 +42,7 @@ export function ProfileEnhancementForm({
   onSuccess,
 }: ProfileEnhancementFormProps) {
   const { toast } = useToast();
-  const { user: authUser, loading: authLoading } = useClientAuth();
+  const { user: authUser, loading: authLoading } = useAuth();
   const api = useAuthenticatedApi();
   const [loading, setLoading] = useState(false);
   const [completion, setCompletion] = useState<any>(null);

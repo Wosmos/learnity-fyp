@@ -18,7 +18,6 @@ const ROUTE_CONFIG = {
     '/auth/register',
     '/auth/forgot-password',
     '/auth/reset-password',
-    '/demo',
     '/welcome',
     '/courses',
     '/terms',
@@ -42,7 +41,7 @@ const ROUTE_CONFIG = {
   roleBasedRoutes: {
     STUDENT: ['/dashboard/student'],
     TEACHER: ['/dashboard/teacher'],
-    ADMIN: ['/admin', '/dashboard/admin'],
+    ADMIN: ['/admin'],
     PENDING_TEACHER: ['/dashboard/teacher/pending'],
   },
   // Protected routes (any authenticated user)
@@ -155,6 +154,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Redirect legacy /dashboard/admin to /admin
+  if (pathname.startsWith('/dashboard/admin')) {
+    const newPath = pathname.replace('/dashboard/admin', '/admin');
+    return NextResponse.redirect(new URL(newPath, request.url));
+  }
+
   // Allow public routes
   if (matchesRoute(pathname, ROUTE_CONFIG.public)) {
     return NextResponse.next();
@@ -167,9 +172,6 @@ export async function middleware(request: NextRequest) {
 
   // Verify authentication for protected routes
   const auth = await verifyAuth(request);
-  console.log(
-    `Middleware Path: ${pathname}, Authenticated: ${auth.authenticated}, EmailVerified: ${auth.emailVerified}`
-  );
 
   // Redirect to login if not authenticated
   if (!auth.authenticated) {

@@ -23,7 +23,7 @@ import {
   Settings,
   LayoutDashboard,
 } from 'lucide-react';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useLogout } from '@/hooks/useLogout';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { Button } from '@/components/ui/button';
@@ -61,7 +61,7 @@ export function AppLayout({
   className,
   hideNavigationLinks = false,
 }: AppLayoutProps) {
-  const { user, loading, isAuthenticated, claims } = useClientAuth();
+  const { user, loading, isAuthenticated, claims } = useAuth();
   const { logout, isLoggingOut } = useLogout();
   const api = useAuthenticatedApi();
   const router = useRouter();
@@ -498,7 +498,7 @@ export function AppLayout({
 
 // Higher Order Components for protected layouts
 export function AuthenticatedLayout({ children, ...props }: AppLayoutProps) {
-  const { user, isAuthenticated, loading } = useClientAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {

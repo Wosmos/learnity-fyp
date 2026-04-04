@@ -38,7 +38,7 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { PageHeader } from '@/components/layout/PageHeader';
 
 interface AnalyticsData {
@@ -108,7 +108,7 @@ export default function CourseAnalyticsPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
-  const { user, loading: authLoading } = useClientAuth();
+  const { user, loading: authLoading } = useAuth();
   const authenticatedFetch = useAuthenticatedFetch();
   const courseId = params.courseId as string;
 

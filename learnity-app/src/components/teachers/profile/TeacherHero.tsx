@@ -4,7 +4,7 @@ import { Award, Star, MapPin, Globe, MessageCircle, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { TeacherData } from './types';
 import { BookSessionModal } from '../BookSessionModal';
 
@@ -15,7 +15,7 @@ interface TeacherHeroProps {
 }
 
 export function TeacherHero({ teacher, gradient, initials }: TeacherHeroProps) {
-  const { isAuthenticated, user, loading } = useClientAuth();
+  const { isAuthenticated, user, loading } = useAuth();
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const handleBookSession = () => {

@@ -39,7 +39,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { ProfileEnhancementForm } from '@/components/profile/ProfileEnhancementForm';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
@@ -78,7 +78,7 @@ interface ProfileError {
 }
 
 export default function ProfileEnhancePage() {
-  const { user, loading: authLoading } = useClientAuth();
+  const { user, loading: authLoading } = useAuth();
   const api = useAuthenticatedApi();
   const router = useRouter();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);

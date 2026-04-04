@@ -12,7 +12,7 @@ import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { LoginForm } from '@/components/auth';
 import { useAuthService } from '@/hooks/useAuthService';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { AuthDebugInfo } from '@/components/debug/AuthDebugInfo';
 import { getDashboardRoute } from '@/lib/utils/auth-redirect.utils';
@@ -24,7 +24,7 @@ export const dynamic = 'force-dynamic';
 
 function LoginPageContent() {
   const { login, socialLogin } = useAuthService();
-  const { isAuthenticated, claims, user, loading } = useClientAuth();
+  const { isAuthenticated, claims, user, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/dashboard';

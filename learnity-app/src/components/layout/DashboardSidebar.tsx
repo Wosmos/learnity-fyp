@@ -31,8 +31,6 @@ import {
   Shield,
   BarChart3,
   UserCheck,
-  Play,
-  Lock,
   Layers,
   MessageCircle,
   Wallet,
@@ -119,28 +117,13 @@ const studentNavItems: NavItem[] = [
 ];
 
 const adminNavItems: NavItem[] = [
-  { label: 'Overview', href: '/dashboard/admin', icon: Home },
-  { 
-    label: 'Management', 
-    href: '/admin', 
-    icon: Shield,
-    children: [
-      { label: 'Security Hub', href: '/admin', icon: Shield },
-      { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-      { label: 'Users', href: '/admin/users', icon: Users },
-      { label: 'Applications', href: '/admin/teachers', icon: UserCheck },
-    ]
-  },
+  { label: 'Overview', href: '/admin', icon: Home },
+  { label: 'Users', href: '/admin/users', icon: Users },
+  { label: 'Applications', href: '/admin/teachers', icon: UserCheck },
+  { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { label: 'Finances', href: '/admin/wallet', icon: Wallet },
-  { 
-    label: 'Tools', 
-    href: '/admin/demo', 
-    icon: Play,
-    children: [
-      { label: 'Demo Tools', href: '/admin/demo', icon: Play },
-      { label: 'Auth Debug', href: '/admin/auth-test', icon: Lock },
-    ]
-  },
+  { label: 'Security', href: '/admin/security', icon: Shield },
+  { label: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
 export const teacherSidebarConfig: SidebarConfig = {

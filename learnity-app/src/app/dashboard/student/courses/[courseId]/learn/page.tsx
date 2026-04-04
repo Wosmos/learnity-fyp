@@ -30,7 +30,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import {
   CoursePlayerLayout,
@@ -119,7 +119,7 @@ export default function CoursePlayerPage() {
   const router = useRouter();
   const { toast } = useToast();
   const courseId = params.courseId as string;
-  const { user, loading: authLoading } = useClientAuth();
+  const { user, loading: authLoading } = useAuth();
   const authenticatedFetch = useAuthenticatedFetch();
 
   // States

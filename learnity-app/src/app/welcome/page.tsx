@@ -31,10 +31,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function WelcomePage() {
-  const { user, loading } = useClientAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
   const [profileCompletion] = useState(20);
 

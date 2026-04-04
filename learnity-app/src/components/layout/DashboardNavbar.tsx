@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 
 // --- Types ---
@@ -101,7 +101,7 @@ const FlameIcon = ({ className }: { className?: string }) => (
 export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
   const { role, showStats, stats, showSearch = true } = config;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, loading: authLoading } = useClientAuth();
+  const { user, loading: authLoading } = useAuth();
   const api = useAuthenticatedApi();
 
   const [profileData, setProfileData] = useState<{

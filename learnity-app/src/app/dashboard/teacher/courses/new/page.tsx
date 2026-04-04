@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
 interface Category {
@@ -40,7 +40,7 @@ interface Category {
 export default function NewCoursePage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, loading: authLoading } = useClientAuth();
+  const { user, loading: authLoading } = useAuth();
   const authenticatedFetch = useAuthenticatedFetch();
 
   const [isCreating, setIsCreating] = useState(false);

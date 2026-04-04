@@ -1,7 +1,6 @@
 /**
  * Authentication Hooks for React Components
- * Unified authentication system consolidating useAuth and useClientAuth
- * Uses client-side token claims as base, integrated with Zustand store
+ * Unified authentication system using client-side token claims + Zustand store
  */
 
 'use client';

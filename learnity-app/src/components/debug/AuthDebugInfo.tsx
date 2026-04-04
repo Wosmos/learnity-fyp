@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, X, Bug } from 'lucide-react';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 export function AuthDebugInfo() {
-  const { user, loading, isAuthenticated, claims } = useClientAuth();
+  const { user, loading, isAuthenticated, claims } = useAuth();
   const [debugInfo, setDebugInfo] = useState<unknown>(null);
   const [isOpen, setIsOpen] = useState(true);
   const [isVisible, setIsVisible] = useState(true);

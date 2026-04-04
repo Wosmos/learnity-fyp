@@ -26,7 +26,7 @@ import {
   FileText,
   AlertCircle,
 } from 'lucide-react';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -95,7 +95,7 @@ const difficultyColors = {
 };
 
 export default function TeacherCoursesPage() {
-  const { user, loading: authLoading } = useClientAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const authenticatedFetch = useAuthenticatedFetch();

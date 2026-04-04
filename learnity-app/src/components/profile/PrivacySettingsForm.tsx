@@ -18,7 +18,7 @@ import {
 import { LoadingButton } from '@/components/shared/LoadingButton';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Select,
   SelectContent,
@@ -39,7 +39,7 @@ interface PrivacySettings {
 
 export function PrivacySettingsForm({ onSuccess }: { onSuccess?: () => void }) {
   const { toast } = useToast();
-  const { loading: authLoading } = useClientAuth();
+  const { loading: authLoading } = useAuth();
   const api = useAuthenticatedApi();
   const [loading, setLoading] = useState(false);
 
