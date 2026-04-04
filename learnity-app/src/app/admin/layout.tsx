@@ -18,7 +18,11 @@ export default function AdminRouteLayout({
         <AdminSidebarUnified />
         <div className='flex-1 flex flex-col overflow-x-hidden'>
           <DashboardNavbar config={{ ...teacherNavbarConfig, role: 'admin' }} />
-          <main className='flex-1'>{children}</main>
+          <main className='flex-1'>
+            <div className='max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8'>
+              {children}
+            </div>
+          </main>
         </div>
       </div>
     </AdminRoute>
