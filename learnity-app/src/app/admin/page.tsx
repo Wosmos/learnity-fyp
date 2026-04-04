@@ -1,4 +1,4 @@
-import { getAdminStats } from '@/lib/services/admin-stats.service';
+import { getCachedAdminStats } from '@/lib/cache/server-cache';
 
 import { MetricCard } from '@/components/ui/stats-card';
 import {
@@ -26,7 +26,7 @@ export default async function AdminDashboardPage() {
   // 1. Fetch data directly on the server for optimization
   // Note: Basic authentication is handled by root middleware.ts
   // and role-based protection is handled by AdminLayout (client-side)
-  const { stats, platformMetrics } = await getAdminStats();
+  const { stats, platformMetrics } = await getCachedAdminStats();
 
   // Helper for trend icons
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {

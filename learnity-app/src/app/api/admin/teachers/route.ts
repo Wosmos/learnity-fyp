@@ -149,6 +149,10 @@ async function handleUpdateTeacher(
       }
     });
 
+    // Bust admin stats cache after teacher status change
+    const { revalidateAdminStats } = await import('@/lib/cache/revalidate');
+    revalidateAdminStats();
+
     return NextResponse.json({
       success: true,
       message: `Teacher application ${action}d successfully`,
