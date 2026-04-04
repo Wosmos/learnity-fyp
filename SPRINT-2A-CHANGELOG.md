@@ -189,3 +189,8 @@ Stripped all `console.log`/`console.warn`/`console.error` from:
   - Data fetched directly with Prisma (no API round-trip, no loading spinner)
   - Interactive UI (tabs, navigation) extracted to `StudentCoursesClient.tsx`
   - Pattern: server component fetches → passes data as props → client handles interactivity
+- Converted `student/page.tsx` (main dashboard) — profile, enrollment stats, badges fetched server-side via Prisma
+- Converted `student/wallet/page.tsx` — wallet balance + transactions fetched server-side
+- Converted `student/sessions/page.tsx` — tutoring sessions fetched server-side
+- Deleted `scripts/` folder (5 unused dev scripts)
+- Achievements + progress pages deferred (complex gamification service dependencies)
