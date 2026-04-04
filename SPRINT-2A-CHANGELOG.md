@@ -194,3 +194,13 @@ Stripped all `console.log`/`console.warn`/`console.error` from:
 - Converted `student/sessions/page.tsx` — tutoring sessions fetched server-side
 - Deleted `scripts/` folder (5 unused dev scripts)
 - Achievements + progress pages deferred (complex gamification service dependencies)
+- Converted 5 teacher pages: dashboard, courses, wallet, sessions, students
+
+### Admin Panel Rebuild
+- Merged 3 separate pages into tab-based pages:
+  - `/admin/people` — Users tab + Teacher Applications tab (replaced /admin/users + /admin/teachers)
+  - `/admin/content` — Courses + Categories + Reviews tabs (NEW — courses management, category listing, review moderation)
+  - `/admin/finances` — Deposit Queue + Transactions tabs (replaced /admin/wallet, added deposit approval workflow)
+  - `/admin/engagement` — Gamification (leaderboard + badges) + Sessions + Certificates tabs (NEW)
+- All admin pages are server components with Prisma data fetching
+- Admin sidebar: Overview, People, Content, Finances, Engagement, Security

@@ -120,6 +120,7 @@ const adminNavItems: NavItem[] = [
   { label: 'People', href: '/admin/people', icon: Users },
   { label: 'Content', href: '/admin/content', icon: BookOpen },
   { label: 'Finances', href: '/admin/finances', icon: Wallet },
+  { label: 'Engagement', href: '/admin/engagement', icon: Award },
   { label: 'Security', href: '/admin/security', icon: Shield },
 ];
 
