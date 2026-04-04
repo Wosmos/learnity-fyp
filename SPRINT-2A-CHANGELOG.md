@@ -217,3 +217,30 @@ Stripped all `console.log`/`console.warn`/`console.error` from:
 
 ### Admin Setup
 - Created `scripts/create-admin.ts` for bootstrapping admin user in Firebase + DB
+- Fixed admin redirect on login (getDashboardRoute ADMIN → /admin)
+- Added consistent padding/max-width to admin layout
+
+### Security Headers
+- CSP with Firebase, 100ms, GetStream, Neon whitelisted
+- HSTS (2-year max-age + preload), Referrer-Policy, Permissions-Policy
+- X-Frame-Options: DENY, X-Content-Type: nosniff
+
+### Cache-Control Headers (all API routes)
+- Public data (courses, teachers): s-maxage=300, stale-while-revalidate=600
+- User data (enrollments, progress, gamification): private, max-age=60
+- Admin data: private, no-cache
+- Static assets: immutable, 1 year
+
+### TanStack Query
+- QueryProvider + devtools integrated into AppProviders
+- `useApiQuery()` hook — replaces useEffect+useState+fetch with 1 line, auto-caching/dedup
+- `useApiMutation()` hook — auto-invalidates cache keys after mutations
+- Default staleTime=60s, gcTime=5min
+
+### Server-Side Caching (unstable_cache)
+- Admin stats: 60s TTL with `admin-stats` tag
+- Course catalog: 5min TTL with `courses` tag
+- Categories: 10min TTL with `categories` tag
+- Leaderboard: 5min TTL with `leaderboard` tag
+- On-demand revalidation helpers (revalidateAdminStats, revalidateCourses, etc.)
+- Teacher approval route auto-revalidates admin stats cache
