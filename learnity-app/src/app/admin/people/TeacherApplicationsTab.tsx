@@ -5,6 +5,7 @@ import {
   Clock, CheckCircle, XCircle, Users, Star, Award,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { MetricCard } from '@/components/ui/stats-card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataTable } from '@/components/admin/users/data-table';
@@ -92,32 +93,14 @@ export function TeacherApplicationsTab({ teachers: initialTeachers, counts: init
     return true;
   });
 
-  const statCards = [
-    { label: 'Pending', value: counts.pending, icon: Clock, color: 'text-amber-600 bg-amber-50' },
-    { label: 'Approved', value: counts.approved, icon: CheckCircle, color: 'text-green-600 bg-green-50' },
-    { label: 'Rejected', value: counts.rejected, icon: XCircle, color: 'text-red-600 bg-red-50' },
-    { label: 'Total', value: counts.total, icon: Users, color: 'text-blue-600 bg-blue-50' },
-  ];
-
   return (
     <div className='space-y-6'>
       {/* Stats */}
       <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
-        {statCards.map(s => (
-          <Card key={s.label}>
-            <CardContent className='pt-6'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-2xl font-bold'>{s.value}</p>
-                  <p className='text-sm text-muted-foreground'>{s.label}</p>
-                </div>
-                <div className={`p-2 rounded-lg ${s.color}`}>
-                  <s.icon className='h-5 w-5' />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <MetricCard title='Pending' value={counts.pending} icon={Clock} subtitle='Awaiting review' />
+        <MetricCard title='Approved' value={counts.approved} icon={CheckCircle} subtitle='Active teachers' />
+        <MetricCard title='Rejected' value={counts.rejected} icon={XCircle} subtitle='Declined' />
+        <MetricCard title='Total' value={counts.total} icon={Users} subtitle='All applications' />
       </div>
 
       {/* Filtered Table */}

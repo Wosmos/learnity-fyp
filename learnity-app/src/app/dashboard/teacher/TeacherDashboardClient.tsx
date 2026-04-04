@@ -23,6 +23,7 @@ import { AsyncButton } from '@/components/ui/async-button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { MetricCard } from '@/components/ui/stats-card';
 
 // --- Types ---
 interface TeacherStats {
@@ -57,28 +58,6 @@ interface Props {
 }
 
 // --- Sub-Components ---
-
-const StatCard = ({
-  title,
-  value,
-  subtext,
-  icon: Icon,
-  colorClass,
-  bgClass,
-}: any) => (
-  <Card className='border shadow-sm transition-shadow duration-200'>
-    <CardContent className='p-5 flex items-center justify-between'>
-      <div>
-        <p className='text-sm font-medium text-muted-foreground mb-1'>{title}</p>
-        <h3 className='text-2xl font-bold text-foreground'>{value}</h3>
-        <p className='text-xs text-muted-foreground mt-1'>{subtext}</p>
-      </div>
-      <div className={`p-3 rounded-xl ${bgClass}`}>
-        <Icon className={`h-5 w-5 ${colorClass}`} />
-      </div>
-    </CardContent>
-  </Card>
-);
 
 const QuickActionTile = ({
   href,
@@ -214,31 +193,25 @@ export function TeacherDashboardClient({ displayName, stats, recentCourses, rece
       <div className='max-w-[1600px]  mx-auto px-4 sm:px-6 py-2 space-y-6'>
         {/* Stats Grid */}
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
-          <StatCard
+          <MetricCard
             title='Total Students'
             value={stats.totalStudents}
-            subtext='Across all courses'
+            subtitle='Across all courses'
             icon={Users}
-            colorClass='text-blue-600'
-            bgClass='bg-slate-50'
           />
-          <StatCard
+          <MetricCard
             title='Content Library'
             value={stats.totalLessons}
-            subtext='Total active lessons'
+            subtitle='Total active lessons'
             icon={FileText}
-            colorClass='text-emerald-600'
-            bgClass='bg-emerald-50'
           />
-          <StatCard
+          <MetricCard
             title='Instructor Rating'
             value={
               stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '-'
             }
-            subtext={`${stats.totalReviews} reviews`}
+            subtitle={`${stats.totalReviews} reviews`}
             icon={Star}
-            colorClass='text-amber-500'
-            bgClass='bg-amber-50'
           />
         </div>
 

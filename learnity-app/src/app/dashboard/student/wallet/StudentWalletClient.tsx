@@ -41,14 +41,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { DataGrid, type ColumnDef } from '@/components/ui/data-grid';
 import { format } from 'date-fns';
 
 interface Wallet {
@@ -225,6 +218,45 @@ export function StudentWalletClient({ wallet: initialWallet, transactions: initi
         return <ArrowUpRight className='w-4 h-4 text-rose-500' />;
     }
   };
+
+  const walletTxColumns: ColumnDef<Transaction>[] = [
+    {
+      key: 'type', header: 'Type',
+      render: (tx) => (
+        <div className='flex items-center gap-2'>
+          <div className='w-8 h-8 rounded-lg bg-muted flex items-center justify-center'>
+            {getTypeIcon(tx.type)}
+          </div>
+          <span className='text-xs font-bold text-muted-foreground'>{tx.type}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'description', header: 'Description',
+      render: (tx) => (
+        <div className='flex flex-col'>
+          <span className='font-medium text-foreground'>{tx.description}</span>
+          {tx.referenceId && <span className='text-[10px] text-muted-foreground font-mono'>ID: {tx.referenceId}</span>}
+        </div>
+      ),
+    },
+    {
+      key: 'date', header: 'Date', className: 'text-muted-foreground text-sm',
+      render: (tx) => format(new Date(tx.createdAt), 'MMM dd, yyyy'),
+    },
+    { key: 'status', header: 'Status', render: (tx) => getStatusBadge(tx.status) },
+    {
+      key: 'amount', header: 'Amount', align: 'right',
+      render: (tx) => {
+        const isDebit = ['PURCHASE', 'WITHDRAWAL'].includes(tx.type);
+        return (
+          <span className={`font-bold tabular-nums ${isDebit ? 'text-rose-500' : 'text-emerald-500'}`}>
+            {isDebit ? '-' : '+'}<span className='text-xs mr-1'>Rs.</span>{tx.amount.toLocaleString()}
+          </span>
+        );
+      },
+    },
+  ];
 
   return (
     <div className='p-6 max-w-6xl mx-auto space-y-8'>
@@ -487,90 +519,13 @@ export function StudentWalletClient({ wallet: initialWallet, transactions: initi
           </div>
         </CardHeader>
         <CardContent className='p-0'>
-          <Table>
-            <TableHeader>
-              <TableRow className='hover:bg-transparent px-8'>
-                <TableHead className='w-[100px] pl-8'>Type</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className='text-right pr-8'>Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array(5)
-                  .fill(0)
-                  .map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell
-                        colSpan={5}
-                        className='h-16 text-center text-muted-foreground italic'
-                      >
-                        <div className='flex items-center justify-center gap-2'>
-                          <Clock className='w-4 h-4 animate-spin' /> Loading
-                          your transactions...
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-              ) : transactions.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className='h-32 text-center text-muted-foreground'
-                  >
-                    No transactions found.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                transactions.map(tx => (
-                  <TableRow
-                    key={tx.id}
-                    className='group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors'
-                  >
-                    <TableCell className='pl-8'>
-                      <div className='flex items-center gap-2'>
-                        <div className='w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 transition-colors'>
-                          {getTypeIcon(tx.type)}
-                        </div>
-                        <span className='text-xs font-bold text-muted-foreground'>
-                          {tx.type}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className='flex flex-col'>
-                        <span className='font-medium text-foreground'>
-                          {tx.description}
-                        </span>
-                        {tx.referenceId && (
-                          <span className='text-[10px] text-slate-400 font-mono'>
-                            ID: {tx.referenceId}
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className='text-muted-foreground text-sm'>
-                      {format(new Date(tx.createdAt), 'MMM dd, yyyy')}
-                    </TableCell>
-                    <TableCell>{getStatusBadge(tx.status)}</TableCell>
-                    <TableCell className='text-right pr-8'>
-                      <span
-                        className={`font-bold tabular-nums ${['PURCHASE', 'WITHDRAWAL'].includes(tx.type) ? 'text-rose-500' : 'text-emerald-500'}`}
-                      >
-                        {['PURCHASE', 'WITHDRAWAL'].includes(tx.type)
-                          ? '-'
-                          : '+'}
-                        <span className='text-xs mr-1'>Rs.</span>
-                        {tx.amount.toLocaleString()}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          <DataGrid
+            columns={walletTxColumns}
+            data={transactions}
+            loading={isLoading}
+            loadingRows={5}
+            emptyMessage='No transactions found.'
+          />
         </CardContent>
       </Card>
     </div>

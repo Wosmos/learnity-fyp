@@ -14,6 +14,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { MetricCard } from '@/components/ui/stats-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,33 +50,6 @@ interface Props {
 }
 
 // --- Sub-Components ---
-const StatCard = ({
-  title,
-  value,
-  subtitle,
-  icon: Icon,
-  colorClass,
-  bgClass,
-}: any) => (
-  <Card className='border shadow-sm'>
-    <CardContent className='p-6'>
-      <div className='flex items-start justify-between'>
-        <div className='flex-1'>
-          <p className='text-sm font-medium text-slate-500 mb-1'>{title}</p>
-          <h3 className='text-3xl font-bold text-slate-900 mb-1'>{value}</h3>
-          {subtitle && (
-            <p className='text-xs text-slate-400 flex items-center gap-1'>
-              {subtitle}
-            </p>
-          )}
-        </div>
-        <div className={`p-3 rounded-xl ${bgClass}`}>
-          <Icon className={`h-6 w-6 ${colorClass}`} />
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-);
 
 const TransactionRow = ({ transaction }: { transaction: Transaction }) => {
   const getStatusBadge = (status: string) => {
@@ -173,37 +147,29 @@ export function TeacherWalletClient({ walletData, transactions: initialTransacti
       <div className='max-w-[1400px] mx-auto px-4 sm:px-6 py-6 space-y-6'>
         {/* Stats Grid */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-          <StatCard
+          <MetricCard
             title='Available Balance'
             value={`PKR ${(walletData?.balance || 0).toLocaleString()}`}
             subtitle='Ready to withdraw'
             icon={Wallet}
-            colorClass='text-blue-600'
-            bgClass='bg-blue-50'
           />
-          <StatCard
+          <MetricCard
             title='Total Earnings'
             value={`PKR ${(walletData?.totalEarnings || 0).toLocaleString()}`}
             subtitle='All time'
             icon={TrendingUp}
-            colorClass='text-green-600'
-            bgClass='bg-green-50'
           />
-          <StatCard
+          <MetricCard
             title='Pending Earnings'
             value={`PKR ${(walletData?.pendingEarnings || 0).toLocaleString()}`}
             subtitle='Being processed'
             icon={Clock}
-            colorClass='text-amber-600'
-            bgClass='bg-amber-50'
           />
-          <StatCard
+          <MetricCard
             title='Total Withdrawn'
             value={`PKR ${(walletData?.withdrawnAmount || 0).toLocaleString()}`}
             subtitle='Lifetime'
             icon={Download}
-            colorClass='text-purple-600'
-            bgClass='bg-purple-50'
           />
         </div>
 

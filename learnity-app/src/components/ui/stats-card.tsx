@@ -6,6 +6,7 @@ type CardVariant = 'default' | 'elevated' | 'subtle';
 interface MetricCardProps {
   title: string;
   value: string | number;
+  subtitle?: string;
   trendValue?: string;
   isTrendUp?: boolean;
   variant?: CardVariant;
@@ -16,6 +17,7 @@ interface MetricCardProps {
 export function MetricCard({
   title,
   value,
+  subtitle,
   trendValue,
   isTrendUp = true,
   variant = 'default',
@@ -68,9 +70,9 @@ export function MetricCard({
           {value}
         </h3>
 
-        {/* Trend & Sparkline */}
+        {/* Subtitle (if no trend) or Trend & Sparkline */}
         <div className='flex items-center justify-between gap-4'>
-          {trendValue && (
+          {trendValue ? (
             <div
               className={cn(
                 'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-tight',
@@ -86,25 +88,31 @@ export function MetricCard({
               )}
               <span>{trendValue}</span>
             </div>
-          )}
+          ) : subtitle ? (
+            <p className='text-[11px] font-medium text-muted-foreground truncate'>
+              {subtitle}
+            </p>
+          ) : null}
 
-          <div className='w-16 h-6 opacity-40 group-hover:opacity-100 transition-opacity'>
-            <svg viewBox='0 0 100 40' className='w-full h-full'>
-              <path
-                d={
-                  isTrendUp
-                    ? 'M 0 35 L 20 25 L 40 30 L 60 10 L 80 15 L 100 0'
-                    : 'M 0 5 L 20 15 L 40 10 L 60 25 L 80 20 L 100 40'
-                }
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='8'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                className={isTrendUp ? 'text-emerald-500' : 'text-rose-500'}
-              />
-            </svg>
-          </div>
+          {trendValue && (
+            <div className='w-16 h-6 opacity-40 group-hover:opacity-100 transition-opacity'>
+              <svg viewBox='0 0 100 40' className='w-full h-full'>
+                <path
+                  d={
+                    isTrendUp
+                      ? 'M 0 35 L 20 25 L 40 30 L 60 10 L 80 15 L 100 0'
+                      : 'M 0 5 L 20 15 L 40 10 L 60 25 L 80 20 L 100 40'
+                  }
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='8'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  className={isTrendUp ? 'text-emerald-500' : 'text-rose-500'}
+                />
+              </svg>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -75,7 +75,7 @@ export function UserManagementClient({
     }
     params.set('page', '1');
     startTransition(() => {
-      router.push(`/admin/users?${params.toString()}`);
+      router.push(`/admin/people?${params.toString()}`);
     });
   };
 
@@ -88,7 +88,7 @@ export function UserManagementClient({
     }
     params.set('page', '1');
     startTransition(() => {
-      router.push(`/admin/users?${params.toString()}`);
+      router.push(`/admin/people?${params.toString()}`);
     });
   };
 

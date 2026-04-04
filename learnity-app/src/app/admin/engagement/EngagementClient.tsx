@@ -2,14 +2,13 @@
 
 import {
   Trophy, Flame, Zap, Video, Award, Calendar, Clock,
-  CheckCircle, XCircle, Users, Star, FileText,
+  CheckCircle, XCircle, Users, Star,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { MetricCard } from '@/components/ui/stats-card';
+import { DataGrid, type ColumnDef } from '@/components/ui/data-grid';
 import { Badge } from '@/components/ui/badge';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
 
 interface LeaderboardEntry {
   rank: number;
@@ -67,6 +66,58 @@ const sessionStatusColors: Record<string, string> = {
   REJECTED: 'bg-red-100 text-red-700',
 };
 
+const leaderboardColumns: ColumnDef<LeaderboardEntry>[] = [
+  {
+    key: 'rank', header: '#',
+    render: (e) => <span className='font-bold'>{e.rank <= 3 ? ['🥇', '🥈', '🥉'][e.rank - 1] : e.rank}</span>,
+  },
+  {
+    key: 'name', header: 'Student',
+    render: (e) => (
+      <div>
+        <p className='font-medium'>{e.name}</p>
+        <p className='text-xs text-muted-foreground'>{e.email}</p>
+      </div>
+    ),
+  },
+  { key: 'level', header: 'Level', align: 'center', render: (e) => <Badge variant='outline'>Lv {e.level}</Badge> },
+  {
+    key: 'streak', header: 'Streak', align: 'center',
+    render: (e) => e.streak > 0
+      ? <span className='flex items-center justify-center gap-1 text-sm'><Flame className='h-3 w-3 text-orange-500' />{e.streak}d</span>
+      : null,
+  },
+  {
+    key: 'totalXP', header: 'XP', align: 'right', className: 'font-bold text-amber-600',
+    render: (e) => e.totalXP.toLocaleString(),
+  },
+];
+
+const sessionColumns: ColumnDef<Session>[] = [
+  { key: 'title', header: 'Title', className: 'font-medium', maxWidth: 'max-w-[200px]' },
+  { key: 'student', header: 'Student', className: 'text-muted-foreground', render: (s) => s.student.name },
+  { key: 'teacher', header: 'Teacher', className: 'text-muted-foreground', render: (s) => s.teacher.name },
+  {
+    key: 'status', header: 'Status',
+    render: (s) => <Badge className={`${sessionStatusColors[s.status] || ''} border-0 text-xs`}>{s.status}</Badge>,
+  },
+  { key: 'duration', header: 'Duration', className: 'text-sm', render: (s) => `${s.duration}min` },
+  {
+    key: 'scheduledAt', header: 'Scheduled', align: 'right', className: 'text-sm text-muted-foreground',
+    render: (s) => new Date(s.scheduledAt).toLocaleDateString(),
+  },
+];
+
+const certificateColumns: ColumnDef<Certificate>[] = [
+  { key: 'certificateId', header: 'Certificate ID', className: 'font-mono text-sm' },
+  { key: 'student', header: 'Student', className: 'font-medium', render: (c) => c.student.name },
+  { key: 'course', header: 'Course', className: 'text-muted-foreground', maxWidth: 'max-w-[250px]', render: (c) => c.course.title },
+  {
+    key: 'issuedAt', header: 'Issued', align: 'right', className: 'text-sm text-muted-foreground',
+    render: (c) => new Date(c.issuedAt).toLocaleDateString(),
+  },
+];
+
 export function EngagementClient({ leaderboard, xpStats, badgeStats, sessions, sessionStats, certificates }: Props) {
   return (
     <div className='space-y-6'>
@@ -77,26 +128,10 @@ export function EngagementClient({ leaderboard, xpStats, badgeStats, sessions, s
 
       {/* Top Stats */}
       <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
-        {[
-          { label: 'Total XP Awarded', value: xpStats.totalXPAwarded.toLocaleString(), icon: Zap, color: 'text-amber-600 bg-amber-50' },
-          { label: 'Active Players', value: String(xpStats.totalPlayers), icon: Users, color: 'text-blue-600 bg-blue-50' },
-          { label: 'Avg Level', value: String(xpStats.avgLevel), icon: Trophy, color: 'text-purple-600 bg-purple-50' },
-          { label: 'Max Streak', value: `${xpStats.maxStreak} days`, icon: Flame, color: 'text-red-600 bg-red-50' },
-        ].map(s => (
-          <Card key={s.label}>
-            <CardContent className='pt-6'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-2xl font-bold'>{s.value}</p>
-                  <p className='text-sm text-muted-foreground'>{s.label}</p>
-                </div>
-                <div className={`p-2 rounded-lg ${s.color}`}>
-                  <s.icon className='h-5 w-5' />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <MetricCard title='Total XP Awarded' value={xpStats.totalXPAwarded.toLocaleString()} icon={Zap} subtitle='Platform-wide' />
+        <MetricCard title='Active Players' value={xpStats.totalPlayers} icon={Users} subtitle='With XP activity' />
+        <MetricCard title='Avg Level' value={xpStats.avgLevel} icon={Trophy} subtitle='Across all users' />
+        <MetricCard title='Max Streak' value={`${xpStats.maxStreak} days`} icon={Flame} subtitle='Longest streak' />
       </div>
 
       <Tabs defaultValue='gamification'>
@@ -117,7 +152,6 @@ export function EngagementClient({ leaderboard, xpStats, badgeStats, sessions, s
         {/* Gamification Tab */}
         <TabsContent value='gamification' className='mt-6 space-y-6'>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-            {/* Leaderboard */}
             <Card>
               <CardHeader>
                 <CardTitle className='flex items-center gap-2'>
@@ -125,47 +159,10 @@ export function EngagementClient({ leaderboard, xpStats, badgeStats, sessions, s
                 </CardTitle>
               </CardHeader>
               <CardContent className='p-0'>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className='pl-6 w-12'>#</TableHead>
-                      <TableHead>Student</TableHead>
-                      <TableHead className='text-center'>Level</TableHead>
-                      <TableHead className='text-center'>Streak</TableHead>
-                      <TableHead className='text-right pr-6'>XP</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {leaderboard.map(entry => (
-                      <TableRow key={entry.userId}>
-                        <TableCell className='pl-6 font-bold'>
-                          {entry.rank <= 3 ? ['🥇', '🥈', '🥉'][entry.rank - 1] : entry.rank}
-                        </TableCell>
-                        <TableCell>
-                          <p className='font-medium'>{entry.name}</p>
-                          <p className='text-xs text-muted-foreground'>{entry.email}</p>
-                        </TableCell>
-                        <TableCell className='text-center'>
-                          <Badge variant='outline'>Lv {entry.level}</Badge>
-                        </TableCell>
-                        <TableCell className='text-center'>
-                          {entry.streak > 0 && (
-                            <span className='flex items-center justify-center gap-1 text-sm'>
-                              <Flame className='h-3 w-3 text-orange-500' />{entry.streak}d
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className='text-right pr-6 font-bold text-amber-600'>
-                          {entry.totalXP.toLocaleString()}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <DataGrid columns={leaderboardColumns} data={leaderboard} rowKey={(e) => e.userId} emptyMessage='No leaderboard data yet.' />
               </CardContent>
             </Card>
 
-            {/* Badge Distribution */}
             <Card>
               <CardHeader>
                 <CardTitle className='flex items-center gap-2'>
@@ -192,26 +189,10 @@ export function EngagementClient({ leaderboard, xpStats, badgeStats, sessions, s
         {/* Sessions Tab */}
         <TabsContent value='sessions' className='mt-6'>
           <div className='grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6'>
-            {[
-              { label: 'Pending', value: sessionStats.pending, icon: Clock, color: 'text-amber-600 bg-amber-50' },
-              { label: 'Scheduled', value: sessionStats.scheduled, icon: Calendar, color: 'text-blue-600 bg-blue-50' },
-              { label: 'Completed', value: sessionStats.completed, icon: CheckCircle, color: 'text-green-600 bg-green-50' },
-              { label: 'Cancelled', value: sessionStats.cancelled, icon: XCircle, color: 'text-slate-600 bg-slate-50' },
-            ].map(s => (
-              <Card key={s.label}>
-                <CardContent className='pt-6'>
-                  <div className='flex items-center justify-between'>
-                    <div>
-                      <p className='text-2xl font-bold'>{s.value}</p>
-                      <p className='text-sm text-muted-foreground'>{s.label}</p>
-                    </div>
-                    <div className={`p-2 rounded-lg ${s.color}`}>
-                      <s.icon className='h-5 w-5' />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            <MetricCard title='Pending' value={sessionStats.pending} icon={Clock} subtitle='Awaiting confirmation' />
+            <MetricCard title='Scheduled' value={sessionStats.scheduled} icon={Calendar} subtitle='Upcoming' />
+            <MetricCard title='Completed' value={sessionStats.completed} icon={CheckCircle} subtitle='Finished' />
+            <MetricCard title='Cancelled' value={sessionStats.cancelled} icon={XCircle} subtitle='Dropped' />
           </div>
 
           <Card>
@@ -220,39 +201,7 @@ export function EngagementClient({ leaderboard, xpStats, badgeStats, sessions, s
               <CardDescription>All tutoring sessions across the platform</CardDescription>
             </CardHeader>
             <CardContent className='p-0'>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className='pl-6'>Title</TableHead>
-                    <TableHead>Student</TableHead>
-                    <TableHead>Teacher</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead className='text-right pr-6'>Scheduled</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sessions.map(s => (
-                    <TableRow key={s.id}>
-                      <TableCell className='pl-6 font-medium max-w-[200px] truncate'>{s.title}</TableCell>
-                      <TableCell className='text-muted-foreground'>{s.student.name}</TableCell>
-                      <TableCell className='text-muted-foreground'>{s.teacher.name}</TableCell>
-                      <TableCell>
-                        <Badge className={`${sessionStatusColors[s.status] || ''} border-0 text-xs`}>{s.status}</Badge>
-                      </TableCell>
-                      <TableCell className='text-sm'>{s.duration}min</TableCell>
-                      <TableCell className='text-right pr-6 text-sm text-muted-foreground'>
-                        {new Date(s.scheduledAt).toLocaleDateString()}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {sessions.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={6} className='text-center py-8 text-muted-foreground'>No sessions yet.</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+              <DataGrid columns={sessionColumns} data={sessions} emptyMessage='No sessions yet.' />
             </CardContent>
           </Card>
         </TabsContent>
@@ -267,33 +216,7 @@ export function EngagementClient({ leaderboard, xpStats, badgeStats, sessions, s
               <CardDescription>{certificates.length} certificates issued</CardDescription>
             </CardHeader>
             <CardContent className='p-0'>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className='pl-6'>Certificate ID</TableHead>
-                    <TableHead>Student</TableHead>
-                    <TableHead>Course</TableHead>
-                    <TableHead className='text-right pr-6'>Issued</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {certificates.map(c => (
-                    <TableRow key={c.id}>
-                      <TableCell className='pl-6 font-mono text-sm'>{c.certificateId}</TableCell>
-                      <TableCell className='font-medium'>{c.student.name}</TableCell>
-                      <TableCell className='text-muted-foreground max-w-[250px] truncate'>{c.course.title}</TableCell>
-                      <TableCell className='text-right pr-6 text-sm text-muted-foreground'>
-                        {new Date(c.issuedAt).toLocaleDateString()}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {certificates.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={4} className='text-center py-8 text-muted-foreground'>No certificates issued yet.</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+              <DataGrid columns={certificateColumns} data={certificates} emptyMessage='No certificates issued yet.' />
             </CardContent>
           </Card>
         </TabsContent>

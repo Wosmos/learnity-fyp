@@ -32,6 +32,7 @@ const ROUTE_CONFIG = {
     '/api/auth/session',
     '/api/auth/logout',
     '/api/public',
+    '/showcase',
   ],
   // Public route patterns (regex patterns for dynamic routes)
   publicPatterns: [
@@ -154,10 +155,25 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Redirect legacy /dashboard/admin to /admin
+  // Redirect legacy admin routes to new merged pages
   if (pathname.startsWith('/dashboard/admin')) {
     const newPath = pathname.replace('/dashboard/admin', '/admin');
     return NextResponse.redirect(new URL(newPath, request.url));
+  }
+  if (pathname.startsWith('/admin/users')) {
+    const url = new URL('/admin/people', request.url);
+    url.search = request.nextUrl.search; // preserve query params
+    return NextResponse.redirect(url);
+  }
+  if (pathname.startsWith('/admin/teachers')) {
+    const url = new URL('/admin/people', request.url);
+    url.searchParams.set('tab', 'applications');
+    return NextResponse.redirect(url);
+  }
+  if (pathname.startsWith('/admin/wallet')) {
+    const url = new URL('/admin/finances', request.url);
+    url.search = request.nextUrl.search;
+    return NextResponse.redirect(url);
   }
 
   // Allow public routes

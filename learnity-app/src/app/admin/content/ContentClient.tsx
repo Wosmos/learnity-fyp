@@ -1,21 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import {
-  BookOpen, FolderOpen, Star, Eye, EyeOff, Trash2,
+  BookOpen, FolderOpen, Star,
   Archive, Globe, Users, MessageSquare,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { MetricCard } from '@/components/ui/stats-card';
+import { DataGrid, type ColumnDef } from '@/components/ui/data-grid';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
-import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
-import { useToast } from '@/hooks/use-toast';
 
 interface Course {
   id: string;
@@ -63,10 +58,56 @@ const statusColors: Record<string, string> = {
   ARCHIVED: 'bg-slate-100 text-slate-600',
 };
 
+const courseColumns: ColumnDef<Course>[] = [
+  {
+    key: 'title', header: 'Course', maxWidth: 'max-w-[250px]',
+    render: (c) => (
+      <span className='font-medium'>
+        {c.title}
+        {c.isFeatured && <Badge className='ml-2 bg-amber-100 text-amber-700 text-[10px]'>Featured</Badge>}
+      </span>
+    ),
+  },
+  { key: 'teacher', header: 'Teacher', className: 'text-muted-foreground', render: (c) => c.teacher.name },
+  {
+    key: 'status', header: 'Status',
+    render: (c) => <Badge className={`${statusColors[c.status] || ''} border-0`}>{c.status}</Badge>,
+  },
+  { key: 'category', header: 'Category', className: 'text-muted-foreground', render: (c) => c.category?.name || '—' },
+  {
+    key: 'students', header: 'Students', align: 'center',
+    render: (c) => <span className='flex items-center justify-center gap-1 text-sm'><Users className='h-3 w-3' />{c.counts.enrollments}</span>,
+  },
+  { key: 'lessons', header: 'Lessons', align: 'center', render: (c) => c.counts.lessons },
+  {
+    key: 'rating', header: 'Rating', align: 'center',
+    render: (c) => <span className='flex items-center justify-center gap-1 text-sm'><Star className='h-3 w-3 text-amber-500' />{c.averageRating.toFixed(1)}</span>,
+  },
+  {
+    key: 'price', header: 'Price', align: 'right', className: 'font-medium',
+    render: (c) => c.isFree ? <span className='text-green-600'>Free</span> : `Rs. ${c.price}`,
+  },
+];
+
+const reviewColumns: ColumnDef<Review>[] = [
+  { key: 'student', header: 'Student', className: 'font-medium', render: (r) => r.student.name },
+  { key: 'course', header: 'Course', className: 'text-muted-foreground', maxWidth: 'max-w-[200px]', render: (r) => r.course.title },
+  {
+    key: 'rating', header: 'Rating',
+    render: (r) => <span className='flex items-center gap-1'><Star className='h-3 w-3 text-amber-500' />{r.rating}</span>,
+  },
+  {
+    key: 'comment', header: 'Comment', maxWidth: 'max-w-[300px]', className: 'text-muted-foreground',
+    render: (r) => r.comment || <span className='italic'>No comment</span>,
+  },
+  {
+    key: 'date', header: 'Date', align: 'right', className: 'text-sm text-muted-foreground',
+    render: (r) => new Date(r.createdAt).toLocaleDateString(),
+  },
+];
+
 export function ContentClient({ courses, categories, reviews, courseStats }: Props) {
   const [search, setSearch] = useState('');
-  const api = useAuthenticatedApi();
-  const { toast } = useToast();
 
   const filteredCourses = courses.filter(c =>
     c.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -82,26 +123,10 @@ export function ContentClient({ courses, categories, reviews, courseStats }: Pro
 
       {/* Stats */}
       <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
-        {[
-          { label: 'Published', value: courseStats.published, color: 'text-green-600 bg-green-50', icon: Globe },
-          { label: 'Draft', value: courseStats.draft, color: 'text-amber-600 bg-amber-50', icon: BookOpen },
-          { label: 'Archived', value: courseStats.archived, color: 'text-slate-600 bg-slate-50', icon: Archive },
-          { label: 'Total Courses', value: courseStats.total, color: 'text-blue-600 bg-blue-50', icon: FolderOpen },
-        ].map(s => (
-          <Card key={s.label}>
-            <CardContent className='pt-6'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-2xl font-bold'>{s.value}</p>
-                  <p className='text-sm text-muted-foreground'>{s.label}</p>
-                </div>
-                <div className={`p-2 rounded-lg ${s.color}`}>
-                  <s.icon className='h-5 w-5' />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <MetricCard title='Published' value={courseStats.published} icon={Globe} subtitle='Live courses' />
+        <MetricCard title='Draft' value={courseStats.draft} icon={BookOpen} subtitle='Unpublished' />
+        <MetricCard title='Archived' value={courseStats.archived} icon={Archive} subtitle='Hidden' />
+        <MetricCard title='Total Courses' value={courseStats.total} icon={FolderOpen} subtitle='All courses' />
       </div>
 
       <Tabs defaultValue='courses'>
@@ -129,62 +154,11 @@ export function ContentClient({ courses, categories, reviews, courseStats }: Pro
                   <CardTitle>All Courses</CardTitle>
                   <CardDescription>View and manage all platform courses</CardDescription>
                 </div>
-                <Input
-                  placeholder='Search courses or teachers...'
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  className='w-64'
-                />
+                <Input placeholder='Search courses or teachers...' value={search} onChange={e => setSearch(e.target.value)} className='w-64' />
               </div>
             </CardHeader>
             <CardContent className='p-0'>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className='pl-6'>Course</TableHead>
-                    <TableHead>Teacher</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead className='text-center'>Students</TableHead>
-                    <TableHead className='text-center'>Lessons</TableHead>
-                    <TableHead className='text-center'>Rating</TableHead>
-                    <TableHead className='text-right pr-6'>Price</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredCourses.map(course => (
-                    <TableRow key={course.id} className='hover:bg-muted/50'>
-                      <TableCell className='pl-6 font-medium max-w-[250px] truncate'>
-                        {course.title}
-                        {course.isFeatured && (
-                          <Badge className='ml-2 bg-amber-100 text-amber-700 text-[10px]'>Featured</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className='text-muted-foreground'>{course.teacher.name}</TableCell>
-                      <TableCell>
-                        <Badge className={`${statusColors[course.status] || ''} border-0`}>
-                          {course.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className='text-muted-foreground'>{course.category?.name || '—'}</TableCell>
-                      <TableCell className='text-center'>
-                        <span className='flex items-center justify-center gap-1 text-sm'>
-                          <Users className='h-3 w-3' />{course.counts.enrollments}
-                        </span>
-                      </TableCell>
-                      <TableCell className='text-center text-sm'>{course.counts.lessons}</TableCell>
-                      <TableCell className='text-center'>
-                        <span className='flex items-center justify-center gap-1 text-sm'>
-                          <Star className='h-3 w-3 text-amber-500' />{course.averageRating.toFixed(1)}
-                        </span>
-                      </TableCell>
-                      <TableCell className='text-right pr-6 font-medium'>
-                        {course.isFree ? <span className='text-green-600'>Free</span> : `Rs. ${course.price}`}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataGrid columns={courseColumns} data={filteredCourses} emptyMessage='No courses found.' />
             </CardContent>
           </Card>
         </TabsContent>
@@ -225,36 +199,7 @@ export function ContentClient({ courses, categories, reviews, courseStats }: Pro
               <CardDescription>Moderate course reviews</CardDescription>
             </CardHeader>
             <CardContent className='p-0'>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className='pl-6'>Student</TableHead>
-                    <TableHead>Course</TableHead>
-                    <TableHead>Rating</TableHead>
-                    <TableHead className='max-w-[300px]'>Comment</TableHead>
-                    <TableHead className='text-right pr-6'>Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {reviews.map(review => (
-                    <TableRow key={review.id}>
-                      <TableCell className='pl-6 font-medium'>{review.student.name}</TableCell>
-                      <TableCell className='text-muted-foreground max-w-[200px] truncate'>{review.course.title}</TableCell>
-                      <TableCell>
-                        <span className='flex items-center gap-1'>
-                          <Star className='h-3 w-3 text-amber-500' />{review.rating}
-                        </span>
-                      </TableCell>
-                      <TableCell className='max-w-[300px] truncate text-muted-foreground'>
-                        {review.comment || <span className='italic'>No comment</span>}
-                      </TableCell>
-                      <TableCell className='text-right pr-6 text-sm text-muted-foreground'>
-                        {new Date(review.createdAt).toLocaleDateString()}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataGrid columns={reviewColumns} data={reviews} emptyMessage='No reviews yet.' />
             </CardContent>
           </Card>
         </TabsContent>

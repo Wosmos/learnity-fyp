@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { AlertTriangle, Shield, Eye, Ban } from 'lucide-react';
+import { MetricCard } from '@/components/ui/stats-card';
 import {
   Card,
   CardContent,
@@ -209,56 +210,10 @@ export const SecurityEventsViewer: React.FC<SecurityEventsViewerProps> = ({
 
       {/* Stats Cards */}
       <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-        <Card>
-          <CardContent className='pt-6'>
-            <div className='flex items-center space-x-2'>
-              <AlertTriangle className='h-4 w-4 text-muted-foreground' />
-              <div>
-                <p className='text-2xl font-bold'>{stats.totalEvents}</p>
-                <p className='text-xs text-muted-foreground'>Total Events</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className='pt-6'>
-            <div className='flex items-center space-x-2'>
-              <AlertTriangle className='h-4 w-4 text-red-500' />
-              <div>
-                <p className='text-2xl font-bold text-red-600'>
-                  {stats.criticalEvents}
-                </p>
-                <p className='text-xs text-muted-foreground'>Critical Events</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className='pt-6'>
-            <div className='flex items-center space-x-2'>
-              <Ban className='h-4 w-4 text-orange-500' />
-              <div>
-                <p className='text-2xl font-bold text-orange-600'>
-                  {stats.blockedEvents}
-                </p>
-                <p className='text-xs text-muted-foreground'>Blocked Events</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className='pt-6'>
-            <div className='flex items-center space-x-2'>
-              <Shield className='h-4 w-4 text-blue-500' />
-              <div>
-                <p className='text-2xl font-bold text-blue-600'>
-                  {stats.uniqueIps}
-                </p>
-                <p className='text-xs text-muted-foreground'>Unique IPs</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <MetricCard title='Total Events' value={stats.totalEvents} icon={AlertTriangle} subtitle='All recorded' />
+        <MetricCard title='Critical Events' value={stats.criticalEvents} icon={AlertTriangle} subtitle='Needs attention' />
+        <MetricCard title='Blocked Events' value={stats.blockedEvents} icon={Ban} subtitle='Auto-blocked' />
+        <MetricCard title='Unique IPs' value={stats.uniqueIps} icon={Shield} subtitle='Distinct sources' />
       </div>
 
       {/* Filters */}

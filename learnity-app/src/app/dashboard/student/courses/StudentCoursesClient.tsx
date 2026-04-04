@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { MetricCard } from '@/components/ui/stats-card';
 import { EnrolledCourseCard } from '@/components/students/EnrolledCourseCard';
 
 interface CourseEnrollment {
@@ -117,27 +118,9 @@ export function StudentCoursesClient({ enrollments }: Props) {
       <main className='px-6 lg:px-8 py-8'>
         {/* Stats Cards */}
         <div className='grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10'>
-          {[
-            { label: 'Total Courses', value: totalCourses, icon: BookOpen, color: 'text-blue-600', bg: 'bg-blue-50/50' },
-            { label: 'In Progress', value: inProgressCourses, icon: Play, color: 'text-amber-600', bg: 'bg-amber-50/50' },
-            { label: 'Completed', value: completedCourses, icon: Trophy, color: 'text-emerald-600', bg: 'bg-emerald-50/50' },
-          ].map(stat => (
-            <div key={stat.label} className='relative p-5 bg-card border border-border rounded-2xl shadow-sm hover:border-border/80 transition-colors'>
-              <div className='flex items-center gap-4'>
-                <div className={cn('p-2.5 rounded-xl shrink-0', stat.bg, stat.color)}>
-                  <stat.icon className='h-5 w-5' />
-                </div>
-                <div className='flex flex-col'>
-                  <p className='text-[11px] font-bold text-muted-foreground uppercase tracking-wider'>{stat.label}</p>
-                  <div className='flex items-baseline gap-1'>
-                    <span className='text-2xl font-black text-foreground tracking-tight'>{stat.value}</span>
-                    <span className='text-[10px] font-medium text-muted-foreground'>modules</span>
-                  </div>
-                </div>
-              </div>
-              <div className={cn('absolute bottom-0 left-6 right-6 h-px', stat.bg)} />
-            </div>
-          ))}
+          <MetricCard title='Total Courses' value={totalCourses} icon={BookOpen} subtitle='Enrolled modules' />
+          <MetricCard title='In Progress' value={inProgressCourses} icon={Play} subtitle='Currently learning' />
+          <MetricCard title='Completed' value={completedCourses} icon={Trophy} subtitle='Finished modules' />
         </div>
 
         {/* Continue Learning Section */}

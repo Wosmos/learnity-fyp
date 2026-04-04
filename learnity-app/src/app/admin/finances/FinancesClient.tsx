@@ -2,16 +2,15 @@
 
 import { useState } from 'react';
 import {
-  DollarSign, ArrowDownLeft, ArrowUpRight, Clock,
+  ArrowDownLeft, ArrowUpRight, Clock,
   CheckCircle, XCircle, Receipt, TrendingUp, Wallet,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { MetricCard } from '@/components/ui/stats-card';
+import { DataGrid, type ColumnDef } from '@/components/ui/data-grid';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { useToast } from '@/hooks/use-toast';
 
@@ -45,6 +44,34 @@ const statusBadge: Record<string, string> = {
   CANCELLED: 'bg-slate-100 text-slate-600',
 };
 
+const transactionColumns: ColumnDef<Transaction>[] = [
+  { key: 'user', header: 'User', className: 'font-medium', render: (tx) => tx.user?.name || '—' },
+  {
+    key: 'type', header: 'Type',
+    render: (tx) => <Badge variant='outline' className='text-xs'>{tx.type}</Badge>,
+  },
+  {
+    key: 'amount', header: 'Amount', className: 'font-bold',
+    render: (tx) => {
+      const isDebit = ['PURCHASE', 'WITHDRAWAL'].includes(tx.type);
+      return (
+        <span className={isDebit ? 'text-red-600' : 'text-green-600'}>
+          {isDebit ? '-' : '+'}Rs. {tx.amount.toLocaleString()}
+        </span>
+      );
+    },
+  },
+  {
+    key: 'status', header: 'Status',
+    render: (tx) => <Badge className={`${statusBadge[tx.status] || ''} border-0 text-xs`}>{tx.status}</Badge>,
+  },
+  { key: 'description', header: 'Description', className: 'text-muted-foreground', maxWidth: 'max-w-[200px]' },
+  {
+    key: 'date', header: 'Date', align: 'right', className: 'text-sm text-muted-foreground',
+    render: (tx) => new Date(tx.createdAt).toLocaleDateString(),
+  },
+];
+
 export function FinancesClient({ pendingDeposits: initialPending, transactions, revenue }: Props) {
   const [pendingDeposits, setPendingDeposits] = useState(initialPending);
   const api = useAuthenticatedApi();
@@ -62,6 +89,37 @@ export function FinancesClient({ pendingDeposits: initialPending, transactions, 
     }
   };
 
+  const depositColumns: ColumnDef<Transaction>[] = [
+    {
+      key: 'user', header: 'User',
+      render: (d) => (
+        <div>
+          <p className='font-medium'>{d.user?.name}</p>
+          <p className='text-xs text-muted-foreground'>{d.user?.email}</p>
+        </div>
+      ),
+    },
+    { key: 'amount', header: 'Amount', className: 'font-bold text-green-600', render: (d) => `Rs. ${d.amount.toLocaleString()}` },
+    { key: 'referenceId', header: 'Reference', className: 'text-sm text-muted-foreground font-mono', render: (d) => d.referenceId || '—' },
+    {
+      key: 'date', header: 'Date', className: 'text-sm text-muted-foreground',
+      render: (d) => new Date(d.createdAt).toLocaleDateString(),
+    },
+    {
+      key: 'actions', header: 'Actions', align: 'right',
+      render: (d) => (
+        <div className='flex justify-end gap-2'>
+          <Button size='sm' onClick={() => handleDepositAction(d.id, 'approve')} className='bg-green-600 hover:bg-green-700 h-8'>
+            <CheckCircle className='h-3 w-3 mr-1' />Approve
+          </Button>
+          <Button size='sm' variant='outline' onClick={() => handleDepositAction(d.id, 'reject')} className='text-red-600 h-8'>
+            <XCircle className='h-3 w-3 mr-1' />Reject
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className='space-y-6'>
       <div>
@@ -71,26 +129,10 @@ export function FinancesClient({ pendingDeposits: initialPending, transactions, 
 
       {/* Revenue Stats */}
       <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
-        {[
-          { label: 'Total Revenue', value: `Rs. ${revenue.totalRevenue.toLocaleString()}`, icon: TrendingUp, color: 'text-green-600 bg-green-50' },
-          { label: 'Total Deposits', value: `Rs. ${revenue.totalDeposits.toLocaleString()}`, icon: ArrowDownLeft, color: 'text-blue-600 bg-blue-50' },
-          { label: 'Withdrawals', value: `Rs. ${revenue.totalWithdrawals.toLocaleString()}`, icon: ArrowUpRight, color: 'text-red-600 bg-red-50' },
-          { label: 'Pending Deposits', value: String(revenue.pendingCount), icon: Clock, color: 'text-amber-600 bg-amber-50' },
-        ].map(s => (
-          <Card key={s.label}>
-            <CardContent className='pt-6'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-2xl font-bold'>{s.value}</p>
-                  <p className='text-sm text-muted-foreground'>{s.label}</p>
-                </div>
-                <div className={`p-2 rounded-lg ${s.color}`}>
-                  <s.icon className='h-5 w-5' />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <MetricCard title='Total Revenue' value={`Rs. ${revenue.totalRevenue.toLocaleString()}`} icon={TrendingUp} subtitle='Platform earnings' />
+        <MetricCard title='Total Deposits' value={`Rs. ${revenue.totalDeposits.toLocaleString()}`} icon={ArrowDownLeft} subtitle='All deposits' />
+        <MetricCard title='Withdrawals' value={`Rs. ${revenue.totalWithdrawals.toLocaleString()}`} icon={ArrowUpRight} subtitle='Teacher payouts' />
+        <MetricCard title='Pending Deposits' value={revenue.pendingCount} icon={Clock} subtitle='Awaiting approval' />
       </div>
 
       <Tabs defaultValue='deposits'>
@@ -120,44 +162,7 @@ export function FinancesClient({ pendingDeposits: initialPending, transactions, 
                   <p>All deposits have been processed.</p>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className='pl-6'>User</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Reference</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead className='text-right pr-6'>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pendingDeposits.map(deposit => (
-                      <TableRow key={deposit.id}>
-                        <TableCell className='pl-6'>
-                          <div>
-                            <p className='font-medium'>{deposit.user?.name}</p>
-                            <p className='text-xs text-muted-foreground'>{deposit.user?.email}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell className='font-bold text-green-600'>Rs. {deposit.amount.toLocaleString()}</TableCell>
-                        <TableCell className='text-sm text-muted-foreground font-mono'>{deposit.referenceId || '—'}</TableCell>
-                        <TableCell className='text-sm text-muted-foreground'>
-                          {new Date(deposit.createdAt).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className='text-right pr-6'>
-                          <div className='flex justify-end gap-2'>
-                            <Button size='sm' onClick={() => handleDepositAction(deposit.id, 'approve')} className='bg-green-600 hover:bg-green-700 h-8'>
-                              <CheckCircle className='h-3 w-3 mr-1' />Approve
-                            </Button>
-                            <Button size='sm' variant='outline' onClick={() => handleDepositAction(deposit.id, 'reject')} className='text-red-600 h-8'>
-                              <XCircle className='h-3 w-3 mr-1' />Reject
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <DataGrid columns={depositColumns} data={pendingDeposits} />
               )}
             </CardContent>
           </Card>
@@ -171,38 +176,7 @@ export function FinancesClient({ pendingDeposits: initialPending, transactions, 
               <CardDescription>All platform financial transactions</CardDescription>
             </CardHeader>
             <CardContent className='p-0'>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className='pl-6'>User</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead className='text-right pr-6'>Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {transactions.map(tx => (
-                    <TableRow key={tx.id}>
-                      <TableCell className='pl-6 font-medium'>{tx.user?.name || '—'}</TableCell>
-                      <TableCell>
-                        <Badge variant='outline' className='text-xs'>{tx.type}</Badge>
-                      </TableCell>
-                      <TableCell className={`font-bold ${['PURCHASE', 'WITHDRAWAL'].includes(tx.type) ? 'text-red-600' : 'text-green-600'}`}>
-                        {['PURCHASE', 'WITHDRAWAL'].includes(tx.type) ? '-' : '+'}Rs. {tx.amount.toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={`${statusBadge[tx.status] || ''} border-0 text-xs`}>{tx.status}</Badge>
-                      </TableCell>
-                      <TableCell className='text-muted-foreground max-w-[200px] truncate'>{tx.description}</TableCell>
-                      <TableCell className='text-right pr-6 text-sm text-muted-foreground'>
-                        {new Date(tx.createdAt).toLocaleDateString()}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataGrid columns={transactionColumns} data={transactions} emptyMessage='No transactions yet.' />
             </CardContent>
           </Card>
         </TabsContent>
