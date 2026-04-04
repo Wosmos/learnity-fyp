@@ -1,47 +1,19 @@
-import { prisma } from '@/lib/prisma';
 import { requireServerUser } from '@/lib/auth/server';
-import { EnrollmentStatus } from '@prisma/client';
+import { getCachedStudentCourses, toISO } from '@/lib/cache/server-cache';
 import { StudentCoursesClient } from './StudentCoursesClient';
 
 export default async function MyCoursesPage() {
   const user = await requireServerUser();
 
-  const enrollments = await prisma.enrollment.findMany({
-    where: {
-      studentId: user.id,
-      status: { not: EnrollmentStatus.UNENROLLED },
-    },
-    include: {
-      course: {
-        select: {
-          id: true,
-          title: true,
-          description: true,
-          thumbnailUrl: true,
-          difficulty: true,
-          totalDuration: true,
-          averageRating: true,
-          reviewCount: true,
-          lessonCount: true,
-          teacher: {
-            select: { id: true, firstName: true, lastName: true, profilePicture: true },
-          },
-          category: { select: { id: true, name: true } },
-        },
-      },
-    },
-    orderBy: { lastAccessedAt: 'desc' },
-    take: 50,
-  });
+  const enrollments = await getCachedStudentCourses(user.id);
 
-  // Serialize dates for client component
   const serialized = enrollments.map(e => ({
     id: e.id,
     status: e.status,
     progress: e.progress,
-    enrolledAt: e.enrolledAt.toISOString(),
-    lastAccessedAt: e.lastAccessedAt.toISOString(),
-    completedAt: e.completedAt?.toISOString() ?? null,
+    enrolledAt: toISO(e.enrolledAt)!,
+    lastAccessedAt: toISO(e.lastAccessedAt)!,
+    completedAt: toISO(e.completedAt),
     course: {
       id: e.course.id,
       title: e.course.title,

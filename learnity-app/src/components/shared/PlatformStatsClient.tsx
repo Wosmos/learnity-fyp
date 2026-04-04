@@ -28,29 +28,20 @@ export function PlatformStatsClient({
     {
       title: 'Active Learners',
       value: stats.activeLearners,
-      trendValue: '+12%',
-      trendLabel: 'this month',
+      subtitle: 'Registered students',
       icon: Users,
-      iconColor: 'text-blue-600',
-      bgColor: 'bg-slate-100',
     },
     {
       title: 'Expert Tutors',
       value: stats.expertTutors,
-      trendValue: '+8%',
-      trendLabel: 'this month',
+      subtitle: 'Verified teachers',
       icon: GraduationCap,
-      iconColor: 'text-green-600',
-      bgColor: 'bg-green-100',
     },
     {
       title: 'Average Rating',
       value: stats.averageRating,
-      trendValue: '+0.2',
-      trendLabel: 'vs last month',
+      subtitle: 'From real reviews',
       icon: Star,
-      iconColor: 'text-yellow-500',
-      bgColor: 'bg-yellow-100',
     },
   ];
 
@@ -68,7 +59,7 @@ export function PlatformStatsClient({
           key={index}
           title={stat.title}
           value={stat.value}
-          trendValue={stat.trendValue}
+          subtitle={stat.subtitle}
           icon={stat.icon}
         />
       ))}

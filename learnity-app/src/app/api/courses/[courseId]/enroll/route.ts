@@ -79,6 +79,10 @@ export async function POST(
       courseId
     );
 
+    // Bust student's cached data
+    const { revalidateStudentAction } = await import('@/lib/cache/revalidate');
+    revalidateStudentAction(dbUser.id);
+
     return createSuccessResponse(
       enrollment,
       'Successfully enrolled in course',

@@ -58,7 +58,7 @@ export default async function Home() {
                   </span>
                 </>
               }
-              description='Connect with 500+ verified expert tutors for personalized 1-on-1 lessons. Join study groups and accelerate your learning journey.'
+              description='Connect with verified expert tutors for personalized 1-on-1 lessons. Join study groups and accelerate your learning journey.'
               primaryAction={{
                 label: 'Find your tutor',
                 href: '/teachers',
@@ -299,7 +299,7 @@ export default async function Home() {
             {/* CTA Section */}
             <CTA
               title='Ready to start learning?'
-              description='Join thousands of active learners and connect with expert tutors today. Your learning journey starts here.'
+              description='Start learning with expert tutors today. Personalized sessions, real-time progress tracking, and a community built for growth.'
               primaryAction={{
                 label: 'Find your tutor',
                 href: '/teachers',
@@ -318,5 +318,5 @@ export default async function Home() {
   );
 }
 
-// Enable static generation with revalidation for optimal performance
-export const revalidate = 300; // Revalidate every 5 minutes
+// Page uses on-demand revalidation via cache tags (stats, courses, platform-stats)
+// No TTL — data stays cached until a mutation busts it

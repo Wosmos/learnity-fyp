@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
+import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/prisma';
+import { toISO } from '@/lib/cache/server-cache';
 import { FinancesClient } from './FinancesClient';
 
 export const metadata: Metadata = {
@@ -7,33 +9,38 @@ export const metadata: Metadata = {
   description: 'Manage deposits, transactions, and revenue.',
 };
 
+const getFinanceData = unstable_cache(
+  async () => {
+    return Promise.all([
+      prisma.walletTransaction.findMany({
+        where: { type: 'DEPOSIT', status: 'PENDING' },
+        include: {
+          user: { select: { id: true, firstName: true, lastName: true, email: true } },
+        },
+        orderBy: { createdAt: 'asc' },
+        take: 50,
+      }),
+      prisma.walletTransaction.findMany({
+        include: {
+          user: { select: { id: true, firstName: true, lastName: true, email: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      }),
+      prisma.walletTransaction.groupBy({
+        by: ['type'],
+        where: { status: 'COMPLETED' },
+        _sum: { amount: true },
+        _count: true,
+      }),
+    ]);
+  },
+  ['admin-finances'],
+  { revalidate: false, tags: ['admin-stats'] }
+);
+
 export default async function FinancesPage() {
-  const [pendingDeposits, recentTransactions, revenueStats] = await Promise.all([
-    // Pending deposit approval queue
-    prisma.walletTransaction.findMany({
-      where: { type: 'DEPOSIT', status: 'PENDING' },
-      include: {
-        user: { select: { id: true, firstName: true, lastName: true, email: true } },
-      },
-      orderBy: { createdAt: 'asc' },
-      take: 50,
-    }),
-    // Recent transactions (all types)
-    prisma.walletTransaction.findMany({
-      include: {
-        user: { select: { id: true, firstName: true, lastName: true, email: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 100,
-    }),
-    // Revenue aggregates
-    prisma.walletTransaction.groupBy({
-      by: ['type'],
-      where: { status: 'COMPLETED' },
-      _sum: { amount: true },
-      _count: true,
-    }),
-  ]);
+  const [pendingDeposits, recentTransactions, revenueStats] = await getFinanceData();
 
   const totalRevenue = revenueStats.find(r => r.type === 'PURCHASE')?._sum.amount;
   const totalDeposits = revenueStats.find(r => r.type === 'DEPOSIT')?._sum.amount;
@@ -47,7 +54,7 @@ export default async function FinancesPage() {
     description: t.description,
     referenceId: t.referenceId,
     receiptUrl: t.receiptUrl,
-    createdAt: t.createdAt.toISOString(),
+    createdAt: toISO(t.createdAt)!,
     user: t.user ? {
       id: t.user.id,
       name: `${t.user.firstName} ${t.user.lastName}`,

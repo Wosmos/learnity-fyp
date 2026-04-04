@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { requireServerUser } from '@/lib/auth/server';
+import { toISO } from '@/lib/cache/server-cache';
 import { TeacherCoursesClient } from './TeacherCoursesClient';
 
 export default async function TeacherCoursesPage() {
@@ -29,7 +30,7 @@ export default async function TeacherCoursesPage() {
       },
     },
     orderBy: { createdAt: 'desc' },
-    take: 100,
+    take: 50,
   });
 
   const serialized = courses.map(c => ({
@@ -47,8 +48,8 @@ export default async function TeacherCoursesPage() {
     reviewCount: c.reviewCount,
     lessonCount: c.lessonCount,
     totalDuration: c.totalDuration,
-    createdAt: c.createdAt.toISOString(),
-    publishedAt: c.publishedAt ? c.publishedAt.toISOString() : null,
+    createdAt: toISO(c.createdAt)!,
+    publishedAt: toISO(c.publishedAt),
     category: c.category,
   }));
 

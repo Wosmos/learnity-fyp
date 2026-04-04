@@ -524,6 +524,7 @@ export function StudentWalletClient({ wallet: initialWallet, transactions: initi
             data={transactions}
             loading={isLoading}
             loadingRows={5}
+            pageSize={10}
             emptyMessage='No transactions found.'
           />
         </CardContent>

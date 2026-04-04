@@ -86,6 +86,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Bust the affected user's wallet cache + admin stats
+    const { revalidateUser, revalidateAdminAction } = await import('@/lib/cache/revalidate');
+    if (updatedTransaction.userId) revalidateUser(updatedTransaction.userId);
+    revalidateAdminAction();
+
     return createSuccessResponse(
       updatedTransaction,
       `Transaction ${status.toLowerCase()} successfully`

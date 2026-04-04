@@ -176,7 +176,7 @@ export function FinancesClient({ pendingDeposits: initialPending, transactions, 
               <CardDescription>All platform financial transactions</CardDescription>
             </CardHeader>
             <CardContent className='p-0'>
-              <DataGrid columns={transactionColumns} data={transactions} emptyMessage='No transactions yet.' />
+              <DataGrid columns={transactionColumns} data={transactions} emptyMessage='No transactions yet.' pageSize={20} />
             </CardContent>
           </Card>
         </TabsContent>

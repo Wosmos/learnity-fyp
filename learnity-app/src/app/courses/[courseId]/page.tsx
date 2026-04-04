@@ -115,7 +115,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
 
       <CTA
         title='Ready to master this subject?'
-        description='Join thousands of students and start your structured learning path today.'
+        description='Enroll now and start your structured learning path with progress tracking and certificates.'
         primaryAction={{
           label: 'Enroll Now',
           href: '/auth/register',

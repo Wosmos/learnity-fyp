@@ -73,6 +73,9 @@ export async function POST(
     // Publish course (service handles validation and ownership check)
     const course = await courseService.publishCourse(courseId, dbUser.id);
 
+    const { revalidateTeacherAction } = await import('@/lib/cache/revalidate');
+    revalidateTeacherAction(dbUser.id);
+
     return createSuccessResponse(course, 'Course published successfully');
   } catch (error) {
     console.error('Error publishing course:', error);

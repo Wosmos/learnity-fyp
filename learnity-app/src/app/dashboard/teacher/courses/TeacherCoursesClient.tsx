@@ -107,7 +107,7 @@ export function TeacherCoursesClient({ courses: initialCourses }: Props) {
   const fetchCourses = async () => {
     try {
       setError(null);
-      const response = await authenticatedFetch('/api/courses?teacherOnly=true');
+      const response = await authenticatedFetch('/api/courses?teacherOnly=true&limit=50');
 
       if (!response.ok) {
         const errorData = await response.json();

@@ -59,6 +59,9 @@ export async function POST(request: NextRequest) {
       validatedData.metadata
     );
 
+    const { revalidateUser } = await import('@/lib/cache/revalidate');
+    revalidateUser(dbUser.id);
+
     return createSuccessResponse(
       withdrawalRequest,
       'Withdrawal request submitted. Admin will process your request and send payment proof.',

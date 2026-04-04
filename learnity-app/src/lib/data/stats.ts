@@ -135,22 +135,22 @@ export const getPlatformStats = unstable_cache(
     } catch (error) {
       console.error('Error fetching platform stats:', error);
 
-      // Return realistic fallback values for a growing platform
+      // Return zeros on error — never show fake numbers
       return {
-        activeLearners: 1247,
-        expertTutors: 89,
-        averageRating: '4.8',
-        lessonsCompleted: 12450,
-        coursesAvailable: 156,
-        totalEnrollments: 3890,
-        averageCompletionRate: 87,
+        activeLearners: 0,
+        expertTutors: 0,
+        averageRating: '0',
+        lessonsCompleted: 0,
+        coursesAvailable: 0,
+        totalEnrollments: 0,
+        averageCompletionRate: 0,
       };
     }
   },
   ['platform-stats'],
   {
-    revalidate: 300, // Cache for 5 minutes
-    tags: ['stats', 'platform'],
+    revalidate: false,
+    tags: ['stats', 'platform-stats'],
   }
 );
 
@@ -274,22 +274,22 @@ export const getDetailedStats = unstable_cache(
       return {
         ...baseStats,
         recentActivity: {
-          newStudentsThisWeek: 47,
-          newTeachersThisWeek: 8,
-          lessonsCompletedThisWeek: 234,
+          newStudentsThisWeek: 0,
+          newTeachersThisWeek: 0,
+          lessonsCompletedThisWeek: 0,
         },
         trends: {
-          studentGrowthRate: 12,
-          teacherGrowthRate: 15,
-          engagementRate: 78,
+          studentGrowthRate: 0,
+          teacherGrowthRate: 0,
+          engagementRate: 0,
         },
       };
     }
   },
   ['detailed-stats'],
   {
-    revalidate: 600, // Cache for 10 minutes
-    tags: ['stats', 'detailed', 'trends'],
+    revalidate: false,
+    tags: ['stats', 'platform-stats'],
   }
 );
 

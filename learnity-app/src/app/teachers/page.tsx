@@ -198,14 +198,14 @@ export default async function TeachersPage() {
           {/* CTA Section */}
           <CTA
             title='Ready to start learning?'
-            description='Join thousands of active learners and connect with expert tutors today. Your learning journey starts here.'
+            description='Start learning with expert tutors today. Book a session, track your progress, and grow.'
             primaryAction={{
               label: 'Find your tutor',
               href: '/teachers',
               variant: 'ctaSecondary',
             }}
             secondaryAction={{
-              label: 'Become a Tutors',
+              label: 'Become a Tutor',
               href: '/auth/register/teacher',
               variant: 'outline',
             }}
@@ -216,5 +216,5 @@ export default async function TeachersPage() {
   );
 }
 
-// Enable static generation with revalidation for optimal performance
-export const revalidate = 300; // Revalidate every 5 minutes
+// Page uses on-demand revalidation via cache tags (stats, platform-stats)
+// No TTL — data stays cached until a mutation busts it

@@ -29,9 +29,8 @@ function hero() {
 
         {/* Subtitle */}
         <p className='text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200'>
-          Connect with 500+ verified expert tutors for personalized 1-on-1
-          lessons. Join study groups and accelerate your learning journey with
-          enterprise-grade security.
+          Connect with verified expert tutors for personalized 1-on-1
+          lessons. Join study groups and accelerate your learning journey.
         </p>
 
         {/* CTA Buttons */}

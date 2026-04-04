@@ -39,9 +39,9 @@ export function HeroStatsClient() {
         console.error('Error fetching stats:', error);
         // Set fallback values
         setStats({
-          activeLearners: '1,000+',
-          expertTutors: '500+',
-          averageRating: '4.9',
+          activeLearners: '—',
+          expertTutors: '—',
+          averageRating: '—',
         });
       } finally {
         setLoading(false);

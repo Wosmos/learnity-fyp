@@ -1,31 +1,17 @@
-import { prisma } from '@/lib/prisma';
 import { requireServerUser } from '@/lib/auth/server';
+import { getCachedTeacherSessions, toISO } from '@/lib/cache/server-cache';
 import { TeacherSessionsClient } from './TeacherSessionsClient';
 
 export default async function TeacherSessionsPage() {
   const user = await requireServerUser();
 
-  const sessions = await prisma.tutoringSession.findMany({
-    where: { teacherId: user.id },
-    include: {
-      student: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          profilePicture: true,
-        },
-      },
-    },
-    orderBy: { scheduledAt: 'desc' },
-    take: 50,
-  });
+  const sessions = await getCachedTeacherSessions(user.id);
 
   const serialized = sessions.map(s => ({
     id: s.id,
     title: s.title,
     description: s.description,
-    scheduledAt: s.scheduledAt.toISOString(),
+    scheduledAt: toISO(s.scheduledAt)!,
     duration: s.duration,
     status: s.status,
     student: {
@@ -34,7 +20,6 @@ export default async function TeacherSessionsPage() {
       lastName: s.student.lastName,
       profilePicture: s.student.profilePicture,
     },
-    rejectionReason: s.rejectionReason,
   }));
 
   return <TeacherSessionsClient sessions={serialized} />;

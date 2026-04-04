@@ -1,18 +1,22 @@
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { prisma } from '@/lib/prisma';
+import { getCachedCategories } from '@/lib/cache/server-cache';
 import { courseService } from '@/lib/services/course.service';
 import CourseCatalogClient from './CourseCatalogClient';
 
 /**
- * Shared logic for categories and courses data fetching
+ * Shared logic for categories and courses data fetching.
+ * Categories use server-side cache (10min TTL, tag: 'categories').
  */
 
 async function getCategories() {
-  return await prisma.category.findMany({
-    orderBy: { name: 'asc' },
-    select: { id: true, name: true, slug: true, description: true },
-  });
+  const cats = await getCachedCategories();
+  return cats.map(c => ({
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+    description: c.description,
+  }));
 }
 
 async function getCoursesData(searchParams: {

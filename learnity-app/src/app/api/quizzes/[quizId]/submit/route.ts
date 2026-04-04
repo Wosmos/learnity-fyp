@@ -94,6 +94,10 @@ export async function POST(
       validatedData.timeTaken
     );
 
+    // Bust student's cached data + leaderboard
+    const { revalidateStudentAction } = await import('@/lib/cache/revalidate');
+    revalidateStudentAction(dbUser.id);
+
     // Return detailed results for review
     return createSuccessResponse(
       {

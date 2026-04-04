@@ -1,56 +1,13 @@
-import { prisma } from '@/lib/prisma';
 import { requireServerUser } from '@/lib/auth/server';
-import { EnrollmentStatus } from '@prisma/client';
+import { getCachedStudentDashboard, toISO } from '@/lib/cache/server-cache';
 import { StudentDashboardClient } from './StudentDashboardClient';
 
 export default async function StudentDashboard() {
   const user = await requireServerUser();
 
-  // Fetch all data in parallel
-  const [profile, enrollmentStats, badgeCount] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: user.id },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        profilePicture: true,
-        role: true,
-        emailVerified: true,
-        createdAt: true,
-        studentProfile: {
-          select: {
-            gradeLevel: true,
-            subjects: true,
-            learningGoals: true,
-            interests: true,
-            studyPreferences: true,
-            bio: true,
-            profileCompletionPercentage: true,
-          },
-        },
-      },
-    }),
-    prisma.enrollment.aggregate({
-      where: { studentId: user.id, status: { not: EnrollmentStatus.UNENROLLED } },
-      _count: { _all: true },
-      _avg: { progress: true },
-    }),
-    prisma.badge.count({ where: { userId: user.id } }).catch(() => 0),
-  ]);
+  const { profile, enrollmentStats, badgeCount, completedCount, totalWatchTime } =
+    await getCachedStudentDashboard(user.id);
 
-  const [completedCount, totalWatchTime] = await Promise.all([
-    prisma.enrollment.count({
-      where: { studentId: user.id, status: EnrollmentStatus.COMPLETED },
-    }),
-    prisma.lessonProgress.aggregate({
-      where: { studentId: user.id },
-      _sum: { watchedSeconds: true },
-    }),
-  ]);
-
-  // Profile completion sections
   const completionPercentage = profile?.studentProfile?.profileCompletionPercentage || 0;
   const missingSections: { id: string; name: string }[] = [];
   if (!profile?.studentProfile?.bio) missingSections.push({ id: 'bio', name: 'Bio' });
@@ -66,7 +23,7 @@ export default async function StudentDashboard() {
     profilePicture: profile.profilePicture ?? undefined,
     role: profile.role,
     emailVerified: profile.emailVerified,
-    createdAt: profile.createdAt.toISOString(),
+    createdAt: toISO(profile.createdAt)!,
     studentProfile: profile.studentProfile ? {
       gradeLevel: profile.studentProfile.gradeLevel ?? 'Not specified',
       subjects: profile.studentProfile.subjects,

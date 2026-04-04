@@ -1,11 +1,60 @@
 import { Metadata } from 'next';
+import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/prisma';
+import { toISO } from '@/lib/cache/server-cache';
 import { EngagementClient } from './EngagementClient';
 
 export const metadata: Metadata = {
   title: 'Engagement | Admin',
   description: 'Manage gamification, sessions, and certificates.',
 };
+
+const getEngagementData = unstable_cache(
+  async () => {
+    return Promise.all([
+      prisma.userProgress.findMany({
+        include: {
+          user: { select: { id: true, firstName: true, lastName: true, email: true, profilePicture: true } },
+        },
+        orderBy: { totalXP: 'desc' },
+        take: 20,
+      }),
+      prisma.userProgress.aggregate({
+        _sum: { totalXP: true },
+        _avg: { totalXP: true, currentLevel: true, currentStreak: true },
+        _max: { totalXP: true, currentStreak: true, longestStreak: true },
+        _count: true,
+      }),
+      prisma.badge.groupBy({
+        by: ['type'],
+        _count: true,
+        orderBy: { _count: { type: 'desc' } },
+      }),
+      prisma.tutoringSession.findMany({
+        include: {
+          student: { select: { id: true, firstName: true, lastName: true } },
+          teacher: { select: { id: true, firstName: true, lastName: true } },
+        },
+        orderBy: { scheduledAt: 'desc' },
+        take: 50,
+      }),
+      prisma.tutoringSession.groupBy({
+        by: ['status'],
+        _count: true,
+      }),
+      prisma.certificate.findMany({
+        include: {
+          student: { select: { id: true, firstName: true, lastName: true } },
+          course: { select: { id: true, title: true } },
+        },
+        orderBy: { issuedAt: 'desc' },
+        take: 50,
+      }),
+    ]);
+  },
+  ['admin-engagement'],
+  { revalidate: false, tags: ['leaderboard'] }
+);
 
 export default async function EngagementPage() {
   const [
@@ -15,52 +64,7 @@ export default async function EngagementPage() {
     sessions,
     sessionCounts,
     certificates,
-  ] = await Promise.all([
-    // Top 20 leaderboard
-    prisma.userProgress.findMany({
-      include: {
-        user: { select: { id: true, firstName: true, lastName: true, email: true, profilePicture: true } },
-      },
-      orderBy: { totalXP: 'desc' },
-      take: 20,
-    }),
-    // XP aggregate stats
-    prisma.userProgress.aggregate({
-      _sum: { totalXP: true },
-      _avg: { totalXP: true, currentLevel: true, currentStreak: true },
-      _max: { totalXP: true, currentStreak: true, longestStreak: true },
-      _count: true,
-    }),
-    // Badge distribution
-    prisma.badge.groupBy({
-      by: ['type'],
-      _count: true,
-      orderBy: { _count: { type: 'desc' } },
-    }),
-    // Recent sessions
-    prisma.tutoringSession.findMany({
-      include: {
-        student: { select: { id: true, firstName: true, lastName: true } },
-        teacher: { select: { id: true, firstName: true, lastName: true } },
-      },
-      orderBy: { scheduledAt: 'desc' },
-      take: 50,
-    }),
-    // Session status counts
-    prisma.tutoringSession.groupBy({
-      by: ['status'],
-      _count: true,
-    }),
-    // Recent certificates
-    prisma.certificate.findMany({
-      include: {
-        student: { select: { id: true, firstName: true, lastName: true } },
-        course: { select: { id: true, title: true } },
-      },
-      orderBy: { issuedAt: 'desc' },
-      take: 50,
-    }),
-  ]);
+  ] = await getEngagementData();
 
   const sessionStatusMap = Object.fromEntries(sessionCounts.map(s => [s.status, s._count]));
 
@@ -90,7 +94,7 @@ export default async function EngagementPage() {
         id: s.id,
         title: s.title,
         status: s.status,
-        scheduledAt: s.scheduledAt.toISOString(),
+        scheduledAt: toISO(s.scheduledAt)!,
         duration: s.duration,
         student: { id: s.student.id, name: `${s.student.firstName} ${s.student.lastName}` },
         teacher: { id: s.teacher.id, name: `${s.teacher.firstName} ${s.teacher.lastName}` },
@@ -105,7 +109,7 @@ export default async function EngagementPage() {
       certificates={certificates.map(c => ({
         id: c.id,
         certificateId: c.certificateId,
-        issuedAt: c.issuedAt.toISOString(),
+        issuedAt: toISO(c.issuedAt)!,
         student: { id: c.student.id, name: `${c.student.firstName} ${c.student.lastName}` },
         course: { id: c.course.id, title: c.course.title },
       }))}

@@ -53,6 +53,9 @@ export async function POST(request: NextRequest) {
       validatedData.metadata
     );
 
+    const { revalidateUser } = await import('@/lib/cache/revalidate');
+    revalidateUser(dbUser.id);
+
     return createSuccessResponse(
       depositRequest,
       'Deposit request submitted. Please wait for admin approval.',

@@ -1,25 +1,12 @@
-import { prisma } from '@/lib/prisma';
 import { requireServerUser } from '@/lib/auth/server';
+import { getCachedTeacherDashboard, toISO } from '@/lib/cache/server-cache';
 import { TeacherDashboardClient } from './TeacherDashboardClient';
 
 export default async function TeacherDashboardPage() {
   const user = await requireServerUser();
 
-  // Fetch courses with counts for stats computation
-  const courses = await prisma.course.findMany({
-    where: { teacherId: user.id },
-    select: {
-      id: true,
-      title: true,
-      status: true,
-      enrollmentCount: true,
-      lessonCount: true,
-      averageRating: true,
-      reviewCount: true,
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 100,
-  });
+  const { courses, recentEnrollments, recentReviews } =
+    await getCachedTeacherDashboard(user.id);
 
   // Compute stats from courses
   const totalStudents = courses.reduce((sum, c) => sum + c.enrollmentCount, 0);
@@ -41,7 +28,6 @@ export default async function TeacherDashboardPage() {
     totalReviews,
   };
 
-  // Recent courses (top 4)
   const recentCourses = courses.slice(0, 4).map(c => ({
     id: c.id,
     title: c.title,
@@ -50,47 +36,20 @@ export default async function TeacherDashboardPage() {
     lessonCount: c.lessonCount,
   }));
 
-  // Fetch recent activity (enrollments + reviews as activity items)
-  const [recentEnrollments, recentReviews] = await Promise.all([
-    prisma.enrollment.findMany({
-      where: { course: { teacherId: user.id } },
-      select: {
-        id: true,
-        enrolledAt: true,
-        student: { select: { firstName: true, lastName: true } },
-        course: { select: { title: true } },
-      },
-      orderBy: { enrolledAt: 'desc' },
-      take: 5,
-    }),
-    prisma.review.findMany({
-      where: { course: { teacherId: user.id } },
-      select: {
-        id: true,
-        rating: true,
-        createdAt: true,
-        student: { select: { firstName: true, lastName: true } },
-        course: { select: { title: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-    }),
-  ]);
-
   // Build activity feed
   const activityItems = [
     ...recentEnrollments.map(e => ({
       id: e.id,
       type: 'new_enrollment',
       message: `${e.student.firstName} ${e.student.lastName} enrolled in ${e.course.title}`,
-      time: e.enrolledAt.toISOString(),
+      time: toISO(e.enrolledAt)!,
       sortDate: e.enrolledAt,
     })),
     ...recentReviews.map(r => ({
       id: r.id,
       type: 'review_received',
       message: `${r.student.firstName} ${r.student.lastName} left a ${r.rating}-star review on ${r.course.title}`,
-      time: r.createdAt.toISOString(),
+      time: toISO(r.createdAt)!,
       sortDate: r.createdAt,
     })),
   ]

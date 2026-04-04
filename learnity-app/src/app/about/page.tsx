@@ -194,7 +194,7 @@ through personalized, expert-led instruction.`,
                       icon: Zap,
                       title: 'Proven Results',
                       description:
-                        '95% of students see improvement within 3 months. 4.9 average rating from thousands of satisfied learners.',
+                        'Real-time progress tracking, gamification, and certificates help students stay motivated and measure growth.',
                     },
                   ]}
                   columns={3}
@@ -207,7 +207,7 @@ through personalized, expert-led instruction.`,
           {/* CTA Section */}
           <CTA
             title='Ready to Start Learning?'
-            description='Join thousands of students already learning with Learnity'
+            description='Create an account and start learning with verified tutors today'
             primaryAction={{
               label: 'Get Started',
               href: '/auth/register/student',

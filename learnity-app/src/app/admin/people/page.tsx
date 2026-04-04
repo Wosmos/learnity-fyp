@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { getUsers } from '@/lib/services/user-management.service';
 import { prisma } from '@/lib/prisma';
+import { toISO } from '@/lib/cache/server-cache';
 import { PeopleClient } from './PeopleClient';
 
 export const metadata: Metadata = {
@@ -53,7 +54,7 @@ export default async function PeoplePage({
         },
       },
       orderBy: { createdAt: 'desc' },
-      take: 100,
+      take: 50,
     }),
     prisma.user.groupBy({
       by: ['role'],
@@ -75,7 +76,7 @@ export default async function PeoplePage({
     role: t.role,
     profilePicture: t.profilePicture,
     isActive: t.isActive,
-    createdAt: t.createdAt.toISOString(),
+    createdAt: toISO(t.createdAt)!,
     teacherProfile: t.teacherProfile ? {
       id: t.teacherProfile.id,
       applicationStatus: t.teacherProfile.applicationStatus,
@@ -84,8 +85,8 @@ export default async function PeoplePage({
       experience: t.teacherProfile.experience,
       bio: t.teacherProfile.bio,
       hourlyRate: t.teacherProfile.hourlyRate ? Number(t.teacherProfile.hourlyRate) : null,
-      submittedAt: t.teacherProfile.submittedAt?.toISOString() ?? null,
-      reviewedAt: t.teacherProfile.reviewedAt?.toISOString() ?? null,
+      submittedAt: toISO(t.teacherProfile.submittedAt),
+      reviewedAt: toISO(t.teacherProfile.reviewedAt),
     } : null,
   }));
 

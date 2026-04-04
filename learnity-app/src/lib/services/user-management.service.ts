@@ -159,7 +159,7 @@ export async function getUsers(options: UserManagementOptions = {}) {
 
   return unstable_cache(async () => fetchUsersFromDb(options), [cacheKey], {
     tags: ['users', 'user-management'],
-    revalidate: 3600, // 1 hour stale-while-revalidate
+    revalidate: false,
   })();
 }
 

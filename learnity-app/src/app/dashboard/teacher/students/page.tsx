@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { requireServerUser } from '@/lib/auth/server';
+import { toISO } from '@/lib/cache/server-cache';
 import { TeacherStudentsClient } from './TeacherStudentsClient';
 
 export default async function TeacherStudentsPage() {
@@ -23,9 +24,11 @@ export default async function TeacherStudentsPage() {
               },
             },
           },
+          take: 50,
+          orderBy: { enrolledAt: 'desc' },
         },
       },
-      take: 100,
+      take: 50,
     }),
     // For courses data (curriculum view)
     prisma.course.findMany({
@@ -35,7 +38,7 @@ export default async function TeacherStudentsPage() {
         _count: { select: { sections: true } },
       },
       orderBy: { createdAt: 'desc' },
-      take: 100,
+      take: 50,
     }),
     // For stats
     prisma.teacherProfile.findUnique({
@@ -74,7 +77,7 @@ export default async function TeacherStudentsPage() {
         profilePicture: enrollment.student.profilePicture,
         enrolledCourses: [],
         totalProgress: 0,
-        lastActive: enrollment.lastAccessedAt.toISOString(),
+        lastActive: toISO(enrollment.lastAccessedAt)!,
         totalCoursesEnrolled: 0,
       };
 
@@ -82,8 +85,8 @@ export default async function TeacherStudentsPage() {
         courseId: course.id,
         courseTitle: course.title,
         progress: enrollment.progress,
-        enrolledAt: enrollment.enrolledAt.toISOString(),
-        lastAccessedAt: enrollment.lastAccessedAt.toISOString(),
+        enrolledAt: toISO(enrollment.enrolledAt)!,
+        lastAccessedAt: toISO(enrollment.lastAccessedAt)!,
         status: enrollment.status,
       });
       existing.totalCoursesEnrolled += 1;
@@ -93,7 +96,7 @@ export default async function TeacherStudentsPage() {
         new Date(enrollment.lastAccessedAt).getTime() >
         new Date(existing.lastActive).getTime()
       ) {
-        existing.lastActive = enrollment.lastAccessedAt.toISOString();
+        existing.lastActive = toISO(enrollment.lastAccessedAt)!;
       }
 
       studentMap.set(enrollment.student.id, existing);

@@ -158,7 +158,7 @@ export function ContentClient({ courses, categories, reviews, courseStats }: Pro
               </div>
             </CardHeader>
             <CardContent className='p-0'>
-              <DataGrid columns={courseColumns} data={filteredCourses} emptyMessage='No courses found.' />
+              <DataGrid columns={courseColumns} data={filteredCourses} emptyMessage='No courses found.' pageSize={20} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -199,7 +199,7 @@ export function ContentClient({ courses, categories, reviews, courseStats }: Pro
               <CardDescription>Moderate course reviews</CardDescription>
             </CardHeader>
             <CardContent className='p-0'>
-              <DataGrid columns={reviewColumns} data={reviews} emptyMessage='No reviews yet.' />
+              <DataGrid columns={reviewColumns} data={reviews} emptyMessage='No reviews yet.' pageSize={20} />
             </CardContent>
           </Card>
         </TabsContent>

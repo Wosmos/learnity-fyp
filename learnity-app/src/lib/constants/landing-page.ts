@@ -47,11 +47,12 @@ export interface Stat {
   label: string;
 }
 
-// Hero Stats
+// Hero Stats — real numbers come from PlatformStats component via API
+// These are only used as static fallbacks if the API is down
 export const HERO_STATS: Stat[] = [
-  { value: '1,000+', label: 'Active learners' },
-  { value: '500+', label: 'Expert tutors' },
-  { value: '4.9', label: 'Average rating' },
+  { value: '—', label: 'Active learners' },
+  { value: '—', label: 'Expert tutors' },
+  { value: '—', label: 'Average rating' },
 ];
 
 // How It Works Steps
@@ -60,7 +61,7 @@ export const HOW_IT_WORKS_STEPS: Step[] = [
     number: 1,
     title: 'Find your tutor',
     description:
-      'Browse through 500+ verified expert tutors. Filter by subject, availability, and price to find your perfect match.',
+      'Browse verified expert tutors. Filter by subject, availability, and price to find your perfect match.',
     color: 'blue',
   },
   {
@@ -142,7 +143,7 @@ export const TRUST_INDICATORS: TrustIndicator[] = [
     icon: Zap,
     title: 'Lightning Fast',
     description:
-      'Optimized performance with 99.9% uptime and global CDN delivery',
+      'Optimized performance with server-side caching and edge delivery',
     gradient: 'from-blue-500 to-blue-600',
   },
   {
@@ -169,7 +170,7 @@ export const GUARANTEE_FEATURES = [
   {
     icon: Award,
     title: 'Quality Assured',
-    description: '4.9 average rating from thousands of students',
+    description: 'Rated by real students after every session',
   },
 ];
 
@@ -209,7 +210,7 @@ export const WHY_CHOOSE_US = [
   {
     icon: Award,
     title: 'Proven Results',
-    description: '95% of students see improvement within 3 months',
+    description: 'Track your progress with detailed analytics and milestones',
   },
 ];
 

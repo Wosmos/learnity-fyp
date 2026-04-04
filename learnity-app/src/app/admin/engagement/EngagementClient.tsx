@@ -201,7 +201,7 @@ export function EngagementClient({ leaderboard, xpStats, badgeStats, sessions, s
               <CardDescription>All tutoring sessions across the platform</CardDescription>
             </CardHeader>
             <CardContent className='p-0'>
-              <DataGrid columns={sessionColumns} data={sessions} emptyMessage='No sessions yet.' />
+              <DataGrid columns={sessionColumns} data={sessions} emptyMessage='No sessions yet.' pageSize={20} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -216,7 +216,7 @@ export function EngagementClient({ leaderboard, xpStats, badgeStats, sessions, s
               <CardDescription>{certificates.length} certificates issued</CardDescription>
             </CardHeader>
             <CardContent className='p-0'>
-              <DataGrid columns={certificateColumns} data={certificates} emptyMessage='No certificates issued yet.' />
+              <DataGrid columns={certificateColumns} data={certificates} emptyMessage='No certificates issued yet.' pageSize={20} />
             </CardContent>
           </Card>
         </TabsContent>

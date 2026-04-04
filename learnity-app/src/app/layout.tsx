@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: '%s | Learnity',
   },
   description:
-    'Learn faster with expert online tutors on Learnity. Join 1000+ active learners and 500+ verified tutors. Personalized 1-on-1 tutoring, study groups, and enterprise-grade security. Start learning today!',
+    'Learn faster with expert online tutors on Learnity. Connect with verified tutors for Personalized 1-on-1 tutoring, study groups, and enterprise-grade security. Start learning today!',
   keywords: [
     'online tutoring',
     'online learning platform',
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     title:
       'Learnity - Online Tutoring & Learning Platform | Connect with Expert Tutors',
     description:
-      'Learn faster with expert online tutors on Learnity. Join 1000+ active learners and 500+ verified tutors. Personalized 1-on-1 tutoring, study groups, and enterprise-grade security.',
+      'Learn faster with expert online tutors on Learnity. Connect with verified tutors for Personalized 1-on-1 tutoring, study groups, and enterprise-grade security.',
     images: [
       {
         url: '/og-image.png',
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Learnity - Online Tutoring & Learning Platform',
     description:
-      'Learn faster with expert online tutors. Join 1000+ learners and 500+ verified tutors on Learnity.',
+      'Learn faster with verified expert tutors on Learnity. Personalized 1-on-1 tutoring, courses, and progress tracking.',
     images: ['/twitter-image.png'],
     creator: '@learnity',
   },

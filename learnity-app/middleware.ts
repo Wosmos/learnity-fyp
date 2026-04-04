@@ -1,10 +1,47 @@
 /**
  * Next.js Middleware for Centralized Route Protection
  * DRY principle: Single source of truth for auth verification
- * Handles role-based authorization for all protected routes
+ * Handles role-based authorization + rate limiting for all routes
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+
+// ─── In-memory rate limiter (Edge-compatible) ────────────────
+// Runs in the same long-lived Edge Runtime instance on Vercel
+
+const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+
+// Cleanup every 60s to prevent unbounded memory growth
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of rateLimitStore) {
+    if (now > entry.resetAt) rateLimitStore.delete(key);
+  }
+}, 60_000);
+
+function rateLimit(key: string, limit: number, windowMs: number): { allowed: boolean; remaining: number } {
+  const now = Date.now();
+  const entry = rateLimitStore.get(key);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitStore.set(key, { count: 1, resetAt: now + windowMs });
+    return { allowed: true, remaining: limit - 1 };
+  }
+
+  entry.count++;
+  if (entry.count > limit) {
+    return { allowed: false, remaining: 0 };
+  }
+  return { allowed: true, remaining: limit - entry.count };
+}
+
+// Rate limit tiers (requests per minute)
+const RATE_LIMITS = {
+  auth: 10,     // Login/register: 10 req/min
+  write: 30,    // POST/PUT/DELETE: 30 req/min
+  read: 100,    // GET on protected routes: 100 req/min
+  public: 200,  // Public pages: 200 req/min
+} as const;
 
 // Define route access rules with role requirements
 const ROUTE_CONFIG = {
@@ -153,6 +190,47 @@ export async function middleware(request: NextRequest) {
     pathname.match(/\.(ico|png|jpg|jpeg|svg|gif|webp)$/)
   ) {
     return NextResponse.next();
+  }
+
+  // ─── Rate limiting ──────────────────────────────────────────
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip')
+    || 'unknown';
+
+  const isApiRoute = pathname.startsWith('/api');
+  const isAuthRoute = pathname.startsWith('/api/auth');
+  const isWriteMethod = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method);
+
+  let limit: number = RATE_LIMITS.public;
+  let tierKey = 'public';
+
+  if (isAuthRoute) {
+    limit = RATE_LIMITS.auth;
+    tierKey = 'auth';
+  } else if (isApiRoute && isWriteMethod) {
+    limit = RATE_LIMITS.write;
+    tierKey = 'write';
+  } else if (isApiRoute) {
+    limit = RATE_LIMITS.read;
+    tierKey = 'read';
+  }
+
+  const rlKey = `${tierKey}:${ip}`;
+  const rl = rateLimit(rlKey, limit, 60_000);
+
+  if (!rl.allowed) {
+    return new NextResponse(
+      JSON.stringify({ error: 'Too many requests. Please try again later.' }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': '60',
+          'X-RateLimit-Limit': String(limit),
+          'X-RateLimit-Remaining': '0',
+        },
+      }
+    );
   }
 
   // Redirect legacy admin routes to new merged pages

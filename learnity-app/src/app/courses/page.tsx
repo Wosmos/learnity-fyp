@@ -68,7 +68,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
 
       <CTA
         title='Ready to start your journey?'
-        description='Join over 10,000 students who are already learning and growing on Learnity.'
+        description='Enroll in courses taught by verified tutors. Learn at your own pace with progress tracking and certificates.'
         primaryAction={{
           label: 'Get Started Now',
           href: '/auth/register',

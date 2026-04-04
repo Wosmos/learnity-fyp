@@ -56,7 +56,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const api = useAuthenticatedApi();
   const { loading: authLoading, isAuthenticated } = useAuth();
 
@@ -128,7 +128,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
 
     const interval = setInterval(() => {
       fetchDashboardStats();
-    }, 30000);
+    }, 120000);
 
     return () => clearInterval(interval);
   }, [autoRefresh, fetchDashboardStats]);

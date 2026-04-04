@@ -72,6 +72,9 @@ export async function POST(
     // Unpublish course (service handles ownership check)
     const course = await courseService.unpublishCourse(courseId, dbUser.id);
 
+    const { revalidateTeacherAction } = await import('@/lib/cache/revalidate');
+    revalidateTeacherAction(dbUser.id);
+
     return createSuccessResponse(
       course,
       'Course unpublished successfully. Existing student progress has been preserved.'

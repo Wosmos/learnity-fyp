@@ -1,30 +1,11 @@
-import { prisma } from '@/lib/prisma';
 import { requireServerUser } from '@/lib/auth/server';
+import { getCachedUserWallet, toISO } from '@/lib/cache/server-cache';
 import { StudentWalletClient } from './StudentWalletClient';
 
 export default async function WalletPage() {
   const user = await requireServerUser();
 
-  const [wallet, transactions] = await Promise.all([
-    prisma.wallet.findUnique({
-      where: { userId: user.id },
-      select: { balance: true, currency: true },
-    }),
-    prisma.walletTransaction.findMany({
-      where: { userId: user.id },
-      select: {
-        id: true,
-        amount: true,
-        type: true,
-        status: true,
-        description: true,
-        createdAt: true,
-        referenceId: true,
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 50,
-    }),
-  ]);
+  const { wallet, transactions } = await getCachedUserWallet(user.id);
 
   return (
     <StudentWalletClient
@@ -32,11 +13,11 @@ export default async function WalletPage() {
       transactions={transactions.map(t => ({
         id: t.id,
         amount: Number(t.amount),
-        type: t.type,
-        status: t.status,
+        type: t.type as 'DEPOSIT' | 'PURCHASE' | 'WITHDRAWAL' | 'REWARD' | 'REFUND',
+        status: t.status as 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED',
         description: t.description,
-        createdAt: t.createdAt.toISOString(),
         referenceId: t.referenceId,
+        createdAt: toISO(t.createdAt)!,
       }))}
     />
   );
