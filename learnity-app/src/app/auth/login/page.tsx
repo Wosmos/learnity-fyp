@@ -37,6 +37,7 @@ function LoginPageContent() {
   // Redirect if already authenticated
   useEffect(() => {
     if (!isAuthenticated) return;
+    if (loading) return; // Still loading — wait for claims to arrive
 
     if (user && !user.emailVerified) {
       router.push('/auth/verify-email');
@@ -44,11 +45,31 @@ function LoginPageContent() {
     }
 
     if (claims?.role) {
-      router.push(getRedirectPath(claims.role));
+      // Refresh the session cookie before redirecting.
+      // This prevents the expired-cookie redirect loop: when a user lands
+      // here because middleware rejected an expired JWT cookie, Firebase SDK
+      // still has a valid user. We get a fresh token and update the cookie
+      // so the middleware accepts the next request.
+      const dest = getRedirectPath(claims.role);
+      user
+        ?.getIdToken()
+        .then(token =>
+          fetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: token }),
+          })
+        )
+        .catch(() => {})
+        .finally(() => router.push(dest));
+      return;
     }
-    // Don't redirect to /welcome here — claims may still be loading
-    // The socialLogin/handleLogin handlers handle the redirect after claims arrive
-  }, [isAuthenticated, user, claims, router, redirectTo]);
+
+    // Loading is done and authenticated but no role — user has
+    // incomplete setup (new social login) or claims fetch failed.
+    // Send to /welcome which handles the "no role" state.
+    router.push('/welcome');
+  }, [isAuthenticated, user, claims, loading, router, redirectTo]);
 
   // Login handler that redirects directly after success
   const handleLogin = async (data: any) => {

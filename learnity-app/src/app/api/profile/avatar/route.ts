@@ -38,6 +38,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
+    // Reject oversized files with a clear 400 before hitting the service
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: 'File too large. Maximum size is 5MB.' },
+        { status: 400 }
+      );
+    }
+
     // Upload avatar
     const avatarUrl = await profileService.uploadAvatar(user.id, file);
 
@@ -48,9 +56,16 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('Avatar upload error:', error);
+
+    // Return 400 for validation errors, 500 for everything else
+    const isValidation =
+      error.message?.includes('size') ||
+      error.message?.includes('type') ||
+      error.message?.includes('limit');
+
     return NextResponse.json(
       { error: error.message || 'Failed to upload avatar' },
-      { status: 500 }
+      { status: isValidation ? 400 : 500 }
     );
   }
 }

@@ -358,6 +358,17 @@ export class ClientAuthService {
         idToken: freshToken,
       };
     } catch (error: any) {
+      // If signInWithPopup succeeded but subsequent steps (sync-profile,
+      // token refresh, session cookie) failed, sign out to prevent a
+      // "half-authenticated" state where Firebase has a user but no
+      // session cookie / claims exist. This stops AuthProvider's
+      // onAuthStateChanged from getting stuck in a loading loop.
+      try {
+        await signOut(auth);
+      } catch {
+        // Ignore sign-out errors during cleanup
+      }
+
       return {
         success: false,
         error: {

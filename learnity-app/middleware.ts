@@ -203,10 +203,19 @@ export async function middleware(request: NextRequest) {
   const isAuthRoute = pathname.startsWith('/api/auth');
   const isWriteMethod = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method);
 
+  // Skip rate limiting for auth session/sync routes — they're called internally
+  // during login flow (4-5 requests per login) and have their own Firebase token verification
+  const isAuthInternal = pathname === '/api/auth/sync-profile'
+    || pathname === '/api/auth/claims'
+    || pathname === '/api/auth/session'
+    || pathname === '/api/auth/profile';
+
   let limit: number = RATE_LIMITS.public;
   let tierKey = 'public';
 
-  if (isAuthRoute) {
+  if (isAuthInternal) {
+    // No rate limit on internal auth flow
+  } else if (isAuthRoute) {
     limit = RATE_LIMITS.auth;
     tierKey = 'auth';
   } else if (isApiRoute && isWriteMethod) {
@@ -217,22 +226,24 @@ export async function middleware(request: NextRequest) {
     tierKey = 'read';
   }
 
-  const rlKey = `${tierKey}:${ip}`;
-  const rl = rateLimit(rlKey, limit, 60_000);
+  if (!isAuthInternal) {
+    const rlKey = `${tierKey}:${ip}`;
+    const rl = rateLimit(rlKey, limit, 60_000);
 
-  if (!rl.allowed) {
-    return new NextResponse(
-      JSON.stringify({ error: 'Too many requests. Please try again later.' }),
-      {
-        status: 429,
-        headers: {
-          'Content-Type': 'application/json',
-          'Retry-After': '60',
-          'X-RateLimit-Limit': String(limit),
-          'X-RateLimit-Remaining': '0',
-        },
-      }
-    );
+    if (!rl.allowed) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Too many requests. Please try again later.' }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': '60',
+            'X-RateLimit-Limit': String(limit),
+            'X-RateLimit-Remaining': '0',
+          },
+        }
+      );
+    }
   }
 
   // Redirect legacy admin routes to new merged pages

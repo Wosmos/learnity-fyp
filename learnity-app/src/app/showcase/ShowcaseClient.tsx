@@ -765,11 +765,11 @@ export default function ShowcaseClient() {
               />
 
               <ReferenceCard
-                name="ProfileCard / EliteProfileCard"
-                file="components/students/ProfileCard.tsx"
-                usedIn={['Student dashboard sidebar']}
-                description="Student profile card with avatar, name, level badge, XP, streak, and quick stats grid."
-                reason="Requires profile data from auth context + gamification stats."
+                name="ProfileHub"
+                file="components/students/ProfileHub.tsx"
+                usedIn={['Student dashboard']}
+                description="Merged profile identity + completion card with donut progress, milestone track, and next steps."
+                reason="Requires profileData and completion objects from server-side dashboard data."
               />
 
               <ReferenceCard

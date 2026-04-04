@@ -2,11 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { BookOpen, TrendingUp, Clock, Award } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { ProfileCompletionBanner } from '@/components/profile/ProfileCompletionBanner';
 import { MetricCard } from '@/components/ui/stats-card';
 import Header from '@/components/students/Header';
-import { EliteProfileCard } from '@/components/students/ProfileCard';
+import { ProfileHub } from '@/components/students/ProfileHub';
 import Footer from '@/components/students/Footer';
 import SideBar from '@/components/students/SideBar';
 import MainSection from '@/components/students/MainSection';
@@ -113,19 +111,6 @@ export function StudentDashboardClient({ profileData, stats, completion }: Props
 
       {/* 2. MAIN APP CONTAINER (Centered & Max-Width) */}
       <main className='max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 py-10 space-y-10'>
-        {/* BANNERS SECTION (Conditional Spacing) */}
-        {completion.percentage < 100 && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <ProfileCompletionBanner
-              completion={completion}
-              onEnhanceClick={handleEnhanceProfile}
-            />
-          </motion.div>
-        )}
-
         {/* 3. PERFORMANCE METRICS (Aligned Grid) */}
         <section>
           <div className='grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-6'>
@@ -142,10 +127,14 @@ export function StudentDashboardClient({ profileData, stats, completion }: Props
           </div>
         </section>
 
-        {/* 4. IDENTITY HUB (Elite Profile Card) */}
-        <section>
-          {profileData && <EliteProfileCard profileData={profileData} />}
-        </section>
+        {/* PROFILE HUB (Identity + Completion merged) */}
+        {profileData && (
+          <ProfileHub
+            profileData={profileData}
+            completion={completion}
+            onEnhanceClick={handleEnhanceProfile}
+          />
+        )}
 
         {/* 5. DUAL-COLUMN OPERATIONAL GRID */}
         <div className='grid grid-cols-1 xl:grid-cols-12 gap-10 items-start'>

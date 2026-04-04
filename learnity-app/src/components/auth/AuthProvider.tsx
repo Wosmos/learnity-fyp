@@ -315,13 +315,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
 
           // Background: sync profile only (non-blocking)
-          // Do NOT refresh the session cookie here — it races with the
-          // socialLogin flow and can overwrite a good cookie (with role)
-          // with a stale one (no role yet). Cookie refresh is handled by
-          // the login flow itself and the 50-min token refresh interval.
           syncUserProfile(firebaseUser).catch(err =>
             console.warn('Background profile sync failed:', err)
           );
+
+          // For RETURNING users, refresh the session cookie so the
+          // middleware doesn't reject an expired JWT. Skip for new logins
+          // — their login flow (socialLogin/login) sets the cookie with a
+          // token that already has the role claim; refreshing here could
+          // race and overwrite it with a stale token.
+          if (isSameUser) {
+            fetch('/api/auth/session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ idToken }),
+            }).catch(() => {});
+          }
 
           const responses = await Promise.all(fetchPromises);
 
@@ -358,6 +367,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 })
               );
             }
+          } else if (!loginAlreadySetClaims) {
+            // Claims fetch failed and login flow didn't set them either.
+            // Log and set error so downstream components can handle it
+            // instead of silently leaving the user with no role.
+            console.error(
+              'Claims fetch failed:',
+              claimsResponse.status,
+              claimsResponse.statusText
+            );
           }
 
           // Process profile - update both stores

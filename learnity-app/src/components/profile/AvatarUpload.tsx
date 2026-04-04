@@ -41,7 +41,45 @@ export function AvatarUpload({
   const [preview, setPreview] = useState<string | null>(currentAvatar || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  /**
+   * Resize image to max dimensions and compress as JPEG.
+   * An avatar at 512x512 JPEG 0.8 quality is typically 30-50KB,
+   * making uploads near-instant and DB storage minimal.
+   */
+  const compressImage = (file: File, maxSize = 512): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+
+        // Scale down to fit within maxSize x maxSize (keep aspect ratio)
+        if (width > maxSize || height > maxSize) {
+          const scale = maxSize / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          blob => {
+            if (!blob) return reject(new Error('Compression failed'));
+            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+          },
+          'image/jpeg',
+          0.85
+        );
+      };
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -55,19 +93,28 @@ export function AvatarUpload({
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 10 * 1024 * 1024) {
       toast({
         title: 'File Too Large',
-        description: 'Maximum size is 5MB.',
+        description: 'Maximum size is 10MB.',
         variant: 'destructive',
       });
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result as string);
-    reader.readAsDataURL(file);
-    handleUpload(file);
+    try {
+      const compressed = await compressImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setPreview(reader.result as string);
+      reader.readAsDataURL(compressed);
+      handleUpload(compressed);
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to process image. Try a different file.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleUpload = async (file: File) => {

@@ -13,15 +13,13 @@ import {
   ProfileReward,
   DEFAULT_PRIVACY_SETTINGS,
 } from '@/lib/interfaces/profile.interface';
+import { BlobStorageService } from '@/lib/services/blob.service';
 
 export class ProfileEnhancementService implements IProfileEnhancementService {
   private prisma = prismaClient;
-  private readonly STORAGE_PATHS = {
-    AVATARS: 'avatars',
-  } as const;
 
   /**
-   * Upload user avatar - Store as base64 in Neon DB
+   * Upload user avatar — uses Vercel Blob when configured, falls back to base64 in DB
    */
   async uploadAvatar(userId: string, file: File): Promise<string> {
     try {
@@ -33,25 +31,41 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
         );
       }
 
-      // Validate file size (max 2MB for base64 storage)
-      const maxSize = 2 * 1024 * 1024;
+      // Validate file size (max 5MB — client compresses to ~50KB before upload)
+      const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize) {
-        throw new Error('File size exceeds 2MB limit.');
+        throw new Error('File size exceeds 5MB limit.');
       }
 
-      // Convert file to base64
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      const base64 = buffer.toString('base64');
-      const dataUrl = `data:${file.type};base64,${base64}`;
+      let avatarUrl: string;
 
-      // Update user profile with base64 image
+      // Try Vercel Blob first (fast CDN-backed storage)
+      if (process.env.BLOB_READ_WRITE_TOKEN) {
+        // Delete previous blob avatar if it exists
+        const currentUser = await this.prisma.user.findUnique({
+          where: { id: userId },
+          select: { profilePicture: true },
+        });
+        if (currentUser?.profilePicture?.includes('vercel-storage.com')) {
+          BlobStorageService.deleteFile(currentUser.profilePicture).catch(() => {});
+        }
+
+        const result = await BlobStorageService.uploadProfilePicture(file, userId);
+        avatarUrl = result.url;
+      } else {
+        // Fallback: base64 in DB (works without Vercel Blob token)
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const base64 = buffer.toString('base64');
+        avatarUrl = `data:${file.type};base64,${base64}`;
+      }
+
       await this.prisma.user.update({
         where: { id: userId },
-        data: { profilePicture: dataUrl },
+        data: { profilePicture: avatarUrl },
       });
 
-      return dataUrl;
+      return avatarUrl;
     } catch (error) {
       console.error('Avatar upload error:', error);
       throw error;
@@ -63,7 +77,15 @@ export class ProfileEnhancementService implements IProfileEnhancementService {
    */
   async deleteAvatar(userId: string): Promise<void> {
     try {
-      // Simply remove the avatar from database (no Firebase Storage cleanup needed)
+      // Delete from Vercel Blob if it's a blob URL
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { profilePicture: true },
+      });
+      if (user?.profilePicture?.includes('vercel-storage.com')) {
+        BlobStorageService.deleteFile(user.profilePicture).catch(() => {});
+      }
+
       await this.prisma.user.update({
         where: { id: userId },
         data: { profilePicture: null },
