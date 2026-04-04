@@ -29,7 +29,6 @@ import {
   ChevronRight,
   ChevronDown,
   Shield,
-  BarChart3,
   UserCheck,
   Layers,
   MessageCircle,
@@ -120,10 +119,8 @@ const adminNavItems: NavItem[] = [
   { label: 'Overview', href: '/admin', icon: Home },
   { label: 'Users', href: '/admin/users', icon: Users },
   { label: 'Applications', href: '/admin/teachers', icon: UserCheck },
-  { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { label: 'Finances', href: '/admin/wallet', icon: Wallet },
   { label: 'Security', href: '/admin/security', icon: Shield },
-  { label: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
 export const teacherSidebarConfig: SidebarConfig = {

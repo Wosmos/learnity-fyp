@@ -174,3 +174,10 @@ Stripped all `console.log`/`console.warn`/`console.error` from:
 - `Review`: compound `@@index([courseId, createdAt])`
 - `XPActivity`: compound `@@index([userId, createdAt(sort: Desc)])`
 - `AuditLog`: compound `@@index([ipAddress, eventType, success, createdAt])` for rate limiting queries
+
+### Dead Code Cleanup
+- Deleted `/admin/analytics` page (100% hardcoded mock data, no API)
+- Deleted `/admin/settings` page (form with no persistence, no API)
+- Deleted 3 empty files: `admin/utils.ts`, `externals/faq.tsx`, `externals/header.tsx`
+- Removed analytics/settings from admin sidebar nav
+- Removed `BarChart3` unused import from DashboardSidebar
