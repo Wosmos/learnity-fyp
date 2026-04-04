@@ -204,3 +204,16 @@ Stripped all `console.log`/`console.warn`/`console.error` from:
   - `/admin/engagement` — Gamification (leaderboard + badges) + Sessions + Certificates tabs (NEW)
 - All admin pages are server components with Prisma data fetching
 - Admin sidebar: Overview, People, Content, Finances, Engagement, Security
+- All admin pages are server components (Prisma data fetch, no API round-trips)
+
+### TypeScript & Build Fixes
+- Fixed all 63 TypeScript errors across 18 files
+- requireServerUser() returns NonNullable type
+- Prisma query field corrections (lessonCount scalar, sections count)
+- AuthErrorCode enum value fixes
+- Type alignment between server and client components
+- Deleted dead docs route (/docs/[slug]) + docs.ts + markdown.css (-872 lines)
+- Build compiles clean (static generation needs DB = expected for deploy)
+
+### Admin Setup
+- Created `scripts/create-admin.ts` for bootstrapping admin user in Firebase + DB
