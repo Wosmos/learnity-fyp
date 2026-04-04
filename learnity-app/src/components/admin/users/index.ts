@@ -4,5 +4,5 @@
  */
 
 export { DataTable } from './data-table';
-export { createColumns, type User } from './unified-columns';
+export { createUnifiedColumns, type UnifiedUser } from './unified-columns';
 export { UserDetailDialog } from './user-detail-dialog';

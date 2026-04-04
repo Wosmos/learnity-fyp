@@ -7,17 +7,17 @@ import { Badge } from '@/components/ui/badge';
 
 interface CourseEnrollment {
   id: string;
-  status: 'ACTIVE' | 'COMPLETED' | 'UNENROLLED';
+  status: string;
   progress: number;
   enrolledAt: string;
   lastAccessedAt: string;
-  completedAt?: string;
+  completedAt?: string | null;
   course: {
     id: string;
     title: string;
-    description: string;
-    thumbnailUrl?: string;
-    difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+    description: string | null;
+    thumbnailUrl?: string | null;
+    difficulty: string;
     totalDuration: number;
     lessonCount: number;
     averageRating: number;
@@ -25,12 +25,12 @@ interface CourseEnrollment {
     teacher: {
       id: string;
       name: string;
-      avatarUrl?: string;
+      avatarUrl?: string | null;
     };
     category: {
       id: string;
       name: string;
-    };
+    } | null;
   };
 }
 

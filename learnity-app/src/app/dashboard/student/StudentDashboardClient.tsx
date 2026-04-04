@@ -66,13 +66,7 @@ export function StudentDashboardClient({ profileData, stats, completion }: Props
     if (profileData) {
       return `${profileData.firstName[0]}${profileData.lastName[0]}`.toUpperCase();
     }
-    return (
-      user?.displayName
-        ?.split(' ')
-        .map(n => n[0])
-        .join('')
-        .toUpperCase() || 'ST'
-    );
+    return 'ST';
   };
 
   // Format watch time

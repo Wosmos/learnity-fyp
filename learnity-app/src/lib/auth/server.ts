@@ -53,6 +53,7 @@ export async function requireServerUser() {
     // Dynamic import to avoid pulling next/navigation into every file
     const { redirect } = await import('next/navigation');
     redirect('/auth/login');
+    // redirect() throws, so this is unreachable, but helps TS narrow the type
   }
-  return user;
+  return user as NonNullable<typeof user>;
 }

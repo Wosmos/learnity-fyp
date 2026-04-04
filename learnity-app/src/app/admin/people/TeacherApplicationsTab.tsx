@@ -19,7 +19,7 @@ interface Teacher {
   email: string;
   firstName: string;
   lastName: string;
-  role: string;
+  role: 'PENDING_TEACHER' | 'TEACHER' | 'REJECTED_TEACHER';
   profilePicture: string | null;
   isActive: boolean;
   createdAt: string;
@@ -151,7 +151,7 @@ export function TeacherApplicationsTab({ teachers: initialTeachers, counts: init
               {filtered.length > 0 ? (
                 <DataTable
                   columns={columns}
-                  data={filtered}
+                  data={filtered as any}
                   searchKey='email'
                   searchPlaceholder='Search by name or email...'
                 />

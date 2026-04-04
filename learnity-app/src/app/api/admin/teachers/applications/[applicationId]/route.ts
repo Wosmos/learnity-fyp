@@ -27,7 +27,7 @@ export async function GET(
 ): Promise<NextResponse> {
   const user = await authenticateAdmin(request);
   if (!user) {
-    return createApiErrorResponse(AuthErrorCode.UNAUTHORIZED, 'Admin access required');
+    return createApiErrorResponse(AuthErrorCode.INSUFFICIENT_PERMISSIONS, 'Admin access required');
   }
 
   const { applicationId } = await params;
@@ -48,7 +48,7 @@ export async function PUT(
 ): Promise<NextResponse> {
   const user = await authenticateAdmin(request);
   if (!user) {
-    return createApiErrorResponse(AuthErrorCode.UNAUTHORIZED, 'Admin access required');
+    return createApiErrorResponse(AuthErrorCode.INSUFFICIENT_PERMISSIONS, 'Admin access required');
   }
 
   const { applicationId } = await params;

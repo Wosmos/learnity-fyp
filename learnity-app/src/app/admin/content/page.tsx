@@ -13,7 +13,7 @@ export default async function ContentPage() {
       include: {
         teacher: { select: { id: true, firstName: true, lastName: true } },
         category: { select: { id: true, name: true } },
-        _count: { select: { enrollments: true, reviews: true, lessons: true } },
+        _count: { select: { enrollments: true, reviews: true, sections: true } },
       },
       orderBy: { createdAt: 'desc' },
       take: 100,
@@ -46,12 +46,12 @@ export default async function ContentPage() {
     isFree: c.isFree,
     price: c.price ? Number(c.price) : null,
     averageRating: Number(c.averageRating),
-    isFeatured: c.isFeatured,
+    isFeatured: false,
     createdAt: c.createdAt.toISOString(),
     publishedAt: c.publishedAt?.toISOString() ?? null,
     teacher: { id: c.teacher.id, name: `${c.teacher.firstName} ${c.teacher.lastName}` },
     category: c.category ? { id: c.category.id, name: c.category.name } : null,
-    counts: { enrollments: c._count.enrollments, reviews: c._count.reviews, lessons: c._count.lessons },
+    counts: { enrollments: c._count.enrollments, reviews: c._count.reviews, lessons: c.lessonCount },
   }));
 
   const serializedCategories = categories.map(c => ({

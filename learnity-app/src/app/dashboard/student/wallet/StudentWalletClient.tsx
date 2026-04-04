@@ -59,11 +59,11 @@ interface Wallet {
 interface Transaction {
   id: string;
   amount: number;
-  type: 'DEPOSIT' | 'WITHDRAWAL' | 'PURCHASE' | 'REFUND' | 'REWARD';
+  type: 'DEPOSIT' | 'WITHDRAWAL' | 'PURCHASE' | 'REFUND' | 'REWARD' | 'EARNING';
   status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
-  description: string;
+  description: string | null;
   createdAt: string;
-  referenceId?: string;
+  referenceId?: string | null;
 }
 
 interface Props {
