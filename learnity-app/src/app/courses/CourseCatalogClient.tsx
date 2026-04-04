@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 
 interface CourseData {
   id: string;
+  slug?: string;
   title: string;
   description: string;
   thumbnailUrl?: string | null;
@@ -292,10 +293,12 @@ export default function CourseCatalogClient({
               >
                 <CourseCard
                   id={course.id}
+                  href={`/courses/${course.slug || course.id}`}
                   title={course.title}
                   description={course.description}
                   thumbnailUrl={course.thumbnailUrl}
                   teacherName={course.teacher.name}
+                  teacherId={course.teacher.id}
                   teacherAvatarUrl={course.teacher.avatarUrl}
                   rating={course.averageRating}
                   reviewCount={course.reviewCount}

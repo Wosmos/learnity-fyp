@@ -10,17 +10,19 @@ import { NextRequest, NextResponse } from 'next/server';
 // Runs in the same long-lived Edge Runtime instance on Vercel
 
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
-
-// Cleanup every 60s to prevent unbounded memory growth
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of rateLimitStore) {
-    if (now > entry.resetAt) rateLimitStore.delete(key);
-  }
-}, 60_000);
+let lastCleanup = Date.now();
 
 function rateLimit(key: string, limit: number, windowMs: number): { allowed: boolean; remaining: number } {
   const now = Date.now();
+
+  // Lazy cleanup — purge expired entries every 60s instead of setInterval
+  if (now - lastCleanup > 60_000) {
+    lastCleanup = now;
+    for (const [k, v] of rateLimitStore) {
+      if (now > v.resetAt) rateLimitStore.delete(k);
+    }
+  }
+
   const entry = rateLimitStore.get(key);
 
   if (!entry || now > entry.resetAt) {
@@ -37,7 +39,7 @@ function rateLimit(key: string, limit: number, windowMs: number): { allowed: boo
 
 // Rate limit tiers (requests per minute)
 const RATE_LIMITS = {
-  auth: 10,     // Login/register: 10 req/min
+  auth: 20,     // Login/register: 20 req/min (login flow uses 3-4 requests internally)
   write: 30,    // POST/PUT/DELETE: 30 req/min
   read: 100,    // GET on protected routes: 100 req/min
   public: 200,  // Public pages: 200 req/min
@@ -309,14 +311,20 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // If authenticated but no role — user has incomplete setup, send to welcome
+  if (!auth.role) {
+    if (pathname !== '/welcome' && !pathname.startsWith('/api/')) {
+      return NextResponse.redirect(new URL('/welcome', request.url));
+    }
+    return NextResponse.next();
+  }
+
   // General Role-based route enforcement (centralized protection)
   const roleRoutes = ROUTE_CONFIG.roleBasedRoutes;
   for (const [role, routes] of Object.entries(roleRoutes)) {
     if (matchesRoute(pathname, routes)) {
       // Allow if user has the role OR is an ADMIN
       if (auth.role !== role && auth.role !== 'ADMIN') {
-        // Special case: PENDING_TEACHER is allowed on their specific routes
-        // (but we already handled that above, this is for other roles trying to cross-access)
         return NextResponse.redirect(new URL('/unauthorized', request.url));
       }
     }

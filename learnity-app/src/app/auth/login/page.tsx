@@ -34,15 +34,20 @@ function LoginPageContent() {
     return redirectTo === '/dashboard' ? defaultDashboard : redirectTo;
   };
 
-  // Redirect if already authenticated (e.g., user navigates to login page while logged in)
+  // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated && claims?.role) {
-      if (user && !user.emailVerified) {
-        router.push('/auth/verify-email');
-        return;
-      }
+    if (!isAuthenticated) return;
+
+    if (user && !user.emailVerified) {
+      router.push('/auth/verify-email');
+      return;
+    }
+
+    if (claims?.role) {
       router.push(getRedirectPath(claims.role));
     }
+    // Don't redirect to /welcome here — claims may still be loading
+    // The socialLogin/handleLogin handlers handle the redirect after claims arrive
   }, [isAuthenticated, user, claims, router, redirectTo]);
 
   // Login handler that redirects directly after success
@@ -56,6 +61,10 @@ function LoginPageContent() {
     }
     if (currentClaims?.role) {
       router.push(getRedirectPath(currentClaims.role));
+    } else {
+      // Claims not ready — the useEffect above will handle redirect once they arrive
+      // or send to /welcome if role is truly missing
+      router.push('/dashboard');
     }
   };
 

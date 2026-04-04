@@ -149,9 +149,9 @@ export function TeacherHero({ teacher, gradient, initials }: TeacherHeroProps) {
                   </p>
                   <div className='flex items-baseline gap-1'>
                     <span className='text-4xl font-black'>
-                      ${teacher.hourlyRate}
+                      Rs. {teacher.hourlyRate}
                     </span>
-                    <span className='text-sm font-medium opacity-60'>/hr</span>
+                    <span className='text-sm font-medium opacity-60'>/mo</span>
                   </div>
                 </div>
                 <div className='text-right'>

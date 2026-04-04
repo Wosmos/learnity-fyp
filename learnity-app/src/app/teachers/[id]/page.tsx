@@ -14,11 +14,17 @@ interface PageProps {
   }>;
 }
 
-async function getTeacher(id: string) {
+async function getTeacher(idOrSlug: string) {
   try {
-    const teacher = await prisma.user.findUnique({
+    // URL format: "firstname-lastname-FULL_CUID" e.g. "ahmed-khan-cmle2x61a000y11izdc79xh3a"
+    // Extract the CUID (last 25 chars of the slug, or try full string as ID)
+    // CUIDs are 25 chars starting with 'c'
+    const cuidMatch = idOrSlug.match(/([a-z0-9]{25})$/);
+    const possibleId = cuidMatch ? cuidMatch[1] : idOrSlug;
+
+    const teacher = await prisma.user.findFirst({
       where: {
-        id,
+        id: possibleId,
         role: 'TEACHER',
         isActive: true,
       },

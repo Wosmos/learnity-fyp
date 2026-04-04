@@ -52,7 +52,7 @@ function TeacherCard({ teacher }: { teacher: SimilarTeacher }) {
   const rating = parseFloat(teacherProfile.rating || '0');
 
   return (
-    <Link href={`/teachers/${teacher.id}`} className='block group'>
+    <Link href={`/teachers/${firstName.toLowerCase()}-${lastName.toLowerCase()}-${teacher.id}`} className='block group'>
       <div className='p-5 border border-slate-100 rounded-lg hover:border-slate-900 bg-white transition-all duration-300'>
         <div className='flex gap-5'>
           <div className='relative shrink-0'>
@@ -80,7 +80,7 @@ function TeacherCard({ teacher }: { teacher: SimilarTeacher }) {
                 </p>
               </div>
               <span className="text-xs font-bold text-slate-950 bg-slate-50 px-2 py-1">
-                ${teacherProfile.hourlyRate}<span className="text-[10px] text-slate-400">/hr</span>
+                Rs. {teacherProfile.hourlyRate}<span className="text-[10px] text-slate-400">/mo</span>
               </span>
             </div>
 

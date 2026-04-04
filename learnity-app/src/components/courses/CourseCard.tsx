@@ -65,6 +65,8 @@ export interface CourseCardProps extends VariantProps<
 
   teacherName: string;
 
+  teacherId?: string;
+
   teacherAvatarUrl?: string | null;
 
   rating: number;
@@ -106,6 +108,7 @@ export function CourseCard({
   description,
   thumbnailUrl,
   teacherName,
+  teacherId,
   teacherAvatarUrl,
   rating,
   reviewCount,
@@ -226,7 +229,11 @@ export function CourseCard({
           </div>
 
           {/* INSTRUCTOR PROFILE */}
-          <div className='flex items-center gap-3'>
+          <Link
+            href={teacherId ? `/teachers/${teacherName.toLowerCase().replace(/\s+/g, '-')}-${teacherId}` : '#'}
+            onClick={(e) => e.stopPropagation()}
+            className='flex items-center gap-3 hover:opacity-80 transition-opacity'
+          >
             <div className='relative h-9 w-9 shrink-0'>
               <div className='absolute inset-0 bg-indigo-500/10 rounded-full scale-110 animate-pulse group-hover/card:bg-indigo-500/20 transition-colors' />
               {teacherAvatarUrl ? (
@@ -243,14 +250,14 @@ export function CourseCard({
               )}
             </div>
             <div className='flex flex-col min-w-0'>
-              <span className='text-[11px] font-extrabold text-foreground line-clamp-1 leading-none mb-0.5'>
+              <span className='text-[11px] font-extrabold text-foreground line-clamp-1 leading-none mb-0.5 hover:text-primary transition-colors'>
                 {teacherName || 'Instructor'}
               </span>
               <span className='text-[9px] font-bold text-muted-foreground uppercase tracking-tighter'>
                 Instructor
               </span>
             </div>
-          </div>
+          </Link>
 
           {/* TELEMETRY BAR */}
           <div className='pt-4 mt-2 border-t border-border flex items-center justify-between'>

@@ -146,7 +146,7 @@ export const createUnifiedColumns = ({
               <div className='flex flex-col gap-1'>
                 {user.hourlyRate && (
                   <span className='text-xs font-medium text-slate-700'>
-                    ${user.hourlyRate}/hr
+                    Rs. {user.hourlyRate}/mo
                   </span>
                 )}
                 {user.rating !== undefined && (
@@ -199,7 +199,7 @@ export const createUnifiedColumns = ({
             if (user.role.includes('TEACHER')) {
               return (
                 <span className='text-xs font-medium'>
-                  ${user.hourlyRate}/hr • {user.rating} ★
+                  Rs. {user.hourlyRate}/mo • {user.rating} ★
                 </span>
               );
             }

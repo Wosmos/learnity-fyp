@@ -176,7 +176,7 @@ export const createTeacherColumns = ({
         return <span className='text-xs text-muted-foreground'>Not set</span>;
       }
 
-      return <span className='text-sm font-medium'>${rate}/hr</span>;
+      return <span className='text-sm font-medium'>Rs. {rate}/mo</span>;
     },
   },
   {

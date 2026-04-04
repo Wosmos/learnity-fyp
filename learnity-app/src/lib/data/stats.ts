@@ -149,7 +149,7 @@ export const getPlatformStats = unstable_cache(
   },
   ['platform-stats'],
   {
-    revalidate: false,
+    revalidate: 300,
     tags: ['stats', 'platform-stats'],
   }
 );
@@ -288,7 +288,7 @@ export const getDetailedStats = unstable_cache(
   },
   ['detailed-stats'],
   {
-    revalidate: false,
+    revalidate: 300,
     tags: ['stats', 'platform-stats'],
   }
 );

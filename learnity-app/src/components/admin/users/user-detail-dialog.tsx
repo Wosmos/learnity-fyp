@@ -280,7 +280,7 @@ export function UserDetailDialog({
                         Monthly Rate
                       </p>
                       <p className='font-semibold text-green-700'>
-                        ${user.teacherProfile.hourlyRate}/hour
+                        Rs. {user.teacherProfile.hourlyRate}/mo
                       </p>
                     </div>
                   )}

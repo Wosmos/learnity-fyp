@@ -159,7 +159,7 @@ export function TeacherCourses({
           {displayedCourses.map(course => (
             <Link
               key={course.id}
-              href={`/courses/${course.id}`}
+              href={`/courses/${course.slug || course.id}`}
               className='block group'
             >
               <div className='border rounded-lg p-4 hover:shadow-md transition-all duration-200 hover:border-indigo-200'>

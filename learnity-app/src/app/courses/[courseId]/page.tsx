@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Star, Users, Clock } from 'lucide-react';
 import { courseService } from '@/lib/services/course.service';
 import { reviewService } from '@/lib/services/review.service';
@@ -25,8 +26,8 @@ export async function generateMetadata({
   params,
 }: CoursePageProps): Promise<Metadata> {
   const { courseId } = await params;
-  const course = await prisma.course.findUnique({
-    where: { id: courseId },
+  const course = await prisma.course.findFirst({
+    where: { OR: [{ slug: courseId }, { id: courseId }] },
     select: { title: true, description: true, thumbnailUrl: true },
   });
 
@@ -49,15 +50,23 @@ export async function generateStaticParams() {
     where: { status: 'PUBLISHED' },
     orderBy: { enrollmentCount: 'desc' },
     take: 50,
-    select: { id: true },
+    select: { slug: true },
   });
 
   return popularCourses.map(c => ({
-    courseId: c.id,
+    courseId: c.slug,
   }));
 }
 
-async function getCourseData(courseId: string) {
+async function getCourseData(idOrSlug: string) {
+  // Resolve slug to ID if needed
+  const resolved = await prisma.course.findFirst({
+    where: { OR: [{ slug: idOrSlug }, { id: idOrSlug }] },
+    select: { id: true },
+  });
+  if (!resolved) return null;
+  const courseId = resolved.id;
+
   const [course, reviews, rating] = await Promise.all([
     courseService.getCourseById(courseId),
     reviewService.getCourseReviews(courseId, { limit: 5, page: 1 }),
@@ -219,7 +228,10 @@ async function AsyncCourseDetail({
                 </div>
               </div>
 
-              <div className='flex items-center gap-4 p-2 pr-6 rounded-2xl bg-white border border-slate-100 w-max shadow-sm'>
+              <Link
+                href={`/teachers/${course.teacher.name.toLowerCase().replace(/\s+/g, '-')}-${course.teacher.id}`}
+                className='flex items-center gap-4 p-2 pr-6 rounded-2xl bg-white border border-slate-100 w-max shadow-sm hover:border-indigo-200 hover:shadow-md transition-all'
+              >
                 <div className='h-12 w-12 rounded-xl overflow-hidden border-2 border-white shadow-sm relative bg-slate-100'>
                   {course.teacher.avatarUrl ? (
                     <Image
@@ -242,7 +254,7 @@ async function AsyncCourseDetail({
                     {course.teacher.name}
                   </span>
                 </div>
-              </div>
+              </Link>
             </div>
 
             <div className='relative aspect-square lg:aspect-[4/3] rounded-[3rem] overflow-hidden shadow-2xl shadow-indigo-100/50 border-8 border-white ring-1 ring-slate-100 group'>

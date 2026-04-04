@@ -40,7 +40,7 @@ export function TeacherCard({ teacher }: TeacherCardProps) {
   const isPopular = teacher.reviewCount >= 50;
 
   return (
-    <Link href={`/teachers/${teacher.id}`} className='block group h-full'>
+    <Link href={`/teachers/${teacher.firstName.toLowerCase()}-${teacher.lastName.toLowerCase()}-${teacher.id}`} className='block group h-full'>
       <div className='relative h-full flex flex-col bg-white rounded-[20px] md:rounded-[24px] border border-slate-200 p-4 md:p-5 transition-all duration-500 cubic-bezier(0.25, 1, 0.5, 1) hover:border-slate-950 hover:shadow-2xl hover:shadow-slate-200/50 hover:-translate-y-1 overflow-hidden'>
         
         {/* 1. The "Golden Thread" (Premium Top Gradient) */}
@@ -78,9 +78,9 @@ export function TeacherCard({ teacher }: TeacherCardProps) {
           <div className="text-right">
              <div className="inline-flex items-baseline gap-1">
                 <span className="text-lg md:text-xl font-bold text-slate-900 font-mono tracking-tight">
-                  ${teacher.hourlyRate || '0'}
+                  Rs. {teacher.hourlyRate || '0'}
                 </span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">/hr</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">/mo</span>
              </div>
              <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest mt-0.5 group-hover:text-amber-500 transition-colors">
                Starting
