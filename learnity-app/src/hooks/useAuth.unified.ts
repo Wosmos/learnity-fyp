@@ -71,11 +71,8 @@ async function extractClaimsFromToken(
     const idTokenResult = await user.getIdTokenResult(true);
     const firebaseClaims = idTokenResult.claims;
 
-    console.log('Firebase claims:', firebaseClaims); // Debug logging
-
     // Check if custom claims exist
     if (!firebaseClaims.role) {
-      console.warn('No custom claims found, user may need profile sync');
 
       // Try to trigger profile sync
       try {
@@ -104,7 +101,6 @@ async function extractClaimsFromToken(
         });
 
         if (response.ok) {
-          console.log('Profile sync triggered successfully');
           // Get fresh token with updated claims
           const freshTokenResult = await user.getIdTokenResult(true);
           const freshClaims = freshTokenResult.claims;
@@ -196,9 +192,7 @@ export function useAuth(): UseAuthReturn {
       // Force token refresh to get latest claims
       await user.getIdToken(true);
       // The actual store update should be handled by the refresh logic in AuthProvider or a dedicated action
-      console.log('[useAuth] Claims refresh requested');
     } catch (error: any) {
-      console.error('[useAuth] Failed to refresh claims:', error);
     }
   }, [user]);
 
@@ -367,29 +361,3 @@ export function usePermissions(): Permission[] {
   return claims?.permissions || [];
 }
 
-/**
- * Backward compatibility: ClientAuthState interface
- * This allows gradual migration from useClientAuth
- */
-export interface ClientAuthState {
-  user: FirebaseUser | null;
-  loading: boolean;
-  isAdmin: boolean;
-  isAuthenticated: boolean;
-  claims: CustomClaims | null;
-}
-
-/**
- * Backward compatible hook for useClientAuth
- * @deprecated Use useAuth() instead. This will be removed in a future version.
- */
-export function useClientAuth(): ClientAuthState {
-  const { user, loading, isAdmin, isAuthenticated, claims } = useAuth();
-  return {
-    user,
-    loading,
-    isAdmin,
-    isAuthenticated,
-    claims,
-  };
-}

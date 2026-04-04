@@ -20,7 +20,7 @@ export interface RedirectOptions {
 export function getDashboardRoute(role: UserRole): string {
   switch (role) {
     case UserRole.ADMIN:
-      return '/dashboard/admin';
+      return '/admin';
     case UserRole.TEACHER:
       return '/dashboard/teacher';
     case UserRole.STUDENT:

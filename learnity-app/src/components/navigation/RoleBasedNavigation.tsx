@@ -140,13 +140,13 @@ const DEFAULT_NAVIGATION_ITEMS: NavigationItem[] = [
   },
   {
     label: 'User Management',
-    href: '/admin/users',
+    href: '/admin/people',
     permission: Permission.MANAGE_USERS,
     role: UserRole.ADMIN,
   },
   {
     label: 'Teacher Applications',
-    href: '/admin/teachers',
+    href: '/admin/people?tab=applications',
     permission: Permission.APPROVE_TEACHERS,
     role: UserRole.ADMIN,
   },
@@ -498,7 +498,7 @@ export function QuickActions({ className }: QuickActionProps) {
 
       <RequirePermission permission={Permission.APPROVE_TEACHERS}>
         <Link
-          href='/admin/teachers'
+          href='/admin/people?tab=applications'
           className='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200'
         >
           Review Applications

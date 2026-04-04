@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -22,7 +23,7 @@ import {
   Settings,
   LayoutDashboard,
 } from 'lucide-react';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useLogout } from '@/hooks/useLogout';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { Button } from '@/components/ui/button';
@@ -60,7 +61,7 @@ export function AppLayout({
   className,
   hideNavigationLinks = false,
 }: AppLayoutProps) {
-  const { user, loading, isAuthenticated, claims } = useClientAuth();
+  const { user, loading, isAuthenticated, claims } = useAuth();
   const { logout, isLoggingOut } = useLogout();
   const api = useAuthenticatedApi();
   const router = useRouter();
@@ -140,13 +141,13 @@ export function AppLayout({
 
   if (loading) {
     return (
-      <div className='min-h-screen bg-slate-50 flex items-center justify-center'>
+      <div className='min-h-screen bg-muted flex items-center justify-center'>
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className='text-center'
         >
-          <div className='inline-flex items-center justify-center p-4 bg-white rounded-2xl shadow-xl border border-slate-100 mb-6'>
+          <div className='inline-flex items-center justify-center p-4 bg-card rounded-2xl shadow-xl border border-border mb-6'>
             <GraduationCap className='h-10 w-10 text-slate-800' />
           </div>
           <div className='flex flex-col items-center gap-3'>
@@ -188,7 +189,7 @@ export function AppLayout({
                   className='group flex items-center gap-2.5 transition-transform active:scale-95'
                 >
                   <div className='p-2 bg-slate-900 rounded-xl group-hover:rotate-6 transition-transform flex items-center justify-center'>
-                    <img src='/logo.svg' alt='Learnity' className='h-5 w-5' />
+                    <Image src='/logo.svg' alt='Learnity' width={20} height={20} />
                   </div>
                   <span className='text-xl font-bold tracking-tight text-slate-900'>
                     Learnity
@@ -375,7 +376,8 @@ export function AppLayout({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className='fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 md:hidden'
+                  transition={{ duration: 0.15 }}
+                  className='fixed inset-0 bg-black/30 z-40 md:hidden'
                   onClick={() => setIsMobileMenuOpen(false)}
                 />
                 
@@ -384,8 +386,8 @@ export function AppLayout({
                   initial={{ x: '100%' }}
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
-                  transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                  className='fixed top-0 right-0 bottom-0 w-[280px] bg-white shadow-2xl z-50 md:hidden flex flex-col'
+                  transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
+                  className='fixed top-0 right-0 bottom-0 w-[280px] bg-background shadow-2xl z-50 md:hidden flex flex-col'
                 >
                   <div className='p-6 pt-20 flex-1 overflow-y-auto'>
                     {isAuthenticated && user?.emailVerified ? (
@@ -486,13 +488,7 @@ export function AppLayout({
 
       {/* Main Content */}
       <main className='flex-1'>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
-        >
-          {children}
-        </motion.div>
+        {children}
       </main>
 
       <Footer status={{ text: 'All Systems Operational', online: true }} />
@@ -502,7 +498,7 @@ export function AppLayout({
 
 // Higher Order Components for protected layouts
 export function AuthenticatedLayout({ children, ...props }: AppLayoutProps) {
-  const { user, isAuthenticated, loading } = useClientAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {

@@ -26,12 +26,12 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { UserRole } from '@/types/auth';
 import { auditLogger } from '@/lib/services/audit-logger.service';
 
 export function UnauthorizedContent() {
-  const { user, claims } = useClientAuth();
+  const { user, claims } = useAuth();
   const searchParams = useSearchParams();
 
   // Derive values directly instead of using state

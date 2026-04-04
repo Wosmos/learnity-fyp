@@ -129,8 +129,8 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
       className={cn(
         'relative p-5 rounded-2xl border-2 transition-all',
         isUnlocked
-          ? `bg-white shadow-lg ${rarityBorders[rarity]}`
-          : 'bg-slate-50/50 border-slate-100 opacity-60'
+          ? `bg-card shadow-lg ${rarityBorders[rarity]}`
+          : 'bg-muted/50 border-border opacity-60'
       )}
     >
       {/* Rarity Glow for Unlocked */}
@@ -149,7 +149,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
           <div
             className={cn(
               'text-4xl p-3 rounded-xl',
-              isUnlocked ? 'bg-white shadow-sm' : 'bg-slate-100 grayscale'
+              isUnlocked ? 'bg-card shadow-sm' : 'bg-muted grayscale'
             )}
           >
             {achievement.icon}
@@ -168,7 +168,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         <h4
           className={cn(
             'font-bold mb-1',
-            isUnlocked ? 'text-slate-900' : 'text-slate-400'
+            isUnlocked ? 'text-foreground' : 'text-muted-foreground'
           )}
         >
           {achievement.name}
@@ -176,7 +176,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         <p
           className={cn(
             'text-xs mb-3',
-            isUnlocked ? 'text-slate-500' : 'text-slate-400'
+            isUnlocked ? 'text-muted-foreground' : 'text-muted-foreground'
           )}
         >
           {achievement.description}
@@ -289,7 +289,7 @@ export default function AchievementsPage() {
 
   if (isLoading) {
     return (
-      <div className='flex-1 bg-slate-50 min-h-screen'>
+      <div className='flex-1 bg-background min-h-screen'>
         <div className='max-w-[1400px] mx-auto px-6 lg:px-10 py-10'>
           <Skeleton className='h-10 w-64 mb-8' />
           <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10'>
@@ -308,14 +308,14 @@ export default function AchievementsPage() {
 
   if (error) {
     return (
-      <div className='flex-1 bg-slate-50 min-h-screen flex items-center justify-center'>
+      <div className='flex-1 bg-background min-h-screen flex items-center justify-center'>
         <Card className='max-w-md'>
           <CardContent className='pt-6 text-center'>
             <AlertCircle className='h-12 w-12 text-red-400 mx-auto mb-4' />
-            <h3 className='text-lg font-bold text-slate-900 mb-2'>
+            <h3 className='text-lg font-bold text-foreground mb-2'>
               Failed to load achievements
             </h3>
-            <p className='text-sm text-slate-500 mb-4'>{error}</p>
+            <p className='text-sm text-muted-foreground mb-4'>{error}</p>
             <Button onClick={fetchData}>Try Again</Button>
           </CardContent>
         </Card>
@@ -346,9 +346,9 @@ export default function AchievementsPage() {
   const maxWeeklyXP = Math.max(...(last7Days.map(d => d.xp) || [1]), 1);
 
   return (
-    <div className='flex-1 bg-slate-50 min-h-screen'>
+    <div className='flex-1 bg-background min-h-screen'>
       {/* Header */}
-      <header className='sticky top-0 z-30 w-full bg-white/80 backdrop-blur-xl border-b border-slate-200/60'>
+      <header className='sticky top-0 z-30 w-full bg-card/80 backdrop-blur-xl border-b border-border/60'>
         <div className='absolute top-0 left-0 right-0 h-[2px] bg-linear-to-r from-amber-500 via-orange-500 to-red-500 opacity-60' />
         <div className='max-w-[1400px] mx-auto px-6 lg:px-10 py-6'>
           <div className='flex items-center justify-between'>
@@ -357,10 +357,10 @@ export default function AchievementsPage() {
                 <Trophy className='h-6 w-6' />
               </div>
               <div>
-                <h1 className='text-2xl font-black text-slate-900 tracking-tight'>
+                <h1 className='text-2xl font-black text-foreground tracking-tight'>
                   Achievements
                 </h1>
-                <p className='text-sm text-slate-500'>
+                <p className='text-sm text-muted-foreground'>
                   {aData?.stats.unlocked || 0} of {aData?.stats.total || 0}{' '}
                   unlocked
                 </p>
@@ -512,14 +512,14 @@ export default function AchievementsPage() {
                     return (
                       <div key={item.reason} className='space-y-1'>
                         <div className='flex items-center justify-between text-sm'>
-                          <span className='font-medium text-slate-700'>
+                          <span className='font-medium text-foreground/80'>
                             {xpReasonLabels[item.reason] || item.reason}
                           </span>
-                          <span className='font-bold text-slate-900'>
+                          <span className='font-bold text-foreground'>
                             {item.totalXP.toLocaleString()} XP
                           </span>
                         </div>
-                        <div className='h-2 bg-slate-100 rounded-full overflow-hidden'>
+                        <div className='h-2 bg-muted rounded-full overflow-hidden'>
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${percentage}%` }}
@@ -527,14 +527,14 @@ export default function AchievementsPage() {
                             className='h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full'
                           />
                         </div>
-                        <p className='text-[10px] text-slate-400'>
+                        <p className='text-[10px] text-muted-foreground'>
                           {item.count} activities • {percentage}% of total
                         </p>
                       </div>
                     );
                   })}
                   {(!gData?.xpBreakdown || gData.xpBreakdown.length === 0) && (
-                    <p className='text-sm text-slate-400 text-center py-4'>
+                    <p className='text-sm text-muted-foreground text-center py-4'>
                       Complete activities to earn XP!
                     </p>
                   )}
@@ -579,7 +579,7 @@ export default function AchievementsPage() {
                         key={i}
                         className='flex-1 flex flex-col items-center gap-2'
                       >
-                        <span className='text-xs font-bold text-slate-600'>
+                        <span className='text-xs font-bold text-muted-foreground'>
                           {day.xp > 0 ? `+${day.xp}` : '0'}
                         </span>
                         <motion.div
@@ -642,7 +642,7 @@ export default function AchievementsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className='border-slate-200/60 shadow-sm bg-white rounded-[2.5rem] overflow-hidden'>
+            <Card className='border-border/60 shadow-sm bg-card rounded-[2.5rem] overflow-hidden'>
               <CardHeader className='pb-2 pt-8 px-8'>
                 <div className='flex items-center justify-between'>
                   <div className='flex items-center gap-4'>
@@ -650,9 +650,9 @@ export default function AchievementsPage() {
                       <Sparkles className='h-4 w-4' />
                     </div>
                     <div>
-                      <CardTitle className='text-sm font-black uppercase tracking-[0.2em] text-slate-900'>
+                      <CardTitle className='text-sm font-black uppercase tracking-[0.2em] text-foreground'>
                         Activity
-                        <span className='text-slate-400 font-light italic'>
+                        <span className='text-muted-foreground font-light italic'>
                           Logs
                         </span>
                       </CardTitle>
@@ -661,9 +661,9 @@ export default function AchievementsPage() {
                       </p>
                     </div>
                   </div>
-                  <div className='flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-50 border border-slate-100'>
+                  <div className='flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted border border-border'>
                     <div className='h-1 w-1 rounded-full bg-emerald-500 animate-pulse' />
-                    <span className='text-[9px] font-black text-slate-500 uppercase tracking-widest'>
+                    <span className='text-[9px] font-black text-muted-foreground uppercase tracking-widest'>
                       Recent Activity
                     </span>
                   </div>
@@ -673,7 +673,7 @@ export default function AchievementsPage() {
               <CardContent className='p-8 pt-6'>
                 <div className='relative space-y-1'>
                   {/* Vertical Timeline Thread */}
-                  <div className='absolute left-[19px] top-2 bottom-2 w-[1px] bg-slate-100' />
+                  <div className='absolute left-[19px] top-2 bottom-2 w-[1px] bg-border' />
 
                   {gData.recentXPActivities.slice(0, 5).map((activity, i) => (
                     <motion.div
@@ -685,7 +685,7 @@ export default function AchievementsPage() {
                     >
                       <div className='flex items-center gap-4 relative z-10'>
                         {/* Node Icon */}
-                        <div className='h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm group-hover:border-emerald-200 transition-colors'>
+                        <div className='h-10 w-10 rounded-xl bg-card border border-border flex items-center justify-center shadow-sm group-hover:border-emerald-200 transition-colors'>
                           <Zap
                             className={cn(
                               'h-4 w-4 transition-colors',
@@ -697,7 +697,7 @@ export default function AchievementsPage() {
                         </div>
 
                         <div>
-                          <p className='text-xs font-black text-slate-900 uppercase tracking-tight'>
+                          <p className='text-xs font-black text-foreground uppercase tracking-tight'>
                             {xpReasonLabels[activity.reason] || activity.reason}
                           </p>
                           <div className='flex items-center gap-2 mt-0.5'>
@@ -722,7 +722,7 @@ export default function AchievementsPage() {
                       </div>
 
                       <div className='text-right'>
-                        <span className='text-sm font-black text-slate-900 tabular-nums'>
+                        <span className='text-sm font-black text-foreground tabular-nums'>
                           <span className='text-emerald-500 mr-0.5'>+</span>
                           {activity.amount}
                         </span>
@@ -735,7 +735,7 @@ export default function AchievementsPage() {
                 </div>
 
                 {/* Action Footer */}
-                <button className='w-full mt-6 py-3 rounded-xl border border-dashed border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:bg-slate-50 hover:text-slate-600 transition-all'>
+                <button className='w-full mt-6 py-3 rounded-xl border border-dashed border-border text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] hover:bg-muted hover:text-foreground transition-all'>
                   View Full History
                 </button>
               </CardContent>
@@ -746,15 +746,15 @@ export default function AchievementsPage() {
         {/* Achievements Grid */}
         <section className='space-y-8 mt-12'>
           {/* Header: Tactical Readout */}
-          <div className='flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-100 pb-6'>
+          <div className='flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6'>
             <div className='flex items-center gap-4'>
               <div className='p-3 rounded-2xl bg-slate-900 shadow-xl shadow-slate-200'>
                 <Award className='h-5 w-5 text-amber-400' />
               </div>
               <div>
-                <h2 className='text-2xl font-black text-slate-900 tracking-tighter uppercase'>
+                <h2 className='text-2xl font-black text-foreground tracking-tighter uppercase'>
                   Achievement{' '}
-                  <span className='text-slate-400 font-light italic'>
+                  <span className='text-muted-foreground font-light italic'>
                     Vault
                   </span>
                 </h2>
@@ -765,15 +765,15 @@ export default function AchievementsPage() {
             </div>
 
             <div className='flex flex-col items-end gap-2'>
-              <div className='flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 border border-slate-100'>
-                <span className='text-[10px] font-black text-slate-400 uppercase tracking-widest'>
+              <div className='flex items-center gap-2 px-4 py-2 rounded-xl bg-muted border border-border'>
+                <span className='text-[10px] font-black text-muted-foreground uppercase tracking-widest'>
                   Global Completion
                 </span>
-                <span className='text-sm font-black text-slate-900 tracking-tighter italic'>
+                <span className='text-sm font-black text-foreground tracking-tighter italic'>
                   {aData?.stats.completionPercentage || 0}%
                 </span>
               </div>
-              <div className='w-48 h-1 bg-slate-100 rounded-full overflow-hidden'>
+              <div className='w-48 h-1 bg-muted rounded-full overflow-hidden'>
                 <motion.div
                   className='h-full bg-indigo-600'
                   initial={{ width: 0 }}
@@ -791,7 +791,7 @@ export default function AchievementsPage() {
             onValueChange={setActiveCategory}
             className='w-full'
           >
-            <TabsList className='h-14 bg-slate-50/50 p-1 border border-slate-200/60 rounded-2xl'>
+            <TabsList className='h-14 bg-muted/50 p-1 border border-border/60 rounded-2xl'>
               {[
                 {
                   id: 'all',
@@ -807,7 +807,7 @@ export default function AchievementsPage() {
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className='relative px-6 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm border-transparent data-[state=active]:border-slate-200'
+                  className='relative px-6 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-card data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm border-transparent data-[state=active]:border-border'
                 >
                   <div className='flex items-center gap-2'>
                     <tab.icon className='h-3.5 w-3.5' />
@@ -839,7 +839,7 @@ export default function AchievementsPage() {
               </div>
 
               {filteredAchievements.length === 0 && (
-                <div className='flex flex-col items-center justify-center py-20 bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-100'>
+                <div className='flex flex-col items-center justify-center py-20 bg-muted/50 rounded-[3rem] border-2 border-dashed border-border'>
                   <div className='relative mb-4'>
                     <Trophy className='h-12 w-12 text-slate-200' />
                     <div className='absolute inset-0 bg-slate-200/20 blur-xl rounded-full' />

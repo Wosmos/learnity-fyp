@@ -1,5 +1,5 @@
 import { User as FirebaseUser } from 'firebase/auth';
-import { prisma } from '@/lib/config/database';
+import { prisma } from '@/lib/prisma';
 import { ISyncService, SyncReport, Inconsistency } from '@/lib/interfaces/auth';
 import { UserRole, CustomClaims, Permission } from '@/types/auth';
 import { FirebaseAuthService } from './firebase-auth.service';

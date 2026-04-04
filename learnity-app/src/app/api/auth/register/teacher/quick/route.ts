@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { prisma } from '@/lib/config/database';
+import { prisma } from '@/lib/prisma';
 import { quickTeacherRegistrationSchema } from '@/lib/validators/quick-teacher-registration';
 import { adminAuth } from '@/lib/config/firebase-admin';
 import { UserRole, ApplicationStatus } from '@/types/auth';

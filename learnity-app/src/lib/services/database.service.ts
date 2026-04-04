@@ -3,8 +3,8 @@
  * Handles all Neon DB operations with Prisma ORM
  */
 
+import { prisma as prismaClient } from '@/lib/prisma';
 import {
-  PrismaClient,
   User,
   UserRole as PrismaUserRole,
   ApplicationStatus as PrismaApplicationStatus,
@@ -24,11 +24,7 @@ import {
 import { UserRole, ApplicationStatus } from '@/types/auth';
 
 export class DatabaseService implements IUserProfileService {
-  private prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  private prisma = prismaClient;
 
   /**
    * Create user profile in Neon DB
@@ -50,17 +46,12 @@ export class DatabaseService implements IUserProfileService {
 
     // If user exists, return existing profile
     if (existingUser) {
-      console.log(
-        `User with firebaseUid ${firebaseUid} already exists, checking for default name...`
-      );
-
       // Fix: If user exists but has the default name 'User' (from sync-profile race), update it
       if (
         (existingUser.firstName === 'User' || !existingUser.firstName) &&
         data.firstName &&
         data.firstName !== 'User'
       ) {
-        console.log(`Updating default name for user ${firebaseUid}`);
         return await this.prisma.user.update({
           where: { id: existingUser.id },
           data: {
@@ -435,10 +426,4 @@ Submit teacher application
     };
   }
 
-  /**
-   * Cleanup database connections
-   */
-  async disconnect(): Promise<void> {
-    await this.prisma.$disconnect();
-  }
 }

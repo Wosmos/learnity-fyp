@@ -52,9 +52,7 @@ if (
       ),
       isTokenAutoRefreshEnabled: true,
     });
-    console.log('Firebase App Check initialized');
   } catch (error) {
-    console.warn('Failed to initialize Firebase App Check:', error);
     // App Check is optional, continue without it in development
   }
 }
@@ -71,7 +69,6 @@ if (
       connectAuthEmulator(auth, 'http://localhost:9099', {
         disableWarnings: true,
       });
-      console.log('Connected to Firebase Auth Emulator');
     } catch {
       // Emulator already connected or not available
     }
@@ -79,12 +76,11 @@ if (
     // Connect to Storage emulator
     try {
       connectStorageEmulator(storage, 'localhost', 9199);
-      console.log('Connected to Firebase Storage Emulator');
     } catch {
       // Emulator already connected or not available
     }
   } catch {
-    console.warn('Failed to connect to Firebase emulators');
+    // Failed to connect to Firebase emulators
   }
 }
 

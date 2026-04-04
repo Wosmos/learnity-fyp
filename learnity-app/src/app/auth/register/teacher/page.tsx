@@ -41,7 +41,7 @@ export default function TeacherRegisterPage() {
 
   return (
     <AuthProvider>
-      <div className='min-h-screen bg-slate-50 lg:flex'>
+      <div className='min-h-screen bg-background lg:flex'>
         {/* Left Side - Branding (Desktop Only) */}
         <LeftSideSection
           title='Inspire the Next Generation'
@@ -49,7 +49,7 @@ export default function TeacherRegisterPage() {
         />
 
         {/* Right Side - Registration Form */}
-        <div className='flex-1 flex flex-col p-4 sm:p-8 lg:p-12 bg-white lg:bg-transparent overflow-y-auto h-screen relative'>
+        <div className='flex-1 flex flex-col p-4 sm:p-8 lg:p-12 bg-card lg:bg-transparent overflow-y-auto h-screen relative'>
           {/* Mobile Header */}
           <div className='lg:hidden flex items-center justify-between w-full mb-6 max-w-[800px] mx-auto'>
             <span className='font-bold text-xl text-blue-600'>Learnity</span>
@@ -65,7 +65,7 @@ export default function TeacherRegisterPage() {
             <Link href='/'>
               <Button
                 variant='ghost'
-                className='text-gray-600 hover:text-gray-900'
+                className='text-muted-foreground hover:text-foreground'
               >
                 <ChevronLeft className='h-4 w-4 mr-2' />
                 Back to Home
@@ -76,13 +76,13 @@ export default function TeacherRegisterPage() {
           <div className='w-full max-w-[800px] mx-auto my-auto'>
             {registrationStep === 'verification' ? (
               <div className="py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-white rounded-3xl p-8 text-center space-y-6 shadow-xl border border-slate-100 max-w-[580px] mx-auto">
+                <div className="bg-card rounded-3xl p-8 text-center space-y-6 shadow-xl border border-border max-w-[580px] mx-auto">
                   <div className="w-20 h-20 bg-green-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-green-200 rotate-3">
                     <CheckCircle className="h-10 w-10 text-white" />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-2xl font-bold text-slate-900 italic uppercase tracking-tight">Application Submitted!</h3>
-                    <p className="text-slate-500 font-medium">
+                    <h3 className="text-2xl font-bold text-foreground italic uppercase tracking-tight">Application Submitted!</h3>
+                    <p className="text-muted-foreground font-medium">
                       Thank you for applying! Please check your email to verify your account. Our team will review your application within 2-3 business days.
                     </p>
                   </div>
@@ -94,7 +94,7 @@ export default function TeacherRegisterPage() {
                     >
                       I've verified my email
                     </Button>
-                    <p className="text-xs text-slate-400 mt-4">
+                    <p className="text-xs text-muted-foreground mt-4">
                       Didn't receive it? <button className="text-blue-600 hover:underline font-semibold" onClick={() => window.location.reload()}>Click here to refresh</button>
                     </p>
                   </div>

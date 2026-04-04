@@ -40,6 +40,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 });
     }
 
+    // Parse pagination params
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20', 10)));
+
     // Fetch all courses for the teacher
     const courses = await prisma.course.findMany({
       where: { teacherId: teacher.id },
@@ -50,6 +55,7 @@ export async function GET(req: NextRequest) {
           },
         },
       },
+      take: 100,
     });
 
     // Flatten enrollments to get a list of students
@@ -91,7 +97,7 @@ export async function GET(req: NextRequest) {
       });
     });
 
-    const students = Array.from(studentMap.values()).map(student => {
+    const allStudents = Array.from(studentMap.values()).map(student => {
       // Calculate average progress across enrolled courses
       const totalProgress = student.enrolledCourses.reduce(
         (acc: number, course) => acc + course.progress,
@@ -103,7 +109,11 @@ export async function GET(req: NextRequest) {
       return student;
     });
 
-    const activeCount = students.filter(student => {
+    const total = allStudents.length;
+    const totalPages = Math.ceil(total / limit);
+    const students = allStudents.slice((page - 1) * limit, page * limit);
+
+    const activeCount = allStudents.filter(student => {
       // Active if last login within 7 days
       const lastActive = new Date(student.lastActive);
       const sevenDaysAgo = new Date();
@@ -112,19 +122,23 @@ export async function GET(req: NextRequest) {
     }).length;
 
     // Avg progress for entire cohort
-    const totalCohortProgress = students.reduce(
+    const totalCohortProgress = allStudents.reduce(
       (acc, student) => acc + student.totalProgress,
       0
     );
     const averageProgress =
-      students.length > 0
-        ? Math.round(totalCohortProgress / students.length)
+      allStudents.length > 0
+        ? Math.round(totalCohortProgress / allStudents.length)
         : 0;
 
     return NextResponse.json({
       data: {
         students,
-        total: students.length,
+        total,
+        page,
+        limit,
+        totalPages,
+        hasMore: page < totalPages,
         activeCount,
         completedCount: 0, // Placeholder
         averageProgress,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/config/database';
+import { prisma } from '@/lib/prisma';
 
 function calculateIsTopRated(
   rating: number,

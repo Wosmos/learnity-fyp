@@ -39,7 +39,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { PageHeader } from '@/components/layout/PageHeader';
 
 interface Student {
@@ -110,7 +110,7 @@ const statusOptions = [
 export default function CourseStudentsPage() {
   const params = useParams();
   const { toast } = useToast();
-  const { user, loading: authLoading } = useClientAuth();
+  const { user, loading: authLoading } = useAuth();
   const authenticatedFetch = useAuthenticatedFetch();
   const courseId = params.courseId as string;
 

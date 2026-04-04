@@ -116,21 +116,58 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // Cache teacher/admin data
+      {
+        source: '/api/teacher/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'private, max-age=60, stale-while-revalidate=120' },
+        ],
+      },
+      {
+        source: '/api/admin/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-cache' },
+        ],
+      },
+      // Cache course catalog (public)
+      {
+        source: '/api/courses',
+        headers: [
+          { key: 'Cache-Control', value: 'public, s-maxage=300, stale-while-revalidate=600' },
+        ],
+      },
+      {
+        source: '/api/teachers/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, s-maxage=300, stale-while-revalidate=600' },
+        ],
+      },
       // Security headers
       {
         source: '/(.*)',
         headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(self), geolocation=()' },
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
           },
           {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://*.firebaseio.com https://*.gstatic.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "img-src 'self' data: blob: https: http:",
+              "font-src 'self' https://fonts.gstatic.com",
+              "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebase.com wss://*.firebaseio.com https://*.neon.tech https://*.100ms.live https://*.stream-io-api.com https://*.getstream.io",
+              "frame-src 'self' https://*.firebaseapp.com https://*.100ms.live",
+              "media-src 'self' https: blob:",
+              "worker-src 'self' blob:",
+            ].join('; '),
           },
         ],
       },

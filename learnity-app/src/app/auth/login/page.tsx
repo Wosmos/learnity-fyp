@@ -8,10 +8,11 @@
 import React, { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { LoginForm } from '@/components/auth';
 import { useAuthService } from '@/hooks/useAuthService';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { AuthDebugInfo } from '@/components/debug/AuthDebugInfo';
 import { getDashboardRoute } from '@/lib/utils/auth-redirect.utils';
@@ -23,7 +24,7 @@ export const dynamic = 'force-dynamic';
 
 function LoginPageContent() {
   const { login, socialLogin } = useAuthService();
-  const { isAuthenticated, claims, user, loading } = useClientAuth();
+  const { isAuthenticated, claims, user, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/dashboard';
@@ -112,7 +113,7 @@ function LoginPageContent() {
           className='group flex items-center gap-2.5 transition-transform active:scale-95 absolute top-8 left-8 lg:hidden'
         >
           <div className='p-2 bg-slate-900 rounded-xl group-hover:rotate-6 transition-transform flex items-center justify-center'>
-            <img src='/logo.svg' alt='Learnity' className='h-6 w-6' />
+            <Image src='/logo.svg' alt='Learnity' width={24} height={24} />
           </div>
           <span className='text-xl font-bold tracking-tighter text-slate-900'>
             Learnity

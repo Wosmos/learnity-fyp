@@ -3,7 +3,7 @@
  * Handles student profile customization, avatar uploads, and completion tracking
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma as prismaClient } from '@/lib/prisma';
 import {
   IProfileEnhancementService,
   StudentProfileUpdateData,
@@ -15,14 +15,10 @@ import {
 } from '@/lib/interfaces/profile.interface';
 
 export class ProfileEnhancementService implements IProfileEnhancementService {
-  private prisma: PrismaClient;
+  private prisma = prismaClient;
   private readonly STORAGE_PATHS = {
     AVATARS: 'avatars',
   } as const;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
 
   /**
    * Upload user avatar - Store as base64 in Neon DB

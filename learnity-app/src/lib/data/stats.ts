@@ -5,7 +5,7 @@
 
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
-import { prisma } from '@/lib/config/database';
+import { prisma } from '@/lib/prisma';
 import { serializeData } from '@/lib/utils';
 
 export interface PlatformStats {

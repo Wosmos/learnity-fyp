@@ -52,7 +52,6 @@ import {
   StudentRegistrationData,
   TeacherRegistrationData,
   LoginData,
-  StaticAdminLoginData,
 } from '@/lib/validators/auth';
 
 export class FirebaseAuthService implements IFirebaseAuthService {
@@ -175,84 +174,6 @@ export class FirebaseAuthService implements IFirebaseAuthService {
         }
       }
     );
-  }
-
-  /**
-   * Login static admin using environment credentials
-   */
-  async loginStaticAdmin(
-    credentials: StaticAdminLoginData
-  ): Promise<FirebaseAuthResult> {
-    try {
-      // Validate against environment credentials
-      const staticAdminEmail = process.env.STATIC_ADMIN_EMAIL;
-      const staticAdminPassword = process.env.STATIC_ADMIN_PASSWORD;
-
-      if (!staticAdminEmail || !staticAdminPassword) {
-        throw new Error('Static admin credentials not configured');
-      }
-
-      if (
-        credentials.email !== staticAdminEmail ||
-        credentials.password !== staticAdminPassword
-      ) {
-        return {
-          success: false,
-          error: {
-            code: AuthErrorCode.INVALID_CREDENTIALS,
-            message: 'Invalid admin credentials',
-          },
-        };
-      }
-
-      // Try to sign in with Firebase Auth (admin account should exist)
-      let userCredential: UserCredential;
-      try {
-        userCredential = await signInWithEmailAndPassword(
-          auth,
-          credentials.email,
-          credentials.password
-        );
-      } catch (firebaseError: any) {
-        // If admin account doesn't exist in Firebase, create it
-        if (firebaseError.code === 'auth/user-not-found') {
-          userCredential = await createUserWithEmailAndPassword(
-            auth,
-            credentials.email,
-            credentials.password
-          );
-        } else {
-          throw firebaseError;
-        }
-      }
-
-      const user = userCredential.user;
-
-      // Set admin custom claims
-      await this.setCustomClaims(user.uid, {
-        role: UserRole.ADMIN,
-        permissions: [
-          Permission.VIEW_ADMIN_PANEL,
-          Permission.MANAGE_USERS,
-          Permission.APPROVE_TEACHERS,
-          Permission.VIEW_AUDIT_LOGS,
-          Permission.MANAGE_PLATFORM,
-        ],
-        profileComplete: true,
-        emailVerified: true,
-      });
-
-      return {
-        success: true,
-        user,
-        idToken: await getIdToken(user),
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: this.mapFirebaseError(error),
-      };
-    }
   }
 
   /**

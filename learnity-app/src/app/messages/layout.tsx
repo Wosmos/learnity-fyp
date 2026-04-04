@@ -1,6 +1,6 @@
 'use client';
 
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { UserRole } from '@/types/auth';
 import { TeacherLayoutClient } from '@/components/layout/TeacherLayoutClient';
 import { StudentLayoutClient } from '@/components/layout/StudentLayoutClient';
@@ -13,7 +13,7 @@ export default function MessagesLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { claims, loading, isAuthenticated } = useClientAuth();
+  const { claims, loading, isAuthenticated } = useAuth();
 
   if (loading) {
     return (

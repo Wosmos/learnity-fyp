@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { Bell, Clock, Star, Search, User, Menu, X, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -19,12 +20,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 
 // --- Types ---
 
-export type NavbarRole = 'teacher' | 'student';
+export type NavbarRole = 'teacher' | 'student' | 'admin';
 
 export interface NavbarStats {
   studyTime?: string;
@@ -100,7 +101,7 @@ const FlameIcon = ({ className }: { className?: string }) => (
 export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
   const { role, showStats, stats, showSearch = true } = config;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, loading: authLoading } = useClientAuth();
+  const { user, loading: authLoading } = useAuth();
   const api = useAuthenticatedApi();
 
   const [profileData, setProfileData] = useState<{
@@ -188,7 +189,7 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
   return (
     <header
       className={cn(
-        'h-16 border-b border-slate-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-40 transition-all duration-200',
+        'h-16 border-b border-border/60 bg-card/80 backdrop-blur-xl sticky top-0 z-40 transition-all duration-200',
         className
       )}
     >
@@ -201,13 +202,13 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
           <div className='hidden md:flex items-center gap-3'>
             {displayStats.studyTime && (
               <div
-                className='group relative flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-white border border-transparent hover:border-slate-200 hover:shadow-sm transition-all duration-300 cursor-default'
+                className='group relative flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted hover:bg-card border border-transparent hover:border-border hover:shadow-sm transition-all duration-300 cursor-default'
                 title='Time spent learning today'
               >
                 <div className='p-1 rounded-full bg-slate-200/50 group-hover:bg-slate-100/50 transition-colors'>
                   <Clock className='h-3.5 w-3.5 text-slate-600 group-hover:text-blue-600 transition-colors' />
                 </div>
-                <span className='text-sm font-semibold text-slate-600 group-hover:text-slate-900'>
+                <span className='text-sm font-semibold text-muted-foreground group-hover:text-foreground'>
                   {displayStats.studyTime}
                 </span>
               </div>
@@ -215,7 +216,7 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
 
             {displayStats.xpPoints !== undefined && (
               <div
-                className='group relative flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-white border border-transparent hover:border-indigo-100 hover:shadow-sm hover:shadow-indigo-100/50 transition-all duration-300 cursor-default'
+                className='group relative flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted hover:bg-card border border-transparent hover:border-indigo-100 hover:shadow-sm hover:shadow-indigo-100/50 transition-all duration-300 cursor-default'
                 title='Total Experience Points'
               >
                 <div className='p-1 rounded-full bg-slate-200/50 group-hover:bg-indigo-100/50 transition-colors'>
@@ -223,7 +224,7 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
                 </div>
                 <span className='text-sm font-bold bg-gradient-to-r from-slate-700 to-slate-900 group-hover:from-indigo-600 group-hover:to-purple-600 bg-clip-text text-transparent transition-all'>
                   {displayStats.xpPoints.toLocaleString()}{' '}
-                  <span className='text-xs font-medium text-slate-400 group-hover:text-indigo-400'>
+                  <span className='text-xs font-medium text-muted-foreground group-hover:text-indigo-400'>
                     XP
                   </span>
                 </span>
@@ -263,12 +264,15 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
             </Button>
           )}
 
+          {/* Theme Toggle */}
+          <ThemeToggle compact className='h-10 w-10 rounded-full border border-border' />
+
           {/* Notifications */}
           <div className='relative'>
             <Button
               variant='ghost'
               size='icon'
-              className='relative h-10 w-10 text-slate-500 hover:text-slate-700 hover:bg-slate-100/80 rounded-full transition-all duration-200'
+              className='relative h-10 w-10 text-muted-foreground hover:text-foreground/80 hover:bg-muted/80 rounded-full transition-all duration-200'
             >
               <Bell className='h-5 w-5' />
               <span className='absolute top-2.5 right-2.5 flex h-2.5 w-2.5'>
@@ -278,14 +282,14 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
             </Button>
           </div>
 
-          <div className='h-6 w-px bg-slate-200 mx-1 hidden sm:block' />
+          <div className='h-6 w-px bg-border mx-1 hidden sm:block' />
 
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant='ghost'
-                className='pl-1 pr-2 h-10 gap-2 hover:bg-slate-100/50 rounded-full transition-all duration-200 group'
+                className='pl-1 pr-2 h-10 gap-2 hover:bg-muted/50 rounded-full transition-all duration-200 group'
               >
                 <div className='relative'>
                   <Avatar className='h-10 w-10 border-2 border-white shadow-sm ring-1 ring-slate-100 group-hover:ring-indigo-200 transition-all duration-300'>
@@ -303,12 +307,12 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
                   <div className='absolute bottom-0 right-0 h-2.5 w-2.5 bg-green-500 border-2 border-white rounded-full'></div>
                 </div>
                 <div className='hidden sm:flex flex-col items-start text-left'>
-                  <span className='text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors'>
+                  <span className='text-sm font-semibold text-foreground/80 group-hover:text-foreground transition-colors'>
                     {profileData?.firstName ||
                       user?.displayName?.split(' ')[0] ||
                       'User'}
                   </span>
-                  <span className='text-[10px] text-slate-400 font-medium leading-none mt-0.5 capitalize'>
+                  <span className='text-[10px] text-muted-foreground font-medium leading-none mt-0.5 capitalize'>
                     {role}
                   </span>
                 </div>
@@ -316,22 +320,22 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align='end'
-              className='w-56 mt-2 rounded-xl border-slate-100 shadow-lg shadow-slate-200/50 p-2'
+              className='w-56 mt-2 rounded-xl border-border shadow-lg shadow-slate-200/50 p-2'
             >
               <DropdownMenuLabel className='px-2 pb-2 pt-3'>
                 <div className='flex flex-col gap-1'>
-                  <span className='text-sm font-semibold text-slate-800'>
+                  <span className='text-sm font-semibold text-foreground'>
                     {fullName}
                   </span>
-                  <span className='text-xs text-slate-500 font-normal'>
+                  <span className='text-xs text-muted-foreground font-normal'>
                     {profileData?.email || user?.email || ''}
                   </span>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator className='bg-slate-100' />
+              <DropdownMenuSeparator className='bg-border' />
               <DropdownMenuItem
                 asChild
-                className='cursor-pointer rounded-lg focus:bg-slate-50'
+                className='cursor-pointer rounded-lg focus:bg-muted'
               >
                 <Link
                   href={
@@ -342,17 +346,17 @@ export function DashboardNavbar({ config, className }: DashboardNavbarProps) {
                         : '/profile/enhance'
                   }
                 >
-                  <User className='mr-2 h-4 w-4 text-slate-500' />
+                  <User className='mr-2 h-4 w-4 text-muted-foreground' />
                   Profile
                 </Link>
               </DropdownMenuItem>
               {role === 'student' && (
                 <DropdownMenuItem
                   asChild
-                  className='cursor-pointer rounded-lg focus:bg-slate-50'
+                  className='cursor-pointer rounded-lg focus:bg-muted'
                 >
                   <Link href='/dashboard/student/progress'>
-                    <Star className='mr-2 h-4 w-4 text-slate-500' />
+                    <Star className='mr-2 h-4 w-4 text-muted-foreground' />
                     My Progress
                   </Link>
                 </DropdownMenuItem>

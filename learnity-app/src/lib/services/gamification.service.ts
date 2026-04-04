@@ -131,6 +131,26 @@ export class GamificationService implements IGamificationService {
       );
     }
 
+    // Idempotency: skip if XP already awarded for this source+reason
+    if (sourceId) {
+      const existing = await this.prisma.xPActivity.findUnique({
+        where: {
+          unique_xp_activity: { userId, sourceId, reason },
+        },
+      });
+      if (existing) {
+        const userProgress = await this.getOrCreateUserProgress(userId);
+        return {
+          previousXP: userProgress.totalXP,
+          newXP: userProgress.totalXP,
+          xpAwarded: 0,
+          previousLevel: userProgress.currentLevel,
+          newLevel: userProgress.currentLevel,
+          leveledUp: false,
+        };
+      }
+    }
+
     // Get or create user progress
     const userProgress = await this.getOrCreateUserProgress(userId);
 

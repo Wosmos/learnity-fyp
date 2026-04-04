@@ -1,0 +1,294 @@
+'use client';
+
+import React, { useState } from 'react';
+import {
+  Wallet,
+  TrendingUp,
+  DollarSign,
+  ArrowUpRight,
+  ArrowDownRight,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Download,
+  Calendar,
+} from 'lucide-react';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { MetricCard } from '@/components/ui/stats-card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+// --- Types ---
+interface WalletData {
+  balance: number;
+  currency: string;
+  totalEarnings: number;
+  pendingEarnings: number;
+  withdrawnAmount: number;
+}
+
+interface Transaction {
+  id: string;
+  amount: number;
+  type: 'EARNING' | 'WITHDRAWAL' | 'DEPOSIT' | 'PURCHASE' | 'REFUND' | 'REWARD';
+  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+  description: string | null;
+  createdAt: string;
+}
+
+interface Props {
+  walletData: WalletData | null;
+  transactions: Transaction[];
+}
+
+// --- Sub-Components ---
+
+const TransactionRow = ({ transaction }: { transaction: Transaction }) => {
+  const getStatusBadge = (status: string) => {
+    const styles = {
+      COMPLETED: 'bg-emerald-100 text-emerald-700',
+      PENDING: 'bg-amber-100 text-amber-700',
+      FAILED: 'bg-red-100 text-red-700',
+      CANCELLED: 'bg-slate-100 text-slate-700',
+    };
+    return (
+      <Badge
+        className={`${styles[status as keyof typeof styles]} border-0 text-xs`}
+      >
+        {status}
+      </Badge>
+    );
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'EARNING':
+        return <ArrowDownRight className='h-4 w-4 text-green-600' />;
+      case 'WITHDRAWAL':
+        return <ArrowUpRight className='h-4 w-4 text-blue-600' />;
+      case 'DEPOSIT':
+        return <ArrowDownRight className='h-4 w-4 text-green-600' />;
+      default:
+        return <DollarSign className='h-4 w-4 text-slate-600' />;
+    }
+  };
+
+  const isCredit = ['EARNING', 'DEPOSIT', 'REFUND', 'REWARD'].includes(
+    transaction.type
+  );
+
+  return (
+    <div className='flex items-center justify-between p-4 hover:bg-slate-50 rounded-lg transition-colors border-b border-slate-100 last:border-0'>
+      <div className='flex items-center gap-4 flex-1'>
+        <div className='p-2 rounded-lg bg-slate-50'>
+          {getTypeIcon(transaction.type)}
+        </div>
+        <div className='flex-1 min-w-0'>
+          <p className='font-medium text-slate-900 text-sm truncate'>
+            {transaction.description}
+          </p>
+          <p className='text-xs text-slate-500 flex items-center gap-2 mt-0.5'>
+            <Calendar className='h-3 w-3' />
+            {new Date(transaction.createdAt).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </p>
+        </div>
+      </div>
+      <div className='flex items-center gap-4'>
+        <div className='text-right'>
+          <p
+            className={`font-bold text-sm ${
+              isCredit ? 'text-green-600' : 'text-slate-900'
+            }`}
+          >
+            {isCredit ? '+' : '-'}PKR{' '}
+            {Math.abs(transaction.amount).toLocaleString()}
+          </p>
+          {getStatusBadge(transaction.status)}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Main Component ---
+export function TeacherWalletClient({ walletData, transactions: initialTransactions }: Props) {
+  const [transactions] = useState<Transaction[]>(initialTransactions);
+  const [filterType, setFilterType] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+
+  const filteredTransactions = transactions.filter(t => {
+    if (filterType !== 'all' && t.type !== filterType) return false;
+    if (filterStatus !== 'all' && t.status !== filterStatus) return false;
+    return true;
+  });
+
+  return (
+    <div className='min-h-screen bg-slate-50/50'>
+      <PageHeader
+        title='Wallet & Earnings'
+        subtitle='Manage your earnings and withdrawals'
+        icon={Wallet}
+      />
+
+      <div className='max-w-[1400px] mx-auto px-4 sm:px-6 py-6 space-y-6'>
+        {/* Stats Grid */}
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+          <MetricCard
+            title='Available Balance'
+            value={`PKR ${(walletData?.balance || 0).toLocaleString()}`}
+            subtitle='Ready to withdraw'
+            icon={Wallet}
+          />
+          <MetricCard
+            title='Total Earnings'
+            value={`PKR ${(walletData?.totalEarnings || 0).toLocaleString()}`}
+            subtitle='All time'
+            icon={TrendingUp}
+          />
+          <MetricCard
+            title='Pending Earnings'
+            value={`PKR ${(walletData?.pendingEarnings || 0).toLocaleString()}`}
+            subtitle='Being processed'
+            icon={Clock}
+          />
+          <MetricCard
+            title='Total Withdrawn'
+            value={`PKR ${(walletData?.withdrawnAmount || 0).toLocaleString()}`}
+            subtitle='Lifetime'
+            icon={Download}
+          />
+        </div>
+
+        {/* Main Content */}
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+          {/* Transactions List */}
+          <div className='lg:col-span-2'>
+            <Card className='border shadow-sm'>
+              <CardHeader className='border-b border-slate-100'>
+                <div className='flex items-center justify-between'>
+                  <CardTitle className='text-lg font-semibold'>
+                    Transaction History
+                  </CardTitle>
+                  <div className='flex items-center gap-2'>
+                    <Select value={filterType} onValueChange={setFilterType}>
+                      <SelectTrigger className='w-[140px] h-9'>
+                        <SelectValue placeholder='Type' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='all'>All Types</SelectItem>
+                        <SelectItem value='EARNING'>Earnings</SelectItem>
+                        <SelectItem value='WITHDRAWAL'>Withdrawals</SelectItem>
+                        <SelectItem value='DEPOSIT'>Deposits</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={filterStatus}
+                      onValueChange={setFilterStatus}
+                    >
+                      <SelectTrigger className='w-[140px] h-9'>
+                        <SelectValue placeholder='Status' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='all'>All Status</SelectItem>
+                        <SelectItem value='COMPLETED'>Completed</SelectItem>
+                        <SelectItem value='PENDING'>Pending</SelectItem>
+                        <SelectItem value='FAILED'>Failed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className='p-0'>
+                {filteredTransactions.length > 0 ? (
+                  <div className='max-h-[600px] overflow-y-auto'>
+                    {filteredTransactions.map(transaction => (
+                      <TransactionRow
+                        key={transaction.id}
+                        transaction={transaction}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className='text-center py-12'>
+                    <Wallet className='h-12 w-12 text-slate-300 mx-auto mb-3' />
+                    <p className='text-slate-500 text-sm'>
+                      No transactions found
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar - Quick Actions */}
+          <div className='space-y-4'>
+            <Card className='border shadow-sm'>
+              <CardHeader className='border-b border-slate-100'>
+                <CardTitle className='text-base font-semibold'>
+                  Quick Actions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className='p-4 space-y-3'>
+                <Button className='w-full bg-blue-600 hover:bg-blue-700 text-white'>
+                  <Download className='h-4 w-4 mr-2' />
+                  Request Withdrawal
+                </Button>
+                <Button variant='outline' className='w-full'>
+                  <Download className='h-4 w-4 mr-2' />
+                  Download Statement
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className='border shadow-sm bg-gradient-to-br from-blue-50 to-indigo-50'>
+              <CardContent className='p-6'>
+                <div className='flex items-start gap-3 mb-4'>
+                  <div className='p-2 rounded-lg bg-blue-100'>
+                    <TrendingUp className='h-5 w-5 text-blue-600' />
+                  </div>
+                  <div>
+                    <h4 className='font-semibold text-slate-900 text-sm mb-1'>
+                      Earnings Info
+                    </h4>
+                    <p className='text-xs text-slate-600 leading-relaxed'>
+                      You earn when students enroll in your paid courses.
+                      Earnings are processed within 24-48 hours.
+                    </p>
+                  </div>
+                </div>
+                <div className='space-y-2 text-xs text-slate-600'>
+                  <div className='flex items-center gap-2'>
+                    <CheckCircle className='h-3 w-3 text-green-600' />
+                    <span>Instant balance updates</span>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <CheckCircle className='h-3 w-3 text-green-600' />
+                    <span>Secure withdrawals</span>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <CheckCircle className='h-3 w-3 text-green-600' />
+                    <span>Detailed transaction history</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

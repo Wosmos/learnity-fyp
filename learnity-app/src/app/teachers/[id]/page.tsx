@@ -6,7 +6,7 @@
 import { notFound } from 'next/navigation';
 import { PublicLayout } from '@/components/layout/AppLayout';
 import { TeacherDetailContent } from '@/components/teachers/TeacherDetailContent';
-import { prisma } from '@/lib/config/database';
+import { prisma } from '@/lib/prisma';
 
 interface PageProps {
   params: Promise<{
@@ -97,8 +97,6 @@ async function getTeacher(id: string) {
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
   const teacher = await getTeacher(id);
-  console.log(teacher, 'teacher data on server ');
-
   if (!teacher) {
     return {
       title: 'Teacher Not Found | Learnity',

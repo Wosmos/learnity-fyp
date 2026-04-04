@@ -6,7 +6,7 @@
  */
 
 import { createHash, randomBytes, createHmac } from 'crypto';
-import { PrismaClient } from '@prisma/client';
+import { prisma as prismaClient } from '@/lib/prisma';
 import { sign, verify, JwtPayload } from 'jsonwebtoken';
 import { adminAuth } from '@/lib/config/firebase-admin';
 import {
@@ -33,7 +33,7 @@ import { UserRole, Permission } from '@/types/auth';
 import { securityService } from './security.service';
 
 export class SessionManagerService implements ISessionManagerService {
-  private readonly prisma: PrismaClient;
+  private readonly prisma: typeof prismaClient;
   private readonly config: SessionConfig;
   private readonly blacklistedTokens = new Map<string, BlacklistedToken>();
   private readonly activeSessions = new Map<string, UserSession>();
@@ -48,8 +48,8 @@ export class SessionManagerService implements ISessionManagerService {
   private readonly ACCESS_TOKEN_EXPIRY = '15m'; // 15 minutes
   private readonly REFRESH_TOKEN_EXPIRY = '7d'; // 7 days
 
-  constructor(prisma?: PrismaClient, config?: Partial<SessionConfig>) {
-    this.prisma = prisma || new PrismaClient();
+  constructor(config?: Partial<SessionConfig>) {
+    this.prisma = prismaClient;
     this.config = {
       maxSessionsPerUser: 5,
       sessionInactivityTimeout: 30 * 60 * 1000, // 30 minutes

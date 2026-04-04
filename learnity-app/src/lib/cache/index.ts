@@ -107,8 +107,6 @@ export async function warmCache() {
       getCachedLandingStats(),
       // Add other critical data here
     ]);
-    console.log('✅ Cache warmed successfully');
   } catch (error) {
-    console.error('❌ Cache warming failed:', error);
   }
 }

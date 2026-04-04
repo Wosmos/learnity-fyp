@@ -62,7 +62,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
 interface Lesson {
@@ -124,7 +124,7 @@ export default function EditCoursePage() {
   const router = useRouter();
   const { toast } = useToast();
   const courseId = params.courseId as string;
-  const { user, loading: authLoading } = useClientAuth();
+  const { user, loading: authLoading } = useAuth();
   const authenticatedFetch = useAuthenticatedFetch();
 
   // States

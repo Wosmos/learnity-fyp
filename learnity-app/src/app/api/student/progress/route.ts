@@ -43,7 +43,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const userId = dbUser.id;
 
-    // Get all enrollments with course details
+    // Parse pagination params
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const limit = Math.min(20, Math.max(1, parseInt(searchParams.get('limit') || '10', 10)));
+
+    // Get enrollments with course details (paginated)
     const enrollments = await prisma.enrollment.findMany({
       where: {
         studentId: userId,
@@ -52,18 +57,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       include: {
         course: {
           include: {
-            category: true,
+            category: { select: { id: true, name: true } },
             teacher: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                profilePicture: true,
-              },
+              select: { id: true, firstName: true, lastName: true, profilePicture: true },
             },
             sections: {
-              include: {
-                lessons: true,
+              select: {
+                id: true,
+                title: true,
+                order: true,
+                lessons: {
+                  select: { id: true, title: true, type: true, duration: true, order: true },
+                  orderBy: { order: 'asc' },
+                },
               },
               orderBy: { order: 'asc' },
             },
@@ -71,17 +77,25 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         },
       },
       orderBy: { lastAccessedAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    // Get lesson progress for all enrolled courses
+    // Get lesson IDs from current page's enrollments only
+    const enrolledCourseIds = enrollments.map(e => e.courseId);
+
+    // Get lesson progress only for the courses on this page
     const lessonProgress = await prisma.lessonProgress.findMany({
-      where: { studentId: userId },
-      include: {
-        lesson: {
-          include: {
-            section: true,
-          },
-        },
+      where: {
+        studentId: userId,
+        lesson: { section: { courseId: { in: enrolledCourseIds } } },
+      },
+      select: {
+        lessonId: true,
+        completed: true,
+        watchedSeconds: true,
+        lastPosition: true,
+        completedAt: true,
       },
     });
 
@@ -183,22 +197,29 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       };
     });
 
-    // Calculate overall stats
-    const totalEnrolled = enrollments.length;
-    const completedCourses = enrollments.filter(
-      e => e.status === EnrollmentStatus.COMPLETED
-    ).length;
-    const inProgressCourses = enrollments.filter(
-      e => e.status === EnrollmentStatus.ACTIVE && e.progress < 100
-    ).length;
-
-    const totalLessonsCompleted = lessonProgress.filter(
-      lp => lp.completed
-    ).length;
-    const totalWatchTime = lessonProgress.reduce(
-      (sum, lp) => sum + (lp.watchedSeconds || 0),
-      0
-    );
+    // Calculate overall stats using aggregate queries (not paginated data)
+    const [totalEnrolled, completedCourses, inProgressCount, lessonStats] = await Promise.all([
+      prisma.enrollment.count({
+        where: { studentId: userId, status: { not: EnrollmentStatus.UNENROLLED } },
+      }),
+      prisma.enrollment.count({
+        where: { studentId: userId, status: EnrollmentStatus.COMPLETED },
+      }),
+      prisma.enrollment.count({
+        where: { studentId: userId, status: EnrollmentStatus.ACTIVE },
+      }),
+      prisma.lessonProgress.aggregate({
+        where: { studentId: userId },
+        _count: { _all: true },
+        _sum: { watchedSeconds: true },
+      }),
+    ]);
+    const completedLessonCount = await prisma.lessonProgress.count({
+      where: { studentId: userId, completed: true },
+    });
+    const inProgressCourses = inProgressCount;
+    const totalLessonsCompleted = completedLessonCount;
+    const totalWatchTime = lessonStats._sum.watchedSeconds || 0;
 
     // Get weekly activity (lessons completed per day)
     const sevenDaysAgo = new Date();
@@ -262,6 +283,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       })
     );
 
+    // Average progress across ALL enrollments (not just current page)
+    const avgProgress = totalEnrolled > 0
+      ? await prisma.enrollment.aggregate({
+          where: { studentId: userId, status: { not: EnrollmentStatus.UNENROLLED } },
+          _avg: { progress: true },
+        })
+      : null;
+
     return createSuccessResponse({
       overview: {
         totalEnrolled,
@@ -269,15 +298,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         inProgressCourses,
         totalLessonsCompleted,
         totalWatchTime,
-        averageProgress:
-          totalEnrolled > 0
-            ? Math.round(
-                enrollments.reduce((sum, e) => sum + e.progress, 0) /
-                  totalEnrolled
-              )
-            : 0,
+        averageProgress: Math.round(avgProgress?._avg?.progress || 0),
       },
       courses: courseProgress,
+      pagination: {
+        page,
+        limit,
+        totalPages: Math.ceil(totalEnrolled / limit),
+        hasMore: page * limit < totalEnrolled,
+      },
       weeklyActivity: Object.entries(dailyActivity).map(([date, count]) => ({
         date,
         lessonsCompleted: count,

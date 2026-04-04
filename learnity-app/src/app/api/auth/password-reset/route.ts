@@ -184,9 +184,6 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    // Cleanup database connection
-    await databaseService.disconnect();
   }
 }
 
@@ -289,9 +286,6 @@ export async function PUT(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    // Cleanup database connection
-    await databaseService.disconnect();
   }
 }
 

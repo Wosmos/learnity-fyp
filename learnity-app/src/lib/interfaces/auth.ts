@@ -13,7 +13,6 @@ import {
   StudentRegistrationData,
   TeacherRegistrationData,
   LoginData,
-  StaticAdminLoginData,
   StudentProfileEnhancementData,
   TeacherApplicationUpdateData,
   TeacherApprovalData,
@@ -24,9 +23,6 @@ export interface IFirebaseAuthService {
   // Registration methods
   registerStudent(data: StudentRegistrationData): Promise<FirebaseAuthResult>;
   registerTeacher(data: TeacherRegistrationData): Promise<FirebaseAuthResult>;
-  loginStaticAdmin(
-    credentials: StaticAdminLoginData
-  ): Promise<FirebaseAuthResult>;
 
   // Login methods
   login(credentials: LoginData): Promise<FirebaseAuthResult>;

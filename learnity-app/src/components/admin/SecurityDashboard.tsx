@@ -25,7 +25,7 @@ import {
   FailedLoginAnalysis,
 } from '@/lib/services/audit.service';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { MetricCard } from '@/components/ui/stats-card';
 
 interface SecurityDashboardProps {
@@ -58,7 +58,7 @@ export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const api = useAuthenticatedApi();
-  const { loading: authLoading, isAuthenticated } = useClientAuth();
+  const { loading: authLoading, isAuthenticated } = useAuth();
 
   const fetchDashboardStats = useCallback(async () => {
     // Don't fetch if auth is still loading

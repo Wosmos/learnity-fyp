@@ -263,7 +263,7 @@ export default async function Home() {
                                     </p>
 
                                     <p className='text-[8px] font-bold text-slate-300 uppercase'>
-                                      Per Month
+                                      Per Hour
                                     </p>
                                   </div>
                                 </div>

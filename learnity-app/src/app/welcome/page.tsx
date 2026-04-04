@@ -20,6 +20,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Card,
   CardContent,
@@ -30,10 +31,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function WelcomePage() {
-  const { user, loading } = useClientAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
   const [profileCompletion] = useState(20);
 
@@ -61,18 +62,18 @@ export default function WelcomePage() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50'>
       {/* Header */}
-      <header className='bg-white/80 backdrop-blur-md border-b border-gray-100'>
+      <header className='bg-card/80 backdrop-blur-md border-b border-border'>
         <div className='max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4'>
           <div className='flex justify-between items-center'>
             <div className='flex items-center space-x-3'>
               <div className='p-2 bg-slate-600 rounded-lg flex items-center justify-center'>
-                <img src='/logo.svg' alt='Learnity' className='h-6 w-6' />
+                <Image src='/logo.svg' alt='Learnity' width={24} height={24} />
               </div>
               <div>
                 <h1 className='text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
                   Welcome to Learnity
                 </h1>
-                <p className='text-sm text-gray-600'>Let's get you started!</p>
+                <p className='text-sm text-muted-foreground'>Let's get you started!</p>
               </div>
             </div>
             <div className='flex items-center space-x-3'>
@@ -105,10 +106,10 @@ export default function WelcomePage() {
               <Sparkles className='h-10 w-10 text-white' />
             </div>
           </div>
-          <h1 className='text-4xl font-bold text-gray-900 mb-4'>
+          <h1 className='text-4xl font-bold text-foreground mb-4'>
             Welcome to Learnity, {userName}! 🎉
           </h1>
-          <p className='text-xl text-gray-600 max-w-2xl mx-auto mb-6'>
+          <p className='text-xl text-muted-foreground max-w-2xl mx-auto mb-6'>
             You're just a few steps away from unlocking personalized learning
             experiences. Let's complete your profile to get started.
           </p>
@@ -116,15 +117,15 @@ export default function WelcomePage() {
           {/* Profile Completion Progress */}
           <div className='max-w-md mx-auto'>
             <div className='flex justify-between items-center mb-2'>
-              <span className='text-sm font-medium text-gray-700'>
+              <span className='text-sm font-medium text-foreground/80'>
                 Profile Completion
               </span>
-              <span className='text-sm text-gray-500'>
+              <span className='text-sm text-muted-foreground'>
                 {profileCompletion}%
               </span>
             </div>
             <Progress value={profileCompletion} className='h-3' />
-            <p className='text-xs text-gray-500 mt-1'>
+            <p className='text-xs text-muted-foreground mt-1'>
               Complete your profile to unlock all features
             </p>
           </div>
@@ -237,10 +238,10 @@ export default function WelcomePage() {
         {/* Role Selection Cards */}
         <div className='mb-12'>
           <div className='text-center mb-8'>
-            <h2 className='text-3xl font-bold text-gray-900 mb-4'>
+            <h2 className='text-3xl font-bold text-foreground mb-4'>
               What brings you to Learnity?
             </h2>
-            <p className='text-lg text-gray-600'>
+            <p className='text-lg text-muted-foreground'>
               Choose your path to get personalized recommendations
             </p>
           </div>
@@ -335,7 +336,7 @@ export default function WelcomePage() {
         {/* Next Steps */}
         <div className='bg-gradient-to-br from-gray-50 to-blue-50 rounded-3xl p-8 mb-8'>
           <div className='text-center mb-8'>
-            <h2 className='text-2xl font-bold text-gray-900 mb-4'>
+            <h2 className='text-2xl font-bold text-foreground mb-4'>
               What happens next?
             </h2>
           </div>
@@ -345,10 +346,10 @@ export default function WelcomePage() {
               <div className='mx-auto p-3 bg-slate-100 rounded-full w-fit mb-4'>
                 <User className='h-6 w-6 text-blue-600' />
               </div>
-              <h3 className='font-semibold text-gray-900 mb-2'>
+              <h3 className='font-semibold text-foreground mb-2'>
                 1. Complete Profile
               </h3>
-              <p className='text-sm text-gray-600'>
+              <p className='text-sm text-muted-foreground'>
                 Tell us about yourself and your learning goals
               </p>
             </div>
@@ -357,10 +358,10 @@ export default function WelcomePage() {
               <div className='mx-auto p-3 bg-green-100 rounded-full w-fit mb-4'>
                 <Target className='h-6 w-6 text-green-600' />
               </div>
-              <h3 className='font-semibold text-gray-900 mb-2'>
+              <h3 className='font-semibold text-foreground mb-2'>
                 2. Set Preferences
               </h3>
-              <p className='text-sm text-gray-600'>
+              <p className='text-sm text-muted-foreground'>
                 Customize your learning experience and interests
               </p>
             </div>
@@ -369,10 +370,10 @@ export default function WelcomePage() {
               <div className='mx-auto p-3 bg-purple-100 rounded-full w-fit mb-4'>
                 <Sparkles className='h-6 w-6 text-purple-600' />
               </div>
-              <h3 className='font-semibold text-gray-900 mb-2'>
+              <h3 className='font-semibold text-foreground mb-2'>
                 3. Start Learning
               </h3>
-              <p className='text-sm text-gray-600'>
+              <p className='text-sm text-muted-foreground'>
                 Access personalized content and connect with others
               </p>
             </div>
@@ -381,7 +382,7 @@ export default function WelcomePage() {
 
         {/* Quick Links */}
         <div className='text-center'>
-          <p className='text-gray-600 mb-4'>Need help getting started?</p>
+          <p className='text-muted-foreground mb-4'>Need help getting started?</p>
           <div className='flex flex-wrap justify-center gap-4'>
             <Link href='/demo'>
               <Button variant='outline' size='sm'>

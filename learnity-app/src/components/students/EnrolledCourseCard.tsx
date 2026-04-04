@@ -7,17 +7,17 @@ import { Badge } from '@/components/ui/badge';
 
 interface CourseEnrollment {
   id: string;
-  status: 'ACTIVE' | 'COMPLETED' | 'UNENROLLED';
+  status: string;
   progress: number;
   enrolledAt: string;
   lastAccessedAt: string;
-  completedAt?: string;
+  completedAt?: string | null;
   course: {
     id: string;
     title: string;
-    description: string;
-    thumbnailUrl?: string;
-    difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+    description: string | null;
+    thumbnailUrl?: string | null;
+    difficulty: string;
     totalDuration: number;
     lessonCount: number;
     averageRating: number;
@@ -25,12 +25,12 @@ interface CourseEnrollment {
     teacher: {
       id: string;
       name: string;
-      avatarUrl?: string;
+      avatarUrl?: string | null;
     };
     category: {
       id: string;
       name: string;
-    };
+    } | null;
   };
 }
 
@@ -63,7 +63,7 @@ export function EnrolledCourseCard({
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      className='relative group bg-white rounded-2xl border border-slate-100 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] overflow-hidden transition-all duration-300'
+      className='relative group bg-card rounded-2xl border border-border shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] overflow-hidden transition-all duration-300'
     >
       <div className='p-6 md:p-8'>
         <div className='flex flex-col md:flex-row gap-8'>
@@ -102,7 +102,7 @@ export function EnrolledCourseCard({
             <div className='flex flex-col md:flex-row justify-between items-start gap-4'>
               <div>
                 <div className='flex items-center gap-2 mb-2'>
-                  <Badge className='bg-slate-900/5 text-slate-500 border-none font-black text-[9px] uppercase tracking-widest'>
+                  <Badge className='bg-foreground/5 text-muted-foreground border-none font-black text-[9px] uppercase tracking-widest'>
                     {course.category?.name || 'Uncategorized'}
                   </Badge>
                   {isCompleted && (
@@ -111,22 +111,22 @@ export function EnrolledCourseCard({
                     </Badge>
                   )}
                 </div>
-                <h4 className='text-2xl font-black text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors leading-tight'>
+                <h4 className='text-2xl font-black text-foreground tracking-tight group-hover:text-indigo-600 transition-colors leading-tight'>
                   {course.title || 'Untitled Course'}
                 </h4>
-                <p className='text-sm font-bold text-slate-400 mt-1'>
+                <p className='text-sm font-bold text-muted-foreground mt-1'>
                   with{' '}
-                  <span className='text-slate-600'>
+                  <span className='text-muted-foreground'>
                     {course.teacher?.name || 'Unknown Teacher'}
                   </span>
                 </p>
               </div>
 
               <div className='text-left md:text-right shrink-0'>
-                <span className='text-4xl font-black text-slate-900 tracking-tighter italic'>
+                <span className='text-4xl font-black text-foreground tracking-tighter italic'>
                   {progress}%
                 </span>
-                <p className='text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1'>
+                <p className='text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1'>
                   {isCompleted ? 'Completion' : 'Mastery Level'}
                 </p>
               </div>
@@ -134,7 +134,7 @@ export function EnrolledCourseCard({
 
             {/* Progress Section */}
             <div className='space-y-5'>
-              <div className='relative h-2.5 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100 shadow-inner'>
+              <div className='relative h-2.5 w-full bg-muted rounded-full overflow-hidden border border-border shadow-inner'>
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
@@ -149,14 +149,14 @@ export function EnrolledCourseCard({
               <div className='flex flex-col sm:flex-row items-center justify-between gap-4'>
                 <div className='flex items-center gap-6'>
                   <div className='flex items-center gap-2'>
-                    <Clock className='h-3.5 w-3.5 text-slate-400' />
-                    <span className='text-[10px] font-black text-slate-500 uppercase tracking-tight'>
+                    <Clock className='h-3.5 w-3.5 text-muted-foreground' />
+                    <span className='text-[10px] font-black text-muted-foreground uppercase tracking-tight'>
                       {formatDuration(course.totalDuration)} Total
                     </span>
                   </div>
                   <div className='flex items-center gap-2'>
                     <Zap className='h-3.5 w-3.5 text-orange-500 fill-orange-500/20' />
-                    <span className='text-[10px] font-black text-slate-500 uppercase tracking-tight'>
+                    <span className='text-[10px] font-black text-muted-foreground uppercase tracking-tight'>
                       {course.lessonCount} Lessons
                     </span>
                   </div>

@@ -18,7 +18,6 @@ const ROUTE_CONFIG = {
     '/auth/register',
     '/auth/forgot-password',
     '/auth/reset-password',
-    '/demo',
     '/welcome',
     '/courses',
     '/terms',
@@ -33,6 +32,7 @@ const ROUTE_CONFIG = {
     '/api/auth/session',
     '/api/auth/logout',
     '/api/public',
+    '/showcase',
   ],
   // Public route patterns (regex patterns for dynamic routes)
   publicPatterns: [
@@ -42,7 +42,7 @@ const ROUTE_CONFIG = {
   roleBasedRoutes: {
     STUDENT: ['/dashboard/student'],
     TEACHER: ['/dashboard/teacher'],
-    ADMIN: ['/admin', '/dashboard/admin'],
+    ADMIN: ['/admin'],
     PENDING_TEACHER: ['/dashboard/teacher/pending'],
   },
   // Protected routes (any authenticated user)
@@ -155,6 +155,27 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Redirect legacy admin routes to new merged pages
+  if (pathname.startsWith('/dashboard/admin')) {
+    const newPath = pathname.replace('/dashboard/admin', '/admin');
+    return NextResponse.redirect(new URL(newPath, request.url));
+  }
+  if (pathname.startsWith('/admin/users')) {
+    const url = new URL('/admin/people', request.url);
+    url.search = request.nextUrl.search; // preserve query params
+    return NextResponse.redirect(url);
+  }
+  if (pathname.startsWith('/admin/teachers')) {
+    const url = new URL('/admin/people', request.url);
+    url.searchParams.set('tab', 'applications');
+    return NextResponse.redirect(url);
+  }
+  if (pathname.startsWith('/admin/wallet')) {
+    const url = new URL('/admin/finances', request.url);
+    url.search = request.nextUrl.search;
+    return NextResponse.redirect(url);
+  }
+
   // Allow public routes
   if (matchesRoute(pathname, ROUTE_CONFIG.public)) {
     return NextResponse.next();
@@ -167,9 +188,6 @@ export async function middleware(request: NextRequest) {
 
   // Verify authentication for protected routes
   const auth = await verifyAuth(request);
-  console.log(
-    `Middleware Path: ${pathname}, Authenticated: ${auth.authenticated}, EmailVerified: ${auth.emailVerified}`
-  );
 
   // Redirect to login if not authenticated
   if (!auth.authenticated) {

@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
         category: true,
       },
       orderBy: { createdAt: 'desc' },
+      take: 100,
     });
 
     const publishedCount = courses.filter(c => c.status === 'PUBLISHED').length;

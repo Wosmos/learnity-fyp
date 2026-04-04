@@ -14,7 +14,7 @@ import {
   requiresAuthentication,
 } from '@/lib/utils/auth-redirect.utils';
 import { UserRole } from '@/types/auth';
-import { useClientAuth } from './useClientAuth';
+import { useAuth } from './useAuth';
 
 export interface UseAuthRedirectOptions {
   enabled?: boolean;
@@ -46,7 +46,7 @@ export function useAuthRedirect(
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, loading, isAuthenticated, claims } = useClientAuth();
+  const { user, loading, isAuthenticated, claims } = useAuth();
 
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
@@ -190,7 +190,7 @@ export function useAuthRedirect(
  * Simplified version focused on home page use case with enhanced error handling
  */
 export function useHomeAuthRedirect(): UseAuthRedirectReturn {
-  const { user, loading, isAuthenticated, claims } = useClientAuth();
+  const { user, loading, isAuthenticated, claims } = useAuth();
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);

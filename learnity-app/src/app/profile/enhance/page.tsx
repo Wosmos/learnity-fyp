@@ -39,7 +39,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useAuthenticatedApi } from '@/hooks/useAuthenticatedFetch';
 import { ProfileEnhancementForm } from '@/components/profile/ProfileEnhancementForm';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
@@ -78,7 +78,7 @@ interface ProfileError {
 }
 
 export default function ProfileEnhancePage() {
-  const { user, loading: authLoading } = useClientAuth();
+  const { user, loading: authLoading } = useAuth();
   const api = useAuthenticatedApi();
   const router = useRouter();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
@@ -161,7 +161,7 @@ export default function ProfileEnhancePage() {
   // Error state UI
   if (error && !loadingProfile) {
     return (
-      <div className='min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4'>
+      <div className='min-h-screen bg-background flex items-center justify-center p-4'>
         <Card className='w-full max-w-md border border-red-200'>
           <CardHeader>
             <div className='flex items-center gap-2 text-red-600'>
@@ -170,7 +170,7 @@ export default function ProfileEnhancePage() {
             </div>
           </CardHeader>
           <CardContent className='space-y-4'>
-            <p className='text-gray-600'>{error.message}</p>
+            <p className='text-muted-foreground'>{error.message}</p>
             <Button
               onClick={() => fetchProfileData(true)}
               disabled={isFetching}
@@ -178,7 +178,7 @@ export default function ProfileEnhancePage() {
             >
               {isFetching ? 'Retrying...' : 'Try Again'}
             </Button>
-            <p className='text-xs text-gray-500 text-center'>
+            <p className='text-xs text-muted-foreground text-center'>
               Last attempt: {new Date(error.timestamp).toLocaleTimeString()}
             </p>
           </CardContent>
@@ -189,7 +189,7 @@ export default function ProfileEnhancePage() {
   console.log(profileData, 'this is  profileData');
 
   return (
-    <div className='min-h-screen bg-[#F8FAFC]'>
+    <div className='min-h-screen bg-background'>
       {/* Header */}
 
       <header className='sticky top-0 z-40'>
@@ -234,7 +234,7 @@ export default function ProfileEnhancePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: item.delay }}
           >
-            <Card className='relative overflow-hidden border border-slate-200/50 bg-white shadow-sm rounded-2xl group transition-all duration-500 hover:shadow-md py-1 px-2'>
+            <Card className='relative overflow-hidden border border-border/50 bg-card shadow-sm rounded-2xl group transition-all duration-500 hover:shadow-md py-1 px-2'>
               <CardContent className='p-6'>
                 <div className='flex flex-col gap-4'>
                   <div className='flex items-center justify-between'>
@@ -253,14 +253,14 @@ export default function ProfileEnhancePage() {
                   </div>
 
                   <div>
-                    <p className='text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1'>
+                    <p className='text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1'>
                       {item.label}
                     </p>
                     <div className='flex items-baseline gap-2'>
-                      <p className='text-3xl font-black text-slate-900 tracking-tighter'>
+                      <p className='text-3xl font-black text-foreground tracking-tighter'>
                         {item.value}
                       </p>
-                      <span className='text-[9px] font-bold text-slate-500 uppercase'>
+                      <span className='text-[9px] font-bold text-muted-foreground uppercase'>
                         {item.suffix}
                       </span>
                     </div>
@@ -280,7 +280,7 @@ export default function ProfileEnhancePage() {
             animate={{ opacity: 1, y: 0 }}
             className='w-full max-w-2xl mx-auto'
           >
-            <div className='relative group bg-white border border-slate-200/50 rounded-[32px] shadow-2xl shadow-indigo-100/50 overflow-hidden'>
+            <div className='relative group bg-card border border-border/50 rounded-[32px] shadow-2xl shadow-indigo-100/50 overflow-hidden'>
               {/* Cold Gradient SVG Background */}
               <div className='absolute inset-0 opacity-40 pointer-events-none'>
                 <svg
@@ -321,7 +321,7 @@ export default function ProfileEnhancePage() {
 
               <div className='relative flex flex-col md:flex-row min-h-[320px]'>
                 {/* LEFT SIDE: Identity Focus */}
-                <div className='flex-1 p-8 flex flex-col items-center justify-center space-y-5 border-b md:border-b-0 md:border-r border-slate-100/80'>
+                <div className='flex-1 p-8 flex flex-col items-center justify-center space-y-5 border-b md:border-b-0 md:border-r border-border/80'>
                   <div className='relative'>
                     <div className='absolute -inset-4 bg-indigo-500/5 rounded-full blur-2xl' />
                     <Avatar className='h-36 w-36 rounded-3xl ring-4 ring-white shadow-xl relative z-10 transition-transform duration-700 group-hover:scale-[1.03]'>
@@ -338,15 +338,15 @@ export default function ProfileEnhancePage() {
                   </div>
 
                   <div className='text-center space-y-2'>
-                    <h3 className='text-2xl font-black text-slate-900 tracking-tighter uppercase italic leading-none'>
+                    <h3 className='text-2xl font-black text-foreground tracking-tighter uppercase italic leading-none'>
                       {profileData?.firstName}{' '}
                       <span className='text-indigo-600'>
                         {profileData?.lastName}
                       </span>
                     </h3>
-                    <div className='inline-flex items-center px-3 py-1 bg-white/60 backdrop-blur-md rounded-full border border-slate-200/50 shadow-sm'>
+                    <div className='inline-flex items-center px-3 py-1 bg-card/60 backdrop-blur-md rounded-full border border-border/50 shadow-sm'>
                       <Mail className='h-3 w-3 text-indigo-500 mr-2' />
-                      <span className='text-[10px] font-bold text-slate-600 uppercase tracking-tight'>
+                      <span className='text-[10px] font-bold text-muted-foreground uppercase tracking-tight'>
                         {profileData?.email}
                       </span>
                     </div>
@@ -368,14 +368,14 @@ export default function ProfileEnhancePage() {
                           className={cn(
                             'relative w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-500 group/item',
                             isActive
-                              ? 'text-slate-900'
-                              : 'text-slate-400 hover:text-slate-600'
+                              ? 'text-foreground'
+                              : 'text-muted-foreground hover:text-foreground/80'
                           )}
                         >
                           {isActive && (
                             <motion.div
                               layoutId='activeTabVertical'
-                              className='absolute inset-0 bg-white shadow-md border border-slate-200/50 rounded-2xl'
+                              className='absolute inset-0 bg-card shadow-md border border-border/50 rounded-2xl'
                               transition={{
                                 type: 'spring',
                                 bounce: 0.15,
@@ -386,7 +386,7 @@ export default function ProfileEnhancePage() {
                           <tab.icon
                             className={cn(
                               'h-4 w-4 relative z-10 transition-colors',
-                              isActive ? 'text-indigo-600' : 'text-slate-400'
+                              isActive ? 'text-indigo-600' : 'text-muted-foreground'
                             )}
                           />
                           <span className='text-[11px] font-black uppercase tracking-widest relative z-10'>
@@ -404,11 +404,11 @@ export default function ProfileEnhancePage() {
                   </div>
 
                   {/* Subtle Footer ID */}
-                  <div className='mt-8 pt-6 border-t border-slate-200/50 flex items-center justify-between px-2'>
-                    <span className='text-[9px] font-bold text-slate-400'>
+                  <div className='mt-8 pt-6 border-t border-border/50 flex items-center justify-between px-2'>
+                    <span className='text-[9px] font-bold text-muted-foreground'>
                       NODE_REF
                     </span>
-                    <span className='text-[9px] font-black text-slate-900 tracking-widest'>
+                    <span className='text-[9px] font-black text-foreground tracking-widest'>
                       #{profileData?.id?.slice(-4) || '8821'}
                     </span>
                   </div>
@@ -424,9 +424,9 @@ export default function ProfileEnhancePage() {
             transition={{ duration: 0.5, ease: 'easeOut' }}
             className='lg:col-span-7 lg:row-span-2 h-full'
           >
-            <Card className='h-full border border-slate-200/60 bg-white/80 backdrop-blur-xl  shadow-2xl shadow-slate-200/50 rounded-[32px] overflow-hidden flex flex-col'>
+            <Card className='h-full border border-border/60 bg-card/80 backdrop-blur-xl shadow-2xl shadow-slate-200/50 rounded-[32px] overflow-hidden flex flex-col'>
               {/* Header with Dynamic Subtitle */}
-              <CardHeader className='border-b border-slate-50 pb-6'>
+              <CardHeader className='border-b border-border/30 pb-6'>
                 <div className='flex flex-col gap-1'>
                   <div className='flex items-center gap-2'>
                     <div className='p-2 rounded-xl bg-slate-900 shadow-lg shadow-slate-200'>
@@ -438,7 +438,7 @@ export default function ProfileEnhancePage() {
                       )}
                     </div>
                     <div>
-                      <CardTitle className='text-xl font-black text-slate-900 italic uppercase tracking-tighter leading-none'>
+                      <CardTitle className='text-xl font-black text-foreground italic uppercase tracking-tighter leading-none'>
                         {activeSection === 'profile' && 'Academic Profile'}
                         {activeSection === 'privacy' && 'Security Matrix'}
                       </CardTitle>

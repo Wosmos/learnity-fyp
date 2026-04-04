@@ -168,7 +168,7 @@ export default function ProgressPage() {
 
   if (isLoading) {
     return (
-      <div className='flex-1 bg-slate-50 min-h-screen'>
+      <div className='flex-1 bg-background min-h-screen'>
         <div className='max-w-[1400px] mx-auto px-6 lg:px-10 py-10'>
           <Skeleton className='h-10 w-64 mb-8' />
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10'>
@@ -185,14 +185,14 @@ export default function ProgressPage() {
 
   if (error) {
     return (
-      <div className='flex-1 bg-slate-50 min-h-screen flex items-center justify-center'>
+      <div className='flex-1 bg-background min-h-screen flex items-center justify-center'>
         <Card className='max-w-md'>
           <CardContent className='pt-6 text-center'>
             <AlertCircle className='h-12 w-12 text-red-400 mx-auto mb-4' />
-            <h3 className='text-lg font-bold text-slate-900 mb-2'>
+            <h3 className='text-lg font-bold text-foreground mb-2'>
               Failed to load progress
             </h3>
-            <p className='text-sm text-slate-500 mb-4'>{error}</p>
+            <p className='text-sm text-muted-foreground mb-4'>{error}</p>
             <Button onClick={fetchProgress}>Try Again</Button>
           </CardContent>
         </Card>
@@ -212,9 +212,9 @@ export default function ProgressPage() {
   );
 
   return (
-    <div className='flex-1 bg-slate-50 min-h-screen'>
+    <div className='flex-1 bg-background min-h-screen'>
       {/* Header */}
-      <header className='sticky top-0 z-30 w-full bg-white/80 backdrop-blur-xl border-b border-slate-200/60'>
+      <header className='sticky top-0 z-30 w-full bg-card/80 backdrop-blur-xl border-b border-border/60'>
         <div className='absolute top-0 left-0 right-0 h-[2px] bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-60' />
         <div className='max-w-[1400px] mx-auto px-6 lg:px-10 py-6'>
           <div className='flex items-center justify-between'>
@@ -223,10 +223,10 @@ export default function ProgressPage() {
                 <BarChart3 className='h-6 w-6' />
               </div>
               <div>
-                <h1 className='text-2xl font-black text-slate-900 tracking-tight'>
+                <h1 className='text-2xl font-black text-foreground tracking-tight'>
                   Learning Progress
                 </h1>
-                <p className='text-sm text-slate-500'>
+                <p className='text-sm text-muted-foreground'>
                   Track your journey and celebrate milestones
                 </p>
               </div>
@@ -294,7 +294,7 @@ export default function ProgressPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <Card className='border-slate-200/60 shadow-sm bg-white rounded-[2rem] overflow-hidden'>
+          <Card className='border-border/60 shadow-sm bg-card rounded-[2rem] overflow-hidden'>
             <CardHeader className='pb-0 pt-6 px-8'>
               <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-4'>
@@ -302,13 +302,13 @@ export default function ProgressPage() {
                     <Activity />
                   </div>
                   <div>
-                    <CardTitle className='text-xs font-black uppercase tracking-[0.2em] text-slate-900'>
+                    <CardTitle className='text-xs font-black uppercase tracking-[0.2em] text-foreground'>
                       Activity{' '}
-                      <span className='text-slate-400 font-light italic'>
+                      <span className='text-muted-foreground font-light italic'>
                         Monitor
                       </span>
                     </CardTitle>
-                    <p className='text-[9px] font-bold text-slate-400 uppercase tracking-tighter'>
+                    <p className='text-[9px] font-bold text-muted-foreground uppercase tracking-tighter'>
                       Biometric Learning Sync
                     </p>
                   </div>
@@ -437,7 +437,7 @@ export default function ProgressPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className='border-slate-200/60 shadow-sm bg-white rounded-2xl overflow-hidden'>
+            <Card className='border-border/60 shadow-sm bg-card rounded-2xl overflow-hidden'>
               <CardHeader className='pb-2 pt-8 px-8'>
                 <div className='flex items-center justify-between'>
                   <div className='flex items-center gap-4'>
@@ -445,13 +445,13 @@ export default function ProgressPage() {
                       <Target className='h-4 w-4' />
                     </div>
                     <div>
-                      <CardTitle className='text-sm font-black uppercase tracking-[0.2em] text-slate-900'>
+                      <CardTitle className='text-sm font-black uppercase tracking-[0.2em] text-foreground'>
                         Category{' '}
-                        <span className='text-slate-400 font-light italic'>
+                        <span className='text-muted-foreground font-light italic'>
                           Analysis
                         </span>
                       </CardTitle>
-                      <p className='text-[9px] font-bold text-slate-400 uppercase tracking-tighter'>
+                      <p className='text-[9px] font-bold text-muted-foreground uppercase tracking-tighter'>
                         Domain Mastery Distribution
                       </p>
                     </div>
@@ -467,20 +467,20 @@ export default function ProgressPage() {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.6 + i * 0.05 }}
-                      className='group relative p-5 rounded-3xl bg-slate-50 border border-slate-100 hover:bg-white hover:border-purple-200 hover:shadow-xl hover:shadow-purple-500/5 transition-all duration-300'
+                      className='group relative p-5 rounded-3xl bg-muted border border-border hover:bg-card hover:border-purple-200 hover:shadow-xl hover:shadow-purple-500/5 transition-all duration-300'
                     >
                       {/* Header: Title & Count */}
                       <div className='flex items-start justify-between mb-6'>
                         <div className='space-y-1'>
-                          <h4 className='font-black text-slate-900 text-xs uppercase tracking-tight group-hover:text-purple-600 transition-colors'>
+                          <h4 className='font-black text-foreground text-xs uppercase tracking-tight group-hover:text-purple-600 transition-colors'>
                             {cat.name}
                           </h4>
-                          <p className='text-[10px] font-bold text-slate-400 uppercase'>
+                          <p className='text-[10px] font-bold text-muted-foreground uppercase'>
                             {cat.enrolled} Active Protocols
                           </p>
                         </div>
-                        <div className='h-8 w-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm'>
-                          <span className='text-[10px] font-black text-slate-900'>
+                        <div className='h-8 w-8 rounded-xl bg-card border border-border flex items-center justify-center shadow-sm'>
+                          <span className='text-[10px] font-black text-foreground'>
                             {cat.completed}
                           </span>
                         </div>
@@ -489,7 +489,7 @@ export default function ProgressPage() {
                       {/* The "Power Bar" UI */}
                       <div className='space-y-3'>
                         <div className='flex justify-between items-end'>
-                          <span className='text-2xl font-black text-slate-900 tracking-tighter italic'>
+                          <span className='text-2xl font-black text-foreground tracking-tighter italic'>
                             {cat.averageProgress}%
                           </span>
                           <span className='text-[9px] font-black text-purple-600 uppercase tracking-widest mb-1'>
@@ -509,8 +509,8 @@ export default function ProgressPage() {
                       </div>
 
                       {/* Bottom Decorative Element */}
-                      <div className='mt-4 pt-3 border-t border-slate-200/50 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity'>
-                        <span className='text-[9px] font-black text-slate-400 uppercase tracking-tighter'>
+                      <div className='mt-4 pt-3 border-t border-border/50 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity'>
+                        <span className='text-[9px] font-black text-muted-foreground uppercase tracking-tighter'>
                           Telemetry Online
                         </span>
                         <ChevronRight className='h-3 w-3 text-purple-400' />
@@ -530,7 +530,7 @@ export default function ProgressPage() {
               <div className='p-2 rounded-xl bg-emerald-50'>
                 <GraduationCap className='h-4 w-4 text-emerald-600' />
               </div>
-              <h2 className='text-xl font-bold text-slate-900'>
+              <h2 className='text-xl font-bold text-foreground'>
                 Course Progress
               </h2>
             </div>
@@ -548,7 +548,7 @@ export default function ProgressPage() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 * i }}
-                className='relative group bg-white rounded-2xl border border-slate-100 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.03)] hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.08)] overflow-hidden transition-all duration-500'
+                className='relative group bg-card rounded-2xl border border-border shadow-[0_20px_40px_-15px_rgba(0,0,0,0.03)] hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.08)] overflow-hidden transition-all duration-500'
               >
                 <div className='p-8'>
                   <div className='flex flex-col lg:flex-row gap-10'>
@@ -569,22 +569,22 @@ export default function ProgressPage() {
                               )}
                             />
                           </div>
-                          <h3 className='text-2xl font-black text-slate-900 tracking-tighter leading-tight group-hover:text-indigo-600 transition-colors'>
+                          <h3 className='text-2xl font-black text-foreground tracking-tighter leading-tight group-hover:text-indigo-600 transition-colors'>
                             {course.courseTitle || 'Untitled Course'}
                           </h3>
-                          <p className='text-xs font-bold text-slate-400 uppercase tracking-tighter'>
+                          <p className='text-xs font-bold text-muted-foreground uppercase tracking-tighter'>
                             Instructor //{' '}
-                            <span className='text-slate-600'>
+                            <span className='text-muted-foreground'>
                               {course.teacher?.name || 'Unknown Teacher'}
                             </span>
                           </p>
                         </div>
 
                         <div className='text-right'>
-                          <span className='text-4xl font-black text-slate-900 tracking-tighter italic leading-none'>
+                          <span className='text-4xl font-black text-foreground tracking-tighter italic leading-none'>
                             {course.progress.percentage}%
                           </span>
-                          <p className='text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1'>
+                          <p className='text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] mt-1'>
                             Mastery
                           </p>
                         </div>
@@ -592,7 +592,7 @@ export default function ProgressPage() {
 
                       {/* Tactical Progress Bar */}
                       <div className='space-y-4'>
-                        <div className='relative h-2 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100 shadow-inner'>
+                        <div className='relative h-2 w-full bg-muted rounded-full overflow-hidden border border-border shadow-inner'>
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{
@@ -607,12 +607,12 @@ export default function ProgressPage() {
                           />
                         </div>
                         <div className='flex items-center gap-6'>
-                          <div className='flex items-center gap-1.5 text-[10px] font-black text-slate-500 uppercase'>
+                          <div className='flex items-center gap-1.5 text-[10px] font-black text-muted-foreground uppercase'>
                             <MonitorPlay className='h-3 w-3 text-indigo-500' />
                             {course.progress.completedLessons}/
                             {course.progress.totalLessons} Segments
                           </div>
-                          <div className='flex items-center gap-1.5 text-[10px] font-black text-slate-500 uppercase'>
+                          <div className='flex items-center gap-1.5 text-[10px] font-black text-muted-foreground uppercase'>
                             <Clock className='h-3 w-3 text-slate-400' />
                             {formatDuration(
                               course.progress.watchedDuration
@@ -627,7 +627,7 @@ export default function ProgressPage() {
                         {course.sectionProgress.slice(0, 3).map(section => (
                           <div
                             key={section.id}
-                            className='flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50/50 border border-slate-100 group/node hover:bg-white hover:border-indigo-100 transition-all'
+                            className='flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/50 border border-border group/node hover:bg-card hover:border-indigo-100 transition-all'
                           >
                             <div
                               className={cn(
@@ -637,7 +637,7 @@ export default function ProgressPage() {
                                   : 'bg-slate-300'
                               )}
                             />
-                            <span className='text-[10px] font-black text-slate-500 group-hover/node:text-slate-900 transition-colors'>
+                            <span className='text-[10px] font-black text-muted-foreground group-hover/node:text-foreground transition-colors'>
                               {section.title}
                             </span>
                           </div>
@@ -649,11 +649,11 @@ export default function ProgressPage() {
                     <div className='lg:w-80 shrink-0'>
                       {course.status === 'COMPLETED' ? (
                         <div className='h-full rounded-3xl bg-emerald-50/50 border border-emerald-100 p-6 flex flex-col items-center justify-center text-center space-y-4'>
-                          <div className='p-4 bg-white rounded-2xl shadow-sm border border-emerald-100'>
+                          <div className='p-4 bg-card rounded-2xl shadow-sm border border-emerald-100'>
                             <Trophy className='h-8 w-8 text-emerald-500' />
                           </div>
                           <div>
-                            <h4 className='font-black text-slate-900 uppercase text-xs tracking-widest'>
+                            <h4 className='font-black text-foreground uppercase text-xs tracking-widest'>
                               Lesson Complete
                             </h4>
                             <p className='text-[10px] font-bold text-emerald-600 mt-1 uppercase'>

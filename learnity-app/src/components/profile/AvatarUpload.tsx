@@ -19,7 +19,7 @@ import {
 } from '@radix-ui/react-tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
-import { useClientAuth } from '@/hooks/useClientAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 
 interface AvatarUploadProps {
@@ -34,7 +34,7 @@ export function AvatarUpload({
   onDeleteSuccess,
 }: AvatarUploadProps) {
   const { toast } = useToast();
-  const { loading: authLoading } = useClientAuth();
+  const { loading: authLoading } = useAuth();
   const authenticatedFetch = useAuthenticatedFetch();
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);

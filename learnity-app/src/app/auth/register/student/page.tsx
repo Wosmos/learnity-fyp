@@ -35,13 +35,13 @@ export default function StudentRegisterPage() {
   return (
     <AuthProvider>
       {/* Container maintains the split layout */}
-      <div className='min-h-screen bg-white lg:flex'>
+      <div className='min-h-screen bg-background lg:flex'>
 
         {/* Branding - Static Left Side */}
         <LeftSideSection />
 
         {/* Right Side - Functional Area */}
-        <div className='flex-1 flex flex-col min-h-screen relative bg-slate-50/50 lg:bg-white'>
+        <div className='flex-1 flex flex-col min-h-screen relative bg-background/50 lg:bg-card'>
 
           {/* 1. Global Utility Header (Sticky-ready) */}
           <header className='w-full flex items-center justify-between p-4 md:p-8 z-20'>
@@ -50,13 +50,13 @@ export default function StudentRegisterPage() {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold">L</span>
               </div>
-              <span className='font-bold text-xl tracking-tighter text-slate-900'>Learnity</span>
+              <span className='font-bold text-xl tracking-tighter text-foreground'>Learnity</span>
             </div>
 
             {/* Desktop Navigation Group */}
             <div className='hidden lg:flex items-center gap-4'>
               <Link href='/auth/register'>
-                <Button variant='ghost' size="sm" className='text-slate-500 hover:text-slate-900 font-medium'>
+                <Button variant='ghost' size="sm" className='text-muted-foreground hover:text-foreground font-medium'>
                   <ChevronLeft className='h-4 w-4 mr-1' />
                   Roles
                 </Button>
@@ -66,7 +66,7 @@ export default function StudentRegisterPage() {
             {/* Secondary Action Group */}
             <div className="flex items-center gap-3">
               <Link href='/auth/register/teacher' className="hidden md:block">
-                <Button variant='outline' size="sm" className="border-slate-200 text-slate-600">
+                <Button variant='outline' size="sm" className="border-border text-muted-foreground">
                   Become a Teacher
                 </Button>
               </Link>
@@ -81,16 +81,16 @@ export default function StudentRegisterPage() {
           {/* 2. Main Form Content Area */}
           <main className='flex-1 flex flex-col justify-center px-6 py-10'>
             <div className='w-full max-w-[580px] mx-auto'>
-              <div className="bg-white lg:bg-transparent p-6 md:p-0 rounded-3xl shadow-sm lg:shadow-none border border-slate-100 lg:border-none">
+              <div className="bg-card lg:bg-transparent p-6 md:p-0 rounded-3xl shadow-sm lg:shadow-none border border-border lg:border-none">
                 {registrationStep === 'verification' ? (
                   <div className="py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="bg-white rounded-3xl p-8 text-center space-y-6 shadow-xl border border-slate-100">
+                    <div className="bg-card rounded-3xl p-8 text-center space-y-6 shadow-xl border border-border">
                       <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-blue-200 rotate-3">
                         <UserCircle className="h-10 w-10 text-white" />
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-2xl font-bold text-slate-900 italic uppercase tracking-tight">Check your inbox</h3>
-                        <p className="text-slate-500 font-medium">
+                        <h3 className="text-2xl font-bold text-foreground italic uppercase tracking-tight">Check your inbox</h3>
+                        <p className="text-muted-foreground font-medium">
                           We've sent a verification link to your email. Please click the link to activate your student account.
                         </p>
                       </div>
@@ -102,7 +102,7 @@ export default function StudentRegisterPage() {
                         >
                           I've verified my email
                         </Button>
-                        <p className="text-xs text-slate-400 mt-4">
+                        <p className="text-xs text-muted-foreground mt-4">
                           Didn't receive it? <button className="text-blue-600 hover:underline font-semibold" onClick={() => window.location.reload()}>Click here to refresh</button>
                         </p>
                       </div>
@@ -122,7 +122,7 @@ export default function StudentRegisterPage() {
 
           {/* 3. Footer / Mobile Back Button */}
           <footer className="p-8 lg:hidden text-center">
-            <Link href='/auth/register' className="text-sm font-medium text-slate-400 hover:text-blue-600">
+            <Link href='/auth/register' className="text-sm font-medium text-muted-foreground hover:text-blue-600">
               Change Role Selection
             </Link>
           </footer>

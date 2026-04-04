@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/config/database';
+import { prisma } from '@/lib/prisma';
 import { adminAuth } from '@/lib/config/firebase-admin';
 import { BlobStorageService } from '@/lib/services/blob.service';
 

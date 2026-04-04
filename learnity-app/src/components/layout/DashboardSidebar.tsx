@@ -9,6 +9,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Home,
@@ -28,10 +29,7 @@ import {
   ChevronRight,
   ChevronDown,
   Shield,
-  BarChart3,
   UserCheck,
-  Play,
-  Lock,
   Layers,
   MessageCircle,
   Wallet,
@@ -40,6 +38,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLogout } from '@/hooks/useLogout';
 
@@ -117,28 +116,12 @@ const studentNavItems: NavItem[] = [
 ];
 
 const adminNavItems: NavItem[] = [
-  { label: 'Overview', href: '/dashboard/admin', icon: Home },
-  { 
-    label: 'Management', 
-    href: '/admin', 
-    icon: Shield,
-    children: [
-      { label: 'Security Hub', href: '/admin', icon: Shield },
-      { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-      { label: 'Users', href: '/admin/users', icon: Users },
-      { label: 'Applications', href: '/admin/teachers', icon: UserCheck },
-    ]
-  },
-  { label: 'Finances', href: '/admin/wallet', icon: Wallet },
-  { 
-    label: 'Tools', 
-    href: '/admin/demo', 
-    icon: Play,
-    children: [
-      { label: 'Demo Tools', href: '/admin/demo', icon: Play },
-      { label: 'Auth Debug', href: '/admin/auth-test', icon: Lock },
-    ]
-  },
+  { label: 'Overview', href: '/admin', icon: Home },
+  { label: 'People', href: '/admin/people', icon: Users },
+  { label: 'Content', href: '/admin/content', icon: BookOpen },
+  { label: 'Finances', href: '/admin/finances', icon: Wallet },
+  { label: 'Engagement', href: '/admin/engagement', icon: Award },
+  { label: 'Security', href: '/admin/security', icon: Shield },
 ];
 
 export const teacherSidebarConfig: SidebarConfig = {
@@ -261,7 +244,7 @@ const DesktopSidebarContent = ({
               !isCollapsed && 'shadow-lg shadow-blue-900/20'
             )}
           >
-            <img src='/logo.svg' alt='Learnity' className='h-5 w-5' />
+            <Image src='/logo.svg' alt='Learnity' width={20} height={20} />
           </div>
           <div
             className={cn(
@@ -453,17 +436,20 @@ const DesktopSidebarContent = ({
           </div>
         )}
 
-        <Button
-          variant='ghost'
-          onClick={onLogout}
-          className={cn(
-            'w-full justify-start h-9 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30',
-            isCollapsed ? 'px-0 justify-center' : 'px-2'
-          )}
-        >
-          <LogOut className={cn('h-4 w-4', !isCollapsed && 'mr-2')} />
-          {!isCollapsed && 'Log out'}
-        </Button>
+        <div className={cn('flex items-center', isCollapsed ? 'justify-center' : 'justify-between')}>
+          <Button
+            variant='ghost'
+            onClick={onLogout}
+            className={cn(
+              'justify-start h-9 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30',
+              isCollapsed ? 'px-0 justify-center w-full' : 'px-2 flex-1'
+            )}
+          >
+            <LogOut className={cn('h-4 w-4', !isCollapsed && 'mr-2')} />
+            {!isCollapsed && 'Log out'}
+          </Button>
+          {!isCollapsed && <ThemeToggle compact />}
+        </div>
       </div>
     </div>
   );

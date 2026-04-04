@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma as prismaClient } from '@/lib/prisma';
 import { adminAuth } from '@/lib/config/firebase-admin';
 import { tokenManager } from '@/lib/services/token-manager.service';
 import { IRoleManager } from '@/lib/interfaces/auth';
@@ -12,11 +12,7 @@ import {
 } from '@/types/auth';
 
 export class RoleManagerService implements IRoleManager {
-  private readonly prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  private readonly prisma = prismaClient;
 
   private readonly ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     [UserRole.STUDENT]: [
