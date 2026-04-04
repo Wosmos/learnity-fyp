@@ -181,3 +181,11 @@ Stripped all `console.log`/`console.warn`/`console.error` from:
 - Deleted 3 empty files: `admin/utils.ts`, `externals/faq.tsx`, `externals/header.tsx`
 - Removed analytics/settings from admin sidebar nav
 - Removed `BarChart3` unused import from DashboardSidebar
+
+### Server Component Migration (use client reduction)
+- Created `src/lib/auth/server.ts` — `getServerUser()` utility using React `cache()`, reads session cookie, verifies with Firebase Admin SDK, returns DB user. Foundation for all server component pages.
+- Converted `not-found.tsx` to server component (zero hooks, pure CSS)
+- Converted `student/courses/page.tsx` from client → server component:
+  - Data fetched directly with Prisma (no API round-trip, no loading spinner)
+  - Interactive UI (tabs, navigation) extracted to `StudentCoursesClient.tsx`
+  - Pattern: server component fetches → passes data as props → client handles interactivity
