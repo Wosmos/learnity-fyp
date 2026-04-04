@@ -117,9 +117,9 @@ const studentNavItems: NavItem[] = [
 
 const adminNavItems: NavItem[] = [
   { label: 'Overview', href: '/admin', icon: Home },
-  { label: 'Users', href: '/admin/users', icon: Users },
-  { label: 'Applications', href: '/admin/teachers', icon: UserCheck },
-  { label: 'Finances', href: '/admin/wallet', icon: Wallet },
+  { label: 'People', href: '/admin/people', icon: Users },
+  { label: 'Content', href: '/admin/content', icon: BookOpen },
+  { label: 'Finances', href: '/admin/finances', icon: Wallet },
   { label: 'Security', href: '/admin/security', icon: Shield },
 ];
 
