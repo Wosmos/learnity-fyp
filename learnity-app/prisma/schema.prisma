@@ -196,6 +196,7 @@ model AuditLog {
   @@index([createdAt])
   @@index([success])
   @@index([ipAddress])
+  @@index([ipAddress, eventType, success, createdAt])
   @@map("audit_logs")
 }
 
@@ -411,6 +412,8 @@ model Enrollment {
   @@index([studentId])
   @@index([courseId])
   @@index([status])
+  @@index([lastAccessedAt])
+  @@index([studentId, status])
   @@map("enrollments")
 }
 
@@ -430,6 +433,7 @@ model LessonProgress {
   @@unique([studentId, lessonId])
   @@index([studentId])
   @@index([lessonId])
+  @@index([studentId, completed, completedAt])
   @@map("lesson_progress")
 }
 
@@ -447,6 +451,7 @@ model Review {
   @@unique([studentId, courseId])
   @@index([courseId])
   @@index([rating])
+  @@index([courseId, createdAt])
   @@map("reviews")
 }
 
@@ -492,6 +497,7 @@ model XPActivity {
   @@index([userId])
   @@index([createdAt])
   @@index([reason])
+  @@index([userId, createdAt(sort: Desc)])
   @@map("xp_activities")
 }
 

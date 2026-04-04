@@ -152,3 +152,25 @@ Stripped all `console.log`/`console.warn`/`console.error` from:
 ---
 
 **Net impact:** ~1,550 lines added, ~11,500 lines deleted. 152 files changed.
+
+---
+
+## Phase 1 — Scalability Critical Fixes (2026-04-04)
+
+### Database Connection Pool
+- `prisma.ts` now appends `connection_limit=20&pool_timeout=30` to DATABASE_URL (was default ~4 connections)
+
+### Security: Missing Auth Fixed
+- `/api/admin/teachers/applications/[applicationId]` — GET and PUT now require admin auth via `authMiddleware`. Removed `user = null; // TODO` pattern.
+
+### Unbounded Query Fixes
+- `/api/student/progress` — paginated enrollments (take 10, max 20), `select` instead of deep `include`, aggregate queries for overview stats instead of in-memory calculation on all data
+- `/api/teachers/[id]/reviews` — paginated (take 20, max 50), stats via `groupBy` aggregate instead of loading all reviews into memory
+- `/api/admin/users` — limit param capped at `Math.min(100, limit)` with floor validation
+
+### Database Indexes
+- `Enrollment`: compound `@@index([studentId, status])`, `@@index([lastAccessedAt])`
+- `LessonProgress`: compound `@@index([studentId, completed, completedAt])`
+- `Review`: compound `@@index([courseId, createdAt])`
+- `XPActivity`: compound `@@index([userId, createdAt(sort: Desc)])`
+- `AuditLog`: compound `@@index([ipAddress, eventType, success, createdAt])` for rate limiting queries

@@ -10,6 +10,11 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+// Append connection pool config for Neon serverless
+const databaseUrl = env.DATABASE_URL.includes('connection_limit')
+  ? env.DATABASE_URL
+  : `${env.DATABASE_URL}${env.DATABASE_URL.includes('?') ? '&' : '?'}connection_limit=20&pool_timeout=30`;
+
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
@@ -17,7 +22,7 @@ export const prisma =
       env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
     datasources: {
       db: {
-        url: env.DATABASE_URL,
+        url: databaseUrl,
       },
     },
   });

@@ -6,56 +6,44 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
+  const { searchParams } = new URL(request.url);
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20', 10)));
 
   try {
-    // Get all reviews for courses taught by this teacher
-    const reviews = await prisma.review.findMany({
-      where: {
-        course: {
-          teacherId: id,
-        },
-      },
-      include: {
-        student: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            profilePicture: true,
-          },
-        },
-        course: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+    const where = { course: { teacherId: id } } as const;
 
-    // Calculate statistics
-    const totalReviews = reviews.length;
+    // Fetch paginated reviews and stats in parallel
+    const [reviews, totalReviews, ratingAgg] = await Promise.all([
+      prisma.review.findMany({
+        where,
+        include: {
+          student: {
+            select: { id: true, firstName: true, lastName: true, profilePicture: true },
+          },
+          course: {
+            select: { id: true, title: true, slug: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.review.count({ where }),
+      prisma.review.groupBy({
+        by: ['rating'],
+        where,
+        _count: true,
+      }),
+    ]);
+
     const averageRating =
       totalReviews > 0
-        ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews
+        ? ratingAgg.reduce((sum, r) => sum + r.rating * r._count, 0) / totalReviews
         : 0;
 
-    // Calculate rating distribution
-    const ratingDistribution: { [key: number]: number } = {
-      1: 0,
-      2: 0,
-      3: 0,
-      4: 0,
-      5: 0,
-    };
-
-    reviews.forEach(review => {
-      ratingDistribution[review.rating]++;
-    });
+    const ratingDistribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    ratingAgg.forEach(r => { ratingDistribution[r.rating] = r._count; });
 
     const formattedReviews = reviews.map(review => ({
       id: review.id,
@@ -81,8 +69,14 @@ export async function GET(
       reviews: formattedReviews,
       stats: {
         totalReviews,
-        averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal
+        averageRating: Math.round(averageRating * 10) / 10,
         ratingDistribution,
+      },
+      pagination: {
+        page,
+        limit,
+        totalPages: Math.ceil(totalReviews / limit),
+        hasMore: page * limit < totalReviews,
       },
     });
   } catch (error) {
