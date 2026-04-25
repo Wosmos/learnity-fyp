@@ -1,14 +1,18 @@
 'use client';
 
-import { Play, Sparkles, Quote, GraduationCap, Award, BookOpen, CheckCircle, TrendingUp, Zap, Flame, Target } from 'lucide-react';
+import { useState } from 'react';
+import { Play, Sparkles, Quote, GraduationCap, Award, BookOpen, CheckCircle, TrendingUp, Zap, Flame, Target, HelpCircle, ChevronUp, ChevronDown } from 'lucide-react';
 import { TeacherData } from './types';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface TeacherOverviewProps {
     teacher: TeacherData;
 }
 
 export function TeacherOverview({ teacher }: TeacherOverviewProps) {
+    const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
+
     return (
         <div className='space-y-12 max-w-5xl'>
 
@@ -196,6 +200,47 @@ export function TeacherOverview({ teacher }: TeacherOverviewProps) {
                     </div>
                 </div>
             </div>
+
+            {/* FAQs */}
+            {teacher.faqs && teacher.faqs.length > 0 && (
+                <Card>
+                    <CardContent className='p-6'>
+                        <h2 className='text-sm font-black uppercase tracking-[0.3em] text-slate-400 mb-4 flex items-center gap-2'>
+                            <HelpCircle className='h-4 w-4 text-orange-500' />
+                            Frequently Asked Questions
+                        </h2>
+                        <div className='space-y-3'>
+                            {teacher.faqs.map((faq, index) => (
+                                <div
+                                    key={index}
+                                    className='border border-border rounded-lg overflow-hidden'
+                                >
+                                    <button
+                                        onClick={() =>
+                                            setExpandedFAQ(expandedFAQ === index ? null : index)
+                                        }
+                                        className='w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors'
+                                    >
+                                        <span className='font-semibold text-foreground pr-4'>
+                                            {faq.question}
+                                        </span>
+                                        {expandedFAQ === index ? (
+                                            <ChevronUp className='h-5 w-5 text-muted-foreground flex-shrink-0' />
+                                        ) : (
+                                            <ChevronDown className='h-5 w-5 text-muted-foreground flex-shrink-0' />
+                                        )}
+                                    </button>
+                                    {expandedFAQ === index && (
+                                        <div className='px-4 pb-4 text-muted-foreground border-t border-border pt-3'>
+                                            {faq.answer}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
         </div>
     );
 }

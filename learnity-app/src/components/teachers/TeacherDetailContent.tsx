@@ -9,11 +9,10 @@ import { useEffect, useState } from 'react';
 import { TeacherProfileHeader } from './profile/TeacherProfileHeader';
 import { TeacherHero } from './profile/TeacherHero';
 import { TeacherOverview } from './profile/TeacherOverview';
-import { TeacherReviews } from './profile/TeacherReviews';
 import { TeacherCourses } from './profile/TeacherCourses';
 import { TeacherActualReviews } from './profile/TeacherActualReviews';
 import { TeacherSidebar } from './profile/TeacherSidebar';
-import { TeacherData, Testimonial } from './profile/types';
+import { TeacherData } from './profile/types';
 
 interface TeacherDetailProps {
   teacher: TeacherData;
@@ -35,7 +34,6 @@ export function TeacherDetailContent({
   teacher: initialTeacher,
 }: TeacherDetailProps) {
   const [teacher, setTeacher] = useState(initialTeacher);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
 
   const initials =
@@ -47,18 +45,6 @@ export function TeacherDetailContent({
     ) % gradients.length
     ];
 
-  // Calculate rating distribution
-  const getRatingDistribution = () => {
-    const total = teacher.reviewCount;
-    return [
-      { stars: 5, percentage: 85, count: Math.floor(total * 0.85) },
-      { stars: 4, percentage: 10, count: Math.floor(total * 0.1) },
-      { stars: 3, percentage: 3, count: Math.floor(total * 0.03) },
-      { stars: 2, percentage: 1, count: Math.floor(total * 0.01) },
-      { stars: 1, percentage: 1, count: Math.floor(total * 0.01) },
-    ];
-  };
-
   useEffect(() => {
     // Fetch complete teacher data with testimonials
     async function fetchTeacherData() {
@@ -68,7 +54,6 @@ export function TeacherDetailContent({
         const data = await response.json();
         if (data.success) {
           setTeacher(data.teacher);
-          setTestimonials(data.teacher.testimonials || []);
         }
       } catch (error) {
         console.error('Error fetching teacher data:', error);
@@ -135,11 +120,6 @@ export function TeacherDetailContent({
                 <TeacherActualReviews
                   teacherId={teacher.id}
                   teacherName={teacher.name}
-                />
-                <TeacherReviews
-                  teacher={teacher}
-                  testimonials={testimonials}
-                  getRatingDistribution={getRatingDistribution}
                 />
               </TabsContent>
             </Tabs>

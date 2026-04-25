@@ -155,7 +155,7 @@ const nextConfig: NextConfig = {
         source: '/(.*)',
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(self), geolocation=()' },
@@ -172,7 +172,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https: http:",
               "font-src 'self' https://fonts.gstatic.com",
               "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebase.com wss://*.firebaseio.com https://*.neon.tech https://*.100ms.live https://*.stream-io-api.com https://*.getstream.io",
-              "frame-src 'self' https://*.firebaseapp.com https://*.100ms.live",
+              "frame-src 'self' https://*.firebaseapp.com https://*.100ms.live https://www.youtube.com https://youtube.com",
               "media-src 'self' https: blob:",
               "worker-src 'self' blob:",
             ].join('; '),
